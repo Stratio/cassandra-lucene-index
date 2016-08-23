@@ -18,14 +18,13 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.builder.GeoShapeMapperBuilder;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.lucene.index.IndexableField;
 import org.junit.Test;
 
 import java.util.List;
 
+import static com.stratio.cassandra.lucene.common.GeoTransformation.BBox;
 import static com.stratio.cassandra.lucene.common.GeoTransformation.Centroid;
-import static com.stratio.cassandra.lucene.common.GeoTransformation.Difference;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.geoShapeMapper;
 import static org.junit.Assert.*;
 
@@ -49,7 +48,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
         GeoShapeMapper mapper = geoShapeMapper().column("column")
                                                 .validated(true)
                                                 .maxLevels(10)
-                                                .transformations(new Centroid(), new Difference("POINT (10 10)"))
+                                                .transformations(new Centroid(), new BBox())
                                                 .build("field");
         assertEquals("Field name is not properly set", "field", mapper.field);
         assertTrue("Validated is not properly set", mapper.validated);
@@ -250,10 +249,10 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
         GeoShapeMapper mapper = geoShapeMapper().validated(true)
                                                 .column("column")
                                                 .maxLevels(10)
-                                                .transformations(new Centroid(), new Difference("POINT (10 10)"))
+                                                .transformations(new Centroid(), new BBox())
                                                 .build("field");
         String exp = "GeoShapeMapper{field=field, column=column, validated=true, maxLevels=10, " +
-                     "transformations=[Centroid{}, Difference{other=POINT (10 10)}]}";
+                     "transformations=[Centroid{}, BBox{}]}";
         assertEquals("Method #toString is wrong", exp, mapper.toString());
     }
 }

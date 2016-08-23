@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.geospatial;
 
-import com.stratio.cassandra.lucene.builder.common.GeoTransformation;
+import com.stratio.cassandra.lucene.builder.common.GeoShape;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsSelect;
@@ -135,8 +135,8 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
         return utils.filter(geoShape("shape", shape).operation(operation));
     }
 
-    private CassandraUtilsSelect filter(String shape, String operation, GeoTransformation... transformations) {
-        return utils.filter(geoShape("shape", shape).operation(operation).transform(transformations));
+    private CassandraUtilsSelect filter(GeoShape shape, String operation) {
+        return utils.filter(geoShape("shape", shape).operation(operation));
     }
 
     @Test
@@ -383,21 +383,21 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
 
     @Test
     public void testBufferIntersectsShape() {
-        filter("LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001,-3.785691299999999 " +
-               "40.445020199999995)", "intersects", bufferGeoTransformation().maxDistance("500m"))
+        filter(buffer("LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                      "-3.785691299999999 40.445020199999995)").maxDistance("500m"), "intersects")
                 .checkUnorderedColumns("place", "SHAPE_1", "SHAPE_2", "SHAPE_3");
     }
 
     @Test
     public void testBufferContainsShape() {
-        filter("LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001,-3.785691299999999 " +
-               "40.445020199999995)", "contains", bufferGeoTransformation().maxDistance("500m")).check(0);
+        filter(buffer("LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                      "-3.785691299999999 40.445020199999995)").maxDistance("500m"), "contains").check(0);
     }
 
     @Test
     public void testBufferIsWithinShape() {
-        filter("LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001,-3.785691299999999 " +
-               "40.445020199999995)", "is_within", bufferGeoTransformation().maxDistance("500m")).check(0);
+        filter(buffer("LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                      "-3.785691299999999 40.445020199999995)").maxDistance("500m"), "is_within").check(0);
     }
 
     @Test

@@ -27,10 +27,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformation.BBox.class, name = "bbox"),
                @JsonSubTypes.Type(value = GeoTransformation.Buffer.class, name = "buffer"),
                @JsonSubTypes.Type(value = GeoTransformation.Centroid.class, name = "centroid"),
-               @JsonSubTypes.Type(value = GeoTransformation.ConvexHull.class, name = "convex_hull"),
-               @JsonSubTypes.Type(value = GeoTransformation.Difference.class, name = "difference"),
-               @JsonSubTypes.Type(value = GeoTransformation.Intersection.class, name = "intersection"),
-               @JsonSubTypes.Type(value = GeoTransformation.Union.class, name = "union")})
+               @JsonSubTypes.Type(value = GeoTransformation.ConvexHull.class, name = "convex_hull")})
 public abstract class GeoTransformation extends JSONBuilder {
 
     /**
@@ -42,7 +39,7 @@ public abstract class GeoTransformation extends JSONBuilder {
     }
 
     /**
-     * {@link GeoTransformation} for getting the bounding shape of a JTS geographical shape.
+     * {@link GeoTransformation} for getting the buffer around a JTS geographical shape.
      */
     public static class Buffer extends GeoTransformation {
 
@@ -88,66 +85,6 @@ public abstract class GeoTransformation extends JSONBuilder {
      * {@link GeoTransformation} that gets the convex hull of a JTS geographical shape.
      */
     public static class ConvexHull extends GeoTransformation {
-
-    }
-
-    /**
-     * {@link GeoTransformation} that gets the difference of two JTS geographical shapes.
-     */
-    public static class Difference extends GeoTransformation {
-
-        /** The other shape. */
-        @JsonProperty("shape")
-        public final String shape;
-
-        /**
-         * Constructor receiving the geometry to be subtracted.
-         *
-         * @param shape the geometry to be subtracted in WKT format
-         */
-        public Difference(String shape) {
-            this.shape = shape;
-        }
-
-    }
-
-    /**
-     * {@link GeoTransformation} that gets the intersection of two JTS geographical shapes.
-     */
-    public static class Intersection extends GeoTransformation {
-
-        /** The other shape. */
-        @JsonProperty("shape")
-        public final String shape;
-
-        /**
-         * Constructor receiving the geometry to be intersected.
-         *
-         * @param shape the geometry to be intersected in WKT format
-         */
-        public Intersection(String shape) {
-            this.shape = shape;
-        }
-
-    }
-
-    /**
-     * {@link GeoTransformation} that gets the union of two JTS geographical shapes.
-     */
-    public static class Union extends GeoTransformation {
-
-        /** The other shape. */
-        @JsonProperty("shape")
-        public final String shape;
-
-        /**
-         * Constructor receiving the geometry to be added.
-         *
-         * @param shape the geometry to be added in WKT format
-         */
-        public Union(String shape) {
-            this.shape = shape;
-        }
 
     }
 

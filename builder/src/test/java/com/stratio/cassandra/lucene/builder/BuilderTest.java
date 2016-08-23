@@ -16,7 +16,10 @@
 package com.stratio.cassandra.lucene.builder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stratio.cassandra.lucene.builder.common.GeoShape;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
 import static org.junit.Assert.assertEquals;
@@ -240,18 +243,15 @@ public class BuilderTest {
     public void testGeoShapeMapperFull() {
         String actual = geoShapeMapper().column("shape")
                                         .maxLevels(7)
-                                        .transform(centroidGeoTransformation(),
-                                                   convexHullGeoTransformation(),
-                                                   differenceGeoTransformation("my_difference_shape"),
-                                                   intersectionGeoTransformation("my_intersection_shape"),
-                                                   unionGeoTransformation("my_union_shape"),
-                                                   bufferGeoTransformation().maxDistance("10km").minDistance("5km"))
+                                        .transform(centroid(),
+                                                   convexHull(),
+                                                   bbox(),
+                                                   buffer().maxDistance("10km").minDistance("5km"))
                                         .build();
         String expected = "{\"type\":\"geo_shape\",\"column\":\"shape\",\"max_levels\":7,\"transformations\":" +
-                          "[{\"type\":\"centroid\"},{\"type\":\"convex_hull\"}," +
-                          "{\"type\":\"difference\",\"shape\":\"my_difference_shape\"}," +
-                          "{\"type\":\"intersection\",\"shape\":\"my_intersection_shape\"}," +
-                          "{\"type\":\"union\",\"shape\":\"my_union_shape\"}," +
+                          "[{\"type\":\"centroid\"}," +
+                          "{\"type\":\"convex_hull\"}," +
+                          "{\"type\":\"bbox\"}," +
                           "{\"type\":\"buffer\",\"max_distance\":\"10km\",\"min_distance\":\"5km\"}]}";
         assertEquals("geo shape mapper serialization is wrong", expected, actual);
     }
@@ -659,32 +659,92 @@ public class BuilderTest {
     }
 
     @Test
+    public void testGeoShapeBuffer() {
+        String expected = "{\"type\":\"buffer\",\"shape\":{\"type\":\"wkt\",\"value\":\"1\"}," +
+                          "\"max_distance\":\"1\",\"min_distance\":\"2\"}";
+        assertEquals("Shape buffer is wrong", expected, buffer(wkt("1")).maxDistance("1").minDistance("2").build());
+        assertEquals("Shape buffer is wrong", expected, buffer("1").maxDistance("1").minDistance("2").build());
+    }
+
+    @Test
+    public void testGeoShapeBBox() {
+        String expected = "{\"type\":\"bbox\",\"shape\":{\"type\":\"wkt\",\"value\":\"1\"}}";
+        assertEquals("Shape bbox is wrong", expected, bbox(wkt("1")).build());
+        assertEquals("Shape bbox is wrong", expected, bbox("1").build());
+    }
+
+    @Test
+    public void testGeoShapeCentroid() {
+        String expected = "{\"type\":\"centroid\",\"shape\":{\"type\":\"wkt\",\"value\":\"1\"}}";
+        assertEquals("Shape centroid is wrong", expected, centroid(wkt("1")).build());
+        assertEquals("Shape centroid is wrong", expected, centroid("1").build());
+    }
+
+    @Test
+    public void testGeoShapeConvexHull() {
+        String expected = "{\"type\":\"convex_hull\",\"shape\":{\"type\":\"wkt\",\"value\":\"1\"}}";
+        assertEquals("Shape convex hull is wrong", expected, convexHull(wkt("1")).build());
+        assertEquals("Shape convex hull is wrong", expected, convexHull("1").build());
+    }
+
+    @Test
+    public void testGeoShapeIntersection() {
+        String expected = "{\"type\":\"intersection\",\"shapes\":[" +
+                          "{\"type\":\"wkt\",\"value\":\"1\"}," +
+                          "{\"type\":\"wkt\",\"value\":\"2\"}" +
+                          "]}";
+        assertEquals("Shape intersection is wrong", expected, intersection(wkt("1"),wkt("2")).build());
+        assertEquals("Shape intersection is wrong", expected, intersection("1","2").build());
+        assertEquals("Shape intersection is wrong", expected, intersection(Arrays.asList(wkt("1"),wkt("2"))).build());
+    }
+
+    @Test
+    public void testGeoShapeUnion() {
+        String expected = "{\"type\":\"union\",\"shapes\":[" +
+                          "{\"type\":\"wkt\",\"value\":\"1\"}," +
+                          "{\"type\":\"wkt\",\"value\":\"2\"}" +
+                          "]}";
+        assertEquals("Shape union is wrong", expected, union(wkt("1"),wkt("2")).build());
+        assertEquals("Shape union is wrong", expected, union("1","2").build());
+        assertEquals("Shape union is wrong", expected, union(Arrays.asList(wkt("1"),wkt("2"))).build());
+    }
+
+    @Test
+    public void testGeoShapeDifference() {
+        String expected = "{\"type\":\"difference\",\"shapes\":[" +
+                          "{\"type\":\"wkt\",\"value\":\"1\"}," +
+                          "{\"type\":\"wkt\",\"value\":\"2\"}" +
+                          "]}";
+        assertEquals("Shape difference is wrong", expected, difference(wkt("1"),wkt("2")).build());
+        assertEquals("Shape difference is wrong", expected, difference("1","2").build());
+        assertEquals("Shape difference is wrong", expected, difference(Arrays.asList(wkt("1"),wkt("2"))).build());
+    }
+
+    @Test
     public void testGeoShapeConditionDefaults() {
-        String actual = geoShape("field", "shape").build();
-        String expected = "{\"type\":\"geo_shape\",\"field\":\"field\",\"shape\":\"shape\"}";
+        String actual = geoShape("field", wkt("POINT(0 0)")).build();
+        String expected = "{\"type\":\"geo_shape\",\"field\":\"field\"," +
+                          "\"shape\":{\"type\":\"wkt\",\"value\":\"POINT(0 0)\"}}";
         assertEquals("geo shape condition serialization is wrong", expected, actual);
     }
 
     @Test
     public void testGeoShapeConditionFull() {
-        String actual = geoShape("f", "s").operation("intersects")
-                                          .transform(centroidGeoTransformation(),
-                                                     bboxGeoTransformation(),
-                                                     convexHullGeoTransformation(),
-                                                     differenceGeoTransformation("my_difference_shape"),
-                                                     intersectionGeoTransformation("my_intersection_shape"),
-                                                     unionGeoTransformation("my_union_shape"),
-                                                     bufferGeoTransformation().maxDistance("10km").minDistance("5km"))
-                                          .build();
-        String expected = "{\"type\":\"geo_shape\",\"field\":\"f\",\"shape\":\"s\"," +
-                          "\"operation\":\"intersects\",\"transformations\":[" +
-                          "{\"type\":\"centroid\"}," +
-                          "{\"type\":\"bbox\"}," +
-                          "{\"type\":\"convex_hull\"}," +
-                          "{\"type\":\"difference\",\"shape\":\"my_difference_shape\"}," +
-                          "{\"type\":\"intersection\",\"shape\":\"my_intersection_shape\"}," +
-                          "{\"type\":\"union\",\"shape\":\"my_union_shape\"}," +
-                          "{\"type\":\"buffer\",\"max_distance\":\"10km\",\"min_distance\":\"5km\"}]}";
+        GeoShape shape = union(difference(intersection(centroid(convexHull(bbox(buffer(wkt("POINT(0 0)"))
+                                                                                        .maxDistance("10km")
+                                                                                        .minDistance("1km")))))));
+        String actual = geoShape("f", shape).operation("intersects").build();
+        String expected = "{\"type\":\"geo_shape\",\"field\":\"f\",\"shape\":" +
+                          "{\"type\":\"union\",\"shapes\":[" +
+                          "{\"type\":\"difference\",\"shapes\":[" +
+                          "{\"type\":\"intersection\",\"shapes\":[" +
+                          "{\"type\":\"centroid\",\"shape\":" +
+                          "{\"type\":\"convex_hull\",\"shape\":" +
+                          "{\"type\":\"bbox\",\"shape\":" +
+                          "{\"type\":\"buffer\",\"shape\":" +
+                          "{\"type\":\"wkt\",\"value\":\"POINT(0 0)\"}," +
+                          "\"max_distance\":\"10km\",\"min_distance\":\"1km\"}}}}]}]}]}," +
+                          "\"operation\":\"intersects\"}";
         assertEquals("geo shape condition serialization is wrong", expected, actual);
     }
 
@@ -704,14 +764,14 @@ public class BuilderTest {
 
     @Test
     public void testGeoDistanceSortFieldDefaults() {
-        String actual = geoDistanceField("field1", 1.2, 3.4).build();
+        String actual = Builder.geoDistance("field1", 1.2, 3.4).build();
         String expected = "{\"type\":\"geo_distance\",\"field\":\"field1\",\"latitude\":1.2,\"longitude\":3.4}";
         assertEquals("sort field condition serialization is wrong", expected, actual);
     }
 
     @Test
     public void testGeoDistanceSortFieldFull() {
-        String actual = geoDistanceField("field1", 1.2, -3.4).reverse(true).build();
+        String actual = Builder.geoDistance("field1", 1.2, -3.4).reverse(true).build();
         String expected = "{\"type\":\"geo_distance\"," +
                           "\"field\":\"field1\"," +
                           "\"latitude\":1.2," +
@@ -731,7 +791,7 @@ public class BuilderTest {
     public void testSortFull() {
         String actual = search().sort(field("field1"),
                                       field("field2"),
-                                      geoDistanceField("field1", 1.0, -3.2).reverse(true)).build();
+                                      Builder.geoDistance("field1", 1.0, -3.2).reverse(true)).build();
         String expected = "{\"sort\":[{" +
                           "\"type\":\"simple\",\"field\":\"field1\"}," +
                           "{\"type\":\"simple\",\"field\":\"field2\"}," +

@@ -1,6 +1,6 @@
-++++++++++++++++++++++++++++++++
+================================
 Stratio's Cassandra Lucene Index
-++++++++++++++++++++++++++++++++
+================================
 
 - `Overview <#overview>`__
     - `Features <#features>`__
@@ -52,14 +52,20 @@ Stratio's Cassandra Lucene Index
     - `Wildcard search <#wildcard-search>`__
 - `Geographical elements <#geographical-elements>`__
     - `Distance <#distance>`__
-    - `Transformations <#tranformations>`__
-        - `Bounding box <#bounding-box>`__
-        - `Buffer <#buffer>`__
-        - `Centroid <#centroid>`__
-        - `Convex hull <#convex-hull>`__
-        - `Difference <#difference>`__
-        - `Intersection <#intersection>`__
-        - `Union <#intersection>`__
+    - `Transformations <#transformations>`__
+        - `Bounding box transformation <#bounding-box-transformation>`__
+        - `Buffer transformation <#buffer-transformation>`__
+        - `Centroid transformation <#centroid-transformation>`__
+        - `Convex hull transformation <#convex-hull-transformation>`__
+    - `Shapes <#shapes>`__
+        - `WKT shape <#wkt-shape>`__
+        - `Bounding box shape <#bounding-box-shape>`__
+        - `Buffer shape <#buffer-shape>`__
+        - `Centroid shape <#centroid-shape>`__
+        - `Convex hull shape <#convex-hull-shape>`__
+        - `Difference shape <#difference-shape>`__
+        - `Intersection shape <#intersection-shape>`__
+        - `Union shape <#intersection-shape>`__
 - `Complex data types <#complex-data-types>`__
     - `Tuples <#tuples>`__
     - `User Defined Types <#user-defined-types>`__
@@ -83,8 +89,9 @@ Stratio's Cassandra Lucene Index
     - `Try doc values <#try-doc-values>`__
     - `Force segments merge <#force-segments-merge>`__
 
+--------
 Overview
-********
+--------
 
 Stratio’s Cassandra Lucene Index, derived from `Stratio Cassandra <https://github.com/Stratio/stratio-cassandra>`__, is
 a plugin for `Apache Cassandra <http://cassandra.apache.org/>`__ that extends its index functionality to provide near
@@ -98,7 +105,7 @@ Cassandra indexes are one of the core modules on which `Stratio’s BigData plat
    :alt: architecture
    :align: center
 
-    Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allow you to retrieve the
+Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allow you to retrieve the
 *n* more relevant results satisfying a search. The coordinator node sends the search to each node in the cluster, each node
 returns its *n* best results and then the coordinator combines these partial results and gives you the *n* best of them,
 avoiding full scan. You can also base the sorting in a combination of fields.
@@ -115,9 +122,9 @@ Adding Lucene filters in the jobs input can dramatically reduce the amount of da
    :alt: spark_architecture
    :align: center
 
-    This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
-    indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
-    out of the box features, filling the gap between real-time and analytics.
+This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
+indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
+out of the box features, filling the gap between real-time and analytics.
 
 .. image:: /doc/resources/oltp_olap.png
    :width: 100%
@@ -236,39 +243,41 @@ and create them again with running newer version.
 If you have huge amount of data in your cluster this could be an expensive task. We have tested it and here you have a
 compatibility matrix that states between which versions it is not needed to delete the index:
 
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| From\\ To | 3.0.3.0 | 3.0.3.1 | 3.0.4.0 | 3.0.4.1 | 3.0.5.0 | 3.0.5.1 | 3.0.5.2 | 3.0.6.0 | 3.0.6.1 | 3.0.6.2 | 3.0.7.0 | 3.0.7.1 | 3.0.7.2 | 3.0.8.0 | 3.0.8.1 |
-+===========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+
-| 2.x       |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.3.0   |    --   |   YES   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.3.1   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.4.0   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.4.1   |    --   |    --   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.5.0   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.5.1   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.5.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.6.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.6.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.6.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.7.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.7.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.7.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.8.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| From\\ To | 3.0.3.0 | 3.0.3.1 | 3.0.4.0 | 3.0.4.1 | 3.0.5.0 | 3.0.5.1 | 3.0.5.2 | 3.0.6.0 | 3.0.6.1 | 3.0.6.2 | 3.0.7.0 | 3.0.7.1 | 3.0.7.2 | 3.0.8.0 | 3.0.8.1 | 3.0.8.2 |
++===========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+
+| 2.x       |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.3.0   |    --   |   YES   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.3.1   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.4.0   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.4.1   |    --   |    --   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.5.0   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.5.1   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.5.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.6.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.6.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.6.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.7.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.7.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |  \(1\)  |  \(1\)  |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.7.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |  \(1\)  |  \(1\)  |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.8.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |  \(1\)  |  \(1\)  |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.8.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
 
 **(1):** Compatible only if you are not using geospatial mappers.
 
@@ -360,15 +369,15 @@ We will create the following table to store tweets:
 .. code-block:: sql
 
     CREATE KEYSPACE demo
-    WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor': 1};
+    WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 1};
     USE demo;
     CREATE TABLE tweets (
-        id INT PRIMARY KEY,
-        user TEXT,
-        body TEXT,
-        time TIMESTAMP,
-        latitude FLOAT,
-        longitude FLOAT
+       id INT PRIMARY KEY,
+       user TEXT,
+       body TEXT,
+       time TIMESTAMP,
+       latitude FLOAT,
+       longitude FLOAT
     );
 
 Now you can create a custom Lucene index on it with the following statement:
@@ -378,16 +387,16 @@ Now you can create a custom Lucene index on it with the following statement:
     CREATE CUSTOM INDEX tweets_index ON tweets ()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                id    : {type : "integer"},
-                user  : {type : "string"},
-                body  : {type : "text", analyzer : "english"},
-                time  : {type : "date", pattern : "yyyy/MM/dd"},
-                place : {type : "geo_point", latitude:"latitude", longitude:"longitude"}
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             id: {type: "integer"},
+             user: {type: "string"},
+             body: {type: "text", analyzer: "english"},
+             time: {type: "date", pattern: "yyyy/MM/dd"},
+             place: {type: "geo_point", latitude: "latitude", longitude: "longitude"}
+          }
+       }'
     };
 
 This will index all the columns in the table with the specified types, and it will be refreshed once per second.
@@ -404,7 +413,7 @@ Now, to search for tweets within a certain date range:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"}
+       filter: {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"}
     }');
 
 The same search can be performed forcing an explicit refresh of the involved index shards:
@@ -412,8 +421,8 @@ The same search can be performed forcing an explicit refresh of the involved ind
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-        refresh : true
+       filter: {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+       refresh: true
     }') limit 100;
 
 Now, to search the top 100 more relevant tweets where *body* field contains the phrase “big data gives organizations”
@@ -422,8 +431,8 @@ within the aforementioned date range:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
+       filter: {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+       query: {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
     }') LIMIT 100;
 
 To refine the search to get only the tweets written by users whose names start with "a":
@@ -431,9 +440,11 @@ To refine the search to get only the tweets written by users whose names start w
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-                   {type: "prefix", field: "user", value: "a"} ],
-        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
+       filter: [
+          {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+          {type: "prefix", field: "user", value: "a"}
+       ],
+       query: {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
     }') LIMIT 100;
 
 To get the 100 more recent filtered results you can use the *sort* option:
@@ -441,10 +452,12 @@ To get the 100 more recent filtered results you can use the *sort* option:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-                   {type: "prefix", field: "user", value: "a"} ],
-        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
-        sort : {field: "time", reverse: true}
+       filter: [
+          {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+          {type: "prefix", field: "user", value: "a"}
+       ],
+       query: {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+       sort: {field: "time", reverse: true}
     }') limit 100;
 
 The previous search can be restricted to tweets created close to a geographical position:
@@ -452,11 +465,13 @@ The previous search can be restricted to tweets created close to a geographical 
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-                   {type: "prefix", field: "user", value: "a"},
-                   {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
-        sort : {field: "time", reverse: true}
+       filter: [
+          {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+          {type: "prefix", field: "user", value: "a"},
+          {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "1km"}
+       ],
+       query: {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+       sort: {field: "time", reverse: true}
     }') limit 100;
 
 It is also possible to sort the results by distance to a geographical position:
@@ -464,12 +479,16 @@ It is also possible to sort the results by distance to a geographical position:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter: [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-                   {type: "prefix", field: "user", value: "a"},
-                   {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        query :  {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
-        sort : [ {field: "time", reverse: true},
-                 {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328} ]
+       filter: [
+          {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+          {type: "prefix", field: "user", value: "a"},
+          {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "1km"}
+       ],
+       query: {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+       sort: [
+          {field: "time", reverse: true},
+          {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328}
+       ]
     }') limit 100;
 
 Last but not least, you can route any search to a certain token range or partition, in such a way that only a
@@ -478,16 +497,21 @@ subset of the cluster nodes will be hit, saving precious resources:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-                   {type: "prefix", field: "user", value: "a"},
-                   {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        query :  {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
-        sort : [ {field: "time", reverse: true},
-                 {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328} ]
+       filter: [
+          {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+          {type: "prefix", field: "user", value: "a"},
+          {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "1km"}
+       ],
+       query: {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+       sort: [
+          {field: "time", reverse: true},
+          {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328}
+       ]
     }') AND TOKEN(id) >= TOKEN(0) AND TOKEN(id) < TOKEN(10000000) limit 100;
 
+--------
 Indexing
-********
+--------
 
 Lucene indexes are an extension of the Cassandra secondary indexes. As such, they are created through CQL
 `CREATE CUSTOM INDEX statement <https://cassandra.apache.org/doc/cql3/CQL.html#createIndexStmt>`__, specifying the full
@@ -507,15 +531,17 @@ where <options> is a JSON object:
 
 .. code-block:: sql
 
-    <options> := { ('refresh_seconds'        : '<int_value>',)?
-                   ('ram_buffer_mb'          : '<int_value>',)?
-                   ('max_merge_mb'           : '<int_value>',)?
-                   ('max_cached_mb'          : '<int_value>',)?
-                   ('indexing_threads'       : '<int_value>',)?
-                   ('indexing_queues_size'   : '<int_value>',)?
-                   ('directory_path'         : '<string_value>',)?
-                   ('excluded_data_centers'  : '<string_value>',)?
-                   'schema'                  : '<schema_definition>'};
+    <options>:= {
+       ('refresh_seconds': '<int_value>',)?
+       ('ram_buffer_mb': '<int_value>',)?
+       ('max_merge_mb': '<int_value>',)?
+       ('max_cached_mb': '<int_value>',)?
+       ('indexing_threads': '<int_value>',)?
+       ('indexing_queues_size': '<int_value>',)?
+       ('directory_path': '<string_value>',)?
+       ('excluded_data_centers': '<string_value>',)?
+       'schema': '<schema_definition>'
+    };
 
 All options take a value enclosed in single quotes:
 
@@ -539,24 +565,24 @@ All options take a value enclosed in single quotes:
 
 .. code-block:: sql
 
-    <schema_definition> := {
-        (analyzers : { <analyzer_definition> (, <analyzer_definition>)* } ,)?
-        (default_analyzer : "<analyzer_name>",)?
-        fields : { <mapper_definition> (, <mapper_definition>)* }
+    <schema_definition>:= {
+       (analyzers: { <analyzer_definition> (, <analyzer_definition>)* } ,)?
+       (default_analyzer: "<analyzer_name>",)?
+       fields: { <mapper_definition> (, <mapper_definition>)* }
     }
 
 Where default\_analyzer defaults to ‘org.apache.lucene.analysis.standard.StandardAnalyzer’.
 
 .. code-block:: sql
 
-    <analyzer_definition> := <analyzer_name> : {
-        type : "<analyzer_type>" (, <option> : "<value>")*
+    <analyzer_definition>:= <analyzer_name>: {
+       type: "<analyzer_type>" (, <option>: "<value>")*
     }
 
 .. code-block:: sql
 
-    <mapper_definition> := <mapper_name> : {
-        type : "<mapper_type>" (, <option> : "<value>")*
+    <mapper_definition>:= <mapper_name>: {
+       type: "<mapper_type>" (, <option>: "<value>")*
     }
 
 Analyzers
@@ -588,15 +614,15 @@ present in classpath.
     CREATE CUSTOM INDEX census_index on census()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            analyzers : {
-                an_analyzer : {
-                    type  : "classpath",
-                    class : "org.apache.lucene.analysis.en.EnglishAnalyzer"
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          analyzers: {
+             an_analyzer: {
+                type: "classpath",
+                class: "org.apache.lucene.analysis.en.EnglishAnalyzer"
+             }
+          }
+       }'
     };
 
 Snowball analyzer
@@ -605,23 +631,23 @@ _________________
 Analyzer using a `http://snowball.tartarus.org/ <http://snowball.tartarus.org/>`__ snowball filter
 `SnowballFilter <https://lucene.apache.org/core/5_3_0/analyzers-common/org/apache/lucene/analysis/snowball/SnowballFilter.html>`__
 
-**Example:**
-
+Example:
+~~~~~~~~
 .. code-block:: sql
 
     CREATE CUSTOM INDEX census_index on census()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            analyzers : {
-                an_analyzer : {
-                    type  : "snowball",
-                    language : "English",
-                    stopwords : "a,an,the,this,that"
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          analyzers: {
+             an_analyzer: {
+                type: "snowball",
+                language: "English",
+                 stopwords: "a,an,the,this,that"
+             }
+          }
+       }'
     };
 
 Supported languages: English, French, Spanish, Portuguese, Italian, Romanian, German, Dutch, Swedish, Norwegian,
@@ -790,18 +816,18 @@ Maps arbitrary precision signed decimal values.
     CREATE CUSTOM INDEX census_index on census()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                bigdecimal : {
-                    type           : "bigdec",
-                    integer_digits : 2,
-                    decimal_digits : 2,
-                    validated      : true,
-                    column         : "column_name"
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             bigdecimal: {
+                type: "bigdec",
+                integer_digits: 2,
+                 decimal_digits: 2,
+                 validated: true,
+                 column: "column_name"
+             }
+          }
+       }'
     };
 
 Big integer mapper
@@ -826,17 +852,17 @@ Maps arbitrary precision signed integer values.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                biginteger : {
-                    type      : "bigint",
-                    digits    : 10,
-                    validated : true,
-                    column    : "column_name"
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             biginteger: {
+                type: "bigint",
+                 digits: 10,
+                 validated: true,
+                 column: "column_name"
+             }
+          }
+       }'
     };
 
 
@@ -867,21 +893,21 @@ Maps four columns containing the four dates defining a bitemporal fact.
     CREATE CUSTOM INDEX census_index on census()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                bitemporal : {
-                    type      : "bitemporal",
-                    vt_from   : "vt_from",
-                    vt_to     : "vt_to",
-                    tt_from   : "tt_from",
-                    tt_to     : "tt_to",
-                    validated : true,
-                    pattern   : "yyyy/MM/dd HH:mm:ss.SSS";,
-                    now_value : "3000/01/01 00:00:00.000",
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             bitemporal: {
+                type: "bitemporal",
+                vt_from: "vt_from",
+                vt_to: "vt_to",
+                tt_from: "tt_from",
+                tt_to: "tt_to",
+                validated: true,
+                pattern: "yyyy/MM/dd HH:mm:ss.SSS",
+                now_value: "3000/01/01 00:00:00.000",
+             }
+          }
+       }'
     };
 
 
@@ -906,15 +932,15 @@ Maps a blob value.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                blob : {
-                    type    : "bytes",
-                    column  : "column_name"
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             blob: {
+                type: "bytes",
+                column: "column_name"
+             }
+          }
+       }'
     };
 
 
@@ -939,16 +965,16 @@ Maps a boolean value.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                bool : {
-                    type      : "boolean",
-                    validated : true,
-                    column    : "column_name"
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             bool: {
+                type: "boolean",
+                 validated: true,
+                 column: "column_name"
+             }
+          }
+       }'
     };
 
 
@@ -975,15 +1001,15 @@ Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                creation : {
-                    type    : "date",
-                    pattern : "yyyy/MM/dd HH:mm",
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             creation: {
+                type: "date",
+                pattern: "yyyy/MM/dd HH:mm",
+             }
+          }
+       }'
     };
 
 
@@ -1011,16 +1037,16 @@ Maps a time duration/period defined by a start date and a stop date.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                duration : {
-                    type    : "date_range",
-                    from    : "start",
-                    to      : "stop"
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             duration: {
+                type: "date_range",
+                from: "start",
+                to: "stop"
+             }
+          }
+       }'
     };
 
 **Example 2:** Index the column time period defined by the columns *start* and *stop*, validating values, and using a
@@ -1031,18 +1057,18 @@ precision of minutes:
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                duration : {
-                    type      : "date_range",
-                    validated : true,
-                    from      : "start",
-                    to        : "stop",
-                    pattern   : "yyyy/MM/dd HH:mm"
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             duration: {
+                type: "date_range",
+                validated: true,
+                from: "start",
+                to: "stop",
+                pattern: "yyyy/MM/dd HH:mm"
+             }
+          }
+       }'
     };
 
 
@@ -1068,17 +1094,17 @@ Maps a 64-bit decimal number.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                double : {
-                    type      : "double",
-                    boost     : 2.0,
-                    validated : true,
-                    column    : "column_name"
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             double: {
+                type: "double",
+                 boost: 2.0,
+                 validated: true,
+                 column: "column_name"
+             }
+          }
+       }'
     };
 
 
@@ -1104,17 +1130,17 @@ Maps a 32-bit decimal number.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                float : {
-                    type      : "float",
-                    boost     : 2.0,
-                    validated : true,
-                    column    : "column_name"
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             float: {
+                type: "float",
+                boost: 2.0,
+                validated: true,
+                column: "column_name"
+             }
+          }
+       }'
     };
 
 
@@ -1147,18 +1173,18 @@ and the doc values field is used to discard these false positives.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                geo_point : {
-                    type       : "geo_point",
-                    validated  : true,
-                    latitude   : "lat",
-                    longitude  : "long",
-                    max_levels : 15
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             geo_point: {
+                type: "geo_point",
+                validated: true,
+                latitude: "lat",
+                longitude: "long",
+                max_levels: 15
+             }
+          }
+       }'
     };
 
 
@@ -1200,10 +1226,10 @@ into your Cassandra installation lib directory.
 .. code-block:: sql
 
     CREATE TABLE IF NOT EXISTS test (
-        id int,
-        shape text,
-        lucene text,
-        PRIMARY KEY (id)
+       id int,
+       shape text,
+       lucene text,
+       PRIMARY KEY (id)
     );
 
     INSERT INTO test(id, shape) VALUES (1, 'POINT(-0.13 51.50)');
@@ -1218,15 +1244,15 @@ into your Cassandra installation lib directory.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                shape : {
-                    type       : "geo_shape",
-                    max_levels : 15
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             shape: {
+                type: "geo_shape",
+                max_levels: 15
+             }
+          }
+       }'
     };
 
 **Example 2:** Index only the centroid of the WKT shape contained in the indexed column:
@@ -1239,10 +1265,10 @@ into your Cassandra installation lib directory.
 .. code-block:: sql
 
     CREATE TABLE IF NOT EXISTS cities (
-        name text,
-        shape text,
-        lucene text,
-        PRIMARY KEY (name)
+       name text,
+       shape text,
+       lucene text,
+       PRIMARY KEY (name)
     );
 
     INSERT INTO cities(name, shape) VALUES ('birmingham', 'POLYGON((-2.25 52.63, -2.26 52.49, -2.13 52.36, -1.80 52.34, -1.57 52.54, -1.89 52.67, -2.25 52.63))');
@@ -1251,16 +1277,16 @@ into your Cassandra installation lib directory.
     CREATE CUSTOM INDEX cities_index on cities()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"centroid"}]
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             shape: {
+                type: "geo_shape",
+                max_levels: 15,
+                transformations: [{type: "centroid"}]
+             }
+          }
+       }'
     };
 
 **Example 3:** Index a buffer 50 kilometres around the area of a city:
@@ -1273,10 +1299,10 @@ into your Cassandra installation lib directory.
 .. code-block:: sql
 
     CREATE TABLE IF NOT EXISTS cities (
-        name text,
-        shape text,
-        lucene text,
-        PRIMARY KEY (name)
+       name text,
+       shape text,
+       lucene text,
+       PRIMARY KEY (name)
     );
 
     INSERT INTO cities(name, shape) VALUES ('birmingham', 'POLYGON((-2.25 52.63, -2.26 52.49, -2.13 52.36, -1.80 52.34, -1.57 52.54, -1.89 52.67, -2.25 52.63))');
@@ -1285,16 +1311,16 @@ into your Cassandra installation lib directory.
     CREATE CUSTOM INDEX cities_index on cities()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"buffer", min_distance:"50km"}]
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             shape: {
+                type: "geo_shape",
+                max_levels: 15,
+                transformations: [{type: "buffer", min_distance: "50km"}]
+             }
+          }
+       }'
     };
 
 **Example 4:** Index a buffer 50 kilometres around the borders of a country:
@@ -1307,9 +1333,9 @@ into your Cassandra installation lib directory.
 .. code-block:: sql
 
     CREATE TABLE IF NOT EXISTS borders (
-        country text,
-        shape text,
-        PRIMARY KEY (country)
+       country text,
+       shape text,
+       PRIMARY KEY (country)
     );
 
     INSERT INTO borders(country, shape) VALUES ('france', 'LINESTRING(-1.8037198483943 43.463094234466, -1.3642667233943 43.331258296966 ... )');
@@ -1318,16 +1344,16 @@ into your Cassandra installation lib directory.
     CREATE CUSTOM INDEX borders_index on borders()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"buffer", max_distance:"50km"}]
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             shape: {
+                type: "geo_shape",
+                max_levels: 15,
+                transformations: [{type: "buffer", max_distance: "50km"}]
+             }
+          }
+       }'
     };
 
 **Example 5:** Index the convex hull of the WKT shape contained in the indexed column:
@@ -1340,8 +1366,8 @@ into your Cassandra installation lib directory.
 .. code-block:: sql
 
     CREATE TABLE IF NOT EXISTS blocks (
-        id bigint PRIMARY KEY,
-        shape text
+       id bigint PRIMARY KEY,
+       shape text
     );
 
     INSERT INTO blocks(name, shape) VALUES (341, 'MULTIPOLYGON(((-86.693279 32.390691, -86.693185 32.391494, -86.691590 32.391362, -86.691621 32.391095 ... )))');
@@ -1349,16 +1375,16 @@ into your Cassandra installation lib directory.
     CREATE CUSTOM INDEX blocks_index on cities()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"convex_hull"}]
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             shape: {
+                type: "geo_shape",
+                max_levels: 15,
+                transformations: [{type: "convex_hull"}]
+             }
+          }
+       }'
     };
 
 **Example 6:** Index the bounding box of the WKT shape contained in the indexed column:
@@ -1371,8 +1397,8 @@ into your Cassandra installation lib directory.
 .. code-block:: sql
 
     CREATE TABLE IF NOT EXISTS blocks (
-        id bigint PRIMARY KEY,
-        shape text
+       id bigint PRIMARY KEY,
+       shape text
     );
 
     INSERT INTO blocks(name, shape) VALUES (341, 'MULTIPOLYGON(((-86.693279 32.390691, -86.693185 32.391494, -86.691590 32.391362 ... )))');
@@ -1380,16 +1406,16 @@ into your Cassandra installation lib directory.
     CREATE CUSTOM INDEX blocks_index on cities()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"bbox"}]
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             shape: {
+                type: "geo_shape",
+                max_levels: 15,
+                transformations: [{type: "bbox"}]
+             }
+          }
+       }'
     };
 
 
@@ -1414,16 +1440,16 @@ Maps an IP address. Either IPv4 and IPv6 are supported.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                inet : {
-                    type      : "inet",
-                    validated : true,
-                    column    : "column_name"
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             inet: {
+                type: "inet",
+                validated: true,
+                column: "column_name"
+             }
+          }
+       }'
     };
 
 
@@ -1449,17 +1475,17 @@ Maps a 32-bit integer number.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                integer : {
-                    type      : "integer",
-                    validated : true,
-                    column    : "column_name"
-                    boost     : 2.0,
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             integer: {
+                type: "integer",
+                validated: true,
+                column: "column_name"
+                boost: 2.0,
+             }
+          }
+       }'
     };
 
 
@@ -1485,17 +1511,17 @@ Maps a 64-bit integer number.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                long : {
-                    type      : "long",
-                    validated : true,
-                    column    : "column_name"
-                    boost     : 2.0,
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             long: {
+                type: "long",
+                validated: true,
+                column: "column_name"
+                 boost: 2.0
+             }
+          }
+       }'
     };
 
 
@@ -1521,17 +1547,17 @@ Maps a not-analyzed text value.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                string : {
-                    type           : "string",
-                    validated      : true,
-                    column         : "column_name"
-                    case_sensitive : false,
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             string: {
+                type: "string",
+                validated: true,
+                column: "column_name"
+                case_sensitive: false
+             }
+          }
+       }'
     };
 
 
@@ -1557,24 +1583,24 @@ Maps a language-aware text value analyzed according to the specified analyzer.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            analyzers : {
-                my_custom_analyzer : {
-                      type      : "snowball",
-                      language  : "Spanish",
-                      stopwords : "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
-                }
-            },
-            fields : {
-                text : {
-                    type      : "text",
-                    validated : true,
-                    column    : "column_name"
-                    analyzer  : "my_custom_analyzer",
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          analyzers: {
+             my_custom_analyzer: {
+                 type: "snowball",
+                 language: "Spanish",
+                 stopwords: "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
+             }
+          },
+          fields: {
+             text: {
+                 type: "text",
+                 validated: true,
+                 column: "column_name"
+                 analyzer: "my_custom_analyzer"
+             }
+         }
+       }'
     };
 
 
@@ -1599,16 +1625,16 @@ Maps an UUID value.
     CREATE CUSTOM INDEX test_idx ON test()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                id : {
-                    type      : "uuid",
-                    validated : true,
-                    column    : "column_name"
-                }
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             id: {
+                type: "uuid",
+                validated: true,
+                column: "column_name"
+             }
+          }
+       }'
     };
 
 
@@ -1626,41 +1652,42 @@ Cassandra shell:
     ON test.users ()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds'       : '60',
-        'ram_buffer_mb'         : '64',
-        'max_merge_mb'          : '5',
-        'max_cached_mb'         : '30',
-        'excluded_data_centers' : 'dc2,dc3',
-        'schema' : '{
-            analyzers : {
-                my_custom_analyzer : {
-                    type      : "snowball",
-                    language  : "Spanish",
-                    stopwords : "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
-                }
-            },
-            default_analyzer : "english",
-            fields : {
-                name     : {type : "string"},
-                gender   : {type : "string", validated : true},
-                animal   : {type : "string"},
-                age      : {type : "integer"},
-                food     : {type : "string"},
-                number   : {type : "integer"},
-                bool     : {type : "boolean"},
-                date     : {type : "date", validated : true, pattern : "yyyy/MM/dd"},
-                duration : {type : "date_range", from : "start_date", to : "stop_date"},
-                place    : {type : "geo_point", latitude : "latitude", longitude : "longitude"},
-                mapz     : {type : "string"},
-                setz     : {type : "string"},
-                listz    : {type : "string"},
-                phrase   : {type : "text", analyzer : "my_custom_analyzer"}
-            }
-        }'
+       'refresh_seconds': '60',
+       'ram_buffer_mb': '64',
+       'max_merge_mb': '5',
+       'max_cached_mb': '30',
+       'excluded_data_centers': 'dc2,dc3',
+       'schema': '{
+          analyzers: {
+             my_custom_analyzer: {
+                type: "snowball",
+                language: "Spanish",
+                stopwords: "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
+             }
+         },
+         default_analyzer: "english",
+         fields: {
+            name: {type: "string"},
+            gender: {type: "string", validated: true},
+            animal: {type: "string"},
+            age: {type: "integer"},
+            food: {type: "string"},
+            number: {type: "integer"},
+            bool: {type: "boolean"},
+            date: {type: "date", validated: true, pattern: "yyyy/MM/dd"},
+            duration: {type: "date_range", from: "start_date", to: "stop_date"},
+            place: {type: "geo_point", latitude: "latitude", longitude: "longitude"},
+            mapz: {type: "string"},
+            setz: {type: "string"},
+            listz: {type: "string"},
+            phrase: {type: "text", analyzer: "my_custom_analyzer"}
+         }
+      }'
     };
 
+---------
 Searching
-*********
+---------
 
 Lucene indexes are queried using a custom JSON syntax defining the kind of search to be done.
 
@@ -1669,30 +1696,36 @@ Lucene indexes are queried using a custom JSON syntax defining the kind of searc
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table_name> WHERE expr(<index_name>, '{
-        (   filter  : ( <filter> )* )?
-        ( , query   : ( <query>  )* )?
-        ( , sort    : ( <sort>   )* )?
-        ( , refresh : ( true | false ) )?
+       (  filter: ( <filter> )* )?
+       (, query: ( <query>  )* )?
+       (, sort: ( <sort>   )* )?
+       (, refresh: ( true | false ) )?
     }');
 
 where <filter> and <query> are a JSON object:
 
 .. code-block:: sql
 
-    <filter> := { type : <type> (, <option> : ( <value> | <value_list> ) )* }
-    <query>  := { type : <type> (, <option> : ( <value> | <value_list> ) )* }
+    <filter>:= {type: <type> (, <option>: ( <value> | <value_list> ) )* }
+    <query>:= {type: <type> (, <option>: ( <value> | <value_list> ) )* }
 
 and <sort> is another JSON object:
 
 .. code-block:: sql
 
-        <sort> := <simple_sort_field> | <geo_distance_sort_field>
-        <simple_sort_field> := {(type: "simple",)? field : <field> (, reverse : <reverse> )? }
-        <geo_distance_sort_field> := {  type: "geo_distance",
-                                        field : <field>,
-                                        latitude : <Double>,
-                                        longitude: <Double>
-                                        (, reverse : <reverse> )? }
+        <sort>:= <simple_sort_field> | <geo_distance_sort_field>
+        <simple_sort_field>:= {
+           (type: "simple",)?
+           field: <field>
+           (, reverse: <reverse> )?
+        }
+        <geo_distance_sort_field>:= {
+           type: "geo_distance",
+           field: <field>,
+           latitude: <Double>,
+           longitude: <Double>
+           (, reverse: <reverse> )?
+        }
 
 When searching by ``filter``, without any ``query`` or ``sort`` defined,
 then the results are returned in the Cassandra’s natural order, which is
@@ -1861,7 +1894,7 @@ Search for all the indexed rows.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query) : { type  : "all"}
+       (filter | query): {type: "all"}
     }');
 
 **Example:** search for all the indexed rows:
@@ -1869,18 +1902,18 @@ Search for all the indexed rows.
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '
-        {filter : { type  : "all" }
+       {filter: {type: "all"}
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(all()).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(all()).build());
 
 
 
@@ -1895,13 +1928,14 @@ transaction time and valid time ranges.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query) : {
-            type       : "bitemporal",
-            (vt_from   : <vt_from> ,)?
-            (vt_to     : <vt_to> ,)?
-            (tt_from   : <tt_from> ,)?
-            (tt_to     : <tt_to> ,)?
-            (operation : <operation> )? }
+       (filter | query): {
+          type: "bitemporal",
+          (vt_from: <vt_from> ,)?
+          (vt_to: <vt_to> ,)?
+          (tt_from: <tt_from> ,)?
+          (tt_to: <tt_to> ,)?
+          (operation: <operation> )?
+       }
     }');
 
 where:
@@ -1925,13 +1959,13 @@ First we create the table where all this data resides:
     USE test;
 
     CREATE TABLE census (
-        name text,
-        city text,
-        vt_from text,
-        vt_to text,
-        tt_from text,
-        tt_to text,
-        PRIMARY KEY (name, vt_from, tt_from)
+       name text,
+       city text,
+       vt_from text,
+       vt_to text,
+       tt_from text,
+       tt_to text,
+       PRIMARY KEY (name, vt_from, tt_from)
     );
 
 
@@ -1942,19 +1976,21 @@ Second, we create the index:
     CREATE CUSTOM INDEX census_index on census()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                bitemporal : {
-                    type      : "bitemporal",
-                    tt_from   : "tt_from",
-                    tt_to     : "tt_to",
-                    vt_from   : "vt_from",
-                    vt_to     : "vt_to",
-                    pattern   : "yyyy/MM/dd",
-                    now_value : "2200/12/31"}
-            }
-    }'};
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             bitemporal: {
+                type: "bitemporal",
+                tt_from: "tt_from",
+                tt_to: "tt_to",
+                vt_from: "vt_from",
+                vt_to: "vt_to",
+                pattern: "yyyy/MM/dd",
+                now_value: "2200/12/31"
+             }
+          }
+       }
+    '};
 
 We insert the population of 5 citizens lives in each city from 2015/01/01 until now
 
@@ -1985,14 +2021,14 @@ So, the system need to update last information from John, and insert the new. Th
 .. code-block:: sql
 
     BEGIN BATCH
-        -- This update until when the system believed in this false information
-        UPDATE census SET tt_to = '2015/06/29' WHERE name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01' IF tt_to = '2200/12/31';
+       -- This update until when the system believed in this false information
+       UPDATE census SET tt_to = '2015/06/29' WHERE name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01' IF tt_to = '2200/12/31';
 
-        -- Here inserts the new knowledge about the period where john resided in Madrid
-        INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Madrid', '2015/01/01', '2015/03/04', '2015/06/30', '2200/12/31');
+       -- Here inserts the new knowledge about the period where john resided in Madrid
+       INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Madrid', '2015/01/01', '2015/03/04', '2015/06/30', '2200/12/31');
 
-        -- This inserts the new knowledge about the period where john resides in Amsterdam
-        INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
+       -- This inserts the new knowledge about the period where john resides in Amsterdam
+       INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
     APPLY BATCH;
 
 Now , we can see the main difference between valid time and transaction time. The system knows from '2015/01/01' to '2015/06/29' that John resides in Madrid from '2015/01/01' until now, and resides in Amsterdam from '2015/03/05' until now.
@@ -2011,28 +2047,28 @@ If you want to know what is the last info about where John resides, you perform 
 .. code-block:: sql
 
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE expr(tweets_index, '{
-        filter : {
-            type    : "bitemporal",
-            field   : "bitemporal",
-            vt_from : 0,
-            vt_to   : "2200/12/31",
-            tt_from : "2200/12/31",
-            tt_to   : "2200/12/31"
-        }
+       filter: {
+          type: "bitemporal",
+          field: "bitemporal",
+          vt_from: 0,
+          vt_to: "2200/12/31",
+          tt_from: "2200/12/31",
+          tt_to: "2200/12/31"
+       }
     }') AND name='John';
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')",
-        search().filter(bitemporal("bitemporal").ttFrom("2200/12/31")
-                                                .ttTo("2200/12/31")
-                                                .vtFrom(0)
-                                                .vtTo("2200/12/31").build());
+       "SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')",
+       search().filter(bitemporal("bitemporal").ttFrom("2200/12/31")
+                                               .ttTo("2200/12/31")
+                                               .vtFrom(0)
+                                               .vtTo("2200/12/31").build());
 
 
 
@@ -2041,28 +2077,28 @@ If you want to know what is the last info about where John resides now, you perf
 .. code-block:: sql
 
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE expr(census_index, '{
-        filter : {
-            type    : "bitemporal",
-            field   : "bitemporal",
-            vt_from : "2200/12/31",
-            vt_to   : "2200/12/31",
-            tt_from : "2200/12/31",
-            tt_to   : "2200/12/31"
-        }
+       filter: {
+          type: "bitemporal",
+          field: "bitemporal",
+          vt_from: "2200/12/31",
+          vt_to: "2200/12/31",
+          tt_from: "2200/12/31",
+          tt_to: "2200/12/31"
+       }
     }') AND name='John';
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')",
-        search().filter(bitemporal("bitemporal").ttFrom("2200/12/31")
-                                                .ttTo("2200/12/31")
-                                                .vtFrom("2200/12/31")
-                                                .vtTo("2200/12/31")).build());
+       "SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')",
+       search().filter(bitemporal("bitemporal").ttFrom("2200/12/31")
+                                               .ttTo("2200/12/31")
+                                               .vtFrom("2200/12/31")
+                                               .vtTo("2200/12/31")).build());
 
 
 If the test case needs to know what the system was thinking at '2015/03/01' about where John resides in "2015/03/01".
@@ -2070,51 +2106,51 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
 .. code-block:: sql
 
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE expr(census_index, '{
-        filter : {
-            type    : "bitemporal",
-            field   : "bitemporal",
-            vt_from : "2015/03/01",
-            vt_to   : "2015/03/01",
-            tt_from : "2015/03/01",
-            tt_to   : "2015/03/01"
-        }
+       filter: {
+          type: "bitemporal",
+          field: "bitemporal",
+          vt_from: "2015/03/01",
+          vt_to: "2015/03/01",
+          tt_from: "2015/03/01",
+          tt_to: "2015/03/01"
+       }
     }') AND name = 'John';
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')",
-        search().filter(bitemporal("bitemporal").ttFrom("2015/03/01")
-                                                .ttTo("2015/03/01")
-                                                .vtFrom("2015/03/01")
-                                                .vtTo("2015/03/01")).build());
+       "SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')",
+       search().filter(bitemporal("bitemporal").ttFrom("2015/03/01")
+                                               .ttTo("2015/03/01")
+                                               .vtFrom("2015/03/01")
+                                               .vtTo("2015/03/01")).build());
 
 If the test case needs to know what the system was thinking at '2015/07/05' about where John resides:
 
 .. code-block:: sql
 
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE expr(census_index,'{
-        filter : {
-            type    : "bitemporal",
-            field   : "bitemporal",
-            tt_from : "2015/07/05",
-            tt_to   : "2015/07/05"
-        }
+       filter: {
+          type: "bitemporal",
+          field: "bitemporal",
+          tt_from: "2015/07/05",
+          tt_to: "2015/07/05"
+       }
     }') AND name='John';
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')",
-        search().filter(bitemporal("bitemporal").ttFrom("2015/07/05").ttTo("2015/07/05").build());
+       "SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')",
+       search().filter(bitemporal("bitemporal").ttFrom("2015/07/05").ttTo("2015/07/05").build());
 
 
 This code is available in CQL script here: `example_bitemporal.cql </doc/resources/example_bitemporal.cql>`__.
@@ -2129,11 +2165,12 @@ Searches for rows matching boolean combinations of other searches.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query) : {
-            type     : "boolean",
-            ( must   : [(search,)?] , )?
-            ( should : [(search,)?] , )?
-            ( not    : [(search,)?] , )? }
+       (filter | query): {
+         ( type: "boolean" , )?
+         ( must: [(search,)?] , )?
+         ( should: [(search,)?] , )?
+         ( not: [(search,)?] , )?
+       }
     }');
 
 where:
@@ -2152,10 +2189,13 @@ with “tu”:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type : "boolean",
-            must : [ {type : "wildcard", field : "name", value : "*a"},
-                     {type : "wildcard", field : "food", value : "tu*"} ]}
+       filter: {
+          type: "boolean",
+          must: [
+             {type: "wildcard", field: "name", value: "*a"},
+             {type: "wildcard", field: "food", value: "tu*"}
+          ]
+       }
     }');
 
 You can also write this search without the ``type`` attribute:
@@ -2163,9 +2203,12 @@ You can also write this search without the ``type`` attribute:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            must : [ {type : "wildcard", field : "name", value : "*a"},
-                     {type : "wildcard", field : "food", value : "tu*"} ]}
+       filter: {
+          must: [
+             {type: "wildcard", field: "name", value: "*a"},
+             {type: "wildcard", field: "food", value: "tu*"}
+          ]
+       }
     }');
 
 Or inside the base filter path:
@@ -2173,11 +2216,13 @@ Or inside the base filter path:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : [ {type : "wildcard", field : "name", value : "*a"},
-                   {type : "wildcard", field : "food", value : "tu*"} ]
+       filter: [
+          {type: "wildcard", field: "name", value: "*a"},
+          {type: "wildcard", field: "food", value: "tu*"}
+       ]
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2201,10 +2246,11 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type : "boolean",
-            not  : [ {type : "wildcard", field : "name", value : "*a" } ],
-            must : [ {type : "wildcard", field : "food", value : "tu*" } ] }
+       filter: {
+          type: "boolean",
+          not: [{type: "wildcard", field: "name", value: "*a"}],
+          must: [{type: "wildcard", field: "food", value: "tu*"}]
+       }
     }');
 
 You can also write this search without the ``type`` attribute:
@@ -2212,9 +2258,10 @@ You can also write this search without the ``type`` attribute:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            not  : [ {type : "wildcard", field : "name", value : "*a" } ],
-            must : [ {type : "wildcard", field : "food", value : "tu*" } ] }
+       filter: {
+          not: [{type: "wildcard", field: "name", value: "*a"}],
+          must: [{type: "wildcard", field: "food", value: "tu*"}]
+       }
     }');
 
 It is also possible to write the search this way:
@@ -2222,11 +2269,13 @@ It is also possible to write the search this way:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : [ {type : "wildcard", field : "food", value : "tu*" },
-                   { not : {type : "wildcard", field : "name", value : "*a" } } ]
+       filter: [
+          {type: "wildcard", field: "food", value: "tu*"},
+          {not: {type: "wildcard", field: "name", value: "*a"}}
+       ]
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2251,10 +2300,13 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type   : "boolean",
-            should : [ { type : "wildcard", field : "name", value : "*a" },
-                       { type : "wildcard", field : "food", value : "tu*" } ] }
+       filter: {
+          type: "boolean",
+          should: [
+             {type: "wildcard", field: "name", value: "*a"},
+             {type: "wildcard", field: "food", value: "tu*"}
+          ]
+       }
     }');
 
 You can also write this search without the ``type`` attribute:
@@ -2262,24 +2314,27 @@ You can also write this search without the ``type`` attribute:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            should : [ { type : "wildcard", field : "name", value : "*a" },
-                       { type : "wildcard", field : "food", value : "tu*" } ] }
+       filter: {
+          should: [
+             {type: "wildcard", field: "name", value: "*a"},
+             {type: "wildcard", field: "food", value: "tu*"}
+          ]
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs1 = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(bool().should(wildcard("name", "*a"), wildcard("food", "tu*"))).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(bool().should(wildcard("name", "*a"), wildcard("food", "tu*"))).build());
 
     ResultSet rs2 = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(should(wildcard("name", "*a"), wildcard("food", "tu*"))).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(should(wildcard("name", "*a"), wildcard("food", "tu*"))).build());
 
 
 **Example 4:** will return zero rows independently of the index contents:
@@ -2287,18 +2342,18 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : { type : "boolean" }
+       filter: {type: "boolean"}
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(bool()).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(bool()).build());
 
 
 **Example 5:** search for rows where name does not end with “a”, which is
@@ -2307,20 +2362,18 @@ a resource-intensive pure negation search:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            not  : [ {
-                type : "wildcard", field : "name", value : "*a" } ] }
+       filter: {not: [{type: "wildcard", field: "name", value: "*a"}]}
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(bool().not(wildcard("name", "*a"))).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(bool().not(wildcard("name", "*a"))).build());
 
 
 Contains search
@@ -2333,11 +2386,12 @@ Searches for rows matching one or more of the specified terms.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        ( filter | query ) : {
-            type   : "contains",
-            field  : <field_name> ,
-            values : <value_list> }
-            (, doc_values : <doc_values> )? }
+       ( filter | query ): {
+          type: "contains",
+          field: <field_name> ,
+          values: <value_list> }
+          (, doc_values: <doc_values> )?
+       }
     }');
 
 where:
@@ -2350,21 +2404,22 @@ where:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type   : "contains",
-            field  : "name",
-            values : [ "Alicia", "mancha" ] }
+       filter: {
+          type: "contains",
+          field: "name",
+          values: ["Alicia", "mancha"]
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(contains("name", "Alicia", "mancha").build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(contains("name", "Alicia", "mancha").build());
 
 
 **Example 2:** search for rows where date matches “2014/01/01″,
@@ -2373,21 +2428,22 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type   : "contains",
-            field  : "date",
-            values : [ "2014/01/01", "2014/01/02", "2014/01/03" ] }
+       filter: {
+          type: "contains",
+          field: "date",
+          values: ["2014/01/01", "2014/01/02", "2014/01/03"]
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(contains("date", "2014/01/01", "2014/01/02", "2014/01/03")).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(contains("date", "2014/01/01", "2014/01/02", "2014/01/03")).build());
 
 
 Date range search
@@ -2403,11 +2459,12 @@ use a `range search <#range-search>`__.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query) : {
-            type  : "date_range",
-            (from : <from> ,)?
-            (to   : <to> ,)?
-            (operation: <operation> )? }
+       (filter | query): {
+          type: "date_range",
+          (from: <from> ,)?
+          (to: <to> ,)?
+          (operation: <operation> )?
+       }
     }');
 
 where:
@@ -2424,23 +2481,24 @@ where:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type      : "date_range",
-            field     : "duration",
-            from      : "2014/01/01",
-            to        : "2014/12/31",
-            operation : "intersects" }
+       filter: {
+          type: "date_range",
+          field: "duration",
+          from: "2014/01/01",
+          to: "2014/12/31",
+          operation: "intersects"
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31").operation("intersects")).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31").operation("intersects")).build());
 
 
 **Example 2:** search for rows where duration contains "2014/06/01" and
@@ -2449,23 +2507,24 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type      : "date_range",
-            field     : "duration",
-            from      : "2014/06/01",
-            to        : "2014/06/02",
-            operation : "contains" }
+       filter: {
+          type: "date_range",
+          field: "duration",
+          from: "2014/06/01",
+          to: "2014/06/02",
+          operation: "contains"
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(dateRange("duration").from("2014/06/01").to("2014/06/02").operation("contains")).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(dateRange("duration").from("2014/06/01").to("2014/06/02").operation("contains")).build());
 
 
 **Example 3:** search for rows where duration is within "2014/01/01" and
@@ -2474,24 +2533,25 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type      : "date_range",
-            field     : "duration",
-            from      : "2014/01/01",
-            to        : "2014/12/31",
-            operation : "is_within" }
+       filter: {
+          type: "date_range",
+          field: "duration",
+          from: "2014/01/01",
+          to: "2014/12/31",
+          operation: "is_within"
+       }
     }');
 
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31").operation("is_within")).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31").operation("is_within")).build());
 
 
 Fuzzy search
@@ -2505,14 +2565,15 @@ Searches for rows matching a term using similarity based on
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query) : {
-            type  : "fuzzy",
-            field : <field_name> ,
-            value : <value>
-            (, max_edits      : <max_edits> )?
-            (, prefix_length  : <prefix_length> )?
-            (, max_expansions : <max_expansion> )?
-            (, transpositions : <transposition> )? }
+       (filter | query): {
+          type: "fuzzy",
+          field: <field_name> ,
+          value: <value>
+          (, max_edits: <max_edits> )?
+          (, prefix_length: <prefix_length> )?
+          (, max_expansions: <max_expansion> )?
+          (, transpositions: <transposition> )?
+       }
     }');
 
 where:
@@ -2537,23 +2598,24 @@ differs in one edit operation from “puma”, such as “pumas”:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type      : "fuzzy",
-            field     : "phrase",
-            value     : "puma",
-            max_edits : 1 }
+       filter: {
+          type: "fuzzy",
+          field: "phrase",
+          value: "puma",
+          max_edits: 1
+       }
     }');
 
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(fuzzy("phrase", "puma").maxEdits(1)).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(fuzzy("phrase", "puma").maxEdits(1)).build());
 
 
 **Example 2:** same as example 1 but will limit the results to rows where
@@ -2562,23 +2624,24 @@ phrase contains a word that starts with “pu”:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type          : "fuzzy",
-            field         : "phrase",
-            value         : "puma",
-            max_edits     : 1,
-            prefix_length : 2 }
+       filter: {
+          type: "fuzzy",
+          field: "phrase",
+          value: "puma",
+          max_edits: 1,
+          prefix_length: 2
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(fuzzy("phrase", "puma").maxEdits(1).prefixLength(2)).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(fuzzy("phrase", "puma").maxEdits(1).prefixLength(2)).build());
 
 
 Geo bbox search
@@ -2592,24 +2655,25 @@ contained in the specified bounding box.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query) : {
-            type          : "geo_bbox",
-            field         : <field_name>,
-            min_latitude  : <min_latitude> ,
-            max_latitude  : <max_latitude> ,
-            min_longitude : <min_longitude> ,
-            max_longitude : <max_longitude> }
+       (filter | query): {
+          type: "geo_bbox",
+          field: <field_name>,
+          min_latitude: <min_latitude> ,
+          max_latitude: <max_latitude> ,
+          min_longitude: <min_longitude> ,
+          max_longitude: <max_longitude>
+       }
     }');
 
 where:
 
--  **min\_latitude** : a double value between -90 and 90 being the min
+-  **min\_latitude**: a double value between -90 and 90 being the min
    allowed latitude.
--  **max\_latitude** : a double value between -90 and 90 being the max
+-  **max\_latitude**: a double value between -90 and 90 being the max
    allowed latitude.
--  **min\_longitude** : a double value between -180 and 180 being the
+-  **min\_longitude**: a double value between -180 and 180 being the
    min allowed longitude.
--  **max\_longitude** : a double value between -180 and 180 being the
+-  **max\_longitude**: a double value between -180 and 180 being the
    max allowed longitude.
 
 **Example 1:** search for any rows where “place” is formed by a latitude
@@ -2619,24 +2683,25 @@ between -90.0 and 90.0, and a longitude between -180.0 and
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type          : "geo_bbox",
-            field         : "place",
-            min_latitude  : -90.0,
-            max_latitude  : 90.0,
-            min_longitude : -180.0,
-            max_longitude : 180.0 }
+       filter: {
+          type: "geo_bbox",
+          field: "place",
+          min_latitude: -90.0,
+          max_latitude: 90.0,
+          min_longitude: -180.0,
+          max_longitude: 180.0
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(geoBBox("place", -180.0, 180.0, -90.0, 90.0)).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(geoBBox("place", -180.0, 180.0, -90.0, 90.0)).build());
 
 
 **Example 2:** search for any rows where “place” is formed by a latitude
@@ -2646,25 +2711,25 @@ between -90.0 and 90.0, and a longitude between 0.0 and
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type          : "geo_bbox",
-            field         : "place",
-            min_latitude  : -90.0,
-            max_latitude  : 90.0,
-            min_longitude : 0.0,
-            max_longitude : 10.0 }
+       filter: {
+          type: "geo_bbox",
+          field: "place",
+          min_latitude: -90.0,
+          max_latitude: 90.0,
+          min_longitude: 0.0,
+          max_longitude: 10.0 }
     }');
 
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(geoBBox("place",0.0,10.0,-90.0,90.0)).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(geoBBox("place", 0.0, 10.0, -90.0, 90.0)).build());
 
 
 **Example 3:** search for any rows where “place” is formed by a latitude
@@ -2674,33 +2739,33 @@ between 0.0 and 10.0, and a longitude between -180.0 and
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type          : "geo_bbox",
-            field         : "place",
-            min_latitude  : 0.0,
-            max_latitude  : 10.0,
-            min_longitude : -180.0,
-            max_longitude : 180.0 },
-        sort : {
-            type      : "geo_distance",
-            field     : "geo_point",
-            reverse   : false,
-            latitude  : 0.0,
-            longitude : 0.0 }
+       filter: {
+          type: "geo_bbox",
+          field: "place",
+          min_latitude: 0.0,
+          max_latitude: 10.0,
+          min_longitude: -180.0,
+          max_longitude: 180.0 },
+       sort: {
+          type: "geo_distance",
+          field: "geo_point",
+          reverse: false,
+          latitude: 0.0,
+          longitude: 0.0 }
     }');
 
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?) LIMIT 100",
-        search().filter(geoBBox("place", -180.0, 180.0, 0.0, 10.0))
-                .sort(geoDistanceSortField("geo_point", 0.0, 0.0).reverse(false)
-                .build());
+       "SELECT * FROM users WHERE expr(users_index, ?) LIMIT 100",
+       search().filter(geoBBox("place", -180.0, 180.0, 0.0, 10.0))
+               .sort(geoDistanceSortField("geo_point", 0.0, 0.0).reverse(false)
+               .build());
 
 Geo distance search
 ===================
@@ -2713,46 +2778,47 @@ within a distance range from a specified point.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query) : {
-            type            : "geo_distance",
-            field           : <field_name> ,
-            latitude        : <latitude> ,
-            longitude       : <longitude> ,
-            max_distance    : <max_distance>
-            (, min_distance : <min_distance> )? }
+        (filter | query): {
+            type: "geo_distance",
+            field: <field_name> ,
+            latitude: <latitude> ,
+            longitude: <longitude> ,
+            max_distance: <max_distance>
+            (, min_distance: <min_distance> )? }
     }');
 
 where:
 
--  **latitude** : a double value between -90 and 90 being the latitude
+-  **latitude**: a double value between -90 and 90 being the latitude
    of the reference point.
--  **longitude** : a double value between -180 and 180 being the
+-  **longitude**: a double value between -180 and 180 being the
    longitude of the reference point.
--  **max\_distance** : a string value being the max allowed `distance <#distance>`__ from the reference point.
--  **min\_distance** : a string value being the min allowed `distance <#distance>`__ from the reference point.
+-  **max\_distance**: a string value being the max allowed `distance <#distance>`__ from the reference point.
+-  **min\_distance**: a string value being the min allowed `distance <#distance>`__ from the reference point.
 
 **Example 1:** search for any rows where “place” is within one kilometer from the geo point (40.225479, -3.999278):
 
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type         : "geo_distance",
-            field        : "place",
-            latitude     : 40.225479,
-            longitude    : -3.999278,
-            max_distance : "1km" }
+       filter: {
+          type: "geo_distance",
+          field: "place",
+          latitude: 40.225479,
+          longitude: -3.999278,
+          max_distance: "1km"
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(geoDistance("place", -3.999278d, 40.225479d, "1km").build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(geoDistance("place", -3.999278d, 40.225479d, "1km").build());
 
 
 **Example 2:** search for any rows where “place” is within one yard and ten
@@ -2761,23 +2827,26 @@ yards from the geo point (40.225479, -3.999278) sorted by min distance to point 
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type          : "geo_distance",
-            field         : "place",
-            latitude      : 40.225479,
-            longitude     : -3.999278,
-            max_distance  : "10yd" ,
-            min_distance  : "1yd" },
-        sort   : {
-            fields: [ {
-                type      : "geo_distance",
-                field     : "geo_point",
-                reverse   : false,
-                latitude  : 40.225479,
-                longitude : -3.999278} ] }
+       filter: {
+          type: "geo_distance",
+          field: "place",
+          latitude: 40.225479,
+          longitude: -3.999278,
+          max_distance: "10yd" ,
+          min_distance: "1yd"
+       },
+       sort: {
+          fields: [ {
+             type: "geo_distance",
+             field: "geo_point",
+             reverse: false,
+             latitude: 40.225479,
+             longitude: -3.999278
+          } ]
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2793,7 +2862,8 @@ Geo shape search
 ================
 
 Searches for rows with `geographical points <#geo-point-mapper>`__ or `geographical shapes <#geo-shape-mapper>`__
-related to a specified shape with `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ format.
+related to a specified `shape <#shapes>`__. Search shapes can be either shapes with
+`Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ format or transformations over WKT shapes.
 The supported WKT shapes are point, linestring, polygon, multipoint, multilinestring and multipolygon.
 
 This search type depends on `Java Topology Suite (JTS) <http://www.vividsolutions.com/jts>`__.
@@ -2806,21 +2876,19 @@ into your Cassandra installation lib directory.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name, '{
-        (filter | query) : {
-            type               : "geo_shape",
-            field              : <fieldname> ,
-            shape              : <shape>
-            (, operation       : <operation>)?
-            (, transformations : [(<transformation>,)?])?
-    }}');
+       (filter | query): {
+          type : "geo_shape",
+          field: <fieldname> ,
+          shape: <shape>
+          (, operation: <operation>)?
+       }
+    }');
 
 where:
 
--  **shape** : a double value between -90 and 90 being the latitude
-   of the reference point.
--  **operation** : the type of spatial operation to be performed. The possible values are "intersects", "is_within" and
+-  **shape**: a geospatial `shape <#shapes>`__.
+-  **operation**: the type of spatial operation to be performed. The possible values are "intersects", "is_within" and
 "contains". Defaults to "is_within".
--  **transformation** : a list of `geometrical transformations <#transformations>`__ to be applied to the shape before using it for searching.
 
 **Example 1:** search for shapes within a polygon:
 
@@ -2832,21 +2900,26 @@ where:
 .. code-block:: sql
 
     SELECT * FROM test WHERE expr(test_index, '{
-        filter : {
-            type  : "geo_shape",
-            field : "place",
-            shape : "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))" }
+        filter: {
+            type: "geo_shape",
+            field: "place",
+            shape: {
+               type: "wkt",
+               value: "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))"
+            }
+        }
     }';
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
+    String shape = "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))";
     ResultSet rs = session.execute(
       "SELECT * FROM TABLE test WHERE expr(test_index, ?)",
-      search().filter(geoShape("place", "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))")).build());
+      search().filter(geoShape("place", wkt(shape))).build());
 
 **Example 2:** search for shapes intersecting with a shape defined by a buffer 10 kilometers around a segment of the
 Florida's coastline:
@@ -2859,24 +2932,31 @@ Florida's coastline:
 .. code-block:: sql
 
     SELECT * FROM test WHERE expr(test_index, '{
-        filter : {
-            type            : "geo_shape",
-            field           : "place",
-            relation        : "intersects",
-            shape           : "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)",
-            transformations : [{type:"buffer", max_distance:"10km"}] }
+        filter: {
+            type: "geo_shape",
+            field: "place",
+            relation: "intersects",
+            shape: {
+               type: "buffer",
+               max_distance: "10km",
+               shape: {
+                  type: "wkt",
+                  value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
+               }
+            }
+        }
     }';
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
+    String shape = "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))";
     ResultSet rs = session.execute(
         "SELECT * FROM TABLE test WHERE expr(test_index, ?)",
-        search().filter(geoShape("place", "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))")
-             .operation("intersects").transform(bufferGeoTransformation().maxDistance("10km"))).build());
+        search().filter(geoShape("place", buffer(shape).maxDistance("10km")).operation("intersects")).build());
 
 
 Match search
@@ -2889,11 +2969,12 @@ Searches for rows with columns containing the specified term. The matching depen
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query) : {
-            type  : "match",
-            field : <field_name> ,
-            value : <value> }
-            (, doc_values : <doc_values> )? }
+       (filter | query): {
+          type: "match",
+          field: <field_name>,
+          value: <value>,
+          (, doc_values: <doc_values> )?
+       }
     }');
 
 where:
@@ -2906,21 +2987,22 @@ where:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type  : "match",
-            field : "name",
-            value : "Alicia" }
+       filter: {
+          type: "match",
+          field: "name",
+          value: "Alicia"
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(match("name", "Alicia")).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(match("name", "Alicia")).build());
 
 
 **Example 2:** search for any rows where phrase contains “mancha”:
@@ -2928,21 +3010,22 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type  : "match",
-            field : "phrase",
-            value : "mancha" }
+       filter: {
+          type: "match",
+          field: "phrase",
+          value: "mancha"
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(match("phrase", "mancha").build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(match("phrase", "mancha").build());
 
 
 **Example 3:** search for rows where date matches “2014/01/01″:
@@ -2950,22 +3033,23 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type       : "match",
-            field      : "date",
-            value      : "2014/01/01",
-            doc_values : true}
+       filter: {
+          type: "match",
+          field: "date",
+          value: "2014/01/01",
+          doc_values: true
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(match("date", "2014/01/01").docValues(true)).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(match("date", "2014/01/01").docValues(true)).build());
 
 
 None search
@@ -2978,7 +3062,7 @@ Returns no results.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query) : { type  : "none"}
+       (filter | query): {type: "none"}
     }');
 
 **Example:** will return no one of the indexed rows:
@@ -2986,18 +3070,18 @@ Returns no results.
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : { type  : "none" }
+       filter: {type: "none"}
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(none()).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(none()).build());
 
 Phrase search
 =============
@@ -3009,11 +3093,11 @@ Searches for rows with columns containing a particular sequence of terms.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query) : {
-            type    : "phrase",
-            field   : <field_name> ,
-            value   : <value>
-            (, slop : <slop> )? }
+       (filter | query): {
+          type: "phrase",
+          field: <field_name> ,
+          value: <value>
+          (, slop: <slop> )? }
     }');
 
 where:
@@ -3027,13 +3111,14 @@ followed by the word “manchada”:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-        type   : "phrase",
-        field  : "phrase",
-        values : "camisa manchada" }
+       filter: {
+          type: "phrase",
+          field: "phrase",
+          values: "camisa manchada"
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -3049,14 +3134,15 @@ followed by the word “camisa” having 0 to 2 words in between:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type   : "phrase",
-            field  : "phrase",
-            values : "mancha camisa",
-            slop   : 2 }
+       filter: {
+          type: "phrase",
+          field: "phrase",
+          values: "mancha camisa",
+          slop: 2
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -3076,10 +3162,11 @@ Searches for rows with columns with terms starting with the specified prefix.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query) : {
-            type  : "prefix",
-            field : <field_name> ,
-            value : <value> }
+       (filter | query): {
+           type: "prefix",
+          field: <field_name> ,
+          value: <value>
+       }
     }');
 
 **Example:** search for rows where “phrase” contains a word starting with
@@ -3089,21 +3176,22 @@ ignored by the analyzer will not be retrieved:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type  : "prefix",
-            field : "phrase",
-            value : "lu" }
+       filter: {
+          type: "prefix",
+          field: "phrase",
+          value: "lu"
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(prefix("phrase", "lu")).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(prefix("phrase", "lu")).build());
 
 Range search
 ============
@@ -3115,14 +3203,15 @@ Searches for rows with columns with terms within the specified term range.
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        (filter | query) : {
-            type     : "range",
-            field    : <field_name>
-            (, lower : <lower>)?
-            (, upper : <upper>)?
-            (, include_lower : <include_lower> )?
-            (, include_upper : <include_upper> )?
-            (, doc_values : <doc_values> )? }
+       (filter | query): {
+          type: "range",
+          field: <field_name>
+          (, lower: <lower>)?
+          (, upper: <upper>)?
+          (, include_lower: <include_lower> )?
+          (, include_upper: <include_upper> )?
+          (, doc_values: <doc_values> )?
+       }
     }');
 
 where:
@@ -3136,7 +3225,7 @@ where:
 -  **doc\_values** (default = false): if the generated Lucene query should use doc values instead of inverted index.
    Doc values searches are typically slower, but they can be faster in the dense case where most rows match the search.
 
-Lower and upper will default to :math:`-/+\\infty` for number. In the
+Lower and upper will default to:math:`-/+\\infty` for number. In the
 case of byte and string like data (bytes, inet, string, text), all
 values from lower up to upper will be returned if both are specified. If
 only “lower” is specified, all rows with values from “lower” will be
@@ -3149,100 +3238,104 @@ be returned.
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type          : "range",
-            field         : "age",
-            lower         : 65,
-            include_lower : true }
+       filter: {
+          type: "range",
+          field: "age",
+          lower: 65,
+          include_lower: true
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(range("age").lower(1).includeLower(true)).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(range("age").lower(1).includeLower(true)).build());
 
 **Example 2:** search for rows where *age* is in (-∞, 0]:
 
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type          : "range",
-            field         : "age",
-            upper         : 0,
-            include_upper : true,
-            doc_values    : true}
+       filter: {
+          type: "range",
+          field: "age",
+          upper: 0,
+          include_upper: true,
+          doc_values: true
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(range("age").upper(0).includeUpper(true).docValues(true)).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(range("age").upper(0).includeUpper(true).docValues(true)).build());
 
 **Example 3:** search for rows where *age* is in [-1, 1]:
 
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type          : "range",
-            field         : "age",
-            lower         : -1,
-            upper         : 1,
-            include_lower : true,
-            include_upper : true,
-            doc_values    : false }
+       filter: {
+          type: "range",
+          field: "age",
+          lower: -1,
+          upper: 1,
+          include_lower: true,
+          include_upper: true,
+          doc_values: false
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(range("age").lower(-1).upper(1)
-                                    .includeLower(true)
-                                    .includeUpper(true)
-                                    .docValues(true)).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(range("age").lower(-1).upper(1)
+                                   .includeLower(true)
+                                   .includeUpper(true)
+                                   .docValues(true)).build());
 
 **Example 4:** search for rows where *date* is in [2014/01/01, 2014/01/02]:
 
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type          : "range",
-            field         : "date",
-            lower         : "2014/01/01",
-            upper         : "2014/01/02",
-            include_lower : true,
-            include_upper : true }
+       filter: {
+          type: "range",
+          field: "date",
+          lower: "2014/01/01",
+          upper: "2014/01/02",
+          include_lower: true,
+          include_upper: true
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(range("date").lower("2014/01/01")
-                                     .upper( "2014/01/02")
-                                     .includeLower(true)
-                                     .includeUpper(true)).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(range("date").lower("2014/01/01")
+                                    .upper( "2014/01/02")
+                                    .includeLower(true)
+                                    .includeUpper(true)).build());
 
 Regexp search
 =============
@@ -3254,10 +3347,11 @@ Searches for rows with columns with terms satisfying the specified regular expre
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        (filter | query) : {
-            type  : "regexp",
-            field : <field_name>,
-            value : <regexp> }
+       (filter | query): {
+          type: "regexp",
+          field: <field_name>,
+          value: <regexp>
+       }
     }');
 
 where:
@@ -3272,21 +3366,22 @@ where:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type  : "regexp",
-            field : "name",
-            value : "[J][aeiou]{2}.*" }
+       filter: {
+          type: "regexp",
+          field: "name",
+          value: "[J][aeiou]{2}.*"
+       }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(regexp("name", "[J][aeiou]{2}.*")).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(regexp("name", "[J][aeiou]{2}.*")).build());
 
 Wildcard search
 ===============
@@ -3298,10 +3393,11 @@ Searches for rows with columns with terms satisfying the specified wildcard patt
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        (filter | query) : {
-            type  : "wildcard" ,
-            field : <field_name> ,
-            value : <wildcard_exp> }
+       (filter | query): {
+          type: "wildcard" ,
+          field: <field_name> ,
+          value: <wildcard_exp>
+       }
     }');
 
 where:
@@ -3315,25 +3411,27 @@ where:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type  : "wildcard",
-            field : "food",
-            value : "tu*" }
+       filter: {
+          type: "wildcard",
+          field: "food",
+          value: "tu*"
+       }
     }');
 
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(wildcard("food", "tu*")).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(wildcard("food", "tu*")).build());
 
+---------------------
 Geographical elements
-*********************
+---------------------
 
 Geographical indexing and search make use of some common elements that are described in this section.
 
@@ -3378,24 +3476,195 @@ one kilometer from the geo point (40.225479, -3.999278). The distance is express
 .. code-block:: sql
 
     SELECT * FROM test.users WHERE stratio_col = '{
-        filter : {
-            type         : "geo_distance",
-            field        : "place",
-            latitude     : 40.225479,
-            longitude    : -3.999278,
-            max_distance : "1km" }
+       filter: {
+          type: "geo_distance",
+          field: "place",
+          latitude: 40.225479,
+          longitude: -3.999278,
+          max_distance: "1km"
+       }
     }';
 
 
 Transformations
 ===============
 
-Both `geo shape mapper <#geo-shape-mapper>`__ and `geo shape search <#geo-shape-search>`__ take a  list of geometrical
-transformations as argument. These transformations are sequentially applied to the shape that is going to be indexed or
-searched.
+`Geo shape mapper <#geo-shape-mapper>`__ takes a list of geometrical transformations as argument. These transformations
+are sequentially applied to the shape that is going to be indexed or searched.
 
-Bounding box
-____________
+Bounding box transformation
+___________________________
+
+Buffer transformation returns the `minimum bounding box <https://en.wikipedia.org/wiki/Minimum_bounding_box>`__ of a
+shape, that is, the minimum rectangle containing the shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    {type: "bbox"}
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the bounding box of the WKT shape
+contained in the indexed column:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX places_index on places()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             shape: {
+                type: "geo_shape",
+                max_levels: 8,
+                 transformations: [{type: "bbox"}]
+             }
+          }
+       }'
+    };
+
+Buffer transformation
+_____________________
+
+Buffer transformation returns a buffer around a shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    {type: "buffer"
+      (, min_distance: <distance> )?
+      (, max_distance: <distance> )?
+    }
+
+where:
+
+-  **min_distance**: the inside buffer `distance <#distance>`__. Optional.
+-  **max_distance**: the outside buffer `distance <#distance>`__. Optional.
+
+**Example:** the following `geo shape mapper <#geo-shape-mapper>`__ will index a buffer 10 kilometers around the WKT
+shape contained in the indexed column:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX places_index on places()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             shape: {
+                type: "geo_shape",
+                max_levels: 8,
+                 transformations: [{type: "buffer", max_distance: "10km"}]
+             }
+          }
+       }'
+    };
+
+Centroid transformation
+_______________________
+
+Centroid transformation returns the geometric center of a shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    {type: "centroid"}
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the centroid of the WKT shape
+contained in the indexed column:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX places_index on places()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             shape: {
+                type: "geo_shape",
+                max_levels: 8,
+                transformations: [{type: "centroid"}]
+             }
+          }
+       }'
+    };
+
+Convex hull transformation
+__________________________
+
+Convex hull transformation returns the `convex envelope <https://en.wikipedia.org/wiki/Convex_hull>`__ of a shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    {type: "convex_hull"}
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the convex hull of the WKT shape
+contained in the indexed column:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX places_index on places()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             shape: {
+                type: "geo_shape",
+                max_levels: 8,
+                transformations: [{type: "convex_hull"}]
+             }
+          }
+       }'
+    };
+
+
+Shapes
+======
+
+`Geo shape search <#geo-shape-search>`__ allows the recursive definition of the search shape as a group of
+transformations over other shapes.
+
+WKT shape
+_________
+
+A shape defined in `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ format.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    {type: "wkt", value: <value>}
+
+where:
+
+-  **value**: A string containing the WKT shape. Mandatory.
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting a WKT shape:
+
+.. code-block:: sql
+
+    SELECT * FROM places WHERE expr(places_idx,'{
+       filter: {
+          type: "geo_shape",
+          field: "place",
+          relation: "intersects",
+          shape: {
+             type: "wkt",
+             value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
+          }
+       }
+    }');
+
+Bounding box shape
+__________________
 
 Buffer transformation returns the `minimum bounding box <https://en.wikipedia.org/wiki/Minimum_bounding_box>`__ a shape,
 that is, the minimum rectangle containing the shape.
@@ -3404,30 +3673,34 @@ that is, the minimum rectangle containing the shape.
 
 .. code-block:: sql
 
-    { type : "bbox" }
+    {type: "bbox", shape: <shape>}
 
-**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the bounding box of the WKT shape
-contained in the indexed column:
+where:
+
+-  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the bounding box
+of a WKT shape:
 
 .. code-block:: sql
 
-    CREATE CUSTOM INDEX cities_index on cities()
-    USING 'com.stratio.cassandra.lucene.Index'
-    WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"bbox"}]
-                }
-            }
-        }'
-    };
+    SELECT * FROM places WHERE expr(places_idx,'{
+       filter: {
+          type: "geo_shape",
+          field: "place",
+          relation: "intersects",
+          shape: {
+             type: "bbox",
+             shape: {
+                type: "wkt",
+                value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
+             }
+          }
+       }
+    }');
 
-Buffer
-______
+Buffer shape
+____________
 
 Buffer transformation returns a buffer around a shape.
 
@@ -3435,13 +3708,16 @@ Buffer transformation returns a buffer around a shape.
 
 .. code-block:: sql
 
-    { type : "buffer"
-      (, min_distance : <distance> )?
-      (, max_distance : <distance> )?
+    {
+       type: "buffer"
+       shape: <shape>
+       (, min_distance: <distance> )?
+       (, max_distance: <distance> )?
     }
 
 where:
 
+-  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
 -  **min_distance**: the inside buffer `distance <#distance>`__. Optional.
 -  **max_distance**: the outside buffer `distance <#distance>`__. Optional.
 
@@ -3451,16 +3727,23 @@ defined by a buffer 10 kilometers around a segment of the Florida's coastline:
 .. code-block:: sql
 
     SELECT * FROM test WHERE expr(test_idx,'{
-        filter : {
-            type            : "geo_shape",
-            field           : "place",
-            relation        : "intersects",
-            shape           : "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)",
-            transformations : [{type:"buffer", max_distance:"10km"}] }
+       filter: {
+          type: "geo_shape",
+          field: "place",
+          relation: "intersects",
+          shape: {
+             type: "buffer",
+             max_distance: "10km",
+             shape: {
+                type: "wkt",
+                value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
+             }
+          }
+       }
     }');
 
-Centroid
-________
+Centroid shape
+______________
 
 Centroid transformation returns the geometric center of a shape.
 
@@ -3468,30 +3751,34 @@ Centroid transformation returns the geometric center of a shape.
 
 .. code-block:: sql
 
-    { type : "centroid" }
+    {type: "centroid", shape: <shape>}
 
-**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the centroid of the WKT shape
-contained in the indexed column:
+where:
+
+-  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the centroid of a
+WKT shape:
 
 .. code-block:: sql
 
-    CREATE CUSTOM INDEX cities_index on cities()
-    USING 'com.stratio.cassandra.lucene.Index'
-    WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"centroid"}]
-                }
-            }
-        }'
-    };
+    SELECT * FROM places WHERE expr(places_idx,'{
+       filter: {
+          type: "geo_shape",
+          field: "place",
+          relation: "intersects",
+          shape: {
+             type: "centroid",
+             shape: {
+                type: "wkt",
+                value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
+             }
+          }
+       }
+    }');
 
-Convex hull
-___________
+Convex hull shape
+_________________
 
 Convex hull transformation returns the `convex envelope <https://en.wikipedia.org/wiki/Convex_hull>`__ of a shape.
 
@@ -3499,85 +3786,80 @@ Convex hull transformation returns the `convex envelope <https://en.wikipedia.or
 
 .. code-block:: sql
 
-    { type : "convex_hull" }
+    {type: "convex_hull", shape: <shape>}
 
-**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the convex hull of the WKT shape
-contained in the indexed column:
+where:
+
+-  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the convex hull of
+a WKT shape:
 
 .. code-block:: sql
 
-    CREATE CUSTOM INDEX cities_index on cities()
-    USING 'com.stratio.cassandra.lucene.Index'
-    WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"convex_hull"}]
-                }
-            }
-        }'
-    };
+    SELECT * FROM places WHERE expr(places_idx,'{
+       filter: {
+          type: "geo_shape",
+          field: "place",
+          relation: "intersects",
+          shape: {
+             type: "convex_hull",
+             shape: {
+                type: "wkt",
+                value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
+             }
+          }
+       }
+    }');
 
-Difference
-__________
+Difference shape
+________________
 
-Difference transformation subtracts the specified shape.
+Difference transformation subtracts the specified shapes.
 
 **Syntax:**
 
 .. code-block:: sql
 
-    {
-      type : "difference",
-      shape : "<shape>"
-    }
+    {type: "difference", shapes: [ <shape> (, <shape>)* ] }
 
 where:
 
--  **shape**: The shape to be subtracted as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ string. Mandatory.
+-  **shapes**: the `shapes <#shapes>`__ to be subtracted. Mandatory.
 
-Intersection
-____________
+Intersection shape
+__________________
 
-Intersection transformation intersects the specified shape.
+Intersection transformation intersects the specified shapes.
 
 **Syntax:**
 
 .. code-block:: sql
 
-    {
-      type : "intersection",
-      shape : "<shape>"
-    }
+    {type: "intersection", shapes: [ <shape> (, <shape>)* ] }
 
 where:
 
--  **shape**: The shape to be intersected as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ string. Mandatory.
+-  **shapes**: the `shapes <#shapes>`__ to be intersected. Mandatory.
 
-Union
-_____
+Union shape
+___________
 
-Union transformation adds the specified shape.
+Union transformation adds the specified shapes.
 
 **Syntax:**
 
 .. code-block:: sql
 
-    {
-      type : "union",
-      shape : "<shape>"
-    }
+    {type: "union", shapes: [ <shape> (, <shape>)* ] }
 
 where:
 
--  **shape**: The shape to be added as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ string. Mandatory.
+-  **shapes**: the `shapes <#shapes>`__ to be added. Mandatory.
 
-
+------------------
 Complex data types
-******************
+------------------
 
 Tuples
 ======
@@ -3601,27 +3883,29 @@ You can index, search and sort tuples this way:
     'refresh_seconds':'1',
     'schema':'{
         fields:{
-            "v.0":{type:"integer"},
-            "v.1":{type:"string"},
-            "v.2":{type:"float"} }
+            "v.0": {type: "integer"},
+            "v.1": {type: "string"},
+            "v.2": {type: "float"} }
      }'};
 
     SELECT * FROM collect_things WHERE expr(tweets_index, '{
-        filter : {
-            type  : "match",
-            field : "v.0",
-            value : 1 }
+       filter: {
+          type: "match",
+          field: "v.0",
+          value: 1
+       }
     }');
 
     SELECT * FROM collect_things WHERE expr(tweets_index, '{
-        filter : {
-            type  : "match",
-            field : "v.1",
-            value : "bar" }
+       filter: {
+          type: "match",
+          field: "v.1",
+          value: "bar"
+        }
     }');
 
     SELECT * FROM collect_things WHERE expr(tweets_index, '{
-        sort : {field : "v.2"}
+        sort: {field: "v.2"}
     }');
 
 
@@ -3645,37 +3929,37 @@ Since Cassandra 2.1.X users can declare `User Defined Types <http://docs.datasta
         address address_udt
     );
 
-The components of UDTs can be indexed, searched and sorted this way :
+The components of UDTs can be indexed, searched and sorted this way:
 
 .. code-block:: sql
 
     CREATE CUSTOM INDEX test_index ON test.user_profiles()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                "address.city" : { type : "string"},
-                "address.zip"  : { type : "integer"}
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             "address.city": {type: "string"},
+             "address.zip": {type: "integer"}
+          }
+       }'
     };
 
     SELECT * FROM user_profiles WHERE expr(tweets_index,'{
-        filter : {
-            type  : "match",
-            field : "address.city",
-            value : "San Fransisco"
-        }
+       filter: {
+          type: "match",
+          field: "address.city",
+          value: "San Fransisco"
+       }
     }');
 
     SELECT * FROM user_profiles WHERE expr(tweets_index,'{
-        filter : {
-            type  : "range",
-            field : "address.zip",
-            lower : 0,
-            upper : 10
-        }
+       filter: {
+          type: "range",
+          field: "address.zip",
+          lower: 0,
+          upper: 10
+       }
     }');
 
 Collections
@@ -3688,21 +3972,21 @@ List ans sets are indexed in the same way as regular columns, using their base t
 .. code-block:: sql
 
     CREATE TABLE user_profiles (
-        login text PRIMARY KEY,
-        first_name text,
-        last_name text,
-        cities list<text>
+       login text PRIMARY KEY,
+       first_name text,
+       last_name text,
+       cities list<text>
     );
 
     CREATE CUSTOM INDEX test_index ON test.user_profiles()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                cities : { type : "string"}
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+           fields: {
+              cities: {type: "string"}
+           }
+       }'
     };
 
 Searches are also done in the same way as with regular columns:
@@ -3710,11 +3994,11 @@ Searches are also done in the same way as with regular columns:
 .. code-block:: sql
 
     SELECT * FROM user_profiles WHERE expr(tweets_index,'{
-        filter : {
-            type  : "match",
-            field : "cities",
-            value : "San Francisco"
-        }
+       filter: {
+          type: "match",
+          field: "cities",
+          value: "San Francisco"
+       }
     }');
 
 Maps are indexed associating values to their keys:
@@ -3722,21 +4006,21 @@ Maps are indexed associating values to their keys:
 .. code-block:: sql
 
     CREATE TABLE user_profiles (
-        login text PRIMARY KEY,
-        first_name text,
-        last_name text,
-        addresses map<text,text>
+       login text PRIMARY KEY,
+       first_name text,
+       last_name text,
+       addresses map<text,text>
     );
 
     CREATE CUSTOM INDEX test_index ON test.user_profiles()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                addresses : { type : "string"}
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             addresses: {type: "string"}
+          }
+       }'
     };
 
 For searching map values under a certain key you should use '$' as field-key separator:
@@ -3744,14 +4028,15 @@ For searching map values under a certain key you should use '$' as field-key sep
 .. code-block:: sql
 
     INSERT INTO user_profiles (login, first_name, last_name, addresses)
-        VALUES('user','Peter','Handsome',
-                {'San Francisco':'Market street 2', 'Madrid': 'Calle Velazquez' })
+       VALUES('user','Peter','Handsome',
+               {'San Francisco':'Market street 2', 'Madrid': 'Calle Velazquez' })
 
     SELECT * FROM user_profiles WHERE expr(tweets_index,'{
-        filter : {
-            type  : "match",
-            field : "cities$Madrid",
-            value : "San Francisco" }
+       filter: {
+          type: "match",
+          field: "cities$Madrid",
+          value: "San Francisco"
+       }
     }');
 
 Please don't use map keys containing the separator chars, which are '.' and '$'.
@@ -3761,33 +4046,33 @@ UDTs can be indexed even while being inside collections. It is done so using '.'
 .. code-block:: sql
 
     CREATE TYPE address (
-        street text,
-        city text,
-        zip int
+       street text,
+       city text,
+       zip int
     );
 
     CREATE TABLE user_profiles (
-        login text PRIMARY KEY,
-        first_name text,
-        last_name text,
-        addresses list<frozen<address>>
+       login text PRIMARY KEY,
+       first_name text,
+       last_name text,
+       addresses list<frozen<address>>
     );
 
     CREATE CUSTOM INDEX test_index ON test.user_profiles()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                "addresses.city" : { type : "string"},
-                "addresses.zip"  : { type : "integer"}
-            }
-        }'
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             "addresses.city": {type: "string"},
+             "addresses.zip": {type: "integer"}
+          }
+       }'
     };
 
-
+-------------
 Query Builder
-*************
+-------------
 
 There is a separate module named "builder" that can be included in client applications
 to ease the building of the JSON statements used by the index.
@@ -3824,16 +4109,16 @@ And you can also build searches in a similar fashion:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM table WHERE expr(users_index, ?)",
-        search().filter(match("user", "adelapena"))
-                .query(phrase("message", "cassandra rules"))
-                .sort(field("date").reverse(true))
-                .refresh(true)
-                .build());
+       "SELECT * FROM table WHERE expr(users_index, ?)",
+       search().filter(match("user", "adelapena"))
+               .query(phrase("message", "cassandra rules"))
+               .sort(field("date").reverse(true))
+               .refresh(true)
+               .build());
 
-
+----------------
 Spark and Hadoop
-****************
+----------------
 
 Spark and Hadoop integrations are fully supported because Lucene searches
 can be combined with token range restrictions and paging, which are the
@@ -3857,7 +4142,7 @@ tokens is applied first and then the condition of the filter clause.
 .. code-block:: sql
 
     SELECT name, gender FROM test.users
-    WHERE lucene = '{filter : {type : "match", field : "food", value : "chips"}}')
+    WHERE lucene = '{filter: {type: "match", field: "food", value: "chips"}}')
     AND token(name, gender) > token('Alicia', 'female');
 
 Paging
@@ -3870,7 +4155,7 @@ the rows starting from a certain key. For example, if the primary key is
 .. code-block:: sql
 
     SELECT * FROM tweets
-    WHERE lucene = ‘{filter : {type:”match",  field:”text", value:”cassandra”}}'
+    WHERE lucene = ‘{filter: {type:”match",  field:”text", value:”cassandra”}}'
     AND userid = 3543534 AND createdAt > 2011-02-03 04:05+0000 LIMIT 5000;
 
 Examples
@@ -3898,8 +4183,9 @@ retrieving no more than the 25% of the stored data.
    :alt: spark_performance
    :align: center
 
+-------------
 JMX Interface
-*************
+-------------
 
 The existing Lucene indexes expose some attributes and operations
 through JMX, using the same MBean server as Apache Cassandra. The MBeans
@@ -3925,8 +4211,9 @@ distributed index.
 | forceMergeDeletes | Operation | Optimizes the index forcing merge segments containing deletions, leaving the specified number of segments. It also includes a boolean parameter to block until all merging completes. |
 +-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
+----------------
 Performance tips
-****************
+----------------
 
 Lucene index plugin performance varies depending upon several factors
 regarding to the use case and you should probably do some tuning work.
@@ -3945,10 +4232,11 @@ For example, the following search could be more efficiently addressed using a de
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(tweets_index, '{
-        filter : {
-            type  : "match",
-            field : "name",
-            value : "Alice" }
+        filter: {
+           type: "match",
+           field: "name",
+           value: "Alice"
+        }
     }');
 
 However, this search could be a good use case for Lucene just because there is no easy counterpart:
@@ -3956,12 +4244,14 @@ However, this search could be a good use case for Lucene just because there is n
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(tweets_index, '{
-        filter : [
-            { type  : "regexp", field : "name", value : "[J][aeiou]{2}.*" },
-            { type  : "range", field : "birthday", lower : "2014/04/25" } ],
-        sort : [
-            { field : "birthday", reverse : true },
-            { field : "name" } ]
+        filter: [
+            {type: "regexp", field: "name", value: "[J][aeiou]{2}.*"},
+            {type: "range", field: "birthday", lower: "2014/04/25"}
+        ],
+        sort: [
+            {field: "birthday", reverse: true },
+            {field: "name"}
+        ]
     }') LIMIT 20;
 
 Lucene indexes are intended to be used in those cases that can't be efficiently addressed
@@ -3996,7 +4286,7 @@ You can set the place where the index will be stored using the `directory_path` 
     CREATE CUSTOM INDEX tweets_index ON tweets ()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'directory_path' : '<lucene_disk>',
+        'directory_path': '<lucene_disk>',
         ...
     };
 
@@ -4029,8 +4319,8 @@ You can set the refresh rate using the `refresh` option:
     CREATE CUSTOM INDEX tweets_index ON tweets ()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh' : '<refresh_rate>',
-        ...
+       'refresh': '<refresh_rate>',
+       ...
     };
 
 Prefer filters over queries

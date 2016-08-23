@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.builder.search.condition;
 
+import com.stratio.cassandra.lucene.builder.common.GeoShape;
 import com.stratio.cassandra.lucene.builder.common.GeoTransformation;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,26 +34,22 @@ public class GeoShapeCondition extends Condition<GeoShapeCondition> {
     @JsonProperty("field")
     final String field;
 
-    /** The shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format. */
+    /** The shape. */
     @JsonProperty("shape")
-    final String shape;
+    final GeoShape shape;
 
     /** The spatial operation to be applied. */
     @JsonProperty("operation")
     String operation;
 
-    /** The sequence of transformations to be applied to the shape before searching. */
-    @JsonProperty("transformations")
-    List<GeoTransformation> transformations;
-
     /**
      * Constructor receiving the name of the field and the shape.
      *
      * @param field the name of the field
-     * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
+     * @param shape the shape
      */
     @JsonCreator
-    public GeoShapeCondition(@JsonProperty("field") String field, @JsonProperty("shape") String shape) {
+    public GeoShapeCondition(@JsonProperty("field") String field, @JsonProperty("shape") GeoShape shape) {
         this.field = field;
         this.shape = shape;
     }
@@ -65,22 +62,6 @@ public class GeoShapeCondition extends Condition<GeoShapeCondition> {
      */
     public GeoShapeCondition operation(String operation) {
         this.operation = operation;
-        return this;
-    }
-
-    /**
-     * Sets the transformations to be applied to the shape before using it for indexing it. Possible values are {@code
-     * intersects}, {@code is_within} and {@code contains}. Defaults to {@code is_within}.
-     *
-     * @param transformations the sequence of transformations
-     * @return this with the transformations set
-     */
-    public GeoShapeCondition transform(GeoTransformation... transformations) {
-        if (this.transformations == null) {
-            this.transformations = Arrays.asList(transformations);
-        } else {
-            this.transformations.addAll(Arrays.asList(transformations));
-        }
         return this;
     }
 }
