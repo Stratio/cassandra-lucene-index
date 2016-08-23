@@ -631,8 +631,8 @@ _________________
 Analyzer using a `http://snowball.tartarus.org/ <http://snowball.tartarus.org/>`__ snowball filter
 `SnowballFilter <https://lucene.apache.org/core/5_3_0/analyzers-common/org/apache/lucene/analysis/snowball/SnowballFilter.html>`__
 
-**Example:**
-
+Example:
+~~~~~~~~
 .. code-block:: sql
 
     CREATE CUSTOM INDEX census_index on census()
