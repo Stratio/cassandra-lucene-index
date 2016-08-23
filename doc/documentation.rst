@@ -52,19 +52,20 @@ Stratio's Cassandra Lucene Index
     - `Wildcard search <#wildcard-search>`__
 - `Geographical elements <#geographical-elements>`__
     - `Distance <#distance>`__
-    - `Index-time transformations <#index-time-transformations>`__
-        - `Bounding box <#bounding-box>`__
-        - `Buffer <#buffer>`__
-        - `Centroid <#centroid>`__
-        - `Convex hull <#convex-hull>`__
-    - `Search-time transformations <#search-time-transformations>`__
-        - `Bounding box <#bounding-box>`__
-        - `Buffer <#buffer>`__
-        - `Centroid <#centroid>`__
-        - `Convex hull <#convex-hull>`__
-        - `Difference <#difference>`__
-        - `Intersection <#intersection>`__
-        - `Union <#intersection>`__
+    - `Transformations <#transformations>`__
+        - `Bounding box transformation <#bounding-box-transformation>`__
+        - `Buffer transformation <#buffer-transformation>`__
+        - `Centroid transformation <#centroid-transformation>`__
+        - `Convex hull transformation <#convex-hull-transformation>`__
+    - `Shapes <#shapes>`__
+        - `WKT shape <#wkt-shape>`__
+        - `Bounding box shape <#bounding-box-shape>`__
+        - `Buffer shape <#buffer-shape>`__
+        - `Centroid shape <#centroid-shape>`__
+        - `Convex hull shape <#convex-hull-shape>`__
+        - `Difference shape <#difference-shape>`__
+        - `Intersection shape <#intersection-shape>`__
+        - `Union shape <#intersection-shape>`__
 - `Complex data types <#complex-data-types>`__
     - `Tuples <#tuples>`__
     - `User Defined Types <#user-defined-types>`__
@@ -3479,14 +3480,14 @@ one kilometer from the geo point (40.225479, -3.999278). The distance is express
     }';
 
 
-Index-time ransformations
-=========================
+Transformations
+===============
 
-`Geo shape mapper <#geo-shape-mapper>`__ taks a  list of geometrical transformations as argument. These transformations
+`Geo shape mapper <#geo-shape-mapper>`__ takes a list of geometrical transformations as argument. These transformations
 are sequentially applied to the shape that is going to be indexed or searched.
 
-Bounding box
-____________
+Bounding box transformation
+___________________________
 
 Buffer transformation returns the `minimum bounding box <https://en.wikipedia.org/wiki/Minimum_bounding_box>`__ of a
 shape, that is, the minimum rectangle containing the shape.
@@ -3517,8 +3518,8 @@ contained in the indexed column:
        }'
     };
 
-Buffer
-______
+Buffer transformation
+_____________________
 
 Buffer transformation returns a buffer around a shape.
 
@@ -3556,8 +3557,8 @@ shape contained in the indexed column:
        }'
     };
 
-Centroid
-________
+Centroid transformation
+_______________________
 
 Centroid transformation returns the geometric center of a shape.
 
@@ -3587,8 +3588,8 @@ contained in the indexed column:
        }'
     };
 
-Convex hull
-___________
+Convex hull transformation
+__________________________
 
 Convex hull transformation returns the `convex envelope <https://en.wikipedia.org/wiki/Convex_hull>`__ of a shape.
 
@@ -3619,14 +3620,45 @@ contained in the indexed column:
     };
 
 
-Search-time transformations
-===========================
+Shapes
+======
 
 `Geo shape search <#geo-shape-search>`__ allows the recursive definition of the search shape as a group of
-transformations over WKT shapes.
+transformations over other shapes.
 
-Bounding box
-____________
+WKT shape
+_________
+
+A shape defined in `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ format.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    {type: "wkt", value: <value>}
+
+where:
+
+-  **value**: A string containing the WKT shape. Mandatory.
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting a WKT shape:
+
+.. code-block:: sql
+
+    SELECT * FROM places WHERE expr(places_idx,'{
+       filter: {
+          type: "geo_shape",
+          field: "place",
+          relation: "intersects",
+          shape: {
+             type: "wkt",
+             value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
+          }
+       }
+    }');
+
+Bounding box shape
+__________________
 
 Buffer transformation returns the `minimum bounding box <https://en.wikipedia.org/wiki/Minimum_bounding_box>`__ a shape,
 that is, the minimum rectangle containing the shape.
@@ -3661,8 +3693,8 @@ of a WKT shape:
        }
     }');
 
-Buffer
-______
+Buffer shape
+____________
 
 Buffer transformation returns a buffer around a shape.
 
@@ -3704,8 +3736,8 @@ defined by a buffer 10 kilometers around a segment of the Florida's coastline:
        }
     }');
 
-Centroid
-________
+Centroid shape
+______________
 
 Centroid transformation returns the geometric center of a shape.
 
@@ -3739,8 +3771,8 @@ WKT shape:
        }
     }');
 
-Convex hull
-___________
+Convex hull shape
+_________________
 
 Convex hull transformation returns the `convex envelope <https://en.wikipedia.org/wiki/Convex_hull>`__ of a shape.
 
@@ -3774,8 +3806,8 @@ a WKT shape:
        }
     }');
 
-Difference
-__________
+Difference shape
+________________
 
 Difference transformation subtracts the specified shapes.
 
@@ -3789,8 +3821,8 @@ where:
 
 -  **shapes**: The shapes to be subtracted, could be WKT shapes or other transformations. Mandatory.
 
-Intersection
-____________
+Intersection shape
+__________________
 
 Intersection transformation intersects the specified shapes.
 
@@ -3804,8 +3836,8 @@ where:
 
 -  **shapes**: The shapes to be subtracted, could be WKT shapes or other transformations. Mandatory.
 
-Union
-_____
+Union shape
+___________
 
 Union transformation adds the specified shapes.
 
