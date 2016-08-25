@@ -641,6 +641,15 @@ public abstract class Builder {
     }
 
     /**
+     * Returns a new empty {@link GeoShape.Difference}.
+     *
+     * @return a new difference transformation
+     */
+    public static GeoShape.Difference difference() {
+        return new GeoShape.Difference();
+    }
+
+    /**
      * Returns a new {@link GeoShape.Difference}, representing the difference of the specified {@link GeoShape}s.
      *
      * @param shapes the shapes to be subtracted
@@ -671,6 +680,15 @@ public abstract class Builder {
     }
 
     /**
+     * Returns a new empty {@link GeoShape.Intersection}.
+     *
+     * @return a new intersection transformation
+     */
+    public static GeoShape.Intersection intersection() {
+        return new GeoShape.Intersection();
+    }
+
+    /**
      * Returns a new {@link GeoShape.Intersection}, representing the intersection of the specified {@link GeoShape}s.
      *
      * @param shapes the shapes to be intersected
@@ -698,6 +716,15 @@ public abstract class Builder {
      */
     public static GeoShape.Intersection intersection(String... shapes) {
         return intersection(Stream.of(shapes).map(Builder::wkt).collect(Collectors.toList()));
+    }
+
+    /**
+     * Returns a new empty {@link GeoShape.Union}.
+     *
+     * @return a new union transformation
+     */
+    public static GeoShape.Union union() {
+        return new GeoShape.Union();
     }
 
     /**

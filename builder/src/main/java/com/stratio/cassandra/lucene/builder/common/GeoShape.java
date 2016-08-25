@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.stratio.cassandra.lucene.builder.JSONBuilder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -182,7 +183,7 @@ public abstract class GeoShape extends JSONBuilder {
          * @param shapes the shapes to be subtracted
          */
         public Difference(GeoShape... shapes) {
-            this(Arrays.asList(shapes));
+            this(new ArrayList<>(Arrays.asList(shapes)));
         }
 
         /**
@@ -192,6 +193,28 @@ public abstract class GeoShape extends JSONBuilder {
          */
         public Difference(List<GeoShape> shapes) {
             this.shapes = shapes;
+        }
+
+        /**
+         * Adds the specified {@link GeoShape} to the shapes to be subtracted.
+         *
+         * @param shape the shape to be added
+         * @return this with the specified shape
+         */
+        public Difference add(GeoShape shape) {
+            shapes.add(shape);
+            return this;
+        }
+
+        /**
+         * Adds the specified {@link GeoShape} to the shapes to be subtracted.
+         *
+         * @param shape the shape to be added in WKT format
+         * @return this with the specified shape
+         */
+        public Difference add(String shape) {
+            shapes.add(new WKT(shape));
+            return this;
         }
 
     }
@@ -211,7 +234,7 @@ public abstract class GeoShape extends JSONBuilder {
          * @param shapes the shapes to be intersected
          */
         public Intersection(GeoShape... shapes) {
-            this(Arrays.asList(shapes));
+            this(new ArrayList<>(Arrays.asList(shapes)));
         }
 
         /**
@@ -221,6 +244,28 @@ public abstract class GeoShape extends JSONBuilder {
          */
         public Intersection(List<GeoShape> shapes) {
             this.shapes = shapes;
+        }
+
+        /**
+         * Adds the specified {@link GeoShape} to the shapes to be intersected.
+         *
+         * @param shape the shape to be added
+         * @return this with the specified shape
+         */
+        public Intersection add(GeoShape shape) {
+            shapes.add(shape);
+            return this;
+        }
+
+        /**
+         * Adds the specified {@link GeoShape} to the shapes to be intersected.
+         *
+         * @param shape the shape to be added in WKT format
+         * @return this with the specified shape
+         */
+        public Intersection add(String shape) {
+            shapes.add(new WKT(shape));
+            return this;
         }
 
     }
@@ -240,7 +285,7 @@ public abstract class GeoShape extends JSONBuilder {
          * @param shapes the shapes to be added
          */
         public Union(GeoShape... shapes) {
-            this(Arrays.asList(shapes));
+            this(new ArrayList<>(Arrays.asList(shapes)));
         }
 
         /**
@@ -250,6 +295,28 @@ public abstract class GeoShape extends JSONBuilder {
          */
         public Union(List<GeoShape> shapes) {
             this.shapes = shapes;
+        }
+
+        /**
+         * Adds the specified {@link GeoShape} to the shapes to be added.
+         *
+         * @param shape the shape to be added
+         * @return this with the specified shape
+         */
+        public Union add(GeoShape shape) {
+            shapes.add(shape);
+            return this;
+        }
+
+        /**
+         * Adds the specified {@link GeoShape} to the shapes to be added.
+         *
+         * @param shape the shape to be added in WKT format
+         * @return this with the specified shape
+         */
+        public Union add(String shape) {
+            shapes.add(new WKT(shape));
+            return this;
         }
 
     }
