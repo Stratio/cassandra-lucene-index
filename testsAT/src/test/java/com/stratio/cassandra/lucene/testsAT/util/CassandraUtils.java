@@ -310,6 +310,15 @@ public class CassandraUtils {
         return this;
     }
 
+    public CassandraUtils insert(String[] names, Iterable<Object[]> values) {
+        Batch batch = QueryBuilder.unloggedBatch();
+        for (Object[] vs : values) {
+            batch.add(QueryBuilder.insertInto(keyspace, table).values(names, vs));
+        }
+        execute(batch);
+        return this;
+    }
+
     public <T extends Exception> CassandraUtils insert(String[] names,
                                                        Object[] values,
                                                        Class<T> expectedClass,
