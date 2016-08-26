@@ -64,7 +64,7 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 
 -  Full text search (language-aware analysis, wildcard, fuzzy, regexp)
 -  Boolean search (and, or, not)
--  Sorting by relevance, column value, and distance)
+-  Sorting by relevance, column value, and distance
 -  Geospatial indexing (points, lines, polygons and their multiparts)
 -  Geospatial transformations (bounding box, buffer, centroid, convex hull, union, difference, intersection)
 -  Geospatial operations (intersects, contains, is within)
