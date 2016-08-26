@@ -4,6 +4,7 @@
 
 * Allow associativity in search-time geospatial transformations
 * Simplify naming of builder static methods for creating geospatial transformations
+* Fix paged index-sorted queries matching more than 65535 rows
 
 ## 3.0.8.1 (August 02, 2016)
 
