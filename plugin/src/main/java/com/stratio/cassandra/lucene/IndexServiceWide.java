@@ -38,6 +38,7 @@ import java.util.*;
 
 import static org.apache.cassandra.db.PartitionPosition.Kind.MAX_BOUND;
 import static org.apache.cassandra.db.PartitionPosition.Kind.MIN_BOUND;
+import static org.apache.cassandra.db.PartitionPosition.Kind.ROW_KEY;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 /**
@@ -139,7 +140,7 @@ class IndexServiceWide extends IndexService {
     }
 
     private Query query(PartitionPosition position) {
-        return position instanceof DecoratedKey
+        return position.kind() == ROW_KEY
                ? partitionMapper.query((DecoratedKey) position)
                : tokenMapper.query(position.getToken());
     }

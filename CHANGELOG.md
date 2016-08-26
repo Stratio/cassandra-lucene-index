@@ -5,6 +5,7 @@
 * Allow associativity in search-time geospatial transformations
 * Simplify naming of builder static methods for creating geospatial transformations
 * Fix paged index-sorted queries matching more than 65535 rows
+* Fix partition directed queries using dummy column syntax in skinny tables
 
 ## 3.0.8.1 (August 02, 2016)
 

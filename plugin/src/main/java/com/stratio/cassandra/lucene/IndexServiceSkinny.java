@@ -34,6 +34,8 @@ import org.apache.lucene.search.TermQuery;
 
 import java.util.*;
 
+import static org.apache.cassandra.db.PartitionPosition.Kind.*;
+
 /**
  * {@link IndexService} for skinny rows.
  *
@@ -106,9 +108,15 @@ class IndexServiceSkinny extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Optional<Query> query(DataRange dataRange) {
-        PartitionPosition startPosition = dataRange.startKey();
-        PartitionPosition stopPosition = dataRange.stopKey();
-        return query(startPosition, stopPosition);
+        PartitionPosition start = dataRange.startKey();
+        PartitionPosition stop = dataRange.stopKey();
+        if (start.kind() == ROW_KEY && stop.kind() == ROW_KEY && start.equals(stop)) {
+            return Optional.of(partitionMapper.query((DecoratedKey) start));
+        }
+        return tokenMapper.query(start.getToken(),
+                                 stop.getToken(),
+                                 start.kind() == MIN_BOUND,
+                                 stop.kind() == MAX_BOUND);
     }
 
     /** {@inheritDoc} */

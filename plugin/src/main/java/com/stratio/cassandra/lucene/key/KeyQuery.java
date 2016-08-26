@@ -28,6 +28,8 @@ import org.apache.lucene.util.BytesRef;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import static org.apache.cassandra.db.PartitionPosition.Kind.ROW_KEY;
+
 /**
  * {@link MultiTermQuery} to get a range of clustering keys.
  *
@@ -58,7 +60,7 @@ class KeyQuery extends MultiTermQuery {
         this.mapper = mapper;
         this.start = start;
         this.stop = stop;
-        key = position instanceof DecoratedKey ? (DecoratedKey) position : null;
+        key = position.kind() == ROW_KEY ? (DecoratedKey) position : null;
         collatedToken = TokenMapper.toCollated(position.getToken());
         clusteringComparator = mapper.clusteringComparator();
         seek = mapper.seek(position);

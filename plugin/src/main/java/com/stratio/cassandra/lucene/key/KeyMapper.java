@@ -48,6 +48,7 @@ import java.util.Optional;
 
 import static org.apache.cassandra.utils.ByteBufferUtil.EMPTY_BYTE_BUFFER;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
+import static org.apache.cassandra.db.PartitionPosition.Kind.ROW_KEY;
 
 /**
  * Class for several clustering key mappings between Cassandra and Lucene.
@@ -261,7 +262,7 @@ public final class KeyMapper {
         Token token = startPosition.getToken();
 
         ClusteringIndexFilter filter;
-        if (startPosition instanceof DecoratedKey) {
+        if (startPosition.kind() == ROW_KEY) {
             DecoratedKey startKey = (DecoratedKey) startPosition;
             filter = dataRange.clusteringIndexFilter(startKey);
         } else {
@@ -293,7 +294,7 @@ public final class KeyMapper {
         Token token = stopPosition.getToken();
 
         ClusteringIndexFilter filter;
-        if (stopPosition instanceof DecoratedKey) {
+        if (stopPosition.kind() == ROW_KEY) {
             DecoratedKey stopKey = (DecoratedKey) stopPosition;
             filter = dataRange.clusteringIndexFilter(stopKey);
         } else {

@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.key;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.PartitionPosition;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
@@ -114,26 +113,6 @@ public final class TokenMapper {
     }
 
     /**
-     * Returns if the specified lower partition position must be included in a filtered range.
-     *
-     * @param position a {@link PartitionPosition}
-     * @return {@code true} if {@code position} must be included, {@code false} otherwise
-     */
-    private static boolean includeStart(PartitionPosition position) {
-        return position.kind() == PartitionPosition.Kind.MIN_BOUND;
-    }
-
-    /**
-     * Returns if the specified upper partition position must be included in a filtered range.
-     *
-     * @param position a {@link PartitionPosition}
-     * @return {@code true} if {@code position} must be included, {@code false} otherwise
-     */
-    private static boolean includeStop(PartitionPosition position) {
-        return position.kind() == PartitionPosition.Kind.MAX_BOUND;
-    }
-
-    /**
      * Returns if doc values should be used for retrieving token ranges between the specified values.
      *
      * @param start the lower accepted token
@@ -173,18 +152,6 @@ public final class TokenMapper {
                       ? DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper)
                       : NumericRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
         return Optional.of(query);
-    }
-
-    /**
-     * Returns a Lucene {@link Query} to find the {@link Document}s containing a {@link Token} inside the specified
-     * {@link PartitionPosition}s.
-     *
-     * @param start the start position
-     * @param stop the stop position
-     * @return the query to find the documents containing a token inside the range
-     */
-    public Optional<Query> query(PartitionPosition start, PartitionPosition stop) {
-        return query(start.getToken(), stop.getToken(), includeStart(start), includeStop(stop));
     }
 
     /**

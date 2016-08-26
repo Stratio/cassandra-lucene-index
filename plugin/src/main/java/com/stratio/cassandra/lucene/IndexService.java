@@ -550,17 +550,6 @@ abstract class IndexService implements IndexServiceMBean {
      */
     abstract Optional<Query> query(DataRange dataRange);
 
-    /**
-     * Returns a Lucene {@link Query} to retrieve all the rows in the specified partition range.
-     *
-     * @param start the lower accepted partition position, {@code null} means no lower limit
-     * @param stop the upper accepted partition position, {@code null} means no upper limit
-     * @return the query to retrieve all the rows in the specified range
-     */
-    Optional<Query> query(PartitionPosition start, PartitionPosition stop) {
-        return tokenMapper.query(start, stop);
-    }
-
     private Query after(IndexPagingState pagingState, ReadCommand command) {
         try {
             if (pagingState != null) {
