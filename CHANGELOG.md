@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.8.2 (Upcoming)
+## 3.0.8.2 (August 29, 2016)
 
 * Allow associativity in search-time geospatial transformations
 * Simplify naming of builder static methods for creating geospatial transformations
