@@ -19,14 +19,12 @@ import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
-import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexableField;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
@@ -51,7 +49,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      * @param validated if the field must be validated
      * @param analyzer the name of the analyzer to be used
      * @param base the Lucene type for this mapper
-     * @param supportedTypes the supported Cassandra types for indexing
+     * @param supportedTypes the supported column value data types
      */
     public SingleColumnMapper(String field,
                               String column,
@@ -59,11 +57,13 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
                               Boolean validated,
                               String analyzer,
                               Class<T> base,
-                              AbstractType<?>... supportedTypes) {
-        super(field, docValues,
+                              List<Class<?>> supportedTypes) {
+        super(field,
+              docValues,
               validated,
               analyzer,
-              Collections.singletonList(column == null ? field : column), supportedTypes);
+              Collections.singletonList(column == null ? field : column),
+              supportedTypes);
 
         if (StringUtils.isWhitespace(column)) {
             throw new IndexException("Column must not be whitespace, but found '{}'", column);
@@ -79,37 +79,32 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
 
     /** {@inheritDoc} */
     @Override
-    public void addFields(Document document, Columns columns) {
-        columns.getByMapperName(column).forEach(c -> addFields(document, c));
+    public List<IndexableField> indexableFields(Columns columns) {
+        List<IndexableField> fields = new LinkedList<>();
+        for (Column c : columns.withMapperName(column)) {
+            fields.addAll(indexableFields(c));
+        }
+        return fields;
     }
 
-    private <K> void addFields(Document document, Column<K> c) {
-        String name = column.equals(field) ? c.getFullName() : c.getFieldName(field);
-        K value = c.getValue();
+    private <K> List<IndexableField> indexableFields(Column<?> c) {
+        String name = column.equals(field) ? c.fieldName() : c.fieldName(field);
+        K value = c.value().getOrElse(null);
         if (value != null) {
             T base = base(c);
-            addIndexedFields(document, name, base);
-            addSortedFields(document, name, base);
+            return indexableFields(name, base);
         }
+        return Collections.emptyList();
     }
 
     /**
      * Returns the {@link Field} to search for the mapped column.
      *
-     * @param document a {@link Document}
      * @param name the name of the column
      * @param value the value of the column
+     * @return a list of indexable fields
      */
-    public abstract void addIndexedFields(Document document, String name, T value);
-
-    /**
-     * Returns the {@link Field} to sort by the mapped column.
-     *
-     * @param document a {@link Document}
-     * @param name the name of the column
-     * @param value the value of the column
-     */
-    public abstract void addSortedFields(Document document, String name, T value);
+    public abstract List<IndexableField> indexableFields(String name, T value);
 
     /**
      * Returns the {@link Column} query value resulting from the mapping of the specified object.
@@ -130,13 +125,13 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      * @return the {@link Column} index value resulting from the mapping of the specified object
      */
     public final <K> T base(Column<K> column) {
-        return column == null ? null : column.getValue() == null ? null : doBase(column);
+        return column == null ? null : column.value().getOrElse(null) == null ? null : doBase(column);
     }
 
     protected abstract T doBase(@NotNull String field, @NotNull Object value);
 
     protected final <K> T doBase(Column<K> column) {
-        return doBase(column.getFieldName(field), column.getValue());
+        return doBase(column.fieldName(field), column.value().getOrElse(null));
     }
 
     /** {@inheritDoc} */
@@ -167,7 +162,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
          * @param validated if the field must be validated
          * @param analyzer the name of the analyzer to be used
          * @param base the Lucene type for this mapper
-         * @param supportedTypes the supported Cassandra types for indexing
+         * @param supportedTypes the supported column value data types
          */
         public SingleFieldMapper(String field,
                                  String column,
@@ -175,20 +170,17 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
                                  Boolean validated,
                                  String analyzer,
                                  Class<T> base,
-                                 AbstractType<?>... supportedTypes) {
+                                 List<Class<?>> supportedTypes) {
             super(field, column, docValues, validated, analyzer, base, supportedTypes);
         }
 
         /** {@inheritDoc} */
         @Override
-        public void addIndexedFields(Document document, String name, T value) {
-            indexedField(name, value).ifPresent(document::add);
-        }
-
-        /** {@inheritDoc} */
-        @Override
-        public void addSortedFields(Document document, String name, T value) {
-            sortedField(name, value).ifPresent(document::add);
+        public List<IndexableField> indexableFields(String name, T value) {
+            List<IndexableField> fields = new ArrayList<>(2);
+            indexedField(name, value).ifPresent(fields::add);
+            sortedField(name, value).ifPresent(fields::add);
+            return fields;
         }
 
         /**

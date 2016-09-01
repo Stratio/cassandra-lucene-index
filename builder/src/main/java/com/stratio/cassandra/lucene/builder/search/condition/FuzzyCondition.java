@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.builder.search.condition;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * A {@link Condition} that implements the fuzzy search query. The similarity measurement is based on the

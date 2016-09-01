@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.builder.search.condition;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Implements the wildcard search query. Supported wildcards are {@code *}, which matches any character sequence

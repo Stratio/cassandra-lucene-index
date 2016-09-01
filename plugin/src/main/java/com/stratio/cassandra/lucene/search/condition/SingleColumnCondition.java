@@ -47,7 +47,7 @@ public abstract class SingleColumnCondition extends SingleFieldCondition {
     @Override
     @SuppressWarnings("unchecked")
     public final Query doQuery(Schema schema) {
-        Mapper mapper = schema.getMapper(field);
+        Mapper mapper = schema.mapper(field);
         if (mapper == null) {
             throw new IndexException("No mapper found for field '{}'", field);
         } else if (!SingleColumnMapper.class.isAssignableFrom(mapper.getClass())) {
@@ -56,7 +56,7 @@ public abstract class SingleColumnCondition extends SingleFieldCondition {
                                      SingleColumnMapper.class.getSimpleName(),
                                      mapper);
         }
-        return doQuery((SingleColumnMapper<?>) mapper, schema.getAnalyzer());
+        return doQuery((SingleColumnMapper<?>) mapper, schema.analyzer());
     }
 
     /**

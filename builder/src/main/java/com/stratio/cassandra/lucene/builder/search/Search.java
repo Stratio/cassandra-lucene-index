@@ -19,7 +19,7 @@ import com.stratio.cassandra.lucene.builder.JSONBuilder;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.Sort;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 

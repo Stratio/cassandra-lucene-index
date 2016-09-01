@@ -31,6 +31,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
@@ -87,12 +88,13 @@ public final class PartitionMapper {
     }
 
     /**
-     * Adds to the specified {@link Column} to the {@link Column}s contained in the partition key of the specified row.
+     * Returns the {@link Column}s contained in the partition key of the specified row.
      *
-     * @param columns the {@link Columns} in which the {@link Column}s are going to be added
      * @param key the partition key
+     * @return the columns
      */
-    public void addColumns(Columns columns, DecoratedKey key) {
+    public Columns columns(DecoratedKey key) {
+        Columns columns = new Columns();
         List<ColumnDefinition> columnDefinitions = metadata.partitionKeyColumns();
         ByteBuffer[] components = type instanceof CompositeType
                                   ? ((CompositeType) type).split(key.getKey())
@@ -101,20 +103,21 @@ public final class PartitionMapper {
             String name = columnDefinition.name.toString();
             ByteBuffer value = components[columnDefinition.position()];
             AbstractType<?> valueType = columnDefinition.cellValueType();
-            columns.add(ColumnsMapper.column(name, value, valueType));
+            columns = columns.add(Column.apply(name).withValue(ColumnsMapper.compose(value, valueType)));
         }
+        return columns;
     }
 
     /**
-     * Adds to the specified {@link Document} the {@link Field}s associated to the specified partition key.
+     * Returns the Lucene {@link IndexableField} representing to the specified partition key.
      *
-     * @param document the document in which the fields are going to be added
      * @param partitionKey the partition key to be converted
+     * @return a indexable field
      */
-    public void addFields(Document document, DecoratedKey partitionKey) {
+    public IndexableField indexableField(DecoratedKey partitionKey) {
         ByteBuffer bb = partitionKey.getKey();
         BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
-        document.add(new Field(FIELD_NAME, bytesRef, FIELD_TYPE));
+        return new Field(FIELD_NAME, bytesRef, FIELD_TYPE);
     }
 
     /**

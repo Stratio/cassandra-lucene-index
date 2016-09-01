@@ -20,14 +20,12 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.document.LongField;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 
-import java.util.Arrays;
-import java.util.Date;
+import java.util.*;
 
 /**
  * A {@link Mapper} to map bitemporal DateRanges.
@@ -87,18 +85,7 @@ public class BitemporalMapper extends Mapper {
                             String pattern,
                             Object nowValue) {
 
-        super(field,
-              false,
-              validated,
-              null,
-              Arrays.asList(vtFrom, vtTo, ttFrom, ttTo),
-              AsciiType.instance,
-              UTF8Type.instance,
-              Int32Type.instance,
-              LongType.instance,
-              IntegerType.instance,
-              SimpleDateType.instance,
-              TimestampType.instance, TimeUUIDType.instance);
+        super(field, false, validated, null, Arrays.asList(vtFrom, vtTo, ttFrom, ttTo), DATE_TYPES);
 
         if (StringUtils.isBlank(vtFrom)) {
             throw new IndexException("vt_from column name is required");
@@ -128,7 +115,7 @@ public class BitemporalMapper extends Mapper {
 
     /** {@inheritDoc} */
     @Override
-    public void addFields(Document document, Columns columns) {
+    public List<IndexableField> indexableFields(Columns columns) {
 
         BitemporalDateTime vtFromTime = readBitemporalDate(columns, vtFrom);
         BitemporalDateTime vtToTime = readBitemporalDate(columns, vtTo);
@@ -136,15 +123,17 @@ public class BitemporalMapper extends Mapper {
         BitemporalDateTime ttToTime = readBitemporalDate(columns, ttTo);
 
         if (vtFromTime == null && vtToTime == null && ttFromTime == null && ttToTime == null) {
-            return;
+            return Collections.emptyList();
         }
 
         validate(vtFromTime, vtToTime, ttFromTime, ttToTime);
 
-        document.add(new LongField(field + VT_FROM_FIELD_SUFFIX, vtFromTime.toTimestamp(), STORE));
-        document.add(new LongField(field + VT_TO_FIELD_SUFFIX, vtToTime.toTimestamp(), STORE));
-        document.add(new LongField(field + TT_FROM_FIELD_SUFFIX, ttFromTime.toTimestamp(), STORE));
-        document.add(new LongField(field + TT_TO_FIELD_SUFFIX, ttToTime.toTimestamp(), STORE));
+        List<IndexableField> fields = new ArrayList<>(4);
+        fields.add(new LongField(field + VT_FROM_FIELD_SUFFIX, vtFromTime.toTimestamp(), STORE));
+        fields.add(new LongField(field + VT_TO_FIELD_SUFFIX, vtToTime.toTimestamp(), STORE));
+        fields.add(new LongField(field + TT_FROM_FIELD_SUFFIX, ttFromTime.toTimestamp(), STORE));
+        fields.add(new LongField(field + TT_TO_FIELD_SUFFIX, ttToTime.toTimestamp(), STORE));
+        return fields;
     }
 
     private void validate(BitemporalDateTime vtFrom,
@@ -183,11 +172,11 @@ public class BitemporalMapper extends Mapper {
      * @return a bitemporal date time
      */
     BitemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
-        Column<?> column = columns.getByFullName(fieldName).getFirst();
+        Column<?> column = columns.withFieldName(fieldName).head();
         if (column == null) {
             return null;
         }
-        return parseBitemporalDate(column.getValue());
+        return parseBitemporalDate(column.value().getOrElse(null));
     }
 
     private BitemporalDateTime checkIfNow(Long in) {
@@ -209,11 +198,6 @@ public class BitemporalMapper extends Mapper {
      */
     public BitemporalDateTime parseBitemporalDate(Object value) {
         Date date = parser.parse(value);
-        return date == null ? null : checkIfNow(date.getTime());
-    }
-
-    private <T> BitemporalDateTime parseBitemporalDate(Column<T> column) {
-        Date date = parser.parse(column);
         return date == null ? null : checkIfNow(date.getTime());
     }
 

@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.search;
 
+import com.stratio.cassandra.lucene.builder.Builder;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +57,21 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
+    public void testSimpleSortFieldStringAsc() {
+        sort(field("text_2").reverse(false)).checkOrderedColumns("integer_1", -1, -3, -2, -5, -4);
+    }
+
+    @Test
+    public void testSimpleSortFieldStringDesc() {
+        sort(field("text_2").reverse(true)).checkOrderedColumns("integer_1", -4, -5, -2, -3, -1);
+    }
+
+    @Test
+    public void testSimpleSortFieldStringDefault() {
+        sort(field("text_2")).checkOrderedColumns("integer_1", -1, -3, -2, -5, -4);
+    }
+
+    @Test
     public void testSortCombined() {
         sort(field("double_1"), field("integer_1")).checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
         sort(field("double_1"), field("integer_1")).checkOrderedColumns("integer_1", -1, -2, -5, -4, -3);
@@ -84,28 +100,28 @@ public class SortedSearchAT extends AbstractSearchAT {
     @Test
     public void testSortWithGeoDistanceFilterNotReversed() {
         search().filter(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
-                .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
+                .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(false))
                 .checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
     public void testSortWithGeoDistanceQueryNotReversed() {
         search().query(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
-                .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
+                .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(false))
                 .checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
     public void testSortWithGeoDistanceFilterReversed() {
         search().filter(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
-                .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(true))
+                .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(true))
                 .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
     public void testSortWithGeoDistanceQueryReversed() {
         search().query(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
-                .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(true))
+                .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(true))
                 .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
@@ -133,5 +149,20 @@ public class SortedSearchAT extends AbstractSearchAT {
                       .sort(field("id").reverse(true))
                       .checkOrderedColumns("id", 4, 3, 2, 1)
                       .dropKeyspace();
+    }
+
+    @Test
+    public void sortAsMapValuesAsc() {
+        query(all()).sort(field("string_map$k4").reverse(false)).checkOrderedColumns("integer_1", -1, -3, -2, -5, -4);
+    }
+
+    @Test
+    public void sortAsMapValuesDesc() {
+        query(all()).sort(field("string_map$k4").reverse(true)).checkOrderedColumns("integer_1", -4, -5, -2, -3, -1);
+    }
+
+    @Test
+    public void testMAtchMAp() {
+        query(all()).sort(field("string_map$k4").reverse(true)).checkOrderedColumns("integer_1", -4, -5, -2, -3, -1);
     }
 }

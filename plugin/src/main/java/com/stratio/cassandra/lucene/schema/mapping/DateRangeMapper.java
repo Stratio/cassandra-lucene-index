@@ -20,9 +20,7 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.prefix.NumberRangePrefixTreeStrategy;
@@ -31,7 +29,9 @@ import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * A {@link Mapper} to map 1-dimensional date ranges.
@@ -64,18 +64,7 @@ public class DateRangeMapper extends Mapper {
      * @param pattern the date pattern
      */
     public DateRangeMapper(String field, Boolean validated, String from, String to, String pattern) {
-        super(field,
-              false,
-              validated,
-              null,
-              Arrays.asList(from, to),
-              AsciiType.instance,
-              UTF8Type.instance,
-              Int32Type.instance,
-              LongType.instance,
-              IntegerType.instance,
-              SimpleDateType.instance,
-              TimestampType.instance, TimeUUIDType.instance);
+        super(field, false, validated, null, Arrays.asList(from, to), DATE_TYPES);
 
         if (StringUtils.isBlank(from)) {
             throw new IndexException("from column name is required");
@@ -94,21 +83,19 @@ public class DateRangeMapper extends Mapper {
 
     /** {@inheritDoc} */
     @Override
-    public void addFields(Document document, Columns columns) {
+    public List<IndexableField> indexableFields(Columns columns) {
 
         Date fromDate = readFrom(columns);
         Date toDate = readTo(columns);
 
         if (fromDate == null && toDate == null) {
-            return;
+            return Collections.emptyList();
         }
 
         validate(fromDate, toDate);
 
         NRShape shape = makeShape(fromDate, toDate);
-        for (IndexableField indexableField : strategy.createIndexableFields(shape)) {
-            document.add(indexableField);
-        }
+        return Arrays.asList(strategy.createIndexableFields(shape));
     }
 
     private void validate(Date from, Date to) {
@@ -149,12 +136,12 @@ public class DateRangeMapper extends Mapper {
      * @return the start date
      */
     Date readFrom(Columns columns) {
-        Column<?> column = columns.getByFullName(from).getFirst();
+        Column<?> column = columns.withFieldName(from).head();
         if (column == null) {
             return null;
         }
-        Date fromDate = parser.parse(column.getValue());
-        if (to == null) {
+        Date fromDate = parser.parse(column.value().getOrElse(null));
+        if (fromDate == null) {
             throw new IndexException("From date required");
         }
         return fromDate;
@@ -167,11 +154,11 @@ public class DateRangeMapper extends Mapper {
      * @return the end date
      */
     Date readTo(Columns columns) {
-        Column<?> column = columns.getByFullName(to).getFirst();
+        Column<?> column = columns.withFieldName(to).head();
         if (column == null) {
             return null;
         }
-        Date toDate = parser.parse(column.getValue());
+        Date toDate = parser.parse(column.value().getOrElse(null));
         if (toDate == null) {
             throw new IndexException("To date required");
         }

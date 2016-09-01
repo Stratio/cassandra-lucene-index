@@ -29,6 +29,7 @@ import org.junit.runners.Suite.SuiteClasses;
                LargeFieldAT.class,
                MultiMappingAT.class,
                ReadStaticColumnsAT.class,
+               SearchMatchingManyRowsAT.class,
                SearchWithLongSkinnyRowsAT.class,
                SearchWithLongWideRowsAT.class,
                SortWithSkinnyRowsAT.class,

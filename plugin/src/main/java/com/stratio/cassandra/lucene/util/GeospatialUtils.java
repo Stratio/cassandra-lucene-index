@@ -29,9 +29,6 @@ public class GeospatialUtils {
     /** The spatial context to be used. */
     public static final SpatialContext CONTEXT = SpatialContext.GEO;
 
-    /** The default max number of levels for geohash search trees. */
-    public static final int DEFAULT_GEOHASH_MAX_LEVELS = 11;
-
     /** The min accepted longitude. */
     public static final double MIN_LATITUDE = -90.0;
 
@@ -47,13 +44,13 @@ public class GeospatialUtils {
     /**
      * Checks if the specified max levels is correct.
      *
-     * @param maxLevels the maximum number of levels in the tree
+     * @param userMaxLevels the maximum number of levels in the tree
+     * @param defaultMaxLevels the default max number of levels
      * @return the validated max levels
      */
-    public static int validateGeohashMaxLevels(Integer maxLevels) {
-        if (maxLevels == null) {
-            return DEFAULT_GEOHASH_MAX_LEVELS;
-        } else if (maxLevels < 1 || maxLevels > GeohashPrefixTree.getMaxLevelsPossible()) {
+    public static int validateGeohashMaxLevels(Integer userMaxLevels, int defaultMaxLevels) {
+        int maxLevels = userMaxLevels == null ? defaultMaxLevels : userMaxLevels;
+        if (maxLevels < 1 || maxLevels > GeohashPrefixTree.getMaxLevelsPossible()) {
             throw new IndexException("max_levels must be in range [1, {}], but found {}",
                                      GeohashPrefixTree.getMaxLevelsPossible(),
                                      maxLevels);

@@ -15,7 +15,8 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 

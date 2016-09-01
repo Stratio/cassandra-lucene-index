@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.testsAT.udt;
 import com.datastax.driver.core.CodecRegistry;
 import com.datastax.driver.core.ProtocolVersion;
 import com.datastax.driver.core.TupleType;
+import com.stratio.cassandra.lucene.builder.Builder;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -127,7 +128,7 @@ public class TupleIndexingAT extends BaseAT {
                               new Object[]{6, tuple.newValue(41.453383f, 126.442151f)})
                       .refresh()
                       .filter(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
-                      .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
+                      .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(false))
                       .checkOrderedColumns("k", 0, 1, 2, 3, 4, 5, 6)
                       .dropKeyspace();
     }

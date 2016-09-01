@@ -103,8 +103,6 @@ public class DateParserTest {
         assertFail("yyyyMMdd", -20151103);
     }
 
-
-
     @Test
     public void testParseLong() throws ParseException {
         Date date = date("yyyyMMdd", "20151103");

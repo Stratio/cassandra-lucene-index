@@ -18,7 +18,7 @@ package com.stratio.cassandra.lucene.builder.index.schema;
 import com.stratio.cassandra.lucene.builder.JSONBuilder;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
