@@ -1,24 +1,20 @@
 # Changelog
 
-## 3.0.8.2 (August 29, 2016)
+## 3.0.7.3 (Upcoming)
 
+Merged from 3.0.8.2:
 * Allow associativity in search-time geospatial transformations
 * Simplify naming of builder static methods for creating geospatial transformations
 * Fix paged index-sorted queries matching more than 65535 rows
 * Fix partition directed queries using dummy column syntax in skinny tables
-
-## 3.0.8.1 (August 02, 2016)
-
+Merged from 3.0.8.1:
 * Upgrade query builder JSON serializer to Jackson 2.8.0
 * Add geospatial post filtering (ensures accuracy with any tree levels)
 * Set default number of indexing threads to number of processors available to the JVM
 * Fix mapping of timestamps and dates by their underlying numeric value (#177)
+
 Merged from 2.2.7.1:
 * Fix mapper referenced by alias in sortFields
-
-## 3.0.8.0 (July 07, 2016)
-
-* Upgrade to Apache Cassandra 3.0.8
 
 ## 3.0.7.2 (July 05, 2016)
 
