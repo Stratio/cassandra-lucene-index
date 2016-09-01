@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.util.Tracer;
 import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.rows.Row;
@@ -69,9 +70,11 @@ class IndexWriterWide extends IndexWriter {
         if (!row.isStatic()) {
             Clustering clustering = row.clustering();
             if (service.needsReadBeforeWrite(key, row)) {
+                Tracer.trace("Lucene index doing read before write");
                 rowsToRead.add(clustering);
                 rows.put(clustering, Optional.empty());
             } else {
+                Tracer.trace("Lucene index skipping read before write");
                 rows.put(clustering, Optional.of(row));
             }
         }
@@ -91,8 +94,10 @@ class IndexWriterWide extends IndexWriter {
             // Write rows
             rows.forEach((clustering, optional) -> optional.ifPresent(row -> {
                 if (row.hasLiveData(nowInSec)) {
+                    Tracer.trace("Lucene index writing document");
                     service.upsert(key, row, nowInSec);
                 } else {
+                    Tracer.trace("Lucene index deleting document");
                     service.delete(key, row);
                 }
             }));

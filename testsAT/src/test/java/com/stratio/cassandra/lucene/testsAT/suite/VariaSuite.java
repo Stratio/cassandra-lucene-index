@@ -23,16 +23,22 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({AllowFilteringWith1000SimilarRowsAT.class,
                AllowFilteringWith1000MixedRowsAT.class,
+               BoundStatementWithSortedKQuery.class,
                InOperatorWithSkinnyRowsAT.class,
                InOperatorWithWideRowsAT.class,
-               TokenRangeWithSkinnyRowsAT.class,
-               TokenRangeWithWideRowsMultiPartitionAT.class,
-               TokenRangeWithWideRowsMultiClusteringAT.class,
-               SearchWithLongWideRowsAT.class,
+               LargeFieldAT.class,
+               MultiMappingAT.class,
                ReadStaticColumnsAT.class,
-               UDFsAT.class,
-               BoundStatementWithSortedKQuery.class,
+               SearchMatchingManyRowsAT.class,
+               SearchWithLongSkinnyRowsAT.class,
+               SearchWithLongWideRowsAT.class,
+               SortWithSkinnyRowsAT.class,
+               SortWithWideRowsAT.class,
                StatelessSearchWithSkinnyRowsAT.class,
-               StatelessSearchWithWideRowsAT.class})
+               StatelessSearchWithWideRowsAT.class,
+               TokenRangeWithSkinnyRowsAT.class,
+               TokenRangeWithWideRowsMultiClusteringAT.class,
+               TokenRangeWithWideRowsMultiPartitionAT.class,
+               UDFsAT.class})
 public class VariaSuite {
 }

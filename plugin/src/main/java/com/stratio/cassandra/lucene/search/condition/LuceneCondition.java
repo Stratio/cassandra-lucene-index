@@ -61,7 +61,7 @@ public class LuceneCondition extends Condition {
     }
 
     /** {@inheritDoc} */
-    public Set<String> involvedFields() {
+    public Set<String> postProcessingFields() {
         Set<String> fields = new LinkedHashSet<>();
         if (!StringUtils.isBlank(defaultField)) {
             fields.add(defaultField);
@@ -78,13 +78,13 @@ public class LuceneCondition extends Condition {
     @Override
     public Query doQuery(Schema schema) {
         try {
-            Analyzer analyzer = schema.getAnalyzer();
+            Analyzer analyzer = schema.analyzer();
             QueryParser queryParser = new QueryParser(defaultField, analyzer);
             queryParser.setAllowLeadingWildcard(true);
             queryParser.setLowercaseExpandedTerms(false);
             return queryParser.parse(query);
         } catch (ParseException e) {
-            throw new IndexException("Error while parsing lucene syntax query: %s", e.getMessage());
+            throw new IndexException("Error while parsing lucene syntax query: {}", e.getMessage());
         }
     }
 

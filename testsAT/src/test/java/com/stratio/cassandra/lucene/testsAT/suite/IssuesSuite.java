@@ -28,6 +28,9 @@ import org.junit.runners.Suite.SuiteClasses;
                Issue123AT.class,
                Issue132AT.class,
                Issue143AT.class,
-               Issue149AT.class})
+               Issue149AT.class,
+               Issue158AT.class,
+               Issue165AT.class,
+               Issue177AT.class})
 public class IssuesSuite {
 }

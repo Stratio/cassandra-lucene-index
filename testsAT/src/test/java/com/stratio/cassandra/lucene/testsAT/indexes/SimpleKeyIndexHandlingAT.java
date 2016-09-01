@@ -67,9 +67,8 @@ public class SimpleKeyIndexHandlingAT extends BaseAT {
     public void createIndexAfterInsertionsTest() {
         utils.insert(data1, data2, data3, data4, data5)
              .createIndex()
-             .waitForIndexing()
              .refresh()
-             .query(wildcard("ascii_1", "*"))
+             .filter(wildcard("ascii_1", "*"))
              .check(5);
     }
 
@@ -77,26 +76,23 @@ public class SimpleKeyIndexHandlingAT extends BaseAT {
     public void createIndexDuringInsertionsTest() {
         utils.insert(data1, data2, data3)
              .createIndex()
-             .waitForIndexing()
              .insert(data4, data5)
              .refresh()
-             .query(wildcard("ascii_1", "*"))
+             .filter(wildcard("ascii_1", "*"))
              .check(5);
     }
 
     @Test
     public void recreateIndexAfterInsertionsTest() {
         utils.createIndex()
-             .waitForIndexing()
              .insert(data1, data2, data3, data4, data5)
              .refresh()
-             .query(wildcard("ascii_1", "*"))
+             .filter(wildcard("ascii_1", "*"))
              .check(5)
              .dropIndex()
              .createIndex()
-             .waitForIndexing()
              .refresh()
-             .query(wildcard("ascii_1", "*"))
+             .filter(wildcard("ascii_1", "*"))
              .check(5);
     }
 }

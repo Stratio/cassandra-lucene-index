@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
 import org.apache.cassandra.db.*;
@@ -25,12 +26,15 @@ import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 
 import java.util.*;
+
+import static org.apache.cassandra.db.PartitionPosition.Kind.*;
 
 /**
  * {@link IndexService} for skinny rows.
@@ -74,17 +78,13 @@ class IndexServiceSkinny extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Columns columns(DecoratedKey key, Row row) {
-        Columns columns = new Columns();
-        partitionMapper.addColumns(columns, key);
-        columnsMapper.addColumns(columns, row);
-        return columns;
+        return new Columns().add(partitionMapper.columns(key)).add(ColumnsMapper.columns(row));
     }
 
     /** {@inheritDoc} */
     @Override
-    protected void addKeyFields(Document document, DecoratedKey key, Row row) {
-        tokenMapper.addFields(document, key);
-        partitionMapper.addFields(document, key);
+    protected List<IndexableField> keyIndexableFields(DecoratedKey key, Row row) {
+        return Arrays.asList(tokenMapper.indexableField(key), partitionMapper.indexableField(key));
     }
 
     /** {@inheritDoc} */
@@ -108,9 +108,15 @@ class IndexServiceSkinny extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Optional<Query> query(DataRange dataRange) {
-        PartitionPosition startPosition = dataRange.startKey();
-        PartitionPosition stopPosition = dataRange.stopKey();
-        return query(startPosition, stopPosition);
+        PartitionPosition start = dataRange.startKey();
+        PartitionPosition stop = dataRange.stopKey();
+        if (start.kind() == ROW_KEY && stop.kind() == ROW_KEY && start.equals(stop)) {
+            return Optional.of(partitionMapper.query((DecoratedKey) start));
+        }
+        return tokenMapper.query(start.getToken(),
+                                 stop.getToken(),
+                                 start.kind() == MIN_BOUND,
+                                 stop.kind() == MAX_BOUND);
     }
 
     /** {@inheritDoc} */

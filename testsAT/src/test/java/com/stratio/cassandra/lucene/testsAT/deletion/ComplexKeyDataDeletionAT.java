@@ -96,7 +96,7 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
                               .where("integer_1", 1)
                               .and("ascii_1", "ascii")
                               .and("double_1", 1)
-                              .waitForIndexing()
+                              .refresh()
                               .filter(wildcard("ascii_1", "*"))
                               .get();
 
@@ -122,7 +122,7 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
                               .where("integer_1", 1)
                               .and("ascii_1", "ascii")
                               .and("double_1", 1)
-                              .waitForIndexing()
+                              .refresh()
                               .filter(wildcard("ascii_1", "*"))
                               .get();
 
@@ -152,8 +152,7 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
                               .where("integer_1", 1)
                               .and("ascii_1", "ascii")
                               .and("double_1", 1)
-                              .waitForIndexing()
-                              .select()
+                              .refresh()
                               .filter(wildcard("ascii_1", "*"))
                               .get();
 
@@ -182,8 +181,7 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
              .where("integer_1", 1)
              .where("ascii_1", "ascii")
              .where("double_1", 1)
-             .waitForIndexing()
-             .select()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(19);
 
@@ -194,8 +192,7 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
         utils.delete()
              .where("integer_1", 1)
              .and("ascii_1", "ascii")
-             .waitForIndexing()
-             .select()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(18);
     }

@@ -15,17 +15,14 @@
  */
 package com.stratio.cassandra.lucene.testsAT.search;
 
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.datastax.driver.core.querybuilder.Batch;
-import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
-import com.datastax.driver.core.querybuilder.Update;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsSelect;
+import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsUpdate;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -37,7 +34,7 @@ import java.util.Map;
 
 import static com.stratio.cassandra.lucene.builder.Builder.bitemporal;
 import static com.stratio.cassandra.lucene.builder.Builder.bitemporalMapper;
-import static org.junit.Assert.assertEquals;
+import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -46,10 +43,9 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JUnit4.class)
 public class BitemporalSearchAT extends BaseAT {
 
-    private static final String TIMESTAMP_PATTERN = "timestamp";
-    private static final String SIMPLE_DATE_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
+    private static final String SIMPLE_DATE_PATTERN = "yyyy/MM/dd HH:mm:ss.SSSZ";
 
-    protected static CassandraUtils utils;
+    protected static CassandraUtils utils, utils2;
 
     public static final Map<String, String> data1;
     public static final Map<String, String> data2;
@@ -70,558 +66,689 @@ public class BitemporalSearchAT extends BaseAT {
 
         data1 = new LinkedHashMap<>();
         data1.put("integer_1", "1");
-        data1.put("vt_from", "'2015/01/01 00:00:00.000'");
-        data1.put("vt_to", "'2015/02/01 12:00:00.000'");
-        data1.put("tt_from", "'2015/01/15 12:00:00.001'");
-        data1.put("tt_to", "'2015/02/15 12:00:00.000'");
+        data1.put("vt_from", "'2015/01/01 00:00:00.000+0000'");
+        data1.put("vt_to", "'2015/02/01 12:00:00.000+0000'");
+        data1.put("tt_from", "'2015/01/15 12:00:00.001+0000'");
+        data1.put("tt_to", "'2015/02/15 12:00:00.000+0000'");
 
         data2 = new LinkedHashMap<>();
         data2.put("integer_1", "2");
-        data2.put("vt_from", "'2015/02/01 12:00:00.001'");
-        data2.put("vt_to", "'2015/03/01 12:00:00.000'");
-        data2.put("tt_from", "'2015/02/15 12:00:00.001'");
-        data2.put("tt_to", "'2015/03/15 12:00:00.000'");
+        data2.put("vt_from", "'2015/02/01 12:00:00.001+0000'");
+        data2.put("vt_to", "'2015/03/01 12:00:00.000+0000'");
+        data2.put("tt_from", "'2015/02/15 12:00:00.001+0000'");
+        data2.put("tt_to", "'2015/03/15 12:00:00.000+0000'");
 
         data3 = new LinkedHashMap<>();
         data3.put("integer_1", "3");
-        data3.put("vt_from", "'2015/03/01 12:00:00.001'");
-        data3.put("vt_to", "'2015/04/01 12:00:00.000'");
-        data3.put("tt_from", "'2015/03/15 12:00:00.001'");
-        data3.put("tt_to", "'2015/04/15 12:00:00.000'");
+        data3.put("vt_from", "'2015/03/01 12:00:00.001+0000'");
+        data3.put("vt_to", "'2015/04/01 12:00:00.000+0000'");
+        data3.put("tt_from", "'2015/03/15 12:00:00.001+0000'");
+        data3.put("tt_to", "'2015/04/15 12:00:00.000+0000'");
 
         data4 = new LinkedHashMap<>();
         data4.put("integer_1", "4");
-        data4.put("vt_from", "'2015/04/01 12:00:00.001'");
-        data4.put("vt_to", "'2015/05/01 12:00:00.000'");
-        data4.put("tt_from", "'2015/04/15 12:00:00.001'");
-        data4.put("tt_to", "'2015/05/15 12:00:00.000'");
+        data4.put("vt_from", "'2015/04/01 12:00:00.001+0000'");
+        data4.put("vt_to", "'2015/05/01 12:00:00.000+0000'");
+        data4.put("tt_from", "'2015/04/15 12:00:00.001+0000'");
+        data4.put("tt_to", "'2015/05/15 12:00:00.000+0000'");
 
         data5 = new LinkedHashMap<>();
         data5.put("integer_1", "5");
-        data5.put("vt_from", "'2015/05/01 12:00:00.001'");
-        data5.put("vt_to", "'2015/06/01 12:00:00.000'");
-        data5.put("tt_from", "'2015/05/15 12:00:00.001'");
-        data5.put("tt_to", "'2015/06/15 12:00:00.000'");
+        data5.put("vt_from", "'2015/05/01 12:00:00.001+0000'");
+        data5.put("vt_to", "'2015/06/01 12:00:00.000+0000'");
+        data5.put("tt_from", "'2015/05/15 12:00:00.001+0000'");
+        data5.put("tt_to", "'2015/06/15 12:00:00.000+0000'");
 
         data6 = new LinkedHashMap<>();
         data6.put("integer_1", "5");
-        data6.put("vt_from", "'2016/05/01 12:00:00.001'");
-        data6.put("vt_to", "'2016/06/01 12:00:00.000'");
-        data6.put("tt_from", "'2016/05/15 12:00:00.001'");
-        data6.put("tt_to", "'2016/06/15 12:00:00.000'");
+        data6.put("vt_from", "'2016/05/01 12:00:00.001+0000'");
+        data6.put("vt_to", "'2016/06/01 12:00:00.000+0000'");
+        data6.put("tt_from", "'2016/05/15 12:00:00.001+0000'");
+        data6.put("tt_to", "'2016/06/15 12:00:00.000+0000'");
 
         data7 = new LinkedHashMap<>();
         data7.put("id", "1");
         data7.put("data", "'v1'");
-        data7.put("vt_from", "0");
-        data7.put("vt_to", "9223372036854775807");
-        data7.put("tt_from", "0");
-        data7.put("tt_to", "9223372036854775807");
+        data7.put("vt_from", "'1970/01/01 00:00:00.001+0000'");
+        data7.put("vt_to", "'3000/01/01 00:00:00.000+0000'");
+        data7.put("tt_from", "'1970/01/01 00:00:00.001+0000'");
+        data7.put("tt_to", "'3000/01/01 00:00:00.000+0000'");
 
         data8 = new LinkedHashMap<>();
         data8.put("id", "2");
         data8.put("data", "'v1'");
-        data8.put("vt_from", "0");
-        data8.put("vt_to", "9223372036854775807");
-        data8.put("tt_from", "0");
-        data8.put("tt_to", "9223372036854775807");
+        data8.put("vt_from", "'1970/01/01 00:00:00.001+0000'");
+        data8.put("vt_to", "'3000/01/01 00:00:00.000+0000'");
+        data8.put("tt_from", "'1970/01/01 00:00:00.001+0000'");
+        data8.put("tt_to", "'3000/01/01 00:00:00.000+0000'");
 
         data9 = new LinkedHashMap<>();
         data9.put("id", "3");
         data9.put("data", "'v1'");
-        data9.put("vt_from", "0");
-        data9.put("vt_to", "9223372036854775807");
-        data9.put("tt_from", "0");
-        data9.put("tt_to", "9223372036854775807");
+        data9.put("vt_from", "'1970/01/01 00:00:00.001+0000'");
+        data9.put("vt_to", "'3000/01/01 00:00:00.000+0000'");
+        data9.put("tt_from", "'1970/01/01 00:00:00.001+0000'");
+        data9.put("tt_to", "'3000/01/01 00:00:00.000+0000'");
 
         data10 = new LinkedHashMap<>();
         data10.put("id", "4");
         data10.put("data", "'v1'");
-        data10.put("vt_from", "0");
-        data10.put("vt_to", "9223372036854775807");
-        data10.put("tt_from", "0");
-        data10.put("tt_to", "9223372036854775807");
+        data10.put("vt_from", "'1970/01/01 00:00:00.001+0000'");
+        data10.put("vt_to", "'3000/01/01 00:00:00.000+0000'");
+        data10.put("tt_from", "'1970/01/01 00:00:00.001+0000'");
+        data10.put("tt_to", "'3000/01/01 00:00:00.000+0000'");
 
         data11 = new LinkedHashMap<>();
         data11.put("id", "5");
         data11.put("data", "'v1'");
-        data11.put("vt_from", "0");
-        data11.put("vt_to", "9223372036854775807");
-        data11.put("tt_from", "0");
-        data11.put("tt_to", "9223372036854775807");
+        data11.put("vt_from", "'1970/01/01 00:00:00.001+0000'");
+        data11.put("vt_to", "'3000/01/01 00:00:00.000+0000'");
+        data11.put("tt_from", "'1970/01/01 00:00:00.001+0000'");
+        data11.put("tt_to", "'3000/01/01 00:00:00.000+0000'");
 
         data12 = new LinkedHashMap<>();
         data12.put("integer_1", "1");
-        data12.put("vt_from", "'2015/01/01 00:00:00.000'");
-        data12.put("vt_to", "'2200/01/01 00:00:00.000'");
-        data12.put("tt_from", "'2015/01/01 12:00:00.001'");
-        data12.put("tt_to", "'2015/01/05 12:00:00.000'");
+        data12.put("vt_from", "'2015/01/01 00:00:00.000+0000'");
+        data12.put("vt_to", "'2200/01/01 00:00:00.000+0000'");
+        data12.put("tt_from", "'2015/01/01 12:00:00.001+0000'");
+        data12.put("tt_to", "'2015/01/05 12:00:00.000+0000'");
 
         data13 = new LinkedHashMap<>();
         data13.put("integer_1", "2");
-        data13.put("vt_from", "'2015/01/01 12:00:00.001'");
-        data13.put("vt_to", "'2015/01/05 12:00:00.000'");
-        data13.put("tt_from", "'2015/01/05 12:00:00.001'");
-        data13.put("tt_to", "'2015/01/10 12:00:00.000'");
+        data13.put("vt_from", "'2015/01/01 12:00:00.001+0000'");
+        data13.put("vt_to", "'2015/01/05 12:00:00.000+0000'");
+        data13.put("tt_from", "'2015/01/05 12:00:00.001+0000'");
+        data13.put("tt_to", "'2015/01/10 12:00:00.000+0000'");
 
         data14 = new LinkedHashMap<>();
         data14.put("integer_1", "3");
-        data14.put("vt_from", "'2015/01/05 12:00:00.001'");
-        data14.put("vt_to", "'2200/01/01 00:00:00.000'");
-        data14.put("tt_from", "'2015/01/10 12:00:00.001'");
-        data14.put("tt_to", "'2200/01/01 00:00:00.000'");
-
+        data14.put("vt_from", "'2015/01/05 12:00:00.001+0000'");
+        data14.put("vt_to", "'2200/01/01 00:00:00.000+0000'");
+        data14.put("tt_from", "'2015/01/10 12:00:00.001+0000'");
+        data14.put("tt_to", "'2200/01/01 00:00:00.000+0000'");
     }
 
     @BeforeClass
-    public static void setUpSuite() throws InterruptedException {
-        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern("yyyy/MM/dd HH:mm:ss.SSS");
-        utils = CassandraUtils.builder("bitemporal")
-                              .withPartitionKey("integer_1")
-                              .withClusteringKey()
-                              .withColumn("integer_1", "int")
-                              .withColumn("vt_from", "text")
-                              .withColumn("vt_to", "text")
-                              .withColumn("tt_from", "text")
-                              .withColumn("tt_to", "text")
-                              .withMapper("bitemporal", mapper)
-                              .build()
-                              .createKeyspace()
-                              .createTable()
-                              .createIndex()
-                              .insert(data1, data2, data3, data4, data5);
+    public static void beforeClass() throws InterruptedException {
+        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern("yyyy/MM/dd HH:mm:ss.SSS")
+                                                                                .validated(true);
+        utils = builder("bitemporal")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal", mapper)
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(data1, data2, data3, data4, data5)
+                .refresh();
+
+        String nowValue = "2016/03/02 00:00:00.000+0000";
+        utils2 = builder("bitemporal2")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal",
+                            bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to")
+                                    .pattern(SIMPLE_DATE_PATTERN)
+                                    .nowValue(nowValue)
+                                    .validated(true))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .refresh();
     }
 
     @AfterClass
-    public static void tearDownSuite() {
+    public static void afterClass() {
         utils.dropIndex().dropTable().dropKeyspace();
-    }
-
-    private String fromInteger(Integer[] list) {
-
-        String out = "{";
-        for (Integer aList : list) {
-            out += Integer.toString(aList) + ",";
-        }
-        return out.substring(0, out.length() - 1) + "}";
-
-    }
-
-    private boolean isThisAndOnlyThis(Integer[] intList1, int[] intList2) {
-        if (intList1.length != intList2.length) {
-            return false;
-        } else {
-
-            for (Integer i : intList1) {
-                boolean found = false;
-                for (Integer j : intList2) {
-                    if (i.equals(j)) {
-                        found = true;
-                    }
-                }
-                if (!found) {
-                    return false;
-                }
-            }
-            return true;
-        }
+        utils2.dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
-    public void biTemporalQueryIntersectsTimeStampFieldTest() {
-        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/01/01 00:00:00.000")
-                                                                          .vtTo("2015/02/01 12:00:00.000")
-                                                                          .ttFrom("2015/01/15 12:00:00.001")
-                                                                          .ttTo("2015/02/15 12:00:00.000"));
-
-        assertEquals("Expected 1 results!", 1, select.count());
-        assertTrue("Unexpected results!! Expected: {1}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1}));
+    public void testBitemporalSearchIntersectsTimeStampField() {
+        utils.query(bitemporal("bitemporal").vtFrom("2015/01/01 00:00:00.000+0000")
+                                            .vtTo("2015/02/01 12:00:00.000+0000")
+                                            .ttFrom("2015/01/15 12:00:00.001+0000")
+                                            .ttTo("2015/02/15 12:00:00.000+0000"))
+             .checkUnorderedColumns("integer_1", 1);
     }
 
     @Test
-    public void biTemporalQueryIntersectsTimeStampFieldTest2() {
-        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/02/01 12:00:00.001")
-                                                                          .vtTo("2015/03/01 12:00:00.000")
-                                                                          .ttFrom("2015/02/15 12:00:00.001")
-                                                                          .ttTo("2015/03/15 12:00:00.000"));
-
-        assertEquals("Expected 1 results!", 1, select.count());
-        assertTrue("Unexpected results!! Expected: {2}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{2}));
+    public void testBitemporalSearchIntersectsTimeStampField2() {
+        utils.query(bitemporal("bitemporal").vtFrom("2015/02/01 12:00:00.001+0000")
+                                            .vtTo("2015/03/01 12:00:00.000+0000")
+                                            .ttFrom("2015/02/15 12:00:00.001+0000")
+                                            .ttTo("2015/03/15 12:00:00.000+0000"))
+             .checkUnorderedColumns("integer_1", 2);
     }
 
     @Test
-    public void biTemporalQueryIntersectsTimeStampFieldTest3() {
-        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/03/01 12:00:00.001")
-                                                                          .vtTo("2015/04/01 12:00:00.000")
-                                                                          .ttFrom("2015/03/15 12:00:00.001")
-                                                                          .ttTo("2015/04/15 12:00:00.000"));
-
-        assertEquals("Expected 1 results!", 1, select.count());
-        assertTrue("Unexpected results!! Expected: {3}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{3}));
+    public void testBitemporalQueryIntersectsTimeStampField3() {
+        utils.query(bitemporal("bitemporal").vtFrom("2015/03/01 12:00:00.001+0000")
+                                            .vtTo("2015/04/01 12:00:00.000+0000")
+                                            .ttFrom("2015/03/15 12:00:00.001+0000")
+                                            .ttTo("2015/04/15 12:00:00.000+0000"))
+             .checkUnorderedColumns("integer_1", 3);
     }
 
     @Test
-    public void biTemporalQueryIntersectsTimeStampFieldTest4() {
-        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/04/01 12:00:00.001")
-                                                                          .vtTo("2015/05/01 12:00:00.000")
-                                                                          .ttFrom("2015/04/15 12:00:00.001")
-                                                                          .ttTo("2015/05/15 12:00:00.000"));
-
-        assertEquals("Expected 1 results!", 1, select.count());
-        assertTrue("Unexpected results!! Expected: {4}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{4}));
+    public void testBitemporalQueryIntersectsTimeStampField4() {
+        utils.query(bitemporal("bitemporal").vtFrom("2015/04/01 12:00:00.001+0000")
+                                            .vtTo("2015/05/01 12:00:00.000+0000")
+                                            .ttFrom("2015/04/15 12:00:00.001+0000")
+                                            .ttTo("2015/05/15 12:00:00.000+0000"))
+             .checkUnorderedColumns("integer_1", 4);
     }
 
     @Test
-    public void biTemporalQueryIntersectsTimeStampFieldTest5() {
-        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/05/01 12:00:00.001")
-                                                                          .vtTo("2015/06/01 12:00:00.000")
-                                                                          .ttFrom("2015/05/15 12:00:00.001")
-                                                                          .ttTo("2015/06/15 12:00:00.000"));
-        assertEquals("Expected 1 results!", 1, select.count());
-        assertTrue("Unexpected results!! Expected: {5}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{5}));
+    public void testBitemporalQueryIntersectsTimeStampField5() {
+        utils.query(bitemporal("bitemporal").vtFrom("2015/05/01 12:00:00.001+0000")
+                                            .vtTo("2015/06/01 12:00:00.000+0000")
+                                            .ttFrom("2015/05/15 12:00:00.001+0000")
+                                            .ttTo("2015/06/15 12:00:00.000+0000"))
+             .checkUnorderedColumns("integer_1", 5);
     }
 
     @Test
-    public void biTemporalQueryIntersectsTimeStampFieldTest6() {
-        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
-                                                                          .vtTo("2015/03/02 00:00:00.000")
-                                                                          .ttFrom("2015/01/14 00:00:00.000")
-                                                                          .ttTo("2015/04/02 00:00:00.000"));
-        assertEquals("Expected 3 results!", 3, select.count());
-        assertTrue("Unexpected results!! Expected: {1,2,3}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1, 2, 3}));
+    public void testBitemporalQueryIntersectsTimeStampField6() {
+        utils.query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000+0000")
+                                            .vtTo("2015/03/02 00:00:00.000+0000")
+                                            .ttFrom("2015/01/14 00:00:00.000+0000")
+                                            .ttTo("2015/04/02 00:00:00.000+0000"))
+             .checkUnorderedColumns("integer_1", 1, 2, 3);
     }
 
     @Test
-    public void biTemporalQueryIntersectsTimeStampFieldTest7() {
-        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2014/12/01 12:00:00.000")
-                                                                          .vtTo("2014/12/31 00:00:00.000")
-                                                                          .ttFrom("2015/01/14 00:00:00.000")
-                                                                          .ttTo("2015/04/02 00:00:00.000"));
-
-        assertEquals("Expected 0 results!", 0, select.count());
-        assertTrue("Unexpected results!! Expected: {}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{}));
+    public void testBitemporalQueryIntersectsTimeStampField7() {
+        utils.query(bitemporal("bitemporal").vtFrom("2014/12/01 12:00:00.000+0000")
+                                            .vtTo("2014/12/31 00:00:00.000+0000")
+                                            .ttFrom("2015/01/14 00:00:00.000+0000")
+                                            .ttTo("2015/04/02 00:00:00.000+0000"))
+             .check(0);
     }
 
     @Test
-    public void biTemporalQueryIntersectsTimeStampFieldTest8() {
-        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/01/01 00:00:00.000")
-                                                                          .vtTo("2015/02/01 12:00:00.001")
-                                                                          .ttFrom("2015/01/15 12:00:00.001")
-                                                                          .ttTo("2015/02/15 12:00:00.001"));
-        assertEquals("Expected 2 results!", 2, select.count());
-        assertTrue("Unexpected results!! Expected: {1,2}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1, 2}));
+    public void testBitemporalSearchIntersectsTimeStampField8() {
+        utils.query(bitemporal("bitemporal").vtFrom("2015/01/01 00:00:00.000+0000")
+                                            .vtTo("2015/02/01 12:00:00.001+0000")
+                                            .ttFrom("2015/01/15 12:00:00.001+0000")
+                                            .ttTo("2015/02/15 12:00:00.001+0000"))
+             .checkUnorderedColumns("integer_1", 1, 2);
     }
 
     @Test
-    public void biTemporalQueryIntersectsTimeStampFieldTest9() {
-        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/02/01 12:00:00.000")
-                                                                          .vtTo("2015/03/01 12:00:00.000")
-                                                                          .ttFrom("2015/02/15 12:00:00.000")
-                                                                          .ttTo("2015/03/15 12:00:00.000"));
-        assertEquals("Expected 2 results!", 2, select.count());
-        assertTrue("Unexpected results!! Expected: {1,2}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1, 2}));
-    }
-
-    private CassandraUtils setUpSuite2(Object nowValue, String pattern) {
-        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern(pattern)
-                                                                                .nowValue(nowValue)
-                                                                                .validated(true);
-        return CassandraUtils.builder("bitemporal2")
-                             .withPartitionKey("integer_1")
-                             .withClusteringKey()
-                             .withColumn("integer_1", "int")
-                             .withColumn("vt_from", "text")
-                             .withColumn("vt_to", "text")
-                             .withColumn("tt_from", "text")
-                             .withColumn("tt_to", "text")
-                             .withMapper("bitemporal", mapper)
-                             .build()
-                             .createKeyspace()
-                             .createTable()
-                             .createIndex();
-    }
-
-    private CassandraUtils setUpSuite4() {
-        return CassandraUtils.builder("bitemporal_future")
-                             .withPartitionKey("integer_1")
-                             .withClusteringKey()
-                             .withColumn("integer_1", "int")
-                             .withColumn("vt_from", "text")
-                             .withColumn("vt_to", "text")
-                             .withColumn("tt_from", "text")
-                             .withColumn("tt_to", "text")
-                             .withMapper("bitemporal",
-                                         bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern(
-                                                 "yyyy/MM/dd HH:mm:ss.SSS").nowValue("2200/01/01 00:00:00.000"))
-                             .build()
-                             .createKeyspace()
-                             .createTable()
-                             .createIndex()
-                             .insert(data12, data13, data14);
-
-    }
-
-    private void tearDown(CassandraUtils cu) {
-        cu.dropIndex().dropTable().dropKeyspace();
+    public void testBitemporalSearchIntersectsTimeStampField9() {
+        utils.query(bitemporal("bitemporal").vtFrom("2015/02/01 12:00:00.000+0000")
+                                            .vtTo("2015/03/01 12:00:00.000+0000")
+                                            .ttFrom("2015/02/15 12:00:00.000+0000")
+                                            .ttTo("2015/03/15 12:00:00.000+0000"))
+             .checkUnorderedColumns("integer_1", 1, 2);
     }
 
     //inserting bigger to nowValue it
-    @Test(expected = InvalidQueryException.class)
-    public void biTemporalQueryWithNowValueTooLongTest() {
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testBitemporalQueryWithNowValueTooLong() {
         // testing with long value 1456876800 == 2016/03/02 00:00:00
-        String nowValue = "2016/03/02 00:00:00.000";
-        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN);
-        try {
-            cu.insert(data6);
-        } finally {
-            tearDown(cu);
-        }
+        utils2.insert(InvalidQueryException.class,
+                      "BitemporalDateTime value '1462104000001' exceeds Max Value: '1456876800000'",
+                      data6);
     }
 
     //vt_to>vt_from
-    @Test(expected = InvalidQueryException.class)
-    public void biTemporalQueryWithttToSmallerThanTTFrom() {
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testBitemporalSearchWithTTToSmallerThanTTFrom() {
+
         // testing with long value 1456876800 == 2016/03/02 00:00:00
         Map<String, String> data = new LinkedHashMap<>();
-        data.put("id", "5");
-        data.put("data", "'v1'");
-        data.put("vt_from", "0");
-        data.put("vt_to", "9223372036854775807");
-        data.put("tt_from", "9223372036854775807");
-        data.put("tt_to", "0");
-        utils.insert(data);
+        data.put("integer_1", "5");
+        data.put("vt_from", "'2016/01/01 00:01:00.001+0000'");
+        data.put("vt_to", "'2016/01/02 00:01:00.001+0000'");
+        data.put("tt_from", "'2016/02/01 00:01:00.001+0000'");
+        data.put("tt_to", "'2016/01/01 00:01:00.001+0000'");
+
+        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to")
+                .pattern(SIMPLE_DATE_PATTERN)
+                .validated(true);
+        builder("bitemporal")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal", mapper)
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(InvalidQueryException.class, "is after", data)
+                .dropKeyspace();
     }
 
     //tt_to<tt_from
-    @Test(expected = InvalidQueryException.class)
-    public void biTemporalQueryWithVtToSmallerhanVTFrom() {
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testBitemporalSearchWithVtToSmallerThanVTFrom() {
         // testing with long value 1456876800 == 2016/03/02 00:00:00
         Map<String, String> data = new LinkedHashMap<>();
-        data.put("id", "5");
-        data.put("data", "'v1'");
-        data.put("vt_from", "9223372036854775807");
-        data.put("vt_to", "0");
-        data.put("tt_from", "0");
-        data.put("tt_to", "9223372036854775807");
-        utils.insert(data);
+        data.put("integer_1", "5");
+        data.put("tt_from", "'2016/01/01 00:01:00.001+0000'");
+        data.put("tt_to", "'2016/01/02 00:01:00.001+0000'");
+        data.put("vt_from", "'2016/02/01 00:01:00.001+0000'");
+        data.put("vt_to", "'2016/01/01 00:01:00.001+0000'");
+
+        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to")
+                .pattern(SIMPLE_DATE_PATTERN)
+                .validated(true);
+        builder("bitemporal")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal", mapper)
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(InvalidQueryException.class, "is after", data)
+                .dropKeyspace();
     }
 
     //valid String max value queries setting nowValue to max date in data3
     @Test
-    public void biTemporalQueryIsWithInNowValueToStringTest4() {
+    public void testBitemporalSearchIsWithInNowValueToString4() {
         //testing with string value
-        String nowValue = "2015/04/15 12:00:00.000";
+        String nowValue = "2015/04/15 12:00:00.000+0000";
 
-        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3);
-
-        //testing if inserting data translate it to Long.max
-        CassandraUtilsSelect select = cu.query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
-                                                                       .vtTo("2015/03/02 00:00:00.000")
-                                                                       .ttFrom("2015/01/14 00:00:00.000")
-                                                                       .ttTo("2015/04/02 00:00:00.000"));
-        assertEquals("Expected 3 results!", 3, select.count());
-        assertTrue("Unexpected results!! Expected: {1,2,3}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1, 2, 3}));
-        tearDown(cu);
+        builder("bitemporal2")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal",
+                            bitemporalMapper("vt_from",
+                                             "vt_to",
+                                             "tt_from",
+                                             "tt_to")
+                                    .pattern(SIMPLE_DATE_PATTERN)
+                                    .nowValue(nowValue)
+                                    .validated(true))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(data1, data2, data3)
+                .refresh()
+                .query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000+0000")
+                                               .vtTo("2015/03/02 00:00:00.000+0000")
+                                               .ttFrom("2015/01/14 00:00:00.000+0000")
+                                               .ttTo("2015/04/02 00:00:00.000+0000"))
+                .checkUnorderedColumns("integer_1", 1, 2, 3)
+                .dropIndex().dropTable().dropKeyspace();
     }
 
     //querying without limits to vt
     @Test
-    public void biTemporalQueryIsWithInNowValueToStringTest5() {
+    public void testBitemporalSearchIsWithInNowValueToString5() {
         //testing with string value
-        String nowValue = "2015/04/15 12:00:00.000";
-
-        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3);
-
-        //testing if inserting data translate it to Long.max
-        CassandraUtilsSelect select = cu.query(bitemporal("bitemporal").ttFrom("2015/01/14 00:00:00.000")
-                                                                       .ttTo("2015/04/02 00:00:00.000"));
-        assertEquals("Expected 3 results!", 3, select.count());
-        assertTrue("Unexpected results!! Expected: {1,2,3}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1, 2, 3}));
-        tearDown(cu);
+        String nowValue = "2015/04/15 12:00:00.000+0000";
+        builder("bitemporal2")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal",
+                            bitemporalMapper("vt_from",
+                                             "vt_to",
+                                             "tt_from",
+                                             "tt_to")
+                                    .pattern(SIMPLE_DATE_PATTERN)
+                                    .nowValue(nowValue)
+                                    .validated(true))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(data1, data2, data3)
+                .refresh()
+                .query(bitemporal("bitemporal").ttFrom(
+                        "2015/01/14 00:00:00.000+0000")
+                                               .ttTo("2015/04/02 00:00:00.000+0000"))
+                .checkUnorderedColumns("integer_1", 1, 2, 3)
+                .dropIndex().dropTable().dropKeyspace();
     }
 
     //querying without limits to tt
     @Test
-    public void biTemporalQueryIsWithInNowValueToStringTest6() {
+    public void testBitemporalSearchIsWithInNowValueToString6() {
         //testing with string value
-        String nowValue = "2015/04/15 12:00:00.000";
-
-        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3);
-
-        //testing if inserting data translate it to Long.max
-        CassandraUtilsSelect select = cu.query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
-                                                                       .vtTo("2015/03/02 00:00:00.000"));
-        assertEquals("Expected 3 results!", 3, select.count());
-        assertTrue("Unexpected results!! Expected: {1,2,3}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1, 2, 3}));
-        tearDown(cu);
+        String nowValue = "2015/04/15 12:00:00.000+0000";
+        builder("bitemporal2")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal",
+                            bitemporalMapper("vt_from",
+                                             "vt_to",
+                                             "tt_from",
+                                             "tt_to")
+                                    .pattern(SIMPLE_DATE_PATTERN)
+                                    .nowValue(nowValue)
+                                    .validated(true))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(data1, data2, data3)
+                .refresh()
+                .query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000+0000")
+                                               .vtTo("2015/03/02 00:00:00.000+0000"))
+                .checkUnorderedColumns("integer_1", 1, 2, 3)
+                .dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
-    public void biTemporalQueryOverBigIntsWithDefaultPattern() {
-
-        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern(TIMESTAMP_PATTERN);
-        CassandraUtils cu = CassandraUtils.builder("bitemporal3")
-                                          .withPartitionKey("id")
-                                          .withClusteringKey("vt_from", "tt_from")
-                                          .withColumn("id", "int")
-                                          .withColumn("data", "text")
-                                          .withColumn("vt_from", "bigint")
-                                          .withColumn("vt_to", "bigint")
-                                          .withColumn("tt_from", "bigint")
-                                          .withColumn("tt_to", "bigint")
-                                          .withMapper("bitemporal", mapper)
-                                          .build()
-                                          .createKeyspace()
-                                          .createTable()
-                                          .createIndex()
-                                          .insert(data7, data8, data9, data10, data11);
-
-        CassandraUtilsSelect select = cu.searchAll();
-
-        assertEquals("Expected 5 results!", 5, select.count());
-        assertTrue("Unexpected results!! Expected: {1,2,3,4,5}, got: " + fromInteger(select.intColumn("id")),
-                   isThisAndOnlyThis(select.intColumn("id"), new int[]{1, 2, 3, 4, 5}));
-
+    public void testBitemporalSearchOverBigIntsWithDefaultPattern() {
+        String nowValue = "3000/01/01 00:00:00.000+0000";
+        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to")
+                .pattern(SIMPLE_DATE_PATTERN).nowValue(nowValue);
         Batch batch = QueryBuilder.batch();
-        Update update = QueryBuilder.update(cu.getKeyspace(), cu.getTable());
+        CassandraUtils utils = builder("bitemporal3")
+                .withPartitionKey("id")
+                .withClusteringKey("vt_from", "tt_from")
+                .withColumn("id", "int")
+                .withColumn("data", "text")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal", mapper)
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(data7, data8, data9, data10, data11)
+                .refresh()
+                .searchAll()
+                .checkUnorderedColumns("id", 1, 2, 3, 4, 5);
 
-        update.where(QueryBuilder.eq("id", 1))
-              .and(QueryBuilder.eq("vt_from", 0))
-              .and(QueryBuilder.eq("tt_from", 0))
-              .onlyIf(QueryBuilder.eq("tt_to", 9223372036854775807L))
-              .with(QueryBuilder.set("tt_to", 20150101));
+        CassandraUtilsUpdate utilsUpdate = utils.update()
+                                                .where("id", 1)
+                                                .and("vt_from", "1970/01/01 00:00:00.001+0000")
+                                                .and("tt_from", "1970/01/01 00:00:00.001+0000");
 
-        batch.add(update);
+        utilsUpdate.onlyIf(QueryBuilder.eq("tt_to", nowValue))
+                   .with(QueryBuilder.set("tt_to", "1970/01/01 05:35:50.101+0000"));
 
-        Insert insert = QueryBuilder.insertInto(cu.getKeyspace(), cu.getTable())
-                                    .value("id", 1)
-                                    .value("data", "v2")
-                                    .value("vt_from", 0)
-                                    .value("vt_to", 9223372036854775807L)
-                                    .value("tt_from", 20150102)
-                                    .value("tt_to", 9223372036854775807L);
+        batch.add(utilsUpdate.asUpdate());
+        batch.add(utils.asInsert(new String[]{"id",
+                                              "data",
+                                              "vt_from",
+                                              "vt_to",
+                                              "tt_from",
+                                              "tt_to"},
+                                 new Object[]{1,
+                                              "v2",
+                                              "1970/01/01 00:00:00.001+0000",
+                                              nowValue,
+                                              "1970/01/01 05:35:50.102+0000",
+                                              nowValue}));
 
-        batch.add(insert);
-        ResultSet result = cu.execute(batch);
+        assertTrue("batch execution didn't work",
+                   utils.execute(batch).wasApplied());
 
-        assertTrue("batch execution didn't work", result.wasApplied());
+        utils.filter(bitemporal("bitemporal").vtFrom("1970/01/01 00:00:00.001+0000")
+                                             .vtTo(nowValue)
+                                             .ttFrom(nowValue)
+                                             .ttTo(nowValue))
+             .refresh(true)
+             .checkUnorderedColumns("id", 1, 2, 3, 4, 5);
 
-        CassandraUtilsSelect select2 = cu.filter(bitemporal("bitemporal").vtFrom(0)
-                                                                         .vtTo(9223372036854775807L)
-                                                                         .ttFrom(9223372036854775807L)
-                                                                         .ttTo(9223372036854775807L)).refresh(true);
-
-        assertEquals("Expected 5 results!", 5, select2.count());
-        assertTrue("Unexpected results!! Expected: {1,2,3,4,5}, got: " + fromInteger(select2.intColumn("id")),
-                   isThisAndOnlyThis(select2.intColumn("id"), new int[]{1, 2, 3, 4, 5}));
-
-        CassandraUtilsSelect select3 = cu.filter(bitemporal("bitemporal").vtFrom(0)
-                                                                         .vtTo(9223372036854775807L)
-                                                                         .ttFrom(9223372036854775807L)
-                                                                         .ttTo(9223372036854775807L)).and("AND id = 1");
-
-        assertEquals("Expected 1 results!", 1, select3.count());
-        Row row = select3.get().get(0);
-
-        assertTrue("Unexpected results!! Expected result : {id=\"1\"}, got: " + row.getInt("id"),
-                   row.getInt("id") == 1);
-        assertTrue("Unexpected results!! Expected result : {data=\"v2\"}, got: " + row.getString("data"),
-                   row.getString("data").equals("v2"));
-        assertTrue("Unexpected results!! Expected result : {vt_from=0}, got: " + row.getLong("vt_from"),
-                   row.getLong("vt_from") == 0L);
-        assertTrue("Unexpected results!! Expected result : {vt_to=0}, got: " + row.getLong("vt_to"),
-                   row.getLong("vt_to") == 9223372036854775807L);
-        assertTrue("Unexpected results!! Expected result : {tt_from=0}, got: " + row.getLong("tt_from"),
-                   row.getLong("tt_from") == 20150102L);
-        assertTrue("Unexpected results!! Expected result : {tt_to=0}, got: " + row.getLong("tt_to"),
-                   row.getLong("tt_to") == 9223372036854775807L);
-        tearDown(cu);
-
+        CassandraUtilsSelect
+                select
+                = utils.filter(bitemporal("bitemporal").vtFrom("1970/01/01 00:00:00.001+0000")
+                                                       .vtTo(nowValue)
+                                                       .ttFrom(nowValue)
+                                                       .ttTo(nowValue))
+                       .and("AND id = 1");
+        select.check(1);
+        select.checkUnorderedColumns("id", 1);
+        select.checkUnorderedColumns("data", "v2");
+        select.checkUnorderedColumns("vt_from", "1970/01/01 00:00:00.001+0000");
+        select.checkUnorderedColumns("vt_to", nowValue);
+        select.checkUnorderedColumns("tt_from", "1970/01/01 05:35:50.102+0000");
+        select.checkUnorderedColumns("tt_to", nowValue);
+        utils.dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
-    public void testFuture() {
-        CassandraUtils cu = setUpSuite4();
-        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom("2015/01/02 12:00:00.001")
-                                                                        .ttTo("2015/01/02 12:00:00.001")).refresh(true);
-
-        assertEquals("Expected 1 results!", 1, select.count());
-        assertTrue("Unexpected results!! Expected: {1}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1}));
-        tearDown(cu);
+    public void testBitemporalSearchFuture1() {
+        builder("bitemporal_future")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal",
+                            bitemporalMapper("vt_from",
+                                             "vt_to",
+                                             "tt_from",
+                                             "tt_to").pattern(
+                                    "yyyy/MM/dd HH:mm:ss.SSS")
+                                                     .nowValue(
+                                                             "2200/01/01 00:00:00.000+0000"))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(data12, data13, data14)
+                .refresh()
+                .filter(bitemporal("bitemporal").ttFrom(
+                        "2015/01/02 12:00:00.001+0000")
+                                                .ttTo("2015/01/02 12:00:00.001+0000"))
+                .refresh(true)
+                .checkUnorderedColumns("integer_1", 1)
+                .dropIndex()
+                .dropTable()
+                .dropKeyspace();
     }
 
     @Test
-    public void testFuture2() {
-        CassandraUtils cu = setUpSuite4();
-        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom("2015/01/06 12:00:00.001")
-                                                                        .ttTo("2015/01/06 12:00:00.001")).refresh(true);
-
-        assertEquals("Expected 1 results!", 1, select.count());
-        assertTrue("Unexpected results!! Expected: {2}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{2}));
-        tearDown(cu);
+    public void testBitemporalSearchFuture2() {
+        builder("bitemporal_future")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal",
+                            bitemporalMapper("vt_from",
+                                             "vt_to",
+                                             "tt_from",
+                                             "tt_to").pattern(
+                                    "yyyy/MM/dd HH:mm:ss.SSS")
+                                                     .nowValue(
+                                                             "2200/01/01 00:00:00.000+0000"))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(data12, data13, data14)
+                .refresh()
+                .filter(bitemporal("bitemporal").ttFrom(
+                        "2015/01/06 12:00:00.001+0000")
+                                                .ttTo("2015/01/06 12:00:00.001+0000"))
+                .refresh(true)
+                .checkUnorderedColumns("integer_1", 2)
+                .dropIndex()
+                .dropTable()
+                .dropKeyspace();
     }
 
     @Test
-    public void testFuture3() {
-        CassandraUtils cu = setUpSuite4();
-        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom("2015/01/15 12:00:00.001")
-                                                                        .ttTo("2015/01/15 12:00:00.001")).refresh(true);
-
-        assertEquals("Expected 1 results!", 1, select.count());
-        assertTrue("Unexpected results!! Expected: {3}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{3}));
-        tearDown(cu);
+    public void testBitemporalSearchFuture3() {
+        builder("bitemporal_future")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal",
+                            bitemporalMapper("vt_from",
+                                             "vt_to",
+                                             "tt_from",
+                                             "tt_to").pattern(
+                                    "yyyy/MM/dd HH:mm:ss.SSS")
+                                                     .nowValue(
+                                                             "2200/01/01 00:00:00.000+0000"))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(data12, data13, data14)
+                .refresh()
+                .filter(bitemporal("bitemporal").ttFrom(
+                        "2015/01/15 12:00:00.001+0000")
+                                                .ttTo("2015/01/15 12:00:00.001+0000"))
+                .refresh(true)
+                .checkUnorderedColumns("integer_1", 3)
+                .dropIndex()
+                .dropTable()
+                .dropKeyspace();
     }
 
     @Test
-    public void testFuture4() {
-        CassandraUtils cu = setUpSuite4();
-        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").vtFrom("2016/01/15 12:00:00.001")
-                                                                        .vtTo("2016/01/15 12:00:00.001")).refresh(true);
-
-        assertEquals("Expected 2 results!", 2, select.count());
-        assertTrue("Unexpected results!! Expected: {1,3}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1, 3}));
-        tearDown(cu);
+    public void testBitemporalSearchFuture4() {
+        builder("bitemporal_future")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal",
+                            bitemporalMapper("vt_from",
+                                             "vt_to",
+                                             "tt_from",
+                                             "tt_to").pattern(
+                                    "yyyy/MM/dd HH:mm:ss.SSS")
+                                                     .nowValue(
+                                                             "2200/01/01 00:00:00.000+0000"))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(data12, data13, data14)
+                .refresh()
+                .filter(bitemporal("bitemporal").vtFrom(
+                        "2016/01/15 12:00:00.001+0000")
+                                                .vtTo("2016/01/15 12:00:00.001+0000"))
+                .refresh(true)
+                .checkUnorderedColumns("integer_1", 1, 3)
+                .dropIndex()
+                .dropTable()
+                .dropKeyspace();
     }
 
     @Test
-    public void testFuture5() {
-        CassandraUtils cu = setUpSuite4();
-        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").vtFrom("2015/06/15 12:00:00.001")
-                                                                        .vtTo("2015/07/15 12:00:00.001")
-                                                                        .ttFrom("2015/01/02 12:00:00.001")
-                                                                        .ttTo("2015/01/02 12:00:00.001")).refresh(true);
-
-        assertEquals("Expected 1 result!", 1, select.count());
-        assertTrue("Unexpected results!! Expected: {1}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1}));
-        tearDown(cu);
+    public void testBitemporalSearchFuture5() {
+        builder("bitemporal_future")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal",
+                            bitemporalMapper("vt_from",
+                                             "vt_to",
+                                             "tt_from",
+                                             "tt_to").pattern(
+                                    "yyyy/MM/dd HH:mm:ss.SSS")
+                                                     .nowValue(
+                                                             "2200/01/01 00:00:00.000+0000"))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(data12, data13, data14)
+                .refresh()
+                .filter(bitemporal("bitemporal").vtFrom(
+                        "2015/06/15 12:00:00.001+0000")
+                                                .vtTo("2015/07/15 12:00:00.001+0000")
+                                                .ttFrom("2015/01/02 12:00:00.001+0000")
+                                                .ttTo("2015/01/02 12:00:00.001+0000"))
+                .refresh(true)
+                .checkUnorderedColumns("integer_1", 1)
+                .dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
-    public void testFuture6() {
-        CassandraUtils cu = setUpSuite4();
-        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom("2200/01/01 00:00:00.000")
-                                                                        .ttTo("2200/01/01 00:00:00.000")).refresh(true);
-
-        assertEquals("Expected 1 result!", 1, select.count());
-        assertTrue("Unexpected results!! Expected: {3}, got: " + fromInteger(select.intColumn("integer_1")),
-                   isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{3}));
-        tearDown(cu);
+    public void testBitemporalSearchFuture6() {
+        builder("bitemporal_future")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal",
+                            bitemporalMapper("vt_from",
+                                             "vt_to",
+                                             "tt_from",
+                                             "tt_to").pattern(
+                                    "yyyy/MM/dd HH:mm:ss.SSS")
+                                                     .nowValue(
+                                                             "2200/01/01 00:00:00.000+0000"))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(data12, data13, data14)
+                .refresh()
+                .filter(bitemporal("bitemporal").ttFrom(
+                        "2200/01/01 00:00:00.000+0000")
+                                                .ttTo("2200/01/01 00:00:00.000+0000"))
+                .refresh(true)
+                .checkUnorderedColumns("integer_1", 3)
+                .dropIndex()
+                .dropTable()
+                .dropKeyspace();
     }
 }

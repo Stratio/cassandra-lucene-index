@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.ttl;
 
+import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -29,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class SelectTotalExpiredTTLSkinnyRowsAT {
+public class SelectTotalExpiredTTLSkinnyRowsAT extends BaseAT {
     private static CassandraUtils utils;
 
     @BeforeClass
@@ -77,13 +78,13 @@ public class SelectTotalExpiredTTLSkinnyRowsAT {
         TimeUnit.SECONDS.sleep(13);
         utils.compact(false);
 
-        utils.filter(match("c", "b")).refresh(true).checkIntColumnWithoutOrder("a");
-        utils.filter(match("c", "c"))
-             .refresh(true)
-             .checkIntColumnWithoutOrder("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20);
-        utils.filter(match("b", "a"))
-             .refresh(true)
-             .checkIntColumnWithoutOrder("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20);
+        utils.refresh()
+             .filter(match("c", "b"))
+             .check(0)
+             .filter(match("c", "c"))
+             .checkUnorderedColumns("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20)
+             .filter(match("b", "a"))
+             .checkUnorderedColumns("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20);
         assertEquals("NumDocs in index is not correct", 14, utils.getIndexNumDocs());
     }
 

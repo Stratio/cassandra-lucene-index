@@ -18,9 +18,8 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.GeoBBoxConditionBuilder;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.spatial.composite.IntersectsRPTVerifyQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
@@ -147,9 +146,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         Query query = condition.doQuery(schema);
         assertNotNull("Query is wrong is not built", query);
-        assertTrue("Query type is wrong", query instanceof ConstantScoreQuery);
-        query = ((ConstantScoreQuery) query).getQuery();
-        assertTrue("Query type is wrong", query instanceof BooleanQuery);
+        assertEquals("Query type is wrong", IntersectsRPTVerifyQuery.class, query.getClass());
     }
 
     @Test(expected = IndexException.class)

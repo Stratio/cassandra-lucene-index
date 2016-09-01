@@ -33,8 +33,6 @@ import static org.junit.Assert.*;
  */
 public class DateRangeConditionTest extends AbstractConditionTest {
 
-    private static final String TIMESTAMP_PATTERN = "timestamp";
-
     @Test
     public void testBuildString() {
         DateRangeConditionBuilder builder = new DateRangeConditionBuilder("field").boost(0.4)
@@ -152,23 +150,47 @@ public class DateRangeConditionTest extends AbstractConditionTest {
 
     @Test
     public void testQuery() {
-
-        Schema schema = schema().mapper("name", dateRangeMapper("to", "from").pattern(TIMESTAMP_PATTERN)).build();
-
-        DateRangeCondition condition = new DateRangeCondition(null, "name", 1L, 2L, null);
+        Schema schema = schema().mapper("name", dateRangeMapper("from", "to").pattern("yyyyMMdd Z")).build();
+        DateRangeCondition condition = dateRange("name").from("20160305 PST").to("20160405 PST").build();
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
         assertEquals("Query is wrong",
                      "IntersectsPrefixTreeQuery(fieldName=name,queryShape=" +
-                     "[1970-01-01T00:00:00.001 TO 1970-01-01T00:00:00.002],detailLevel=9,prefixGridScanLevel=7)",
+                     "[2016-03-05T08 TO 2016-04-05T08:00:00.000],detailLevel=9,prefixGridScanLevel=7)",
+                     query.toString());
+    }
+
+    @Test
+    public void testQueryOpenStart() {
+        Schema schema = schema().mapper("name", dateRangeMapper("from", "to").pattern("yyyyMMdd Z")).build();
+        DateRangeCondition condition = dateRange("name").to("20160305 PST").build();
+        Query query = condition.query(schema);
+        assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
+        assertEquals("Query is wrong",
+                     "IntersectsPrefixTreeQuery(fieldName=name,queryShape=" +
+                     "[-292269054-12-02T16:47:04.192 TO 2016-03-05T08:00:00.000],detailLevel=9,prefixGridScanLevel=7)",
+                     query.toString());
+    }
+
+    @Test
+    public void testQueryOpenStop() {
+        Schema schema = schema().mapper("name", dateRangeMapper("from", "to").pattern("yyyyMMdd Z")).build();
+        DateRangeCondition condition = dateRange("name").from("20160305 PST").build();
+        Query query = condition.query(schema);
+        assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
+        assertEquals("Query is wrong",
+                     "IntersectsPrefixTreeQuery(fieldName=name,queryShape=" +
+                     "[2016-03-05T08 TO 292278994-08-17T07:12:55.807],detailLevel=9,prefixGridScanLevel=7)",
                      query.toString());
     }
 
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
-        DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
+        DateRangeCondition condition = dateRange("name").from(1L).to(2L).build();
         condition.query(schema);
     }
 

@@ -16,11 +16,10 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import org.apache.cassandra.db.marshal.InetAddressType;
-import org.apache.cassandra.db.marshal.UTF8Type;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 /**
@@ -46,7 +45,7 @@ public class InetMapper extends KeywordMapper {
      * @param validated if the field must be validated
      */
     public InetMapper(String field, String column, Boolean validated) {
-        super(field, column, validated, UTF8Type.instance, InetAddressType.instance);
+        super(field, column, validated, Arrays.asList(String.class, InetAddress.class));
     }
 
     /** {@inheritDoc} */
@@ -57,7 +56,7 @@ public class InetMapper extends KeywordMapper {
         } else if (value instanceof String) {
             return doBase(name, (String) value);
         } else {
-            throw new IndexException("Field '%s' requires an inet address, but found '%s'", name, value);
+            throw new IndexException("Field '{}' requires an inet address, but found '{}'", name, value);
         }
     }
 
@@ -68,9 +67,9 @@ public class InetMapper extends KeywordMapper {
             try {
                 return InetAddress.getByName(value).getHostAddress();
             } catch (UnknownHostException e) {
-                throw new IndexException(e, "Unknown host exception for field '%s' with value '%s'", name, value);
+                throw new IndexException(e, "Unknown host exception for field '{}' with value '{}'", name, value);
             }
         }
-        throw new IndexException("Field '%s' with value '%s' can not be parsed as an inet address", name, value);
+        throw new IndexException("Field '{}' with value '{}' can not be parsed as an inet address", name, value);
     }
 }

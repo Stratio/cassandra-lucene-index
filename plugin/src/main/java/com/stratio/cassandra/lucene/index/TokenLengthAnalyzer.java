@@ -66,7 +66,8 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
 
     /** {@inheritDoc} */
     @Override
-    protected TokenStreamComponents wrapComponents(final String fieldName, TokenStreamComponents components) {
+    protected org.apache.lucene.analysis.Analyzer.TokenStreamComponents
+    wrapComponents(final String fieldName, org.apache.lucene.analysis.Analyzer.TokenStreamComponents components) {
         TokenFilter tokenFilter = new TokenLengthFilter(components.getTokenStream(), fieldName);
         return new TokenStreamComponents(components.getTokenizer(), tokenFilter);
     }

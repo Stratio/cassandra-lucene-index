@@ -42,10 +42,9 @@ public class Issue94AT extends BaseAT {
                                                   .build()
                                                   .createKeyspace()
                                                   .createTable()
-                                                  .createIndex()
-                                                  .refresh();
-        utils.insert(new String[]{"a", "b", "c"}, new Object[]{1, null, null});
-        utils.execute("INSERT INTO %s(a , b , c ) VALUES (1, null, null);", utils.getQualifiedTable());
+                                                  .createIndex();
+        utils.insert(new String[]{"a", "b", "c"}, new Object[]{1, null, null})
+             .execute("INSERT INTO %s(a , b , c ) VALUES (1, null, null);", utils.getQualifiedTable());
         utils.dropTable().dropKeyspace();
     }
 }

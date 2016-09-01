@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.search;
 
+import com.stratio.cassandra.lucene.common.GeoShape;
 import com.stratio.cassandra.lucene.search.condition.builder.*;
 import com.stratio.cassandra.lucene.search.sort.builder.GeoDistanceSortFieldBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SimpleSortFieldBuilder;
@@ -41,23 +42,24 @@ public final class SearchBuilders {
     }
 
     /**
-     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as query.
+     * Returns a new {@link SearchBuilder} using the specified filtering {@link ConditionBuilder}s to not be used in
+     * scoring.
      *
-     * @param query the condition builder to be used as query
-     * @return a new {@link SearchBuilder} with the specified query
+     * @param filters the condition builders to be used as filter
+     * @return a new {@link SearchBuilder}
      */
-    public static SearchBuilder query(ConditionBuilder<?, ?> query) {
-        return search().query(query);
+    public static SearchBuilder filter(ConditionBuilder<?, ?>... filters) {
+        return search().filter(filters);
     }
 
     /**
-     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as filter.
+     * Returns a new {@link SearchBuilder} using the specified querying {@link ConditionBuilder}s o be used in scoring.
      *
-     * @param filter the condition builder to be used as filter
-     * @return a new {@link SearchBuilder} with the specified filter
+     * @param queries the condition builders to be used as query
+     * @return a new {@link SearchBuilder}
      */
-    public static SearchBuilder filter(ConditionBuilder<?, ?> filter) {
-        return search().filter(filter);
+    public static SearchBuilder query(ConditionBuilder<?, ?>... queries) {
+        return search().query(queries);
     }
 
     /**
@@ -68,6 +70,16 @@ public final class SearchBuilders {
      */
     public static SearchBuilder sort(SortFieldBuilder... sortFields) {
         return search().sort(sortFields);
+    }
+
+    /**
+     * Returns a new {@link SearchBuilder} using the specified index refresh option.
+     *
+     * @param refresh if the search to be built should refresh the index
+     * @return a new {@link SearchBuilder} with the specified sort
+     */
+    public static SearchBuilder refresh(boolean refresh) {
+        return search().refresh(refresh);
     }
 
     /**
@@ -234,11 +246,24 @@ public final class SearchBuilders {
      * /** Constructor receiving the name of the field and the shape.
      *
      * @param field the name of the field
+     * @param shape the shape
+     * @return a new geo shape condition builder
+     */
+    public static GeoShapeConditionBuilder geoShape(String field, GeoShape shape) {
+        return new GeoShapeConditionBuilder(field, shape);
+    }
+
+    /**
+     * Returns a new {@link GeoShapeConditionBuilder} with the specified field reference point.
+     *
+     * /** Constructor receiving the name of the field and the shape.
+     *
+     * @param field the name of the field
      * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
      * @return a new geo shape condition builder
      */
     public static GeoShapeConditionBuilder geoShape(String field, String shape) {
-        return new GeoShapeConditionBuilder(field, shape);
+        return new GeoShapeConditionBuilder(field, new GeoShape.WKT(shape));
     }
 
     /**
@@ -265,12 +290,12 @@ public final class SearchBuilders {
      * Returns a new {@link SimpleSortFieldBuilder} for the specified field.
      *
      * @param mapper the name of mapper to use to calculate distance
-     * @param longitude the longitude of the reference point
      * @param latitude the latitude of the reference point
+     * @param longitude the longitude of the reference point
      * @return a new geo distance sort field builder
      */
-    public static GeoDistanceSortFieldBuilder geoDistance(String mapper, double longitude, double latitude) {
-        return new GeoDistanceSortFieldBuilder(mapper, longitude, latitude);
+    public static GeoDistanceSortFieldBuilder geoDistance(String mapper, double latitude, double longitude) {
+        return new GeoDistanceSortFieldBuilder(mapper, latitude, longitude);
     }
 
     /**

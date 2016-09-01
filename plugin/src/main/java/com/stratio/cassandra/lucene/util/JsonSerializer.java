@@ -31,18 +31,19 @@ import java.io.IOException;
  */
 public final class JsonSerializer {
 
-    private static final JsonSerializer INSTANCE = new JsonSerializer();
+    public static final JsonSerializer INSTANCE = new JsonSerializer();
 
     /** The embedded JSON serializer. */
-    private final ObjectMapper jsonMapper = new ObjectMapper();
+    public final ObjectMapper mapper = new ObjectMapper();
 
     /** Private constructor to hide the implicit public one. */
     private JsonSerializer() {
-        jsonMapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false);
-        jsonMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        jsonMapper.configure(SerializationConfig.Feature.AUTO_DETECT_IS_GETTERS, false);
-        jsonMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        jsonMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+        mapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false);
+        mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        mapper.configure(SerializationConfig.Feature.AUTO_DETECT_IS_GETTERS, false);
+        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, true);
+        mapper.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        mapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
     }
 
     /**
@@ -53,7 +54,7 @@ public final class JsonSerializer {
      * @throws IOException if there are serialization problems
      */
     public static String toString(Object value) throws IOException {
-        return INSTANCE.jsonMapper.writeValueAsString(value);
+        return INSTANCE.mapper.writeValueAsString(value);
     }
 
     /**
@@ -66,6 +67,6 @@ public final class JsonSerializer {
      * @throws IOException if there are parsing problems
      */
     public static <T> T fromString(String value, Class<T> valueType) throws IOException {
-        return INSTANCE.jsonMapper.readValue(value, valueType);
+        return INSTANCE.mapper.readValue(value, valueType);
     }
 }

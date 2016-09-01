@@ -75,8 +75,8 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
                                       data19,
                                       data20)
                               .createIndex()
-                              .waitForIndexing()
-                              .waitForIndexing();
+                              .refresh()
+                              .refresh();
     }
 
     @After
@@ -85,97 +85,97 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
     }
 
     @Test
-    public void singleInsertion() {
+    public void testSingleInsertion() {
         utils.insert(data4)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(19)
              .insert(data5)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(20)
              .delete()
              .where("integer_1", 4)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(19)
              .delete()
              .where("integer_1", 5)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(18)
              .delete()
              .where("integer_1", 2)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(17)
              .delete()
              .where("integer_1", 3)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(16)
              .delete()
              .where("integer_1", 1)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(15);
     }
 
     @Test
-    public void multipleInsertion() {
+    public void testMultipleInsertion() {
         utils.insert(data4, data5)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(20)
              .delete()
              .where("integer_1", 4)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(19)
              .delete()
              .where("integer_1", 5)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(18)
              .delete()
              .where("integer_1", 2)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(17)
              .delete()
              .where("integer_1", 3)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(16)
              .delete()
              .where("integer_1", 1)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(15);
     }
 
     @Test
-    public void multipleDeletion() {
+    public void testMultipleDeletion() {
         utils.delete()
              .where("integer_1", 2)
              .and("ascii_1", "ascii")
@@ -184,28 +184,28 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
              .where("integer_1", 3)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(16)
              .delete()
              .where("integer_1", 1)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(15);
     }
 
     @Test
-    public void updateTest() {
-        utils.query(wildcard("text_1", "text"))
+    public void testUpdate() {
+        utils.filter(wildcard("text_1", "text"))
              .check(18)
              .update()
              .set("text_1", "other")
              .where("integer_1", 4)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
+             .refresh()
              .filter(wildcard("text_1", "text"))
              .check(17)
              .filter(wildcard("text_1", "other"))
@@ -213,16 +213,16 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
     }
 
     @Test
-    public void insertWithUpdateTest() {
-        utils.query(wildcard("text_1", "text"))
+    public void testInsertWithUpdate() {
+        utils.filter(wildcard("text_1", "text"))
              .check(18)
              .update()
              .set("text_1", "new")
              .where("integer_1", 1000)
              .and("ascii_1", "ascii")
              .and("double_1", 1)
-             .waitForIndexing()
-             .query(wildcard("text_1", "new"))
+             .refresh()
+             .filter(wildcard("text_1", "new"))
              .check(1);
     }
 }

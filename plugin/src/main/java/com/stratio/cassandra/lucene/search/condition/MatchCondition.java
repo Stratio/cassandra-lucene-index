@@ -66,7 +66,7 @@ public class MatchCondition extends SingleColumnCondition {
 
         // Check doc values
         if (docValues && !mapper.docValues) {
-            throw new IndexException("Field '%s' does not support doc_values", mapper.field);
+            throw new IndexException("Field '{}' does not support doc_values", mapper.field);
         }
 
         Class<?> clazz = mapper.base;
@@ -91,7 +91,7 @@ public class MatchCondition extends SingleColumnCondition {
         } else if (clazz == Double.class) {
             query = query((Double) mapper.base(field, value));
         } else {
-            throw new IndexException("Match queries are not supported by mapper '%s'", mapper);
+            throw new IndexException("Match queries are not supported by mapper '{}'", mapper);
         }
         return query;
     }

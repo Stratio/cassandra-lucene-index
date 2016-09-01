@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.util.DateParser;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.SortedNumericDocValuesField;
@@ -34,11 +33,8 @@ import java.util.Optional;
  */
 public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
 
-    /** The date format pattern. */
-    public final String pattern;
-
-    /** The {@link DateParser}. */
-    private final DateParser dateParser;
+    /** The date format for parsing columns. */
+    public final DateParser parser;
 
     /**
      * Builds a new {@link DateMapper} using the specified pattern.
@@ -46,36 +42,18 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
      * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
-     * @param pattern the date format pattern to be used
+     * @param pattern the date pattern
      */
     public DateMapper(String field, String column, Boolean validated, String pattern) {
-        super(field,
-              column,
-              true,
-              validated,
-              null,
-              Long.class,
-              AsciiType.instance,
-              UTF8Type.instance,
-              Int32Type.instance,
-              LongType.instance,
-              IntegerType.instance,
-              SimpleDateType.instance,
-              TimestampType.instance,
-              TimeUUIDType.instance);
-        this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
-        this.dateParser = new DateParser(this.pattern);
+        super(field, column, true, validated, null, Long.class, DATE_TYPES);
+        this.parser = new DateParser(pattern);
     }
 
     /** {@inheritDoc} */
     @Override
     protected Long doBase(String name, Object value) {
-        Date opt = dateParser.parse(value);
-        if (opt == null) {
-            return null;
-        } else {
-            return opt.getTime();
-        }
+        Date date = parser.parse(value);
+        return date == null ? null : date.getTime();
     }
 
     /** {@inheritDoc} */
@@ -99,6 +77,6 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return toStringHelper(this).add("pattern", pattern).toString();
+        return toStringHelper(this).add("pattern", parser).toString();
     }
 }

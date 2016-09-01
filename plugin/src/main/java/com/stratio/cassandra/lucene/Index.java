@@ -350,7 +350,7 @@ public class Index implements org.apache.cassandra.index.Index {
         try {
             service.validate(update);
         } catch (Exception e) {
-            logger.error("Invalid partition update: " + update, e);
+            logger.debug("Invalid partition update: " + update, e);
             throw new InvalidRequestException(e.getMessage());
         }
     }
@@ -375,11 +375,11 @@ public class Index implements org.apache.cassandra.index.Index {
      * ...).
      */
     @Override
-    public Indexer indexerFor(DecoratedKey key,
-                              PartitionColumns columns,
-                              int nowInSec,
-                              OpOrder.Group opGroup,
-                              IndexTransaction.Type transactionType) {
+    public org.apache.cassandra.index.Index.Indexer indexerFor(DecoratedKey key,
+                                                               PartitionColumns columns,
+                                                               int nowInSec,
+                                                               OpOrder.Group opGroup,
+                                                               IndexTransaction.Type transactionType) {
         return service.indexWriter(key, nowInSec, opGroup, transactionType);
     }
 
@@ -420,7 +420,7 @@ public class Index implements org.apache.cassandra.index.Index {
      * supported by the index implementation.
      */
     @Override
-    public Searcher searcherFor(ReadCommand command) {
+    public org.apache.cassandra.index.Index.Searcher searcherFor(ReadCommand command) {
         logger.trace("Getting searcher for {}", command);
         try {
             return service.searcher(command);

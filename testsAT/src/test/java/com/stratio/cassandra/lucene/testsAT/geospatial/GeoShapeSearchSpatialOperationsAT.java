@@ -32,17 +32,16 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
  */
 public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
 
-    static String shape_1 = "POLYGON((0 0,1 0, 1 1,0 1,0 0))";
-    static String shape_2 = "POLYGON((-0.1 -0.1,1.1 -0.1, 1.1 1.1,-0.1 1.1,-0.1 -0.1))";
-    static String shape_3 = "POLYGON((1 0,2 0,2 1,1 1,1 0))";
-    static String shape_4 = "POLYGON((1 1,2 1,2 2,1 2,1 1))";
-    static String shape_5 = "POLYGON((2 2,3 2,3 3,2 3,2 2))";
-
-    static String shape_6 = "POLYGON((0 0,2 0,2 1,0 1,0 0))";
-    static String shape_7 = "POLYGON((0 1,1 1,1 2,0 2,0 1))";
-    static String shape_8 = "POLYGON((0 0,1 0,1 2,0 2,0 0))";
-    static String shape_9 = "POLYGON((1 0,2 0,1 2,1 2,1 0))";
-    static String shape_10 = "POLYGON((0 1,2 1,2 2,0 2,0 1))";
+    private static String shape_1 = "POLYGON((0 0,1 0, 1 1,0 1,0 0))";
+    private static String shape_2 = "POLYGON((-0.1 -0.1,1.1 -0.1, 1.1 1.1,-0.1 1.1,-0.1 -0.1))";
+    private static String shape_3 = "POLYGON((1 0,2 0,2 1,1 1,1 0))";
+    private static String shape_4 = "POLYGON((1 1,2 1,2 2,1 2,1 1))";
+    private static String shape_5 = "POLYGON((2 2,3 2,3 3,2 3,2 2))";
+    private static String shape_6 = "POLYGON((0 0,2 0,2 1,0 1,0 0))";
+    private static String shape_7 = "POLYGON((0 1,1 1,1 2,0 2,0 1))";
+    private static String shape_8 = "POLYGON((0 0,1 0,1 2,0 2,0 0))";
+    private static String shape_9 = "POLYGON((1 0,2 0,1 2,1 2,1 0))";
+    private static String shape_10 = "POLYGON((0 1,2 1,2 2,0 2,0 1))";
 
     public static final Map<String, String> data1, data2, data3, data4, data5, data6, data7, data8, data9;
     protected static CassandraUtils utils;
@@ -106,9 +105,10 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
 
     @BeforeClass
     public static void setUpSuite() {
-        utils = CassandraUtils.builder("shape_search_operations")
+        utils = CassandraUtils.builder("search")
                               .withPartitionKey("id")
                               .withClusteringKey()
+                              .withColumn("lucene", "text", null)
                               .withColumn("id", "text", null)
                               .withColumn("identity", "text", null)
                               .withColumn("search_case", "int", integerMapper())
@@ -126,312 +126,431 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         utils.dropIndex().dropTable().dropKeyspace();
     }
 
-    private void test(GeoShapeCondition geoShapeCondition,
-                      int searchCase,
-                      String[] resultsForContains,
-                      String[] resultsForIntersects,
-                      String[] resultsForWithin) {
-        utils.filter(bool().must(geoShapeCondition.operation("contains"), match("search_case", searchCase)))
-             .checkStringColumnWithoutOrder("identity", resultsForContains);
-        utils.filter(bool().must(geoShapeCondition.operation("intersects"), match("search_case", searchCase)))
-             .checkStringColumnWithoutOrder("identity", resultsForIntersects);
-        utils.filter(bool().must(geoShapeCondition.operation("is_within"), match("search_case", searchCase)))
-             .checkStringColumnWithoutOrder("identity", resultsForWithin);
-    }
-
     @Test
     public void testCase1() {
-        test(geoShape("shape", shape_1), 1, new String[]{"1"}, new String[]{"1"}, new String[]{});
         // index A, search A must return intersects and Contains but no is_within
+        GeoShapeCondition geoShape = geoShape("shape", shape_1);
+        Integer search_case = 1;
+        utils.filter(geoShape.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape.operation("is_within"), match("search_case", search_case))
+             .check(1);
     }
 
     @Test
     public void testCase2() {
-        //shape_1 is within shape_3 so must return
-        test(geoShape("shape", shape_1), 2, new String[]{"1", "2"}, new String[]{"1", "2"}, new String[]{});
-        test(geoShape("shape", shape_2), 2, new String[]{"2"}, new String[]{"1", "2"}, new String[]{"1"});
+        // shape_1 is within shape_3 so must return
+        GeoShapeCondition geoShape = geoShape("shape", shape_1);
+        GeoShapeCondition geoShape2 = geoShape("shape", shape_2);
+        Integer search_case = 2;
+        utils.filter(geoShape.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2")
+             .filter(geoShape.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2")
+             .filter(geoShape.operation("is_within"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape2.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "2")
+             .filter(geoShape2.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2")
+             .filter(geoShape2.operation("is_within"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2");
     }
 
     @Test
     public void testCase3() {
-        //shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
-        test(geoShape("shape", shape_1), 3, new String[]{"1"}, new String[]{"1", "3"}, new String[]{});
-        test(geoShape("shape", shape_3), 3, new String[]{"3"}, new String[]{"1", "3"}, new String[]{});
+        // shape_1 shares with shape_3 just one exterior border so must intersects in the two ways
+        GeoShapeCondition geoShape = geoShape("shape", shape_1);
+        GeoShapeCondition geoShape3 = geoShape("shape", shape_3);
+        Integer search_case = 3;
+        utils.filter(geoShape.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "3")
+             .filter(geoShape.operation("is_within"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape3.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "3")
+             .filter(geoShape3.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "3")
+             .filter(geoShape3.operation("is_within"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "3");
     }
 
     @Test
     public void testCase4() {
-        //shape_1 is within shape_3
-        test(geoShape("shape", shape_1), 4, new String[]{"1"}, new String[]{"1", "4"}, new String[]{});
-        test(geoShape("shape", shape_4), 4, new String[]{"4"}, new String[]{"1", "4"}, new String[]{});
+        // shape_1 is within shape_3
+        GeoShapeCondition geoShape1 = geoShape("shape", shape_1);
+        GeoShapeCondition geoShape4 = geoShape("shape", shape_4);
+        Integer search_case = 4;
+        utils.filter(geoShape1.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "4")
+             .filter(geoShape1.operation("is_within"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape4.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "4")
+             .filter(geoShape4.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "4")
+             .filter(geoShape4.operation("is_within"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "4");
     }
 
     @Test
     public void testCase5() {
-        //shape_1 disjoint shape5
-        test(geoShape("shape", shape_1), 5, new String[]{"1"}, new String[]{"1"}, new String[]{});
-        test(geoShape("shape", shape_5), 5, new String[]{"5"}, new String[]{"5"}, new String[]{});
+        // shape_1 disjoint shape5
+        GeoShapeCondition geoShape1 = geoShape("shape", shape_1);
+        GeoShapeCondition geoShape5 = geoShape("shape", shape_5);
+        Integer search_case = 5;
+        utils.filter(geoShape1.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1.operation("is_within"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape5.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "5")
+             .filter(geoShape5.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "5")
+             .filter(geoShape5.operation("is_within"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "5");
     }
 
     @Test
     public void testCase1WithDifference() {
-        test(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
-             1,
-             new String[]{"1"},
-             new String[]{"1"},
-             new String[]{});
+        GeoShapeCondition geoShape6 = geoShape("shape", difference(shape_6, shape_3));
+        Integer search_case = 1;
+        utils.filter(geoShape6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape6.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     @Test
     public void testCase2WithDifference() {
-        //shape_1 (2) is within shape_3 so must return
-        test(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
-             2,
-             new String[]{"1", "2"},
-             new String[]{"1", "2"},
-             new String[]{});
+        // shape_1 (2) is within shape_3 so must return
+        GeoShapeCondition geoShape6 = geoShape("shape", difference(shape_6, shape_3));
+        Integer search_case = 2;
+        utils.filter(geoShape6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2")
+             .filter(geoShape6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2")
+             .filter(geoShape6.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     @Test
     public void testCase3WithDifference() {
-        //shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
-        test(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
-             3,
-             new String[]{"1"},
-             new String[]{"1", "3"},
-             new String[]{});
-        test(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_1)),
-             3,
-             new String[]{"3"},
-             new String[]{"1", "3"},
-             new String[]{});
+        // shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
+        GeoShapeCondition geoShape6_3 = geoShape("shape", difference(shape_6, shape_3));
+        GeoShapeCondition geoShape6_1 = geoShape("shape", difference(shape_6, shape_1));
+        Integer search_case = 3;
+        utils.filter(geoShape6_3.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape6_3.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "3")
+             .filter(geoShape6_3.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape6_1.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "3")
+             .filter(geoShape6_1.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "3")
+             .filter(geoShape6_1.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     @Test
     public void testCase4WithDifference() {
-        //shape_1 (2) is within shape_3
-        test(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
-             4,
-             new String[]{"1"},
-             new String[]{"1", "4"},
-             new String[]{});
-        test(geoShape("shape", shape_9).transform(differenceGeoTransformation(shape_3)),
-             4,
-             new String[]{"4"},
-             new String[]{"1", "4"},
-             new String[]{});
+        // shape_1 (2) is within shape_3
+        GeoShapeCondition geoShape6_3 = geoShape("shape", difference(shape_6, shape_3));
+        GeoShapeCondition geoShape9_3 = geoShape("shape", difference(shape_9, shape_3));
+        Integer search_case = 4;
+        utils.filter(geoShape6_3.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape6_3.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "4")
+             .filter(geoShape6_3.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape9_3.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "4")
+             .filter(geoShape9_3.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "4")
+             .filter(geoShape9_3.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     @Test
     public void testCase5WithDifference() {
-        //shape_1 disjoint shape5
-        test(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
-             5,
-             new String[]{"1"},
-             new String[]{"1"},
-             new String[]{});
+        // shape_1 disjoint shape5
+        GeoShapeCondition geoShape6_3 = geoShape("shape", difference(shape_6, shape_3));
+        Integer search_case = 5;
+        utils.filter(geoShape6_3.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape6_3.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape6_3.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     //Intersection shape1= SHAPE_6 Intersectoion SHAPE_8, intersection is idempotent
     @Test
     public void testCase1WithIntersection() {
-        // index A, search A must return intersects and Contains but no is_within
-        test(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
-             1,
-             new String[]{"1"},
-             new String[]{"1"},
-             new String[]{});
-        test(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
-             1,
-             new String[]{"1"},
-             new String[]{"1"},
-             new String[]{});
+        // index A, search A must return intersecs and Contains but no is_within
+        GeoShapeCondition geoShape6_8 = geoShape("shape", intersection(shape_6, shape_8));
+        GeoShapeCondition geoShape8_6 = geoShape("shape", intersection(shape_8, shape_6));
+        Integer search_case = 1;
+        utils.filter(geoShape6_8.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape6_8.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape6_8.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape8_6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape8_6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape8_6.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     @Test
     public void testCase2WithIntersection() {
-        //shape_1 (2) is within shape_3 so must return
-        test(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
-             2,
-             new String[]{"1", "2"},
-             new String[]{"1", "2"},
-             new String[]{});
-        test(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
-             2,
-             new String[]{"1", "2"},
-             new String[]{"1", "2"},
-             new String[]{});
+        // shape_1 (2) is within shape_3 so must return
+        GeoShapeCondition geoShape6_8 = geoShape("shape", intersection(shape_6, shape_8));
+        GeoShapeCondition geoShape8_6 = geoShape("shape", intersection(shape_8, shape_6));
+        Integer search_case = 2;
+        utils.filter(geoShape6_8.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2")
+             .filter(geoShape6_8.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2")
+             .filter(geoShape6_8.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape8_6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2")
+             .filter(geoShape8_6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2")
+             .filter(geoShape8_6.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     @Test
     public void testCase3WithIntersection() {
-        //shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
-        test(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
-             3,
-             new String[]{"1"},
-             new String[]{"1", "3"},
-             new String[]{});
-        test(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
-             3,
-             new String[]{"1"},
-             new String[]{"1", "3"},
-             new String[]{});
-        test(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_9)),
-             3,
-             new String[]{"3"},
-             new String[]{"1", "3"},
-             new String[]{});
-        test(geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_6)),
-             3,
-             new String[]{"3"},
-             new String[]{"1", "3"},
-             new String[]{});
+        // shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
+        GeoShapeCondition geoShape6_8 = geoShape("shape", intersection(shape_6, shape_8));
+        GeoShapeCondition geoShape8_6 = geoShape("shape", intersection(shape_8, shape_6));
+        GeoShapeCondition geoShape6_9 = geoShape("shape", intersection(shape_6, shape_9));
+        GeoShapeCondition geoShape9_6 = geoShape("shape", intersection(shape_9, shape_6));
+        Integer search_case = 3;
+        utils.filter(geoShape6_8.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape6_8.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "3")
+             .filter(geoShape6_8.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape8_6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape8_6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "3")
+             .filter(geoShape8_6.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape6_9.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "3")
+             .filter(geoShape6_9.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "3")
+             .filter(geoShape6_9.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape9_6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "3")
+             .filter(geoShape9_6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "3")
+             .filter(geoShape9_6.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     @Test
     public void testCase4WithIntersection() {
-        //shape_1 (2) is within shape_3
-        test(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
-             4,
-             new String[]{"1"},
-             new String[]{"1", "4"},
-             new String[]{});
-        test(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
-             4,
-             new String[]{"1"},
-             new String[]{"1", "4"},
-             new String[]{});
-        test(geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_10)),
-             4,
-             new String[]{"4"},
-             new String[]{"1", "4"},
-             new String[]{});
-        test(geoShape("shape", shape_10).transform(intersectionGeoTransformation(shape_9)),
-             4,
-             new String[]{"4"},
-             new String[]{"1", "4"},
-             new String[]{});
+        // shape_1 (2) is within shape_3
+        GeoShapeCondition geoShape6_8 = geoShape("shape", intersection(shape_6, shape_8));
+        GeoShapeCondition geoShape8_6 = geoShape("shape", intersection(shape_8, shape_6));
+        GeoShapeCondition geoShape9_10 = geoShape("shape", intersection(shape_9, shape_10));
+        GeoShapeCondition geoShape10_9 = geoShape("shape", intersection(shape_10, shape_9));
+        Integer search_case = 4;
+        utils.filter(geoShape6_8.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape6_8.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "4")
+             .filter(geoShape6_8.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape8_6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape8_6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "4")
+             .filter(geoShape8_6.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape9_10.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "4")
+             .filter(geoShape9_10.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "4")
+             .filter(geoShape9_10.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape10_9.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "4")
+             .filter(geoShape10_9.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "4")
+             .filter(geoShape10_9.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     @Test
     public void testCase5WithIntersection() {
-        //shape_1 disjoint shape5
-        test(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
-             5,
-             new String[]{"1"},
-             new String[]{"1"},
-             new String[]{});
-        test(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
-             5,
-             new String[]{"1"},
-             new String[]{"1"},
-             new String[]{});
+        // shape_1 disjoint shape5
+        GeoShapeCondition geoShape6_8 = geoShape("shape", intersection(shape_6, shape_8));
+        GeoShapeCondition geoShape8_6 = geoShape("shape", intersection(shape_8, shape_6));
+        Integer search_case = 5;
+        utils.filter(geoShape6_8.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape6_8.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape6_8.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape8_6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape8_6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape8_6.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     @Test
     public void testCase1WithUnion() {
-        // index A, search A must return intersects and Contains but no is_within
-        test(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
-                                                  intersectionGeoTransformation(shape_8)),
-             1,
-             new String[]{"1"},
-             new String[]{"1"},
-             new String[]{});
-        test(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
-                                                  intersectionGeoTransformation(shape_6)),
-             1,
-             new String[]{"1"},
-             new String[]{"1"},
-             new String[]{});
+        // index A, search A must return intersecs and Contains but no is_within
+        GeoShapeCondition geoShape1_3_8 = geoShape("shape", intersection(union(shape_1, shape_3), wkt(shape_8)));
+        GeoShapeCondition geoShape1_7_6 = geoShape("shape", intersection(union(shape_1, shape_7), wkt(shape_6)));
+        Integer search_case = 1;
+        utils.filter(geoShape1_3_8.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1_3_8.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1_3_8.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape1_7_6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1_7_6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1_7_6.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     @Test
     public void testCase2WithUnion() {
-        //shape_1 (2) is within shape_3 so must return
-        test(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
-                                                  intersectionGeoTransformation(shape_8)),
-             2,
-             new String[]{"1", "2"},
-             new String[]{"1", "2"},
-             new String[]{});
-        test(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
-                                                  intersectionGeoTransformation(shape_6)),
-             2,
-             new String[]{"1", "2"},
-             new String[]{"1", "2"},
-             new String[]{});
+        // shape_1 (2) is within shape_3 so must return
+        GeoShapeCondition geoShape1_3_8 = geoShape("shape", intersection(union(shape_1, shape_3), wkt(shape_8)));
+        GeoShapeCondition geoShape1_7_6 = geoShape("shape", intersection(union(shape_1, shape_7), wkt(shape_6)));
+        Integer search_case = 2;
+        utils.filter(geoShape1_3_8.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2")
+             .filter(geoShape1_3_8.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2")
+             .filter(geoShape1_3_8.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape1_7_6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2")
+             .filter(geoShape1_7_6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "2")
+             .filter(geoShape1_7_6.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     @Test
     public void testCase3WithUnion() {
-        //shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
-        test(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
-                                                  intersectionGeoTransformation(shape_8)),
-             3,
-             new String[]{"1"},
-             new String[]{"1", "3"},
-             new String[]{});
-        test(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
-                                                  intersectionGeoTransformation(shape_6)),
-             3,
-             new String[]{"1"},
-             new String[]{"1", "3"},
-             new String[]{});
-        test(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
-                                                  intersectionGeoTransformation(shape_9)),
-             3,
-             new String[]{"3"},
-             new String[]{"1", "3"},
-             new String[]{});
-        test(geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_6)),
-             3,
-             new String[]{"3"},
-             new String[]{"1", "3"},
-             new String[]{});
+        // shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
+        GeoShapeCondition geoShape1_3_8 = geoShape("shape", intersection(union(shape_1, shape_3), wkt(shape_8)));
+        GeoShapeCondition geoShape1_7_6 = geoShape("shape", intersection(union(shape_1, shape_7), wkt(shape_6)));
+        GeoShapeCondition geoShape1_3_9 = geoShape("shape", intersection(union(shape_1, shape_3), wkt(shape_9)));
+        GeoShapeCondition geoShape9_6 = geoShape("shape", intersection(shape_9, shape_6));
+        Integer search_case = 3;
+        utils.filter(geoShape1_3_8.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1_3_8.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "3")
+             .filter(geoShape1_3_8.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape1_7_6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1_7_6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "3")
+             .filter(geoShape1_7_6.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape1_3_9.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "3")
+             .filter(geoShape1_3_9.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "3")
+             .filter(geoShape1_3_9.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape9_6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "3")
+             .filter(geoShape9_6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "3")
+             .filter(geoShape9_6.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     @Test
     public void testCase4WithUnion() {
-        //shape_1 (2) is within shape_3
-        test(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
-                                                  intersectionGeoTransformation(shape_8)),
-             4,
-             new String[]{"1"},
-             new String[]{"1", "4"},
-             new String[]{});
-        test(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
-                                                  intersectionGeoTransformation(shape_6)),
-             4,
-             new String[]{"1"},
-             new String[]{"1", "4"},
-             new String[]{});
-        test(geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_10)),
-             4,
-             new String[]{"4"},
-             new String[]{"1", "4"},
-             new String[]{});
-        test(geoShape("shape", shape_4).transform(unionGeoTransformation(shape_7),
-                                                  intersectionGeoTransformation(shape_9)),
-             4,
-             new String[]{"4"},
-             new String[]{"1", "4"},
-             new String[]{});
+        // shape_1 (2) is within shape_3
+        GeoShapeCondition geoShape1_3_8 = geoShape("shape", intersection(union(shape_1, shape_3), wkt(shape_8)));
+        GeoShapeCondition geoShape1_7_6 = geoShape("shape", intersection(union(shape_1, shape_7), wkt(shape_6)));
+        GeoShapeCondition geoShape9_10 = geoShape("shape", intersection(shape_9, shape_10));
+        GeoShapeCondition geoShape4_7_9 = geoShape("shape", intersection(union(shape_4, shape_7),wkt(shape_9)));
+        Integer search_case = 4;
+        utils.filter(geoShape1_3_8.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1_3_8.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "4")
+             .filter(geoShape1_3_8.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape1_7_6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1_7_6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "4")
+             .filter(geoShape1_7_6.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape9_10.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "4")
+             .filter(geoShape9_10.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "4")
+             .filter(geoShape9_10.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape4_7_9.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "4")
+             .filter(geoShape4_7_9.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1", "4")
+             .filter(geoShape4_7_9.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 
     @Test
     public void testCase5WithUnion() {
-        //shape_1 disjoint shape5
-        test(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
-                                                  intersectionGeoTransformation(shape_8)),
-             5,
-             new String[]{"1"},
-             new String[]{"1"},
-             new String[]{});
-        test(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
-                                                  intersectionGeoTransformation(shape_6)),
-             5,
-             new String[]{"1"},
-             new String[]{"1"},
-             new String[]{});
+        // shape_1 disjoint shape5
+        GeoShapeCondition geoShape1_3_8 = geoShape("shape", intersection(union(shape_1, shape_3), wkt(shape_8)));
+        GeoShapeCondition geoShape1_7_6 = geoShape("shape", intersection(union(shape_1, shape_7), wkt(shape_6)));
+        Integer search_case = 5;
+        utils.filter(geoShape1_3_8.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1_3_8.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1_3_8.operation("is_within"), match("search_case", search_case))
+             .check(0)
+             .filter(geoShape1_7_6.operation("contains"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1_7_6.operation("intersects"), match("search_case", search_case))
+             .checkUnorderedColumns("identity", "1")
+             .filter(geoShape1_7_6.operation("is_within"), match("search_case", search_case))
+             .check(0);
     }
 }
