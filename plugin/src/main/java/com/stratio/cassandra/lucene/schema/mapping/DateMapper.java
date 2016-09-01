@@ -15,9 +15,7 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.util.DateParser;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.SortedNumericDocValuesField;
@@ -47,20 +45,7 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
      * @param pattern the date pattern
      */
     public DateMapper(String field, String column, Boolean validated, String pattern) {
-        super(field,
-              column,
-              true,
-              validated,
-              null,
-              Long.class,
-              AsciiType.instance,
-              UTF8Type.instance,
-              Int32Type.instance,
-              LongType.instance,
-              IntegerType.instance,
-              SimpleDateType.instance,
-              TimestampType.instance,
-              TimeUUIDType.instance);
+        super(field, column, true, validated, null, Long.class, DATE_TYPES);
         this.parser = new DateParser(pattern);
     }
 

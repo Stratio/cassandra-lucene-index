@@ -16,16 +16,12 @@
 package com.stratio.cassandra.lucene.search.condition.builder;
 
 import com.stratio.cassandra.lucene.common.GeoOperation;
-import com.stratio.cassandra.lucene.common.GeoTransformation;
+import com.stratio.cassandra.lucene.common.GeoShape;
 import com.stratio.cassandra.lucene.common.JTSNotFoundException;
 import com.stratio.cassandra.lucene.search.condition.GeoBBoxCondition;
 import com.stratio.cassandra.lucene.search.condition.GeoShapeCondition;
-import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * {@link ConditionBuilder} for building a new {@link GeoShapeCondition}.
@@ -40,15 +36,11 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
 
     /** The shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format. */
     @JsonProperty("shape")
-    private final String shape;
+    private final GeoShape shape;
 
     /** The spatial operation to be applied. */
     @JsonProperty("operation")
-    private String operation;
-
-    /** The sequence of transformations to be applied to the shape before searching. */
-    @JsonProperty("transformations")
-    private List<GeoTransformation> transformations = new ArrayList<>();
+    private GeoOperation operation;
 
     /**
      * Constructor receiving the name of the field and the shape.
@@ -57,7 +49,7 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
      * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
      */
     @JsonCreator
-    public GeoShapeConditionBuilder(@JsonProperty("field") String field, @JsonProperty("shape") String shape) {
+    public GeoShapeConditionBuilder(@JsonProperty("field") String field, @JsonProperty("shape") GeoShape shape) {
         this.field = field;
         this.shape = shape;
     }
@@ -68,19 +60,20 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
      * @param operation the name of the spatial operation
      * @return this with the operation set
      */
+    @JsonProperty("operation")
     public GeoShapeConditionBuilder operation(String operation) {
-        this.operation = operation;
+        this.operation = GeoOperation.parse(operation);
         return this;
     }
 
     /**
-     * Sets the transformations to be applied to the shape before using it for searching.
+     * Sets the name of the spatial operation to be performed.
      *
-     * @param transformations the sequence of transformations
-     * @return this with the transformations set
+     * @param operation the name of the spatial operation
+     * @return this with the operation set
      */
-    public GeoShapeConditionBuilder transformations(List<GeoTransformation> transformations) {
-        this.transformations = transformations;
+    public GeoShapeConditionBuilder operation(GeoOperation operation) {
+        this.operation = operation;
         return this;
     }
 
@@ -91,12 +84,8 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
      */
     @Override
     public GeoShapeCondition build() {
-        GeoOperation geoOperation = StringUtils.isBlank(operation) ? null : GeoOperation.parse(operation);
-        if (transformations == null) {
-            transformations = new ArrayList<>();
-        }
         try {
-            return new GeoShapeCondition(boost, field, shape, geoOperation, transformations);
+            return new GeoShapeCondition(boost, field, shape, operation);
         } catch (NoClassDefFoundError e) {
             throw new JTSNotFoundException();
 

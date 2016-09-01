@@ -31,6 +31,7 @@ import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.bitemporalMapper;
@@ -248,8 +249,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
                                        .add("vtTo", 0L)
                                        .add("ttFrom", 0L)
                                        .add("ttTo", 0L);
-        Document document = new Document();
-        mapper.addFields(document, columns);
+        mapper.indexableFields(columns);
     }
 
     @Test(expected = IndexException.class)
@@ -259,8 +259,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
                                        .add("vtTo", 0L)
                                        .add("ttFrom", 5L)
                                        .add("ttTo", 0L);
-        Document document = new Document();
-        mapper.addFields(document, columns);
+        mapper.indexableFields(columns);
     }
 
     @Test(expected = IndexException.class)
@@ -269,9 +268,11 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         mapper.sortField("f", false);
     }
 
-    private void testAddFieldsOnlyThese(Document doc,
+    private void testAddFieldsOnlyThese(List<IndexableField> fields,
                                         String[] wishedIndexedFieldNames,
                                         String[] nonWishedIndexedFieldNames) {
+        Document doc = new Document();
+        fields.forEach(doc::add);
         for (String wishedIndexedFieldName : wishedIndexedFieldNames) {
             IndexableField[] indexableFields = doc.getFields(wishedIndexedFieldName);
             assertEquals("Add fields is wrong", 1, indexableFields.length);
@@ -292,9 +293,8 @@ public class BitemporalMapperTest extends AbstractMapperTest {
                                        .add("vtTo", nowValue)
                                        .add("ttFrom", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttTo", nowValue);
-        Document document = new Document();
-        mapper.addFields(document, columns);
-        testAddFieldsOnlyThese(document, new String[]{"f.ttFrom", "f.ttTo", "f.vtFrom", "f.vtTo"}, new String[0]);
+        List<IndexableField> fields = mapper.indexableFields(columns);
+        testAddFieldsOnlyThese(fields, new String[]{"f.ttFrom", "f.ttTo", "f.vtFrom", "f.vtTo"}, new String[0]);
     }
 
     @Test
@@ -305,9 +305,8 @@ public class BitemporalMapperTest extends AbstractMapperTest {
                                        .add("vtTo", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttFrom", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttTo", nowValue);
-        Document document = new Document();
-        mapper.addFields(document, columns);
-        testAddFieldsOnlyThese(document, new String[]{"f.ttFrom", "f.ttTo", "f.vtFrom", "f.vtTo"}, new String[0]);
+        List<IndexableField> fields = mapper.indexableFields(columns);
+        testAddFieldsOnlyThese(fields, new String[]{"f.ttFrom", "f.ttTo", "f.vtFrom", "f.vtTo"}, new String[0]);
     }
 
     @Test
@@ -318,9 +317,8 @@ public class BitemporalMapperTest extends AbstractMapperTest {
                                        .add("vtTo", nowValue)
                                        .add("ttFrom", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttTo", "2015/02/28 01:02:03.004 GMT");
-        Document document = new Document();
-        mapper.addFields(document, columns);
-        testAddFieldsOnlyThese(document, new String[]{"f.ttFrom", "f.ttTo", "f.vtFrom", "f.vtTo"}, new String[0]);
+        List<IndexableField> fields = mapper.indexableFields(columns);
+        testAddFieldsOnlyThese(fields, new String[]{"f.ttFrom", "f.ttTo", "f.vtFrom", "f.vtTo"}, new String[0]);
     }
 
     @Test
@@ -330,18 +328,16 @@ public class BitemporalMapperTest extends AbstractMapperTest {
                                        .add("vtTo", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttFrom", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttTo", "2015/02/28 01:02:03.004 GMT");
-        Document document = new Document();
-        mapper.addFields(document, columns);
-        testAddFieldsOnlyThese(document, new String[]{"f.ttFrom", "f.ttTo", "f.vtFrom", "f.vtTo"}, new String[0]);
+        List<IndexableField> fields = mapper.indexableFields(columns);
+        testAddFieldsOnlyThese(fields, new String[]{"f.ttFrom", "f.ttTo", "f.vtFrom", "f.vtTo"}, new String[0]);
     }
 
     @Test
     public void testAddFieldsAllNull() {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("f");
         Columns columns = new Columns();
-        Document document = new Document();
-        mapper.addFields(document, columns);
-        assertEquals("Null columns should produce no fields", 0, document.getFields().size());
+        List<IndexableField> fields = mapper.indexableFields(columns);
+        assertEquals("Null columns should produce no fields", 0, fields.size());
     }
 
     @Test(expected = IndexException.class)
@@ -350,7 +346,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         Columns columns = new Columns().add("vtTo", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttFrom", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttTo", "2015/02/28 01:02:03.004 GMT");
-        mapper.addFields(new Document(), columns);
+        mapper.indexableFields(columns);
     }
 
     @Test(expected = IndexException.class)
@@ -359,7 +355,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         Columns columns = new Columns().add("vtFrom", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttFrom", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttTo", "2015/02/28 01:02:03.004 GMT");
-        mapper.addFields(new Document(), columns);
+        mapper.indexableFields(columns);
     }
 
     @Test(expected = IndexException.class)
@@ -368,7 +364,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         Columns columns = new Columns().add("vtFrom", "2015/02/28 01:02:03.004 GMT")
                                        .add("vtTo", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttTo", "2015/02/28 01:02:03.004 GMT");
-        mapper.addFields(new Document(), columns);
+        mapper.indexableFields(columns);
     }
 
     @Test(expected = IndexException.class)
@@ -377,7 +373,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         Columns columns = new Columns().add("vtFrom", "2015/02/28 01:02:03.004 GMT")
                                        .add("vtTo", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttFrom", "2015/02/28 01:02:03.004 GMT");
-        mapper.addFields(new Document(), columns);
+        mapper.indexableFields(columns);
     }
 
     @Test(expected = IndexException.class)
@@ -387,7 +383,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
                                        .add("vtTo", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttFrom", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttTo", "2015/02/28 01:02:03.004 GMT");
-        mapper.addFields(new Document(), columns);
+        mapper.indexableFields(columns);
     }
 
     @Test(expected = IndexException.class)
@@ -397,7 +393,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
                                        .add("vtTo", "2015/02/28 01:02:03.004 GMT")
                                        .add("ttFrom", "2015/02/28 01:02:03.005 GMT")
                                        .add("ttTo", "2015/02/28 01:02:03.004 GMT");
-        mapper.addFields(new Document(), columns);
+        mapper.indexableFields(columns);
     }
 
     @Test

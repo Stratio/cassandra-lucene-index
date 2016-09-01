@@ -16,8 +16,10 @@
 package com.stratio.cassandra.lucene;
 
 import com.google.common.base.MoreObjects;
+import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.SchemaBuilder;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.Directories;
 import org.apache.cassandra.schema.IndexMetadata;
@@ -50,7 +52,7 @@ public class IndexOptions {
     public static final int DEFAULT_MAX_CACHED_MB = 30;
 
     public static final String INDEXING_THREADS_OPTION = "indexing_threads";
-    public static final int DEFAULT_INDEXING_THREADS = 0;
+    public static final int DEFAULT_INDEXING_THREADS = Runtime.getRuntime().availableProcessors();
 
     public static final String INDEXING_QUEUES_SIZE_OPTION = "indexing_queues_size";
     public static final int DEFAULT_INDEXING_QUEUES_SIZE = 50;
@@ -258,7 +260,11 @@ public class IndexOptions {
             Schema schema;
             try {
                 schema = SchemaBuilder.fromJson(schemaOption).build();
-                schema.validate(tableMetadata);
+                for (Mapper mapper : schema.mappers.values()) {
+                    for (String column : mapper.mappedColumns) {
+                        ColumnsMapper.validate(tableMetadata, column, mapper.field, mapper.supportedTypes);
+                    }
+                }
                 return schema;
             } catch (Exception e) {
                 throw new IndexException(e, "'{}' is invalid : {}", SCHEMA_OPTION, e.getMessage());

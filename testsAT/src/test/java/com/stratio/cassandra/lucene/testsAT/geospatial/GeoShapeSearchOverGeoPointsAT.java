@@ -149,7 +149,6 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
                               "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
                              .operation("intersects"))
              .checkUnorderedColumns("place",
-
                                     "POINT_7",
                                     "POINT_8",
                                     "POINT_9",
@@ -213,7 +212,6 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
                               "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
                              .operation("is_within"))
              .checkUnorderedColumns("place",
-
                                     "POINT_7",
                                     "POINT_8",
                                     "POINT_9",
@@ -236,12 +234,10 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
     @Test
     public void testBufferShape() {
         utils.filter(geoShape("location",
-                              "LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
-                              "-3.785691299999999 40.445020199999995)")
-                             .operation("intersects")
-                             .transform(bufferGeoTransformation().maxDistance("500m")))
+                              buffer("LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                                     "-3.785691299999999 40.445020199999995)").maxDistance("500m"))
+                             .operation("intersects"))
              .checkUnorderedColumns("place",
-
                                     "POINT_3",
                                     "POINT_4",
                                     "POINT_6",

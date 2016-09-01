@@ -78,7 +78,7 @@ public class LuceneCondition extends Condition {
     @Override
     public Query doQuery(Schema schema) {
         try {
-            Analyzer analyzer = schema.getAnalyzer();
+            Analyzer analyzer = schema.analyzer();
             QueryParser queryParser = new QueryParser(defaultField, analyzer);
             queryParser.setAllowLeadingWildcard(true);
             queryParser.setLowercaseExpandedTerms(false);

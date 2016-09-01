@@ -16,8 +16,8 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import org.apache.cassandra.db.marshal.BooleanType;
-import org.apache.cassandra.db.marshal.UTF8Type;
+
+import java.util.Arrays;
 
 /**
  * A {@link Mapper} to map a boolean field.
@@ -40,7 +40,7 @@ public class BooleanMapper extends KeywordMapper {
      * @param validated if the field must be validated
      */
     public BooleanMapper(String field, String column, Boolean validated) {
-        super(field, column, validated, UTF8Type.instance, BooleanType.instance);
+        super(field, column, validated, Arrays.asList(String.class, Boolean.class));
     }
 
     /** {@inheritDoc} */

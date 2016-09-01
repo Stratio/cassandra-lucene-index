@@ -22,7 +22,6 @@ import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 
@@ -83,13 +82,9 @@ public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
     /** {@inheritDoc} */
     @Override
     public Query doQuery(GeoPointMapper mapper, Analyzer analyzer) {
-
-        SpatialStrategy spatialStrategy = mapper.bboxStrategy;
-
         Rectangle rectangle = CONTEXT.makeRectangle(minLongitude, maxLongitude, minLatitude, maxLatitude);
-
-        SpatialArgs args = new SpatialArgs(SpatialOperation.BBoxIntersects, rectangle);
-        return spatialStrategy.makeQuery(args);
+        SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, rectangle);
+        return mapper.strategy.makeQuery(args);
     }
 
     /** {@inheritDoc} */

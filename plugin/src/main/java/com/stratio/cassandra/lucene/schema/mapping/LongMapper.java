@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.SortedNumericDocValuesField;
@@ -24,6 +23,7 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 import org.apache.lucene.search.SortedNumericSortField;
 
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -48,22 +48,7 @@ public class LongMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
      * @param boost the boost
      */
     public LongMapper(String field, String column, Boolean validated, Float boost) {
-        super(field,
-              column,
-              true,
-              validated,
-              null,
-              Long.class,
-              AsciiType.instance,
-              ByteType.instance,
-              DecimalType.instance,
-              DoubleType.instance,
-              FloatType.instance,
-              IntegerType.instance,
-              Int32Type.instance,
-              LongType.instance,
-              ShortType.instance,
-              UTF8Type.instance);
+        super(field, column, true, validated, null, Long.class, NUMERIC_TYPES_WITH_DATE);
         this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 
@@ -72,7 +57,9 @@ public class LongMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
     protected Long doBase(String name, Object value) {
         if (value instanceof Number) {
             return ((Number) value).longValue();
-        } else if (value instanceof String) {
+        } else if (value instanceof Date) {
+            return ((Date) value).getTime();
+        } if (value instanceof String) {
             try {
                 return Double.valueOf((String) value).longValue();
             } catch (NumberFormatException e) {

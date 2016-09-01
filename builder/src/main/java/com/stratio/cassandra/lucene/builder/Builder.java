@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.builder;
 
+import com.stratio.cassandra.lucene.builder.common.GeoShape;
 import com.stratio.cassandra.lucene.builder.common.GeoTransformation;
 import com.stratio.cassandra.lucene.builder.index.Index;
 import com.stratio.cassandra.lucene.builder.index.schema.Schema;
@@ -25,6 +26,10 @@ import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.*;
 import com.stratio.cassandra.lucene.builder.search.sort.GeoDistanceSortField;
 import com.stratio.cassandra.lucene.builder.search.sort.SimpleSortField;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Utility class for creating Lucene index statements.
@@ -456,80 +461,25 @@ public abstract class Builder {
     }
 
     /**
-     * Returns a new {@link GeoShapeCondition} with the specified field reference point.
+     * Returns a new {@link GeoShapeCondition} with the specified shape.
      *
      * @param field the name of the field
-     * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
+     * @param shape the shape
      * @return a new geos hape condition
      */
-    public static GeoShapeCondition geoShape(String field, String shape) {
+    public static GeoShapeCondition geoShape(String field, GeoShape shape) {
         return new GeoShapeCondition(field, shape);
     }
 
     /**
-     * Returns a new {@link GeoTransformation.BBox}.
+     * Returns a new {@link GeoShapeCondition} with the specified shape.
      *
-     * @return a new bbox transformation
+     * @param field the name of the field
+     * @param shape the shape in WKT format
+     * @return a new geos hape condition
      */
-    public static GeoTransformation.BBox bboxGeoTransformation() {
-        return new GeoTransformation.BBox();
-    }
-
-    /**
-     * Returns a new {@link GeoTransformation.Buffer}.
-     *
-     * @return a new buffer transformation
-     */
-    public static GeoTransformation.Buffer bufferGeoTransformation() {
-        return new GeoTransformation.Buffer();
-    }
-
-    /**
-     * Returns a new {@link GeoTransformation.Centroid}.
-     *
-     * @return a new centroid transformation
-     */
-    public static GeoTransformation.Centroid centroidGeoTransformation() {
-        return new GeoTransformation.Centroid();
-    }
-
-    /**
-     * Returns a new {@link GeoTransformation.Centroid}.
-     *
-     * @return a new convex hull transformation
-     */
-    public static GeoTransformation.ConvexHull convexHullGeoTransformation() {
-        return new GeoTransformation.ConvexHull();
-    }
-
-    /**
-     * Returns a new {@link GeoTransformation.Difference}.
-     *
-     * @param shape the shape to be subtracted
-     * @return a new difference transformation
-     */
-    public static GeoTransformation.Difference differenceGeoTransformation(String shape) {
-        return new GeoTransformation.Difference(shape);
-    }
-
-    /**
-     * Returns a new {@link GeoTransformation.Intersection}.
-     *
-     * @param shape the shape to be intersected
-     * @return a new intersection transformation
-     */
-    public static GeoTransformation.Intersection intersectionGeoTransformation(String shape) {
-        return new GeoTransformation.Intersection(shape);
-    }
-
-    /**
-     * Returns a new {@link GeoTransformation.Union}.
-     *
-     * @param shape the shape to be added
-     * @return a new union transformation
-     */
-    public static GeoTransformation.Union unionGeoTransformation(String shape) {
-        return new GeoTransformation.Union(shape);
+    public static GeoShapeCondition geoShape(String field, String shape) {
+        return geoShape(field, wkt(shape));
     }
 
     /**
@@ -560,7 +510,250 @@ public abstract class Builder {
      * @param longitude the longitude in degrees of the point to min distance sort by
      * @return a new geo distance sort field
      */
-    public static GeoDistanceSortField geoDistanceField(String field, double latitude, double longitude) {
+    public static GeoDistanceSortField geoDistance(String field, double latitude, double longitude) {
         return new GeoDistanceSortField(field, latitude, longitude);
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.BBox} transformation to be applied to {@link GeoShapeMapper}s.
+     *
+     * @return a new bbox transformation
+     */
+    public static GeoTransformation.BBox bbox() {
+        return new GeoTransformation.BBox();
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Buffer} transformation to be applied to {@link GeoShapeMapper}s.
+     *
+     * @return a new buffer transformation
+     */
+    public static GeoTransformation.Buffer buffer() {
+        return new GeoTransformation.Buffer();
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Centroid} transformation to be applied to {@link GeoShapeMapper}s.
+     *
+     * @return a new centroid transformation
+     */
+    public static GeoTransformation.Centroid centroid() {
+        return new GeoTransformation.Centroid();
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Centroid} transformation to be applied to {@link GeoShapeMapper}s.
+     *
+     * @return a new convex hull transformation
+     */
+    public static GeoTransformation.ConvexHull convexHull() {
+        return new GeoTransformation.ConvexHull();
+    }
+
+    /**
+     * Returns a new {@link GeoShape.WKT}.
+     *
+     * @param value the WKT string value
+     * @return a new bbox transformation
+     */
+    public static GeoShape.WKT wkt(String value) {
+        return new GeoShape.WKT(value);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.BBox}, representing the bounding box around the specified {@link GeoShape}.
+     *
+     * @param shape the base shape
+     * @return a new bbox transformation
+     */
+    public static GeoShape.BBox bbox(GeoShape shape) {
+        return new GeoShape.BBox(shape);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.BBox}, representing the bounding box around the specified WKT shape.
+     *
+     * @param shape the base shape in WKT format
+     * @return a new bbox transformation
+     */
+    public static GeoShape.BBox bbox(String shape) {
+        return bbox(wkt(shape));
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Buffer}, representing a buffer around the specified {@link GeoShape}.
+     *
+     * @param shape the base shape
+     * @return a new buffer transformation
+     */
+    public static GeoShape.Buffer buffer(GeoShape shape) {
+        return new GeoShape.Buffer(shape);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Buffer}, representing a buffer around the specified WKT shape.
+     *
+     * @param shape the base shape in WKT format
+     * @return a new buffer transformation
+     */
+    public static GeoShape.Buffer buffer(String shape) {
+        return buffer(wkt(shape));
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Centroid}, representing the centroid of the specified {@link GeoShape}.
+     *
+     * @param shape the base shape
+     * @return a new centroid transformation
+     */
+    public static GeoShape.Centroid centroid(GeoShape shape) {
+        return new GeoShape.Centroid(shape);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Centroid}, representing the centroid of the specified WKT shape.
+     *
+     * @param shape the base shape in WKT format
+     * @return a new centroid transformation
+     */
+    public static GeoShape.Centroid centroid(String shape) {
+        return centroid(wkt(shape));
+    }
+
+    /**
+     * Returns a new {@link GeoShape.ConvexHull}, representing the convex hull of the specified {@link GeoShape}.
+     *
+     * @param shape the base shape
+     * @return a new convex hull transformation
+     */
+    public static GeoShape.ConvexHull convexHull(GeoShape shape) {
+        return new GeoShape.ConvexHull(shape);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.ConvexHull}, representing the convex hull of the specified WKT shape.
+     *
+     * @param shape the base shape in WKT format
+     * @return a new convex hull transformation
+     */
+    public static GeoShape.ConvexHull convexHull(String shape) {
+        return convexHull(wkt(shape));
+    }
+
+    /**
+     * Returns a new empty {@link GeoShape.Difference}.
+     *
+     * @return a new difference transformation
+     */
+    public static GeoShape.Difference difference() {
+        return new GeoShape.Difference();
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Difference}, representing the difference of the specified {@link GeoShape}s.
+     *
+     * @param shapes the shapes to be subtracted
+     * @return a new difference transformation
+     */
+    public static GeoShape.Difference difference(GeoShape... shapes) {
+        return new GeoShape.Difference(shapes);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Difference}, representing the difference of the specified {@link GeoShape}s.
+     *
+     * @param shapes the shapes to be subtracted
+     * @return a new difference transformation
+     */
+    public static GeoShape.Difference difference(List<GeoShape> shapes) {
+        return new GeoShape.Difference(shapes);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Difference}, representing the difference of the specified WKT shapes.
+     *
+     * @param shapes the shapes to be subtracted in WKT format
+     * @return a new difference transformation
+     */
+    public static GeoShape.Difference difference(String... shapes) {
+        return difference(Stream.of(shapes).map(Builder::wkt).collect(Collectors.toList()));
+    }
+
+    /**
+     * Returns a new empty {@link GeoShape.Intersection}.
+     *
+     * @return a new intersection transformation
+     */
+    public static GeoShape.Intersection intersection() {
+        return new GeoShape.Intersection();
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Intersection}, representing the intersection of the specified {@link GeoShape}s.
+     *
+     * @param shapes the shapes to be intersected
+     * @return a new intersection transformation
+     */
+    public static GeoShape.Intersection intersection(GeoShape... shapes) {
+        return new GeoShape.Intersection(shapes);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Intersection}, representing the intersection of the specified {@link GeoShape}s.
+     *
+     * @param shapes the shapes to be intersected
+     * @return a new intersection transformation
+     */
+    public static GeoShape.Intersection intersection(List<GeoShape> shapes) {
+        return new GeoShape.Intersection(shapes);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Intersection}, representing the intersection of the specified WKT shapes.
+     *
+     * @param shapes the shapes to be intersected
+     * @return a new intersection transformation
+     */
+    public static GeoShape.Intersection intersection(String... shapes) {
+        return intersection(Stream.of(shapes).map(Builder::wkt).collect(Collectors.toList()));
+    }
+
+    /**
+     * Returns a new empty {@link GeoShape.Union}.
+     *
+     * @return a new union transformation
+     */
+    public static GeoShape.Union union() {
+        return new GeoShape.Union();
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Union}, representing the union of the specified {@link GeoShape}s.
+     *
+     * @param shapes the shapes to be added
+     * @return a new union transformation
+     */
+    public static GeoShape.Union union(GeoShape... shapes) {
+        return new GeoShape.Union(shapes);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Union}, representing the union of the specified {@link GeoShape}s.
+     *
+     * @param shapes the shapes to be added
+     * @return a new union transformation
+     */
+    public static GeoShape.Union union(List<GeoShape> shapes) {
+        return new GeoShape.Union(shapes);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Union}, representing the union of the specified WKT shapes.
+     *
+     * @param shapes the shapes to be subtracted in WKT format
+     * @return a new difference transformation
+     */
+    public static GeoShape.Union union(String... shapes) {
+        return union(Stream.of(shapes).map(Builder::wkt).collect(Collectors.toList()));
     }
 }

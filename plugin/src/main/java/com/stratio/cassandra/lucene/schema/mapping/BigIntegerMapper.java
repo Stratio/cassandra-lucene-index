@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigInteger;
@@ -49,15 +48,7 @@ public class BigIntegerMapper extends KeywordMapper {
      * @param digits the max number of digits, defaults to {@link #DEFAULT_DIGITS}
      */
     public BigIntegerMapper(String field, String column, Boolean validated, Integer digits) {
-        super(field,
-              column,
-              validated,
-              ByteType.instance,
-              IntegerType.instance,
-              Int32Type.instance,
-              LongType.instance,
-              ShortType.instance,
-              UTF8Type.instance);
+        super(field, column, validated, INTEGER_TYPES);
 
         if (digits != null && digits <= 0) {
             throw new IndexException("Positive digits required");

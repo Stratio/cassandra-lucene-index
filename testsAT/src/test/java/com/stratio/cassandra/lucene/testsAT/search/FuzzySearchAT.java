@@ -290,4 +290,25 @@ public class FuzzySearchAT extends AbstractSearchAT {
     public void fuzzyMapFieldTest4() {
         filter(fuzzy("map_1$k1", "v1")).check(2);
     }
+
+    @Test
+    public void fuzzyMapFieldTestWithAlias1() {
+        filter(fuzzy("string_map$k1", "")).check(InvalidQueryException.class, "Field value required");
+    }
+
+    @Test
+    public void fuzzyMapFieldTestWithAlias2() {
+        filter(fuzzy("string_map$k1", "l1")).check(2);
+    }
+
+    @Test
+    public void fuzzyMapFieldTestWithAlias3() {
+        filter(fuzzy("string_map$k1", "k1")).check(2);
+    }
+
+    @Test
+    public void fuzzyMapFieldTestWithAlias4() {
+        filter(fuzzy("string_map$k1", "v1")).check(2);
+    }
+
 }

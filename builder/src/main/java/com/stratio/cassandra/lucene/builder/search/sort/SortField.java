@@ -15,10 +15,10 @@
  */
 package com.stratio.cassandra.lucene.builder.search.sort;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.stratio.cassandra.lucene.builder.JSONBuilder;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * A sorting for a field of a search.

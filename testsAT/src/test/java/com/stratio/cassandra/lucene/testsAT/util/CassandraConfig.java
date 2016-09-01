@@ -17,6 +17,11 @@ package com.stratio.cassandra.lucene.testsAT.util;
 
 import com.datastax.driver.core.ConsistencyLevel;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Testing global variables.
  *
@@ -24,13 +29,14 @@ import com.datastax.driver.core.ConsistencyLevel;
  */
 class CassandraConfig {
 
-    static final String HOST = getString("host", "127.0.0.1");
+    static final String HOST = getIP("host", "127.0.0.1");
     static final String JMX_PORT = getString("jmx_port", "7199");
     static final String[] JMX_SERVICES = getStringArray("jmx_services", HOST + ":" + JMX_PORT);
+    // static final String[] JMX_SERVICES = getStringArray("jmx_services", "127.0.0.1:7100,127.0.0.1:7200,127.0.0.1:7300");
     static final int REPLICATION = getInt("replication", 1);
     static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(getString("consistency", "QUORUM"));
     static final int FETCH = getInt("fetch", 100);
-    static final int THREADS = getInt("threads", 0);
+    static final int THREADS = getInt("threads", Runtime.getRuntime().availableProcessors());
     static final int REFRESH = getInt("refresh", 1);
     static final String TABLE = getString("table", "test_table");
     static final String INDEX = getString("index", "test_table_idx");
@@ -56,5 +62,22 @@ class CassandraConfig {
 
     private static Boolean getBool(String key, Boolean def) {
         return Boolean.parseBoolean(getString(key, def.toString()));
+    }
+
+    private static String getIP(String key, String def) {
+        String value = System.getProperty("it." + key, def);
+        Pattern pattern = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
+        Matcher m = pattern.matcher(value);
+        if (m.find()) { // It is an IP
+            return value;
+        } else {
+            InetAddress domainAddress;
+            try {
+                domainAddress = InetAddress.getByName(value);
+            } catch (UnknownHostException e) {
+                return def;
+            }
+            return domainAddress.getHostAddress();
+        }
     }
 }

@@ -16,11 +16,10 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import org.apache.cassandra.db.marshal.InetAddressType;
-import org.apache.cassandra.db.marshal.UTF8Type;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 /**
@@ -46,7 +45,7 @@ public class InetMapper extends KeywordMapper {
      * @param validated if the field must be validated
      */
     public InetMapper(String field, String column, Boolean validated) {
-        super(field, column, validated, UTF8Type.instance, InetAddressType.instance);
+        super(field, column, validated, Arrays.asList(String.class, InetAddress.class));
     }
 
     /** {@inheritDoc} */
