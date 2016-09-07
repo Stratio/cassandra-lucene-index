@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.7.3 (Upcoming)
+## 3.0.7.3 (September 07, 2016)
 
 Merged from 3.0.8.2:
 * Allow associativity in search-time geospatial transformations
