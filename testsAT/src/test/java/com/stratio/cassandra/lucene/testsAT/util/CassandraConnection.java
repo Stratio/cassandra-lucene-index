@@ -35,13 +35,13 @@ public class CassandraConnection {
     public static Session session;
 
     public static void start() {
-        startEmbeddedServer();
+        //startEmbeddedServer();
         connect();
     }
 
     public static void stop() {
         disconnect();
-        stopEmbeddedServer();
+        //stopEmbeddedServer();
     }
 
     private static void startEmbeddedServer() {
