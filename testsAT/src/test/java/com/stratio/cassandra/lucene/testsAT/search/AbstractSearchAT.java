@@ -79,15 +79,15 @@ public abstract class AbstractSearchAT extends BaseAT {
         return utils.search();
     }
 
-    protected CassandraUtilsSelect filter(Condition condition) {
-        return utils.filter(condition);
+    protected CassandraUtilsSelect filter(Condition... conditions) {
+        return utils.filter(conditions);
     }
 
-    protected CassandraUtilsSelect query(Condition condition) {
-        return utils.query(condition);
+    protected CassandraUtilsSelect query(Condition... conditions) {
+        return utils.query(conditions);
     }
 
-    protected CassandraUtilsSelect sort(SortField... sorts) {
-        return utils.sort(sorts);
+    protected CassandraUtilsSelect sort(SortField... fields) {
+        return utils.sort(fields);
     }
 }

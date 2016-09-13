@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.testsAT.udt;
 import com.datastax.driver.core.CodecRegistry;
 import com.datastax.driver.core.ProtocolVersion;
 import com.datastax.driver.core.TupleType;
+import com.stratio.cassandra.lucene.builder.Builder;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -36,7 +37,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
 @RunWith(JUnit4.class)
 public class TupleIndexingAT extends BaseAT {
 
-    private static CassandraUtils utils;
+    private static CassandraUtils cassandraUtils;
 
     @BeforeClass
     public static void before() {
@@ -45,55 +46,55 @@ public class TupleIndexingAT extends BaseAT {
                                        cint(),
                                        text(),
                                        cfloat());
-        utils = CassandraUtils.builder("tuple_indexing")
-                              .withColumn("k", "int")
-                              .withColumn("v", "tuple<int, text, float>")
-                              .withPartitionKey("k")
-                              .withMapper("v.0", integerMapper())
-                              .withMapper("v.1", stringMapper())
-                              .withMapper("v.2", floatMapper())
-                              .build()
-                              .createKeyspace()
-                              .createTable()
-                              .createIndex()
-                              .insert(new String[]{"k", "v"}, new Object[]{0, tuple.newValue(1, "foo", 2.1f)})
-                              .insert(new String[]{"k", "v"}, new Object[]{1, tuple.newValue(2, "bar", 2.2f)})
-                              .insert(new String[]{"k", "v"}, new Object[]{2, tuple.newValue(3, "zas", 1.2f)})
-                              .refresh();
+        cassandraUtils = CassandraUtils.builder("tuple_indexing")
+                                       .withColumn("k", "int")
+                                       .withColumn("v", "tuple<int, text, float>")
+                                       .withPartitionKey("k")
+                                       .withMapper("v.0", integerMapper())
+                                       .withMapper("v.1", stringMapper())
+                                       .withMapper("v.2", floatMapper())
+                                       .build()
+                                       .createKeyspace()
+                                       .createTable()
+                                       .createIndex()
+                                       .insert(new String[]{"k", "v"}, new Object[]{0, tuple.newValue(1, "foo", 2.1f)})
+                                       .insert(new String[]{"k", "v"}, new Object[]{1, tuple.newValue(2, "bar", 2.2f)})
+                                       .insert(new String[]{"k", "v"}, new Object[]{2, tuple.newValue(3, "zas", 1.2f)})
+                                       .refresh();
     }
 
     @AfterClass
     public static void after() {
-        utils.dropIndex().dropTable().dropKeyspace();
+        cassandraUtils.dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
     public void testSearchTuple1() {
-        utils.filter(match("v.0", 1)).check(1);
-        utils.filter(match("v.0", 2)).check(1);
-        utils.filter(match("v.0", 3)).check(1);
-        utils.filter(match("v.0", 4)).check(0);
-        utils.filter(range("v.0").lower(1).includeLower(true).upper(2).includeUpper(true)).check(2);
-        utils.filter(range("v.0").lower(2).includeLower(true).upper(3).includeUpper(true)).check(2);
-        utils.filter(range("v.0").lower(3).includeLower(true).upper(4).includeUpper(true)).check(1);
-        utils.filter(range("v.0").lower(4).includeLower(true).upper(5).includeUpper(true)).check(0);
-        utils.sort(field("v.0").reverse(true)).checkOrderedColumns("k", 2, 1, 0);
+        cassandraUtils.filter(match("v.0", 1)).check(1);
+        cassandraUtils.filter(match("v.0", 2)).check(1);
+        cassandraUtils.filter(match("v.0", 3)).check(1);
+        cassandraUtils.filter(match("v.0", 4)).check(0);
+        cassandraUtils.filter(range("v.0").lower(1).includeLower(true).upper(2).includeUpper(true)).check(2);
+        cassandraUtils.filter(range("v.0").lower(2).includeLower(true).upper(3).includeUpper(true)).check(2);
+        cassandraUtils.filter(range("v.0").lower(3).includeLower(true).upper(4).includeUpper(true)).check(1);
+        cassandraUtils.filter(range("v.0").lower(4).includeLower(true).upper(5).includeUpper(true)).check(0);
+        cassandraUtils.sort(field("v.0").reverse(true)).checkOrderedColumns("k", 2, 1, 0);
     }
 
     @Test
     public void testSearchTuple2() {
-        utils.filter(match("v.1", "foo")).checkUnorderedColumns("k", 0);
-        utils.filter(match("v.1", "bar")).checkUnorderedColumns("k", 1);
-        utils.filter(match("v.1", "zas")).checkUnorderedColumns("k", 2);
-        utils.sort(field("v.1")).checkOrderedColumns("k", 1, 0, 2);
+        cassandraUtils.filter(match("v.1", "foo")).checkUnorderedColumns("k", 0);
+        cassandraUtils.filter(match("v.1", "bar")).checkUnorderedColumns("k", 1);
+        cassandraUtils.filter(match("v.1", "zas")).checkUnorderedColumns("k", 2);
+        cassandraUtils.sort(field("v.1")).checkOrderedColumns("k", 1, 0, 2);
     }
 
     @Test
     public void testSearchTuple3() {
-        utils.filter(match("v.2", 2.1)).checkUnorderedColumns("k", 0);
-        utils.filter(match("v.2", 2.2)).checkUnorderedColumns("k", 1);
-        utils.filter(match("v.2", 1.2)).checkUnorderedColumns("k", 2);
-        utils.sort(field("v.2")).checkOrderedColumns("k", 2, 0, 1);
+        cassandraUtils.filter(match("v.2", 2.1)).checkUnorderedColumns("k", 0);
+        cassandraUtils.filter(match("v.2", 2.2)).checkUnorderedColumns("k", 1);
+        cassandraUtils.filter(match("v.2", 1.2)).checkUnorderedColumns("k", 2);
+        cassandraUtils.sort(field("v.2")).checkOrderedColumns("k", 2, 0, 1);
     }
 
     @Test
@@ -127,7 +128,7 @@ public class TupleIndexingAT extends BaseAT {
                               new Object[]{6, tuple.newValue(41.453383f, 126.442151f)})
                       .refresh()
                       .filter(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
-                      .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
+                      .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(false))
                       .checkOrderedColumns("k", 0, 1, 2, 3, 4, 5, 6)
                       .dropKeyspace();
     }

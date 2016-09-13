@@ -60,7 +60,7 @@ public class RegexpCondition extends SingleColumnCondition {
             Term term = new Term(field, value);
             return new RegexpQuery(term);
         } else {
-            throw new IndexException("Regexp queries are not supported by mapper '%s'", mapper);
+            throw new IndexException("Regexp queries are not supported by mapper '{}'", mapper);
         }
     }
 

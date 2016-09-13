@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.util.Tracer;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
@@ -69,14 +70,17 @@ class IndexWriterSkinny extends IndexWriter {
         if (transactionType != IndexTransaction.Type.CLEANUP) {
             optionalRow.ifPresent(row -> {
                 if (transactionType == IndexTransaction.Type.COMPACTION || service.needsReadBeforeWrite(key, row)) {
+                    Tracer.trace("Lucene index reading before write");
                     UnfilteredRowIterator iterator = service.read(key, nowInSec, opGroup);
                     if (iterator.hasNext()) {
                         row = (Row) iterator.next();
                     }
                 }
                 if (row.hasLiveData(nowInSec)) {
+                    Tracer.trace("Lucene index writing document");
                     service.upsert(key, row, nowInSec);
                 } else {
+                    Tracer.trace("Lucene index deleting document");
                     service.delete(key);
                 }
             });

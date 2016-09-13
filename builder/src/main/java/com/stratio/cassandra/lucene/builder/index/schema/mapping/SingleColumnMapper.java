@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.

@@ -42,7 +42,7 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper, Bit
     @JsonProperty("tt_to")
     private final String ttTo;
 
-    /** The date pattern. **/
+    /** The date pattern */
     @JsonProperty("pattern")
     private String pattern;
 
@@ -72,7 +72,7 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper, Bit
     /**
      * Sets the date format pattern to be used.
      *
-     * @param pattern the date format pattern to be used
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern
      * @return this
      */
     public BitemporalMapperBuilder pattern(String pattern) {

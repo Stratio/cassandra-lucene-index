@@ -69,7 +69,7 @@ public class RAMIndex {
         try {
             indexWriter.addDocument(document);
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error while indexing %s", document);
+            throw new IndexException(logger, e, "Error while indexing {}", document);
         }
     }
 

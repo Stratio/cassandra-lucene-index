@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.search.condition;
+package com.stratio.cassandra.lucene.common;
 
 import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
@@ -32,7 +31,7 @@ import static org.junit.Assert.assertNotNull;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoTransformationCentroidTest extends AbstractConditionTest {
+public class GeoTransformationCentroidTest {
 
     @Test
     public void testCentroidTransformationPoint() {

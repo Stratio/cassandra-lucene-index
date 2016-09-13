@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * A {@link Mapper} to map bitemporal DateRanges.
@@ -41,9 +41,9 @@ public class BitemporalMapper extends Mapper<BitemporalMapper> {
     @JsonProperty("tt_to")
     final String ttTo;
 
-    /** The date pattern. **/
+    /** The date pattern */
     @JsonProperty("pattern")
-    String pattern;
+    private String pattern;
 
     /** The NOW Value. **/
     @JsonProperty("now_value")
@@ -69,9 +69,9 @@ public class BitemporalMapper extends Mapper<BitemporalMapper> {
     }
 
     /**
-     * Sets the date format pattern to be used.
+     * Sets the date pattern.
      *
-     * @param pattern the date pattern
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern
      * @return this with the specified date pattern
      */
     public BitemporalMapper pattern(String pattern) {

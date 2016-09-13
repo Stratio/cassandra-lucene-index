@@ -121,8 +121,8 @@ public class GeoDistanceSortFieldTest {
         assertEquals("SortField equals is wrong", sortField, new GeoDistanceSortField("field", true, 0.0, 0.0));
         assertFalse("SortField equals is wrong", sortField.equals(new GeoDistanceSortField("field2", true, 0.0, 0.0)));
         assertFalse("SortField equals is wrong", sortField.equals(new GeoDistanceSortField("field", false, 0.0, 0.0)));
-        assertFalse("SortField equals is wrong", sortField.equals(new GeoDistanceSortField("field", true, 1.0, 0.0)));
-        assertFalse("SortField equals is wrong", sortField.equals(new GeoDistanceSortField("field", true, 0.0, -1.0)));
+        assertFalse("SortField equals is wrong", sortField.equals(new GeoDistanceSortField("field", true, 0.0, 1.0)));
+        assertFalse("SortField equals is wrong", sortField.equals(new GeoDistanceSortField("field", true, -1.0, 0.0)));
         assertFalse("SortField equals is wrong", sortField.equals(nullInt()));
         assertFalse("SortField equals is wrong", sortField.equals(nullSortField()));
     }

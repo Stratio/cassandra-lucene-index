@@ -134,14 +134,4 @@ public class SearchBuildersTest {
         SimpleSortField sortField = builder.build();
         assertEquals("Field is not set", "field", sortField.field);
     }
-
-    @Test
-    public void testSort() throws IOException {
-        SearchBuilder builder = sort(field("field"));
-        assertNotNull("Condition builder is not built", builder);
-        Search search = builder.build();
-        assertEquals("Field is not set",
-                     "field",
-                     ((SimpleSortField) search.getSort().getSortFields().iterator().next()).field);
-    }
 }

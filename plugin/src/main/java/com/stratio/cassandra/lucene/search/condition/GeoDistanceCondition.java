@@ -90,7 +90,7 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
     /** {@inheritDoc} */
     @Override
     public Query doQuery(GeoPointMapper mapper, Analyzer analyzer) {
-        SpatialStrategy spatialStrategy = mapper.distanceStrategy;
+        SpatialStrategy spatialStrategy = mapper.strategy;
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         builder.add(query(maxGeoDistance, spatialStrategy), FILTER);
         if (minGeoDistance != null) {

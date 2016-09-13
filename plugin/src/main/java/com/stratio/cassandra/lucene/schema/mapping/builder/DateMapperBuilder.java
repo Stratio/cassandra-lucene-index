@@ -25,13 +25,14 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class DateMapperBuilder extends SingleColumnMapperBuilder<DateMapper, DateMapperBuilder> {
 
+    /** The date pattern */
     @JsonProperty("pattern")
     private String pattern;
 
     /**
-     * Sets the date format pattern to be used.
+     * Sets the default date format pattern.
      *
-     * @param pattern The date format pattern to be used.
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern
      * @return This.
      */
     public DateMapperBuilder pattern(String pattern) {

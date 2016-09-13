@@ -88,7 +88,7 @@ public final class GeoDistance implements Comparable<GeoDistance> {
             double value = Double.parseDouble(json);
             return new GeoDistance(value, GeoDistanceUnit.METRES);
         } catch (Exception e) {
-            throw new IndexException(e, "Unparseable distance: %s", json);
+            throw new IndexException(e, "Unparseable distance: {}", json);
         }
     }
 
@@ -116,7 +116,6 @@ public final class GeoDistance implements Comparable<GeoDistance> {
         }
 
         GeoDistance that = (GeoDistance) o;
-
         return Double.compare(that.value, value) == 0 && unit == that.unit;
 
     }

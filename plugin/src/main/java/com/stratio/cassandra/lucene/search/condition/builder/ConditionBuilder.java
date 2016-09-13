@@ -28,7 +28,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
  * @param <K> The specific type of the {@link ConditionBuilder}.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", defaultImpl = BooleanConditionBuilder.class)
 @JsonSubTypes({@JsonSubTypes.Type(value = AllConditionBuilder.class, name = "all"),
                @JsonSubTypes.Type(value = BitemporalConditionBuilder.class, name = "bitemporal"),
                @JsonSubTypes.Type(value = BooleanConditionBuilder.class, name = "boolean"),

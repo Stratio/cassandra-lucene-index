@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * {@link SingleColumnMapper} to build a new {@code DateMapper}.
@@ -24,14 +24,14 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class DateMapper extends SingleColumnMapper<DateMapper> {
 
-    /** The date pattern to be used. */
+    /** The date pattern */
     @JsonProperty("pattern")
-    String pattern;
+    private String pattern;
 
     /**
-     * Sets the date format pattern to be used.
+     * Sets the date pattern.
      *
-     * @param pattern the date pattern
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern
      * @return this with the specified date pattern
      */
     public DateMapper pattern(String pattern) {

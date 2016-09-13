@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedNumericDocValuesField;
@@ -49,23 +48,7 @@ public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
      * @param boost the boost
      */
     public DoubleMapper(String field, String column, Boolean validated, Float boost) {
-        super(field,
-              column,
-              true,
-              validated,
-              null,
-              Double.class,
-              AsciiType.instance,
-              ByteType.instance,
-              DecimalType.instance,
-              DoubleType.instance,
-              FloatType.instance,
-              IntegerType.instance,
-              Int32Type.instance,
-              LongType.instance,
-              UTF8Type.instance,
-              ShortType.instance,
-              UTF8Type.instance);
+        super(field, column, true, validated, null, Double.class, NUMERIC_TYPES);
         this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 
@@ -78,10 +61,10 @@ public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
             try {
                 return Double.valueOf((String) value);
             } catch (NumberFormatException e) {
-                throw new IndexException("Field '%s' with value '%s' can not be parsed as double", name, value);
+                throw new IndexException("Field '{}' with value '{}' can not be parsed as double", name, value);
             }
         }
-        throw new IndexException("Field '%s' requires a double, but found '%s'", name, value);
+        throw new IndexException("Field '{}' requires a double, but found '{}'", name, value);
     }
 
     /** {@inheritDoc} */

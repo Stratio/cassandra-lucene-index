@@ -20,16 +20,16 @@ import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
-import org.apache.cassandra.db.marshal.AsciiType;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.spatial.composite.CompositeSpatialStrategy;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
+import org.apache.lucene.spatial.serialized.SerializedDVStrategy;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,18 +38,21 @@ import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
 
 /**
  * A {@link Mapper} to map geographical shapes represented according to the <a href="http://en.wikipedia.org/wiki/Well-known_text">
- * Well Known Text (WKT)</a> format.
+ * Well Known Text (WKT)</a> format. <p> This class depends on <a href="http://www.vividsolutions.com/jts">Java Topology
+ * Suite (JTS)</a>. This library can't be distributed together with this project due to license compatibility problems,
+ * but you can add it by putting <a href="http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar">jts-core-1.14.0.jar</a>
+ * into Cassandra lib directory. <p> Pole wrapping is not supported.
  *
- * This class depends on <a href="http://www.vividsolutions.com/jts">Java Topology Suite (JTS)</a>. This library can't
- * be distributed together with this project due to license compatibility problems, but you can add it by putting <a
- * href="http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar">jts-core-1.14.0.jar</a>
- * into Cassandra lib directory.
- *
- * Pole wrapping is not supported.
+ * The indexing is based on a {@link CompositeSpatialStrategy} combining a geohash search tree in front of doc values.
+ * The search tree is used to quickly filtering according to a precision level, and the stored BinaryDocValues are used
+ * to achieve precision discarding false positives.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class GeoShapeMapper extends SingleColumnMapper<String> {
+
+    /** The default max number of levels for geohash search trees. */
+    public static final int DEFAULT_MAX_LEVELS = 5; // ±2.4 Km
 
     /** The name of the mapped column. */
     public final String column;
@@ -58,7 +61,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
     public final int maxLevels;
 
     /** The spatial strategy for radial distance searches. */
-    public final RecursivePrefixTreeStrategy strategy;
+    public final CompositeSpatialStrategy strategy;
 
     /** The sequence of transformations to be applied to the shape before indexing. */
     public final List<GeoTransformation> transformations;
@@ -69,59 +72,48 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
      * @param field the name of the field
      * @param column the name of the column
      * @param validated if the field must be validated
-     * @param maxLevels the maximum number of levels in the tree
-     * @param transformations the sequence of operations to be applied to the specified shape
+     * @param maxLevels the maximum number of precision levels in the search tree. False positives will be discarded
+     * using stored doc values, so a low value doesn't mean precision lost. High values will produce few false positives
+     * to be post-filtered, at the expense of creating many terms in the search index, specially with large polygons.
+     * @param transformations the sequence of operations to be applied to the indexed shapes
      */
     public GeoShapeMapper(String field,
                           String column,
                           Boolean validated,
                           Integer maxLevels,
                           List<GeoTransformation> transformations) {
-        super(field, column, false, validated, null, String.class, AsciiType.instance, UTF8Type.instance);
+        super(field, column, false, validated, null, String.class, TEXT_TYPES);
 
         this.column = column == null ? field : column;
 
         if (StringUtils.isWhitespace(column)) {
-            throw new IndexException("Column must not be whitespace, but found '%s'", column);
+            throw new IndexException("Column must not be whitespace, but found '{}'", column);
         }
 
-        this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels);
+        this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels, DEFAULT_MAX_LEVELS);
         SpatialPrefixTree grid = new GeohashPrefixTree(CONTEXT, this.maxLevels);
-        strategy = new RecursivePrefixTreeStrategy(grid, field);
 
-        this.transformations = (transformations == null) ? Collections.emptyList() : transformations;
+        RecursivePrefixTreeStrategy indexStrategy = new RecursivePrefixTreeStrategy(grid, field);
+        SerializedDVStrategy geometryStrategy = new SerializedDVStrategy(CONTEXT, field);
+        strategy = new CompositeSpatialStrategy(field, indexStrategy, geometryStrategy);
+
+        this.transformations = transformations == null ? Collections.emptyList() : transformations;
     }
 
     /** {@inheritDoc} */
     @Override
-    public void addIndexedFields(Document document, String name, String value) {
-
-        // Parse shape
+    public List<IndexableField> indexableFields(String name, String value) {
         JtsGeometry shape = geometry(value);
-
-        // Apply transformations
-        if (transformations != null) {
-            for (GeoTransformation transformation : transformations) {
-                shape = transformation.apply(shape);
-            }
+        for (GeoTransformation transformation : transformations) {
+            shape = transformation.apply(shape);
         }
-
-        // Add fields
-        for (IndexableField indexableField : strategy.createIndexableFields(shape)) {
-            document.add(indexableField);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void addSortedFields(Document document, String name, String value) {
-        // Nothing to do here
+        return Arrays.asList(strategy.createIndexableFields(shape));
     }
 
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new IndexException("GeoShape mapper '%s' does not support simple sorting", name);
+        throw new IndexException("GeoShape mapper '{}' does not support simple sorting", name);
     }
 
     /** {@inheritDoc} */

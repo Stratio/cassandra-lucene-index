@@ -26,8 +26,7 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({CheckNonFrozenUDTAT.class,
                      TupleIndexingAT.class,
                      UDTCollectionsAT.class,
-                     UDTIndexingFrozenAT.class,
-                     UDTIndexingNonFrozenAT.class,
+                     UDTIndexingAT.class,
                      UDTPartialInsertsAT.class,
                      UDTValidationAT.class,})
 public class UDTSuite {
