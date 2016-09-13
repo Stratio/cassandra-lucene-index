@@ -33,22 +33,6 @@ import org.junit.runners.JUnit4;
 public class CheckNonFrozenUDTAT extends BaseAT {
 
     @Test
-    public void testNotFrozenUDT() {
-        CassandraUtils.builder("testNotFrozenUDT")
-                      .withUDT("address_udt", "city", "text")
-                      .withUDT("address_udt", "postcode", "int")
-                      .withColumn("login", "text")
-                      .withColumn("address", "address_udt")
-                      .withPartitionKey("login")
-                      .build()
-                      .createKeyspace()
-                      .createUDTs()
-                      .createTable(InvalidQueryException.class,
-                                   "Non-frozen User-Defined types are not supported, please use frozen<>")
-                      .dropKeyspace();
-    }
-
-    @Test
     public void testNotFrozenUDTList() {
         CassandraUtils.builder("testNotFrozenUDTList")
                       .withUDT("address_udt", "city", "text")
@@ -60,7 +44,7 @@ public class CheckNonFrozenUDTAT extends BaseAT {
                       .createKeyspace()
                       .createUDTs()
                       .createTable(InvalidQueryException.class,
-                                   "Non-frozen collections are not allowed inside collections: list<address_udt>")
+                                   "Non-frozen UDTs are not allowed inside collections: list<address_udt>")
                       .dropKeyspace();
     }
 
@@ -76,7 +60,7 @@ public class CheckNonFrozenUDTAT extends BaseAT {
                       .createKeyspace()
                       .createUDTs()
                       .createTable(InvalidQueryException.class,
-                                   "Non-frozen collections are not allowed inside collections: set<address_udt>")
+                                   "Non-frozen UDTs are not allowed inside collections: set<address_udt>")
                       .dropKeyspace();
     }
 
@@ -92,7 +76,7 @@ public class CheckNonFrozenUDTAT extends BaseAT {
                       .createKeyspace()
                       .createUDTs()
                       .createTable(InvalidQueryException.class,
-                                   "Non-frozen collections are not allowed inside collections: map<address_udt, int>")
+                                   "Non-frozen UDTs are not allowed inside collections: map<address_udt, int>")
                       .dropKeyspace();
     }
 
@@ -108,7 +92,7 @@ public class CheckNonFrozenUDTAT extends BaseAT {
                       .createKeyspace()
                       .createUDTs()
                       .createTable(InvalidQueryException.class,
-                                   "Non-frozen collections are not allowed inside collections: map<int, address_udt>")
+                                   "Non-frozen UDTs are not allowed inside collections: map<int, address_udt>")
                       .dropKeyspace();
     }
 }

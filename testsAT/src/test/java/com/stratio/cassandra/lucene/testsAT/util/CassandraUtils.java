@@ -158,7 +158,7 @@ public class CassandraUtils {
                                expectedMessage));
         } catch (Exception e) {
             assertEquals("Expected exception type is wrong", expectedClass, e.getClass());
-            assertTrue("Expected exception message is wrong", e.getMessage().contains(expectedMessage));
+            assertTrue("Expected exception message is wrong, expected: "+expectedMessage+ " produced:"+e.getMessage(), e.getMessage().contains(expectedMessage));
         }
         return this;
     }
