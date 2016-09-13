@@ -15,11 +15,13 @@
  */
 package com.stratio.cassandra.lucene.builder.search;
 
-import com.stratio.cassandra.lucene.builder.Builder;
+import com.stratio.cassandra.lucene.builder.JSONBuilder;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.Sort;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.List;
 
 /**
  * Class representing an Lucene index search. It is formed by an optional querying {@link Condition} and an optional
@@ -27,58 +29,59 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class Search extends Builder {
+@SuppressWarnings("unused")
+public class Search extends JSONBuilder {
 
-    /** The {@link Condition} for querying, maybe {@code null} meaning no querying. */
-    @JsonProperty("query")
-    public Condition query;
-
-    /** The {@link Condition} for filtering, maybe {@code null} meaning no filtering. */
+    /** The filtering conditions not participating in scoring. */
     @JsonProperty("filter")
-    public Condition filter;
+    private List<Condition> filter;
+
+    /** The querying conditions participating in scoring. */
+    @JsonProperty("query")
+    private List<Condition> query;
 
     /** The {@link Sort} for the query, maybe {@code null} meaning no filtering. */
     @JsonProperty("sort")
-    public Sort sort;
+    private List<SortField> sort;
 
     /** If this search must force the refresh the index before reading it. */
     @JsonProperty("refresh")
-    public Boolean refresh;
+    private Boolean refresh;
 
     /** Default constructor. */
     public Search() {
     }
 
     /**
-     * Sets the querying condition. The specified condition will be taken into account in the relevance scoring.
+     * Returns this with the specified filtering conditions not participating in scoring.
      *
-     * @param query the querying condition to be set
-     * @return this with the specified query
+     * @param conditions the filtering conditions to be added
+     * @return this with the specified filtering conditions
      */
-    public Search query(Condition query) {
-        this.query = query;
+    public Search filter(Condition... conditions) {
+        filter = add(filter, conditions);
         return this;
     }
 
     /**
-     * Sets the filtering condition. The specified condition won't be taken into account in the relevance scoring.
+     * Returns this with the specified querying conditions participating in scoring.
      *
-     * @param filter the filtering condition to be set
-     * @return this with the specified filter
+     * @param conditions the mandatory conditions to be added
+     * @return this with the specified mandatory conditions
      */
-    public Search filter(Condition filter) {
-        this.filter = filter;
+    public Search query(Condition... conditions) {
+        query = add(query, conditions);
         return this;
     }
 
     /**
      * Sets the sorting fields.
      *
-     * @param sortFields the sorting fields to be set
-     * @return this with the specified sort
+     * @param fields the sorting fields to be added
+     * @return this with the specified sorting fields
      */
-    public Search sort(SortField... sortFields) {
-        this.sort = new Sort(sortFields);
+    public Search sort(SortField... fields) {
+        sort = add(sort, fields);
         return this;
     }
 

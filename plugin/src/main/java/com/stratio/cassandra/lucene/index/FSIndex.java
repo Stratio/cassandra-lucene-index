@@ -128,7 +128,7 @@ public class FSIndex {
             searcherReopener.start();
 
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error while creating index %s", name);
+            throw new IndexException(logger, e, "Error while creating index {}", name);
         }
     }
 
@@ -159,7 +159,7 @@ public class FSIndex {
         try {
             indexWriter.updateDocument(term, document);
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error indexing %s with term %s in %s", document, term, name);
+            throw new IndexException(logger, e, "Error indexing {} with term {} in {}", document, term, name);
         }
     }
 
@@ -173,7 +173,7 @@ public class FSIndex {
         try {
             indexWriter.deleteDocuments(term);
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error deleting %s from %s", term, name);
+            throw new IndexException(logger, e, "Error deleting {} from {}", term, name);
         }
     }
 
@@ -187,7 +187,7 @@ public class FSIndex {
         try {
             indexWriter.deleteDocuments(query);
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error deleting %s from %s", query, name);
+            throw new IndexException(logger, e, "Error deleting {} from {}", query, name);
         }
     }
 
@@ -199,7 +199,7 @@ public class FSIndex {
             indexWriter.deleteAll();
             indexWriter.commit();
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error truncating %s", name);
+            throw new IndexException(logger, e, "Error truncating {}", name);
         }
         logger.info("Truncated {}", name);
     }
@@ -211,7 +211,7 @@ public class FSIndex {
         try {
             indexWriter.commit();
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error committing %s", name);
+            throw new IndexException(logger, e, "Error committing {}", name);
         }
         logger.debug("Committed {}", name);
     }
@@ -226,7 +226,7 @@ public class FSIndex {
             indexWriter.close();
             directory.close();
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error closing %s", name);
+            throw new IndexException(logger, e, "Error closing {}", name);
         }
         logger.info("Closed {}", name);
     }
@@ -273,7 +273,7 @@ public class FSIndex {
         try {
             return doWithSearcher(searcher -> searcher.getIndexReader().numDocs());
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error getting %s num docs", name);
+            throw new IndexException(logger, e, "Error getting {} num docs", name);
         }
     }
 
@@ -283,11 +283,11 @@ public class FSIndex {
      * @return the number of deleted {@link Document}s
      */
     public int getNumDeletedDocs() {
-        logger.debug("Getting %s num deleted docs", name);
+        logger.debug("Getting {} num deleted docs", name);
         try {
             return doWithSearcher(searcher -> searcher.getIndexReader().numDeletedDocs());
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error getting %s num docs", name);
+            throw new IndexException(logger, e, "Error getting {} num docs", name);
         }
     }
 
@@ -304,7 +304,7 @@ public class FSIndex {
             indexWriter.forceMerge(maxNumSegments, doWait);
             indexWriter.commit();
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error merging %s segments to %s", name, maxNumSegments);
+            throw new IndexException(logger, e, "Error merging {} segments to {}", name, maxNumSegments);
         }
         logger.info("Merged {} segments to {}", name, maxNumSegments);
     }
@@ -321,7 +321,7 @@ public class FSIndex {
             indexWriter.forceMergeDeletes(doWait);
             indexWriter.commit();
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error merging %s segments with deletion", name);
+            throw new IndexException(logger, e, "Error merging {} segments with deletion", name);
         }
         logger.info("Merged {} segments with deletions", name);
     }
@@ -334,7 +334,7 @@ public class FSIndex {
         try {
             searcherManager.maybeRefreshBlocking();
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error refreshing %s readers", name);
+            throw new IndexException(logger, e, "Error refreshing {} readers", name);
         }
         logger.debug("Refreshed {} readers", name);
     }

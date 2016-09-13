@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.SortedSetDocValuesField;
@@ -24,6 +23,7 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortedSetSortField;
 import org.apache.lucene.util.BytesRef;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -50,7 +50,7 @@ public abstract class KeywordMapper extends SingleColumnMapper.SingleFieldMapper
      * @param validated if the field must be validated
      * @param supportedTypes the supported Cassandra types
      */
-    KeywordMapper(String field, String column, Boolean validated, AbstractType<?>... supportedTypes) {
+    KeywordMapper(String field, String column, Boolean validated, List<Class<?>> supportedTypes) {
         super(field, column, true, validated, KEYWORD_ANALYZER, String.class, supportedTypes);
     }
 

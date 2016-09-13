@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.index;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.TimeCounter;
+import com.stratio.cassandra.lucene.util.Tracer;
 import org.apache.cassandra.utils.CloseableIterator;
 import org.apache.cassandra.utils.Pair;
 import org.apache.lucene.document.Document;
@@ -48,7 +49,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
     private ScoreDoc after = null;
     private boolean finished = false;
     private IndexSearcher searcher;
-    private int numRead = 0;
+    private int numReadDocuments = 0;
     private final Query startQuery;
 
     /**
@@ -78,6 +79,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
             searcher = manager.acquire();
             this.sort = sort.rewrite(searcher);
             if (after != null) {
+                Tracer.trace("Searching for last Lucene index position");
                 BooleanQuery.Builder builder = new BooleanQuery.Builder();
                 builder.add(after, BooleanClause.Occur.FILTER);
                 builder.add(query, BooleanClause.Occur.MUST);
@@ -103,7 +105,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
             if (startQuery == null && EarlyTerminatingSortingCollector.canEarlyTerminate(sort, indexSort)) {
                 FieldDoc fieldDoc = after == null ? null : (FieldDoc) after;
                 TopFieldCollector collector = TopFieldCollector.create(sort, page, fieldDoc, true, false, false);
-                int hits = numRead + page;
+                int hits = numReadDocuments + page;
                 searcher.search(query, new EarlyTerminatingSortingCollector(collector, sort, hits, indexSort));
                 topDocs = collector.topDocs();
             } else {
@@ -111,19 +113,20 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
             }
 
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-            numRead += scoreDocs.length;
+            numReadDocuments += scoreDocs.length;
             finished = scoreDocs.length < page;
             for (ScoreDoc scoreDoc : scoreDocs) {
                 after = scoreDoc;
-                Document document = searcher.doc(scoreDoc.doc, fields);
+                Document document = searcher.doc(scoreDoc.doc, fields); // TODO: DocumentStoredFieldVisitor
                 documents.add(Pair.create(document, scoreDoc));
             }
 
+            Tracer.trace("Lucene index fetches {} documents", scoreDocs.length);
             logger.debug("Index query page fetched with {} documents in {}", scoreDocs.length, time.stop());
 
         } catch (Exception e) {
             close();
-            throw new IndexException(logger, e, "Error searching in with %s and %s", query, sort);
+            throw new IndexException(logger, e, "Error searching in with {} and {}", query, sort);
         }
 
         if (finished) {

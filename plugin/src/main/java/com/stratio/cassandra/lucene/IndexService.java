@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.column.Columns;
-import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.index.FSIndex;
 import com.stratio.cassandra.lucene.index.RAMIndex;
@@ -25,10 +24,8 @@ import com.stratio.cassandra.lucene.key.TokenMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
-import com.stratio.cassandra.lucene.util.SimplePartitionIterator;
-import com.stratio.cassandra.lucene.util.SimpleRowIterator;
+import com.stratio.cassandra.lucene.util.*;
 import com.stratio.cassandra.lucene.util.TaskQueue;
-import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;
@@ -42,7 +39,6 @@ import org.apache.cassandra.db.filter.RowFilter.Expression;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.db.partitions.PartitionUpdate;
-import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
 import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.transactions.IndexTransaction;
@@ -51,8 +47,12 @@ import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +62,6 @@ import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
-import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**
@@ -78,7 +76,6 @@ abstract class IndexService implements IndexServiceMBean {
     final String qualifiedName;
     final TokenMapper tokenMapper;
     final PartitionMapper partitionMapper;
-    final ColumnsMapper columnsMapper;
     protected final ColumnFamilyStore table;
     protected final CFMetaData metadata;
     protected final Schema schema;
@@ -117,17 +114,16 @@ abstract class IndexService implements IndexServiceMBean {
         schema = options.schema;
         tokenMapper = new TokenMapper();
         partitionMapper = new PartitionMapper(metadata);
-        columnsMapper = new ColumnsMapper();
         mapsMultiCells = metadata.allColumns()
                                  .stream()
-                                 .filter(x -> schema.getMappedCells().contains(x.name.toString()))
+                                 .filter(x -> schema.mappedCells().contains(x.name.toString()))
                                  .anyMatch(x -> x.type.isMultiCell());
 
         // Setup FS index and write queue
         queue = new TaskQueue(options.indexingThreads, options.indexingQueuesSize);
         lucene = new FSIndex(name,
                              options.path,
-                             options.schema.getAnalyzer(),
+                             options.schema.analyzer(),
                              options.refreshSeconds,
                              options.ramBufferMB,
                              options.maxMergeMB,
@@ -280,9 +276,8 @@ abstract class IndexService implements IndexServiceMBean {
     abstract Columns columns(DecoratedKey key, Row row);
 
     /**
-     * Returns the Lucene {@link Document} representing the specified {@link Row}.
-     *
-     * Only the fields required by the post processing phase of the specified {@link Search} will be added.
+     * Returns the Lucene {@link Document} representing the specified {@link Row}. <p> Only the fields required by the
+     * post processing phase of the specified {@link Search} will be added.
      *
      * @param key the partition key
      * @param row the {@link Row}
@@ -292,12 +287,12 @@ abstract class IndexService implements IndexServiceMBean {
     private Document document(DecoratedKey key, Row row, Search search) {
         Document document = new Document();
         Columns columns = columns(key, row);
-        addKeyFields(document, key, row);
-        schema.addPostProcessingFields(document, columns, search);
+        keyIndexableFields(key, row).forEach(document::add);
+        schema.postProcessingIndexableFields(columns, search).forEach(document::add);
         return document;
     }
 
-    protected abstract void addKeyFields(Document document, DecoratedKey key, Row row);
+    protected abstract List<IndexableField> keyIndexableFields(DecoratedKey key, Row row);
 
     /**
      * Returns a Lucene {@link Term} uniquely identifying the specified {@link Row}.
@@ -340,7 +335,7 @@ abstract class IndexService implements IndexServiceMBean {
             return true;
         } else {
             Columns columns = columns(key, row);
-            return schema.getMappedCells().stream().anyMatch(x -> columns.getColumnsByCellName(x).isEmpty());
+            return schema.mappedCells().stream().anyMatch(x -> columns.withCellName(x).isEmpty());
         }
     }
 
@@ -382,12 +377,16 @@ abstract class IndexService implements IndexServiceMBean {
                                      OpOrder.Group opGroup,
                                      IndexTransaction.Type transactionType);
 
-    /** Deletes all the index contents. */
+    /**
+     * Deletes all the index contents.
+     */
     final void truncate() {
         queue.submitSynchronous(lucene::truncate);
     }
 
-    /** Closes and removes all the index files. */
+    /**
+     * Closes and removes all the index files.
+     */
     final void delete() {
         try {
             queue.shutdown();
@@ -409,13 +408,14 @@ abstract class IndexService implements IndexServiceMBean {
     void upsert(DecoratedKey key, Row row, int nowInSec) {
         queue.submitAsynchronous(key, () -> {
             Term term = term(key, row);
-            Columns columns = columns(key, row).cleanDeleted(nowInSec);
-            Document document = new Document();
-            schema.addFields(document, columns);
-            if (document.getFields().isEmpty()) {
+            Columns columns = columns(key, row).withoutDeleted(nowInSec);
+            List<IndexableField> fields = schema.indexableFields(columns);
+            if (fields.isEmpty()) {
                 lucene.delete(term);
             } else {
-                addKeyFields(document, key, row);
+                Document document = new Document();
+                fields.forEach(document::add);
+                keyIndexableFields(key, row).forEach(document::add);
                 lucene.upsert(term, document);
             }
         });
@@ -455,19 +455,24 @@ abstract class IndexService implements IndexServiceMBean {
     Index.Searcher searcher(ReadCommand command) {
 
         // Parse search
+        Tracer.trace("Building Lucene search");
         String expression = expression(command);
         Search search = SearchBuilder.fromJson(expression).build();
-        Query query = query(search, command);
+        Query query = search.query(schema, query(command).orElse(null));
         Query after = after(search.paging(), command);
         Sort sort = sort(search);
+        int count = command.limits().count();
 
         // Refresh if required
         if (search.refresh()) {
+            Tracer.trace("Refreshing Lucene index searcher");
             refresh();
         }
 
         // Search
-        return (ReadExecutionController executionController) -> read(after, query, sort, command, executionController);
+        Tracer.trace("Lucene index searching for {} rows", count);
+        DocumentIterator documents = lucene.search(after, query, sort, count);
+        return (ReadExecutionController readExecutionController) -> indexReader(documents, command, readExecutionController);
     }
 
     private Search search(ReadCommand command) {
@@ -509,22 +514,6 @@ abstract class IndexService implements IndexServiceMBean {
     }
 
     /**
-     * Returns the Lucene {@link Query} represented by the specified {@link Search} and key filter.
-     *
-     * @param search the search
-     * @param command the command
-     * @return a Lucene {@link Query}
-     */
-    private Query query(Search search, ReadCommand command) {
-        BooleanQuery.Builder builder = new BooleanQuery.Builder();
-        query(command).ifPresent(query -> builder.add(query, FILTER));
-        search.filter(schema).ifPresent(query -> builder.add(query, FILTER));
-        search.query(schema).ifPresent(query -> builder.add(query, MUST));
-        BooleanQuery booleanQuery = builder.build();
-        return booleanQuery.clauses().isEmpty() ? new MatchAllDocsQuery() : booleanQuery;
-    }
-
-    /**
      * Returns the key range query represented by the specified {@link ReadCommand}.
      *
      * @param command the read command
@@ -539,7 +528,7 @@ abstract class IndexService implements IndexServiceMBean {
             DataRange dataRange = ((PartitionRangeReadCommand) command).dataRange();
             return query(dataRange);
         } else {
-            throw new IndexException("Unsupported read command %s", command.getClass());
+            throw new IndexException("Unsupported read command {}", command.getClass());
         }
     }
 
@@ -560,17 +549,6 @@ abstract class IndexService implements IndexServiceMBean {
      * @return a query to get the {@link Document}s satisfying the {@code dataRange}
      */
     abstract Optional<Query> query(DataRange dataRange);
-
-    /**
-     * Returns a Lucene {@link Query} to retrieve all the rows in the specified partition range.
-     *
-     * @param start the lower accepted partition position, {@code null} means no lower limit
-     * @param stop the upper accepted partition position, {@code null} means no upper limit
-     * @return the query to retrieve all the rows in the specified range
-     */
-    Optional<Query> query(PartitionPosition start, PartitionPosition stop) {
-        return tokenMapper.query(start, stop);
-    }
 
     private Query after(IndexPagingState pagingState, ReadCommand command) {
         try {
@@ -646,26 +624,6 @@ abstract class IndexService implements IndexServiceMBean {
     /**
      * Reads from the local SSTables the rows identified by the specified search.
      *
-     * @param after a Lucene query indicating where the search should start
-     * @param query the Lucene query
-     * @param sort the Lucene sort
-     * @param command the Cassandra command
-     * @param controller the Cassandra read execution controller
-     * @return the local {@link Row}s satisfying the search
-     */
-    private UnfilteredPartitionIterator read(Query after,
-                                             Query query,
-                                             Sort sort,
-                                             ReadCommand command,
-                                             ReadExecutionController controller) {
-        int limit = command.limits().count();
-        DocumentIterator documents = lucene.search(after, query, sort, limit);
-        return indexReader(documents, command, controller);
-    }
-
-    /**
-     * Reads from the local SSTables the rows identified by the specified search.
-     *
      * @param documents the Lucene documents
      * @param command the Cassandra command
      * @param controller the Cassandra execution controller
@@ -685,7 +643,7 @@ abstract class IndexService implements IndexServiceMBean {
      */
     PartitionIterator postProcess(PartitionIterator partitions, SinglePartitionReadCommand.Group group) {
 
-        // Skip unneeded post processing in there is only one command
+        // Skip unneeded post processing if only one partition is involved
         if (group.commands.size() <= 1) {
             return partitions;
         }
@@ -706,7 +664,7 @@ abstract class IndexService implements IndexServiceMBean {
      */
     PartitionIterator postProcess(PartitionIterator partitions, ReadCommand command) {
 
-        // Skip unneeded post processing in single partition read commands
+        // Skip unneeded post processing if only one partition is involved
         if (command instanceof SinglePartitionReadCommand) {
             return partitions;
         }
@@ -722,7 +680,7 @@ abstract class IndexService implements IndexServiceMBean {
 
             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows = collect(partitions);
 
-            // Skip if it doesn't use any kind of sorting
+            // Skip if the search doesn't require any kind of sorting
             if (search.requiresPostProcessing() && !collectedRows.isEmpty()) {
                 return process(search, limit, nowInSec, collectedRows);
             }
@@ -758,7 +716,7 @@ abstract class IndexService implements IndexServiceMBean {
         try {
 
             // Index collected rows in memory
-            RAMIndex index = new RAMIndex(schema.getAnalyzer());
+            RAMIndex index = new RAMIndex(schema.analyzer());
             Map<Term, SimpleRowIterator> rowsByTerm = new HashMap<>();
             for (Pair<DecoratedKey, SimpleRowIterator> pair : collectedRows) {
                 DecoratedKey key = pair.left;
@@ -771,7 +729,7 @@ abstract class IndexService implements IndexServiceMBean {
             }
 
             // Repeat search to sort partial results
-            Query query = search.query(schema).orElseGet(MatchAllDocsQuery::new);
+            Query query = search.postProcessingQuery(schema);
             Sort sort = sort(search);
             List<Pair<Document, ScoreDoc>> documents = index.search(query, sort, limit, fieldsToLoad());
             index.close();
@@ -787,7 +745,10 @@ abstract class IndexService implements IndexServiceMBean {
             }
 
         } finally {
-            logger.debug("Post-processed {} collected rows to {} rows in {}",
+            Tracer.trace("Lucene post-process {} collected rows to {} result rows",
+                         collectedRows.size(),
+                         processedRows.size());
+            logger.debug("Post-processed {} collected rows to {} result rows in {}",
                          collectedRows.size(),
                          processedRows.size(),
                          time.stop());

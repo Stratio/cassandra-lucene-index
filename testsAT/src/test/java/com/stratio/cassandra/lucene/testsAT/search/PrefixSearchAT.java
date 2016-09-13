@@ -25,242 +25,122 @@ import static com.stratio.cassandra.lucene.builder.Builder.prefix;
 public class PrefixSearchAT extends AbstractSearchAT {
 
     @Test
-    public void prefixQueryAsciiFieldTest1() {
-        query(prefix("ascii_1", "frase ")).check(1);
-    }
-
-    @Test
-    public void prefixQueryAsciiFieldTest2() {
-        query(prefix("ascii_1", "frase")).check(4);
-    }
-
-    @Test
-    public void prefixQueryAsciiFieldTest3() {
-        query(prefix("ascii_1", "F")).check(0);
-    }
-
-    @Test
-    public void prefixQueryAsciiFieldTest4() {
-        query(prefix("ascii_1", "")).check(5);
-    }
-
-    @Test
-    public void prefixQueryInetFieldTest1() {
-        query(prefix("inet_1", "127")).check(4);
-    }
-
-    @Test
-    public void prefixQueryInetFieldTest2() {
-        query(prefix("inet_1", "")).check(5);
-    }
-
-    @Test
-    public void prefixQueryInetFieldTest3() {
-        query(prefix("inet_1", "127.0.")).check(2);
-    }
-
-    @Test
-    public void prefixQueryTextFieldTest1() {
-        query(prefix("text_1", "Frase con espacios articulos y las palabras suficientes")).check(0);
-    }
-
-    @Test
-    public void prefixQueryTextFieldTest2() {
-        query(prefix("text_1", "Frase")).check(0);
-    }
-
-    @Test
-    public void prefixQueryTextFieldTest3() {
-        query(prefix("text_1", "")).check(5);
-    }
-
-    @Test
-    public void prefixQueryVarcharFieldTest1() {
-        query(prefix("varchar_1", "frasesencillasinespaciosperomaslarga")).check(2);
-    }
-
-    @Test
-    public void prefixQueryVarcharFieldTest2() {
-        query(prefix("varchar_1", "frase")).check(4);
-    }
-
-    @Test
-    public void prefixQueryVarcharFieldTest3() {
-        query(prefix("varchar_1", "")).check(5);
-    }
-
-    @Test
-    public void prefixQueryListFieldTest1() {
-        query(prefix("list_1", "")).check(5);
-    }
-
-    @Test
-    public void prefixQueryListFieldTest2() {
-        query(prefix("list_1", "l1")).check(2);
-    }
-
-    @Test
-    public void prefixQueryListFieldTest3() {
-        query(prefix("list_1", "l")).check(5);
-    }
-
-    @Test
-    public void prefixQueryListFieldTest4() {
-        query(prefix("list_1", "s1")).check(0);
-    }
-
-    @Test
-    public void prefixQuerySetFieldTest1() {
-        query(prefix("set_1", "")).check(5);
-    }
-
-    @Test
-    public void prefixQuerySetFieldTest2() {
-        query(prefix("set_1", "l1")).check(0);
-    }
-
-    @Test
-    public void prefixQuerySetFieldTest3() {
-        query(prefix("set_1", "s1")).check(2);
-    }
-
-    @Test
-    public void prefixQueryMapFieldTest1() {
-        query(prefix("map_1$k1", "")).check(2);
-    }
-
-    @Test
-    public void prefixQueryMapFieldTest2() {
-        query(prefix("map_1$k1", "l1")).check(0);
-    }
-
-    @Test
-    public void prefixQueryMapFieldTest3() {
-        query(prefix("map_1$k1", "k1")).check(0);
-    }
-
-    @Test
-    public void prefixQueryMapFieldTest4() {
-        query(prefix("map_1$k1", "v1")).check(2);
-    }
-
-    @Test
-    public void prefixFilterAsciiFieldTest1() {
+    public void testPrefixAsciiField1() {
         filter(prefix("ascii_1", "frase ")).check(1);
     }
 
     @Test
-    public void prefixFilterAsciiFieldTest2() {
+    public void testPrefixAsciiField2() {
         filter(prefix("ascii_1", "frase")).check(4);
     }
 
     @Test
-    public void prefixFilterAsciiFieldTest3() {
+    public void testPrefixAsciiField3() {
         filter(prefix("ascii_1", "F")).check(0);
     }
 
     @Test
-    public void prefixFilterAsciiFieldTest4() {
+    public void testPrefixAsciiField4() {
         filter(prefix("ascii_1", "")).check(5);
     }
 
     @Test
-    public void prefixFilterInetFieldTest1() {
+    public void testPrefixInetField1() {
         filter(prefix("inet_1", "127")).check(4);
     }
 
     @Test
-    public void prefixFilterInetFieldTest2() {
+    public void testPrefixInetField2() {
         filter(prefix("inet_1", "")).check(5);
     }
 
     @Test
-    public void prefixFilterInetFieldTest3() {
+    public void testPrefixInetField3() {
         filter(prefix("inet_1", "127.0.")).check(2);
     }
 
     @Test
-    public void prefixFilterTextFieldTest1() {
+    public void testPrefixTextField1() {
         filter(prefix("text_1", "Frase con espacios articulos y las palabras suficientes")).check(0);
     }
 
     @Test
-    public void prefixFilterTextFieldTest2() {
+    public void testPrefixTextField2() {
         filter(prefix("text_1", "Frase")).check(0);
     }
 
     @Test
-    public void prefixFilterTextFieldTest3() {
+    public void testPrefixTextField3() {
         filter(prefix("text_1", "")).check(5);
     }
 
     @Test
-    public void prefixFilterVarcharFieldTest1() {
+    public void testPrefixVarcharField1() {
         filter(prefix("varchar_1", "frasesencillasinespaciosperomaslarga")).check(2);
     }
 
     @Test
-    public void prefixFilterVarcharFieldTest2() {
+    public void testPrefixVarcharField2() {
         filter(prefix("varchar_1", "frase")).check(4);
     }
 
     @Test
-    public void prefixFilterVarcharFieldTest3() {
+    public void testPrefixVarcharField3() {
         filter(prefix("varchar_1", "")).check(5);
     }
 
     @Test
-    public void prefixFilterListFieldTest1() {
+    public void testPrefixListField1() {
         filter(prefix("list_1", "")).check(5);
     }
 
     @Test
-    public void prefixFilterListFieldTest2() {
+    public void testPrefixListField2() {
         filter(prefix("list_1", "l1")).check(2);
     }
 
     @Test
-    public void prefixFilterListFieldTest3() {
+    public void testPrefixListField3() {
         filter(prefix("list_1", "l")).check(5);
     }
 
     @Test
-    public void prefixFilterListFieldTest4() {
+    public void testPrefixListField4() {
         filter(prefix("list_1", "s1")).check(0);
     }
 
     @Test
-    public void prefixFilterSetFieldTest1() {
+    public void testPrefixSetField1() {
         filter(prefix("set_1", "")).check(5);
     }
 
     @Test
-    public void prefixFilterSetFieldTest2() {
+    public void testPrefixSetField2() {
         filter(prefix("set_1", "l1")).check(0);
     }
 
     @Test
-    public void prefixFilterSetFieldTest3() {
+    public void testPrefixSetField3() {
         filter(prefix("set_1", "s1")).check(2);
     }
 
     @Test
-    public void prefixFilterMapFieldTest1() {
+    public void testPrefixMapField1() {
         filter(prefix("map_1$k1", "")).check(2);
     }
 
     @Test
-    public void prefixFilterMapFieldTest2() {
+    public void testPrefixMapField2() {
         filter(prefix("map_1$k1", "l1")).check(0);
     }
 
     @Test
-    public void prefixFilterMapFieldTest3() {
+    public void testPrefixMapField3() {
         filter(prefix("map_1$k1", "k1")).check(0);
     }
 
     @Test
-    public void prefixFilterMapFieldTest4() {
+    public void testPrefixMapField4() {
         filter(prefix("map_1$k1", "v1")).check(2);
     }
 

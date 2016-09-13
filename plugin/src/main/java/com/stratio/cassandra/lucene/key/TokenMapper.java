@@ -18,16 +18,15 @@ package com.stratio.cassandra.lucene.key;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.PartitionPosition;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRef;
@@ -70,16 +69,15 @@ public final class TokenMapper {
     }
 
     /**
-     * Adds to the specified {@link Document} the {@link Field}s associated to the token of the specified row key.
+     * Returns the Lucene {@link IndexableField} associated to the token of the specified row key.
      *
-     * @param document a {@link Document}
      * @param key the raw partition key to be added
+     * @return a indexable field
      */
-    public void addFields(Document document, DecoratedKey key) {
+    public IndexableField indexableField(DecoratedKey key) {
         Token token = key.getToken();
         Long value = value(token);
-        Field field = new LongField(FIELD_NAME, value, FIELD_TYPE);
-        document.add(field);
+        return new LongField(FIELD_NAME, value, FIELD_TYPE);
     }
 
     /**
@@ -112,26 +110,6 @@ public final class TokenMapper {
      */
     public SortField sortField() {
         return new SortField(FIELD_NAME, SortField.Type.LONG);
-    }
-
-    /**
-     * Returns if the specified lower partition position must be included in a filtered range.
-     *
-     * @param position a {@link PartitionPosition}
-     * @return {@code true} if {@code position} must be included, {@code false} otherwise
-     */
-    private static boolean includeStart(PartitionPosition position) {
-        return position.kind() == PartitionPosition.Kind.MIN_BOUND;
-    }
-
-    /**
-     * Returns if the specified upper partition position must be included in a filtered range.
-     *
-     * @param position a {@link PartitionPosition}
-     * @return {@code true} if {@code position} must be included, {@code false} otherwise
-     */
-    private static boolean includeStop(PartitionPosition position) {
-        return position.kind() == PartitionPosition.Kind.MAX_BOUND;
     }
 
     /**
@@ -174,18 +152,6 @@ public final class TokenMapper {
                       ? DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper)
                       : NumericRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
         return Optional.of(query);
-    }
-
-    /**
-     * Returns a Lucene {@link Query} to find the {@link Document}s containing a {@link Token} inside the specified
-     * {@link PartitionPosition}s.
-     *
-     * @param start the start position
-     * @param stop the stop position
-     * @return the query to find the documents containing a token inside the range
-     */
-    public Optional<Query> query(PartitionPosition start, PartitionPosition stop) {
-        return query(start.getToken(), stop.getToken(), includeStart(start), includeStop(stop));
     }
 
     /**

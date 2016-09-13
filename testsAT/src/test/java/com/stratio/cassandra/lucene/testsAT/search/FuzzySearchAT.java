@@ -26,535 +26,269 @@ import static com.stratio.cassandra.lucene.builder.Builder.fuzzy;
 public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
-    public void fuzzyFilterAsciiFieldTest() {
+    public void fuzzyAsciiFieldTest() {
         filter(fuzzy("ascii_1", "frase tipo asci")).check(2);
     }
 
     @Test
-    public void fuzzyFilterEmptyAsciiFieldTest() {
+    public void fuzzyEmptyAsciiFieldTest() {
         filter(fuzzy("ascii_1", "")).check(InvalidQueryException.class, "Field value required");
     }
 
     @Test
-    public void fuzzyFilterAsciiFieldWith1MaxEditsTest() {
+    public void fuzzyAsciiFieldWith1MaxEditsTest() {
         filter(fuzzy("ascii_1", "frase tipo asci")).check(2);
     }
 
     @Test
-    public void fuzzyFilterAsciiFieldWith0MaxEditsTest() {
+    public void fuzzyAsciiFieldWith0MaxEditsTest() {
         filter(fuzzy("ascii_1", "frase tipo asci").maxEdits(0)).check(0);
     }
 
     @Test
-    public void fuzzyFilterAsciiFieldWith2PrefixLengthTest1() {
+    public void fuzzyAsciiFieldWith2PrefixLengthTest1() {
         filter(fuzzy("ascii_1", "frase typo ascii").prefixLength(2)).check(1);
     }
 
     @Test
-    public void fuzzyFilterAsciiFieldWith2PrefixLengthTest2() {
+    public void fuzzyAsciiFieldWith2PrefixLengthTest2() {
         filter(fuzzy("ascii_1", "phrase tipo ascii").prefixLength(2)).check(0);
     }
 
     @Test
-    public void fuzzyFilterAsciiFieldWith10MaxExpansionsTest() {
+    public void fuzzyAsciiFieldWith10MaxExpansionsTest() {
         filter(fuzzy("ascii_1", "frase tipo ascii").maxExpansions(10)).check(2);
     }
 
     @Test
-    public void fuzzyFilterAsciiFieldWithoutTranspositionsTest() {
+    public void fuzzyAsciiFieldWithoutTranspositionsTest() {
         filter(fuzzy("ascii_1", "farse itpo ascii").transpositions(false)).check(0);
     }
 
     @Test
-    public void fuzzyFilterAsciiFieldWithTranspositionsTest() {
+    public void fuzzyAsciiFieldWithTranspositionsTest() {
         filter(fuzzy("ascii_1", "farse itpo ascii").transpositions(true)).check(1);
     }
 
     @Test
-    public void fuzzyFilterAsciiFieldWith5MaxEditsAndTranspositionsTest() {
+    public void fuzzyAsciiFieldWith5MaxEditsAndTranspositionsTest() {
         filter(fuzzy("ascii_1", "farse itpo ascii").maxEdits(1).transpositions(true)).check(0);
     }
 
     @Test
-    public void fuzzyFilterInetFieldTest() {
+    public void fuzzyInetFieldTest() {
         filter(fuzzy("inet_1", "127.0.1.1")).check(4);
     }
 
     @Test
-    public void fuzzyFilterEmptyInetFieldTest() {
+    public void fuzzyEmptyInetFieldTest() {
         filter(fuzzy("inet_1", "")).check(InvalidQueryException.class, "Field value required");
     }
 
     @Test
-    public void fuzzyFilterInetFieldWith1MaxEditsTest() {
+    public void fuzzyInetFieldWith1MaxEditsTest() {
         filter(fuzzy("inet_1", "127.0.0.1").maxEdits(1)).check(2);
     }
 
     @Test
-    public void fuzzyFilterInetFieldWith0MaxEditsTest() {
+    public void fuzzyInetFieldWith0MaxEditsTest() {
         filter(fuzzy("inet_1", "127.0.1.1").maxEdits(0)).check(1);
     }
 
     @Test
-    public void fuzzyFilterInetFieldWith2PrefixLengthTest1() {
+    public void fuzzyInetFieldWith2PrefixLengthTest1() {
         filter(fuzzy("inet_1", "127.0.1.1").prefixLength(2)).check(4);
     }
 
     @Test
-    public void fuzzyFilterInetFieldWith2PrefixLengthTest2() {
+    public void fuzzyInetFieldWith2PrefixLengthTest2() {
         filter(fuzzy("inet_1", "117.0.1.1").prefixLength(2)).check(0);
     }
 
     @Test
-    public void fuzzyFilterInetFieldWith10MaxExpansionsTest() {
+    public void fuzzyInetFieldWith10MaxExpansionsTest() {
         filter(fuzzy("inet_1", "127.0.1.1").maxExpansions(10)).check(4);
     }
 
     @Test
-    public void fuzzyFilterInetFieldWithoutTranspositionsTest() {
+    public void fuzzyInetFieldWithoutTranspositionsTest() {
         filter(fuzzy("inet_1", "1270..1.1").transpositions(false)).check(3);
     }
 
     @Test
-    public void fuzzyFilterInetFieldWithTranspositionsTest() {
+    public void fuzzyInetFieldWithTranspositionsTest() {
         filter(fuzzy("inet_1", "1270..1.1").transpositions(true)).check(4);
     }
 
     @Test
-    public void fuzzyFilterInetFieldWith1MaxEditsAndTranspositionsTest() {
+    public void fuzzyInetFieldWith1MaxEditsAndTranspositionsTest() {
         filter(fuzzy("inet_1", "1270..1.1").maxEdits(1).transpositions(true)).check(1);
     }
 
     @Test
-    public void fuzzyFilterTextFieldTest() {
+    public void fuzzyTextFieldTest() {
         filter(fuzzy("text_1", "Frasesinespaciosconarticulosylaspalabrassuficiente")).check(2);
     }
 
     @Test
-    public void fuzzyFilterEmptyTextFieldTest() {
+    public void fuzzyEmptyTextFieldTest() {
         filter(fuzzy("text_1", "")).check(InvalidQueryException.class, "Field value required");
     }
 
     @Test
-    public void fuzzyFilterTextFieldWith1MaxEditsTest() {
+    public void fuzzyTextFieldWith1MaxEditsTest() {
         filter(fuzzy("text_1", "frasesinespaciosconarticulosylaspalabrassuficiente").maxEdits(1)).check(1);
     }
 
     @Test
-    public void fuzzyFilterTextFieldWith0MaxEditsTest() {
+    public void fuzzyTextFieldWith0MaxEditsTest() {
         filter(fuzzy("text_1", "Frasesinespaciosconarticulosylaspalabrassuficiente").maxEdits(0)).check(0);
     }
 
     @Test
-    public void fuzzyFilterTextFieldWith2PrefixLengthTest1() {
+    public void fuzzyTextFieldWith2PrefixLengthTest1() {
         filter(fuzzy("text_1", "frasesinespaciosconarticulosylaspalabrassuficiente").prefixLength(2)).check(1);
     }
 
     @Test
-    public void fuzzyFilterTextFieldWith2PrefixLengthTest2() {
+    public void fuzzyTextFieldWith2PrefixLengthTest2() {
         filter(fuzzy("text_1", "rFasesinespaciosconarticulosylaspalabrassuficiente").prefixLength(2)).check(0);
     }
 
     @Test
-    public void fuzzyFilterTextFieldWith10MaxExpansionsTest() {
+    public void fuzzyTextFieldWith10MaxExpansionsTest() {
         filter(fuzzy("text_1", "Frasesinespaciosconarticulosylaspalabrassuficiente").maxExpansions(10)).check(2);
     }
 
     @Test
-    public void fuzzyFilterTextFieldWithoutTranspositionsTest() {
+    public void fuzzyTextFieldWithoutTranspositionsTest() {
         filter(fuzzy("text_1", "Frasseinespacisoconarticulosylaspalabrassuficientes").transpositions(false)).check(0);
     }
 
     @Test
-    public void fuzzyFilterTextFieldWithTranspositionsTest() {
+    public void fuzzyTextFieldWithTranspositionsTest() {
         filter(fuzzy("text_1", "frasseinespacisoconarticulosylaspalabrassuficientes").transpositions(true)).check(1);
     }
 
     @Test
-    public void fuzzyFilterTextFieldWith5MaxEditsAndTranspositionsTest() {
+    public void fuzzyTextFieldWith5MaxEditsAndTranspositionsTest() {
         filter(fuzzy("text_1", "Frasseinespacisoconarticulosylaspalabrassuficientes").maxEdits(1)
                                                                                      .transpositions(true)).check(0);
     }
 
     @Test
-    public void fuzzyFilterVarcharFieldTest() {
+    public void fuzzyVarcharFieldTest() {
         filter(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga")).check(3);
     }
 
     @Test
-    public void fuzzyFilterEmptyVarcharFieldTest() {
+    public void fuzzyEmptyVarcharFieldTest() {
         filter(fuzzy("varchar_1", "")).check(InvalidQueryException.class, "Field value required");
     }
 
     @Test
-    public void fuzzyFilterVarcharFieldWith1MaxEditsTest() {
+    public void fuzzyVarcharFieldWith1MaxEditsTest() {
         filter(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga").maxEdits(1)).check(2);
     }
 
     @Test
-    public void fuzzyFilterVarcharFieldWith0MaxEditsTest() {
+    public void fuzzyVarcharFieldWith0MaxEditsTest() {
         filter(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga").maxEdits(0)).check(0);
     }
 
     @Test
-    public void fuzzyFilterVarcharFieldWith2PrefixLengthTest1() {
+    public void fuzzyVarcharFieldWith2PrefixLengthTest1() {
         filter(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga").prefixLength(2)).check(2);
     }
 
     @Test
-    public void fuzzyFilterVarcharFieldWith2PrefixLengthTest2() {
+    public void fuzzyVarcharFieldWith2PrefixLengthTest2() {
         filter(fuzzy("varchar_1", "rfasesencillasnespaciosperomaslarga").prefixLength(2)).check(0);
     }
 
     @Test
-    public void fuzzyFilterVarcharFieldWith1MaxExpansionsTest() {
+    public void fuzzyVarcharFieldWith1MaxExpansionsTest() {
         filter(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga").maxExpansions(1)).check(2);
     }
 
     @Test
-    public void fuzzyFilterVarcharFieldWith10MaxExpansionsTest() {
+    public void fuzzyVarcharFieldWith10MaxExpansionsTest() {
         filter(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga").maxExpansions(10)).check(3);
     }
 
     @Test
-    public void fuzzyFilterVarcharFieldWithoutTranspositionsTest() {
+    public void fuzzyVarcharFieldWithoutTranspositionsTest() {
         filter(fuzzy("varchar_1", "frasesenicllasnespaciosperomaslarga").transpositions(false)).check(0);
     }
 
     @Test
-    public void fuzzyFilterVarcharFieldWithTranspositionsTest() {
+    public void fuzzyVarcharFieldWithTranspositionsTest() {
         filter(fuzzy("varchar_1", "frasesenicllasnespaciosperomaslarga").transpositions(true)).check(2);
     }
 
     @Test
-    public void fuzzyFilterVarcharFieldWith5MaxEditsAndTranspositionsTest() {
+    public void fuzzyVarcharFieldWith5MaxEditsAndTranspositionsTest() {
         filter(fuzzy("varchar_1", "frasesenicllasnespaciosperomaslarga").maxEdits(1).transpositions(true)).check(0);
     }
 
     @Test
-    public void fuzzyFilterListFieldTest1() {
+    public void fuzzyListFieldTest1() {
         filter(fuzzy("list_1", "")).check(InvalidQueryException.class, "Field value required");
     }
 
     @Test
-    public void fuzzyFilterListFieldTest2() {
+    public void fuzzyListFieldTest2() {
         filter(fuzzy("list_1", "l1")).check(5);
     }
 
     @Test
-    public void fuzzyFilterListFieldTest3() {
+    public void fuzzyListFieldTest3() {
         filter(fuzzy("list_1", "s1")).check(2);
     }
 
     @Test
-    public void fuzzyFilterListFieldTest4() {
+    public void fuzzyListFieldTest4() {
         filter(fuzzy("list_1", "s7l")).check(0);
     }
 
     @Test
-    public void fuzzyFilterSetFieldTest1() {
+    public void fuzzySetFieldTest1() {
         filter(fuzzy("set_1", "")).check(InvalidQueryException.class, "Field value required");
     }
 
     @Test
-    public void fuzzyFilterSetFieldTest2() {
+    public void fuzzySetFieldTest2() {
         filter(fuzzy("set_1", "l1")).check(2);
     }
 
     @Test
-    public void fuzzyFilterSetFieldTest3() {
+    public void fuzzySetFieldTest3() {
         filter(fuzzy("set_1", "s1")).check(5);
     }
 
     @Test
-    public void fuzzyFilterSetFieldTest4() {
+    public void fuzzySetFieldTest4() {
         filter(fuzzy("set_1", "k87")).check(0);
     }
 
     @Test
-    public void fuzzyFilterMapFieldTest1() {
+    public void fuzzyMapFieldTest1() {
         filter(fuzzy("map_1$k1", "")).check(InvalidQueryException.class, "Field value required");
     }
 
     @Test
-    public void fuzzyFilterMapFieldTest2() {
+    public void fuzzyMapFieldTest2() {
         filter(fuzzy("map_1$k1", "l1")).check(2);
     }
 
     @Test
-    public void fuzzyFilterMapFieldTest3() {
+    public void fuzzyMapFieldTest3() {
         filter(fuzzy("map_1$k1", "k1")).check(2);
     }
 
     @Test
-    public void fuzzyFilterMapFieldTest4() {
+    public void fuzzyMapFieldTest4() {
         filter(fuzzy("map_1$k1", "v1")).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryAsciiFieldTest() {
-        query(fuzzy("ascii_1", "frase tipo asci")).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryEmptyAsciiFieldTest() {
-        query(fuzzy("ascii_1", "")).check(InvalidQueryException.class, "Field value required");
-    }
-
-    @Test
-    public void fuzzyQueryAsciiFieldWith1MaxEditsTest() {
-        query(fuzzy("ascii_1", "frase tipo asci")).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryAsciiFieldWith0MaxEditsTest() {
-        query(fuzzy("ascii_1", "frase tipo asci").maxEdits(0)).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryAsciiFieldWith2PrefixLengthTest1() {
-        query(fuzzy("ascii_1", "frase typo ascii").prefixLength(2)).check(1);
-    }
-
-    @Test
-    public void fuzzyQueryAsciiFieldWith2PrefixLengthTest2() {
-        query(fuzzy("ascii_1", "phrase tipo ascii").prefixLength(2)).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryAsciiFieldWith10MaxExpansionsTest() {
-        query(fuzzy("ascii_1", "frase tipo ascii").maxExpansions(10)).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryAsciiFieldWithoutTranspositionsTest() {
-        query(fuzzy("ascii_1", "farse itpo ascii").transpositions(false)).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryAsciiFieldWithTranspositionsTest() {
-        query(fuzzy("ascii_1", "farse itpo ascii").transpositions(true)).check(1);
-    }
-
-    @Test
-    public void fuzzyQueryAsciiFieldWith5MaxEditsAndTranspositionsTest() {
-        query(fuzzy("ascii_1", "farse itpo ascii").maxEdits(1).transpositions(true)).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryInetFieldTest() {
-        query(fuzzy("inet_1", "127.0.1.1")).check(4);
-    }
-
-    @Test
-    public void fuzzyQueryEmptyInetFieldTest() {
-        query(fuzzy("inet_1", "")).check(InvalidQueryException.class, "Field value required");
-    }
-
-    @Test
-    public void fuzzyQueryInetFieldWith1MaxEditsTest() {
-        query(fuzzy("inet_1", "127.0.0.1").maxEdits(1)).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryInetFieldWith0MaxEditsTest() {
-        query(fuzzy("inet_1", "127.0.1.1").maxEdits(0)).check(1);
-    }
-
-    @Test
-    public void fuzzyQueryInetFieldWith2PrefixLengthTest1() {
-        query(fuzzy("inet_1", "127.0.1.1").prefixLength(2)).check(4);
-    }
-
-    @Test
-    public void fuzzyQueryInetFieldWith2PrefixLengthTest2() {
-        query(fuzzy("inet_1", "117.0.1.1").prefixLength(2)).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryInetFieldWith10MaxExpansionsTest() {
-        query(fuzzy("inet_1", "127.0.1.1").maxExpansions(10)).check(4);
-    }
-
-    @Test
-    public void fuzzyQueryInetFieldWithoutTranspositionsTest() {
-        query(fuzzy("inet_1", "1270..1.1").transpositions(false)).check(3);
-    }
-
-    @Test
-    public void fuzzyQueryInetFieldWithTranspositionsTest() {
-        query(fuzzy("inet_1", "1270..1.1").transpositions(true)).check(4);
-    }
-
-    @Test
-    public void fuzzyQueryInetFieldWith1MaxEditsAndTranspositionsTest() {
-        query(fuzzy("inet_1", "1270..1.1").maxEdits(1).transpositions(true)).check(1);
-    }
-
-    @Test
-    public void fuzzyQueryTextFieldTest() {
-        query(fuzzy("text_1", "Frasesinespaciosconarticulosylaspalabrassuficiente")).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryEmptyTextFieldTest() {
-        query(fuzzy("text_1", "")).check(InvalidQueryException.class, "Field value required");
-    }
-
-    @Test
-    public void fuzzyQueryTextFieldWith1MaxEditsTest() {
-        query(fuzzy("text_1", "frasesinespaciosconarticulosylaspalabrassuficiente").maxEdits(1)).check(1);
-    }
-
-    @Test
-    public void fuzzyQueryTextFieldWith0MaxEditsTest() {
-        query(fuzzy("text_1", "Frasesinespaciosconarticulosylaspalabrassuficiente").maxEdits(0)).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryTextFieldWith2PrefixLengthTest1() {
-        query(fuzzy("text_1", "frasesinespaciosconarticulosylaspalabrassuficiente").prefixLength(2)).check(1);
-    }
-
-    @Test
-    public void fuzzyQueryTextFieldWith2PrefixLengthTest2() {
-        query(fuzzy("text_1", "rFasesinespaciosconarticulosylaspalabrassuficiente").prefixLength(2)).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryTextFieldWith10MaxExpansionsTest() {
-        query(fuzzy("text_1", "Frasesinespaciosconarticulosylaspalabrassuficiente").maxExpansions(10)).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryTextFieldWithoutTranspositionsTest() {
-        query(fuzzy("text_1", "Frasseinespacisoconarticulosylaspalabrassuficientes").transpositions(false)).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryTextFieldWithTranspositionsTest() {
-        query(fuzzy("text_1", "frasseinespacisoconarticulosylaspalabrassuficientes").transpositions(true)).check(1);
-    }
-
-    @Test
-    public void fuzzyQueryTextFieldWith5MaxEditsAndTranspositionsTest() {
-        query(fuzzy("text_1", "Frasseinespacisoconarticulosylaspalabrassuficientes").maxEdits(1)
-                                                                                    .transpositions(true)).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryVarcharFieldTest() {
-        query(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga")).check(3);
-    }
-
-    @Test
-    public void fuzzyQueryEmptyVarcharFieldTest() {
-        query(fuzzy("varchar_1", "")).check(InvalidQueryException.class, "Field value required");
-    }
-
-    @Test
-    public void fuzzyQueryVarcharFieldWith1MaxEditsTest() {
-        query(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga").maxEdits(1)).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryVarcharFieldWith0MaxEditsTest() {
-        query(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga").maxEdits(0)).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryVarcharFieldWith2PrefixLengthTest1() {
-        query(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga").prefixLength(2)).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryVarcharFieldWith2PrefixLengthTest2() {
-        query(fuzzy("varchar_1", "rfasesencillasnespaciosperomaslarga").prefixLength(2)).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryVarcharFieldWith1MaxExpansionsTest() {
-        query(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga").maxExpansions(1)).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryVarcharFieldWith10MaxExpansionsTest() {
-        query(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga").maxExpansions(10)).check(3);
-    }
-
-    @Test
-    public void fuzzyQueryVarcharFieldWithoutTranspositionsTest() {
-        query(fuzzy("varchar_1", "frasesenicllasnespaciosperomaslarga").transpositions(false)).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryVarcharFieldWithTranspositionsTest() {
-        query(fuzzy("varchar_1", "frasesenicllasnespaciosperomaslarga").transpositions(true)).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryVarcharFieldWith5MaxEditsAndTranspositionsTest() {
-        query(fuzzy("varchar_1", "frasesenicllasnespaciosperomaslarga").maxEdits(1).transpositions(true)).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryListFieldTest1() {
-        query(fuzzy("list_1", "")).check(InvalidQueryException.class, "Field value required");
-    }
-
-    @Test
-    public void fuzzyQueryListFieldTest2() {
-        query(fuzzy("list_1", "l1")).check(5);
-    }
-
-    @Test
-    public void fuzzyQueryListFieldTest3() {
-        query(fuzzy("list_1", "s1")).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryListFieldTest4() {
-        query(fuzzy("list_1", "s7l")).check(0);
-    }
-
-    @Test
-    public void fuzzyQuerySetFieldTest1() {
-        query(fuzzy("set_1", "")).check(InvalidQueryException.class, "Field value required");
-    }
-
-    @Test
-    public void fuzzyQuerySetFieldTest2() {
-        query(fuzzy("set_1", "l1")).check(2);
-    }
-
-    @Test
-    public void fuzzyQuerySetFieldTest3() {
-        query(fuzzy("set_1", "s1")).check(5);
-    }
-
-    @Test
-    public void fuzzyQuerySetFieldTest4() {
-        query(fuzzy("set_1", "k87")).check(0);
-    }
-
-    @Test
-    public void fuzzyQueryMapFieldTest1() {
-        query(fuzzy("map_1$k1", "")).check(InvalidQueryException.class, "Field value required");
-    }
-
-    @Test
-    public void fuzzyQueryMapFieldTest2() {
-        query(fuzzy("map_1$k1", "l1")).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryMapFieldTest3() {
-        query(fuzzy("map_1$k1", "k1")).check(2);
-    }
-
-    @Test
-    public void fuzzyQueryMapFieldTest4() {
-        query(fuzzy("map_1$k1", "v1")).check(2);
     }
 
     @Test
@@ -576,4 +310,5 @@ public class FuzzySearchAT extends AbstractSearchAT {
     public void fuzzyMapFieldTestWithAlias4() {
         filter(fuzzy("string_map$k1", "v1")).check(2);
     }
+
 }

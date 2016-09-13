@@ -15,10 +15,10 @@
  */
 package com.stratio.cassandra.lucene.builder.search.sort;
 
-import com.stratio.cassandra.lucene.builder.Builder;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.stratio.cassandra.lucene.builder.JSONBuilder;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * A sorting for a field of a search.
@@ -28,7 +28,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", defaultImpl = SimpleSortField.class)
 @JsonSubTypes({@JsonSubTypes.Type(value = SimpleSortField.class, name = "simple"),
                @JsonSubTypes.Type(value = GeoDistanceSortField.class, name = "geo_distance")})
-public abstract class SortField extends Builder {
+public abstract class SortField extends JSONBuilder {
 
     /** If natural order should be reversed. */
     @JsonProperty("reverse")

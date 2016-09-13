@@ -35,7 +35,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
  */
 
 @RunWith(JUnit4.class)
-public class UDTIndexingFrozenAT extends BaseAT {
+public class UDTIndexingAT extends BaseAT {
 
     private static CassandraUtils utils;
     private static Map<String, String> data1 = Collections.unmodifiableMap(
@@ -263,7 +263,8 @@ public class UDTIndexingFrozenAT extends BaseAT {
 
     @Test
     public void testUDTInternalThatFails() {
-        utils.filter(match("address.point", "Paris")).check(InvalidQueryException.class, "No mapper found for field 'address.point'");
+        utils.filter(match("address.point", "Paris"))
+             .check(InvalidQueryException.class, "No mapper found for field 'address.point'");
     }
 
     @Test

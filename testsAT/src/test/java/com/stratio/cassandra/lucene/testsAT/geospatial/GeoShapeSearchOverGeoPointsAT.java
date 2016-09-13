@@ -31,7 +31,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
  */
 public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
 
-    protected static CassandraUtils utils;
+    private static CassandraUtils utils;
 
     public static final Map<String, String> data1, data2, data3, data4, data5, data6, data7, data8, data9, data10,
             data11, data12;
@@ -133,8 +133,8 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
     }
 
     @Test
-    public void testStarShapedIntersectsQuery() {
-        //query star shaped shape
+    public void testStarShapedIntersects() {
+        //must star shaped shape
         utils.filter(geoShape("location",
                               "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
                               "-3.793201 40.441427,-3.798180 40.444563))").operation("intersects"))
@@ -142,25 +142,23 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
     }
 
     @Test
-    public void testStarShapedIntersectsQuery2() {
-        //query star shaped shape
+    public void testStarShapedIntersects2() {
+        //must star shaped shape
         utils.filter(geoShape("location",
                               "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
                               "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
                              .operation("intersects"))
              .checkUnorderedColumns("place",
-
                                     "POINT_7",
                                     "POINT_8",
                                     "POINT_9",
                                     "POINT_10",
                                     "POINT_11",
                                     "POINT_12");
-
     }
 
     @Test
-    public void testConcaveShapesIntersectsQuery() {
+    public void testConcaveShapesIntersects() {
         utils.filter(geoShape("location",
                               "POLYGON((-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
                               "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
@@ -171,25 +169,24 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
     }
 
     @Test
-    public void testStarShapedContainsQuery() {
-        //query star shaped shape
+    public void testStarShapedContains() {
+        //must star shaped shape
         utils.filter(geoShape("location",
                               "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
-                              "-3.793201 40.441427,-3.798180 40.444563))").operation("contains"))
-             .check(0);
+                              "-3.793201 40.441427,-3.798180 40.444563))").operation("contains")).check(0);
     }
 
     @Test
-    public void testStarShapedContainsQuery2() {
-        //query star shaped shape
+    public void testStarShapedContains2() {
+        //must star shaped shape
         utils.filter(geoShape("location",
                               "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
-                              "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))").operation(
-                "contains")).check(0);
+                              "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
+                             .operation("contains")).check(0);
     }
 
     @Test
-    public void testConcaveShapesContainsQuery() {
+    public void testConcaveShapesContains() {
         utils.filter(geoShape("location",
                               "POLYGON((-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
                               "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
@@ -199,8 +196,8 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
     }
 
     @Test
-    public void testStarShapedIsWithinQuery() {
-        //query star shaped shape
+    public void testStarShapedIsWithin() {
+        //must star shaped shape
         utils.filter(geoShape("location",
                               "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
                               "-3.793201 40.441427,-3.798180 40.444563))").operation("is_within"))
@@ -208,8 +205,8 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
     }
 
     @Test
-    public void testStarShapedIsWithinQuery2() {
-        //query star shaped shape
+    public void testStarShapedIsWithin2() {
+        //must star shaped shape
         utils.filter(geoShape("location",
                               "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
                               "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
@@ -224,7 +221,7 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
     }
 
     @Test
-    public void testConcaveShapesIsWithinQuery() {
+    public void testConcaveShapesIsWithin() {
         utils.filter(geoShape("location",
                               "POLYGON((-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
                               "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
@@ -237,10 +234,9 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
     @Test
     public void testBufferShape() {
         utils.filter(geoShape("location",
-                              "LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
-                              "-3.785691299999999 40.445020199999995)")
-                             .operation("intersects")
-                             .transform(bufferGeoTransformation().maxDistance("500m")))
+                              buffer("LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                                     "-3.785691299999999 40.445020199999995)").maxDistance("500m"))
+                             .operation("intersects"))
              .checkUnorderedColumns("place",
                                     "POINT_3",
                                     "POINT_4",

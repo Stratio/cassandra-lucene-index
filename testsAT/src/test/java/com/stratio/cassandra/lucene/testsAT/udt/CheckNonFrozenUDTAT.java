@@ -22,9 +22,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /**
  * Now, cassandra (2.1.11, 2.2.3 ) demand that User Defined Types and collections Of UDF must be frozen but this may
  * change in next future so i include these tests to be able in next versions to detect this change because it is
@@ -35,84 +32,83 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JUnit4.class)
 public class CheckNonFrozenUDTAT extends BaseAT {
 
-    private void test(CassandraUtils utils, String expectedMessage) {
-        try {
-            utils.createTable();
-            assertTrue("This must return InvalidQueryException but does not", false);
-        } catch (InvalidQueryException e) {
-            assertEquals("Raised exception with non expected message", expectedMessage, e.getMessage());
-        } finally {
-            utils.dropKeyspace();
-        }
+    @Test
+    public void testNotFrozenUDT() {
+        CassandraUtils.builder("testNotFrozenUDT")
+                      .withUDT("address_udt", "city", "text")
+                      .withUDT("address_udt", "postcode", "int")
+                      .withColumn("login", "text")
+                      .withColumn("address", "address_udt")
+                      .withPartitionKey("login")
+                      .build()
+                      .createKeyspace()
+                      .createUDTs()
+                      .createTable(InvalidQueryException.class,
+                                   "Non-frozen User-Defined types are not supported, please use frozen<>")
+                      .dropKeyspace();
     }
 
     @Test
-    public void testNonFrozenUDTWithNestedNotFrozenCollections() {
-        CassandraUtils utils = CassandraUtils.builder("nonFrozenUDTNested")
-                                             .withUDT("address_udt", "city", "text")
-                                             .withUDT("address_udt", "postcodes", "set<int>")
-                                             .withColumn("login", "text")
-                                             .withColumn("address", "address_udt")
-                                             .withPartitionKey("login")
-                                             .build()
-                                             .createKeyspace()
-                                             .createUDTs();
-        test(utils, "Non-frozen UDTs with nested non-frozen collections are not supported");
+    public void testNotFrozenUDTList() {
+        CassandraUtils.builder("testNotFrozenUDTList")
+                      .withUDT("address_udt", "city", "text")
+                      .withUDT("address_udt", "postcode", "int")
+                      .withColumn("login", "text")
+                      .withColumn("address", "list<address_udt>")
+                      .withPartitionKey("login")
+                      .build()
+                      .createKeyspace()
+                      .createUDTs()
+                      .createTable(InvalidQueryException.class,
+                                   "Non-frozen collections are not allowed inside collections: list<address_udt>")
+                      .dropKeyspace();
     }
 
     @Test
-    public void testNonFrozenUDTList() {
-        CassandraUtils utils = CassandraUtils.builder("testNonFrozenUDTList")
-                                             .withUDT("address_udt", "city", "text")
-                                             .withUDT("address_udt", "postcode", "int")
-                                             .withColumn("login", "text")
-                                             .withColumn("address", "list<address_udt>")
-                                             .withPartitionKey("login")
-                                             .build()
-                                             .createKeyspace()
-                                             .createUDTs();
-        test(utils, "Non-frozen UDTs are not allowed inside collections: list<address_udt>");
+    public void testNotFrozenUDTSet() {
+        CassandraUtils.builder("testNotFrozenUDTSet")
+                      .withUDT("address_udt", "city", "text")
+                      .withUDT("address_udt", "postcode", "int")
+                      .withColumn("login", "text")
+                      .withColumn("address", "set<address_udt>")
+                      .withPartitionKey("login")
+                      .build()
+                      .createKeyspace()
+                      .createUDTs()
+                      .createTable(InvalidQueryException.class,
+                                   "Non-frozen collections are not allowed inside collections: set<address_udt>")
+                      .dropKeyspace();
     }
 
     @Test
-    public void testNonFrozenUDTSet() {
-        CassandraUtils utils = CassandraUtils.builder("testNonFrozenUDTSet")
-                                             .withUDT("address_udt", "city", "text")
-                                             .withUDT("address_udt", "postcode", "int")
-                                             .withColumn("login", "text")
-                                             .withColumn("address", "set<address_udt>")
-                                             .withPartitionKey("login")
-                                             .build()
-                                             .createKeyspace()
-                                             .createUDTs();
-        test(utils, "Non-frozen UDTs are not allowed inside collections: set<address_udt>");
+    public void testNotFrozenUDTMapAsKey() {
+        CassandraUtils.builder("testNotFrozenUDTMapAsKey")
+                      .withUDT("address_udt", "city", "text")
+                      .withUDT("address_udt", "postcode", "int")
+                      .withColumn("login", "text")
+                      .withColumn("address", "map<address_udt, int>")
+                      .withPartitionKey("login")
+                      .build()
+                      .createKeyspace()
+                      .createUDTs()
+                      .createTable(InvalidQueryException.class,
+                                   "Non-frozen collections are not allowed inside collections: map<address_udt, int>")
+                      .dropKeyspace();
     }
 
     @Test
-    public void testNonFrozenUDTMapAsKey() {
-        CassandraUtils utils = CassandraUtils.builder("testNonFrozenUDTMapAsKey")
-                                             .withUDT("address_udt", "city", "text")
-                                             .withUDT("address_udt", "postcode", "int")
-                                             .withColumn("login", "text")
-                                             .withColumn("address", "map<address_udt, int>")
-                                             .withPartitionKey("login")
-                                             .build()
-                                             .createKeyspace()
-                                             .createUDTs();
-        test(utils, "Non-frozen UDTs are not allowed inside collections: map<address_udt, int>");
-    }
-
-    @Test
-    public void testNonFrozenUDTMapAsValue() {
-        CassandraUtils utils = CassandraUtils.builder("testNotFrozenUDTMapAsValue")
-                                             .withUDT("address_udt", "city", "text")
-                                             .withUDT("address_udt", "postcode", "int")
-                                             .withColumn("login", "text")
-                                             .withColumn("address", "map<int, address_udt>")
-                                             .withPartitionKey("login")
-                                             .build()
-                                             .createKeyspace()
-                                             .createUDTs();
-        test(utils, "Non-frozen UDTs are not allowed inside collections: map<int, address_udt>");
+    public void testNotFrozenUDTMapAsValue() {
+        CassandraUtils.builder("testNotFrozenUDTMapAsValue")
+                      .withUDT("address_udt", "city", "text")
+                      .withUDT("address_udt", "postcode", "int")
+                      .withColumn("login", "text")
+                      .withColumn("address", "map<int, address_udt>")
+                      .withPartitionKey("login")
+                      .build()
+                      .createKeyspace()
+                      .createUDTs()
+                      .createTable(InvalidQueryException.class,
+                                   "Non-frozen collections are not allowed inside collections: map<int, address_udt>")
+                      .dropKeyspace();
     }
 }

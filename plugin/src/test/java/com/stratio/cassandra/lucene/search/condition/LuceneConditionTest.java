@@ -95,13 +95,13 @@ public class LuceneConditionTest extends AbstractConditionTest {
     public void testInvolvedFields() {
         assertEquals("Involved fields is wrong",
                      Sets.newHashSet("f0", "f1", "f2"),
-                     lucene("f1:3 \t AND f2:").defaultField("f0").build().involvedFields());
+                     lucene("f1:3 \t AND f2:").defaultField("f0").build().postProcessingFields());
         assertEquals("Involved fields is wrong with default field",
                      Sets.newHashSet(LuceneCondition.DEFAULT_FIELD),
-                     lucene("f1 f2").build().involvedFields());
+                     lucene("f1 f2").build().postProcessingFields());
         assertEquals("Involved fields is wrong with complex expressions",
                      Sets.newHashSet(LuceneCondition.DEFAULT_FIELD, "date"),
-                     lucene("\"jakarta apache\"^4 date:[20020101 TO 20030101]").build().involvedFields());
+                     lucene("\"jakarta apache\"^4 date:[20020101 TO 20030101]").build().postProcessingFields());
     }
 
     @Test

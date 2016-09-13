@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.search.condition;
+package com.stratio.cassandra.lucene.common;
 
 import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.stratio.cassandra.lucene.common.GeoDistance;
-import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import com.vividsolutions.jts.geom.Geometry;
 import org.junit.Test;
@@ -37,7 +35,7 @@ import static org.junit.Assert.assertNotNull;
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class GeoTransformationBufferTest extends AbstractConditionTest {
+public class GeoTransformationBufferTest {
 
     @Test
     public void testBufferTransformationWithNullMaxDistance() {

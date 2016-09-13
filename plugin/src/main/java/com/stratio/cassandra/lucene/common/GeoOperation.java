@@ -53,6 +53,6 @@ public enum GeoOperation {
                 return geoOperation;
             }
         }
-        throw new IndexException("Invalid geographic operation %s", value);
+        throw new IndexException("Invalid geographic operation {}", value);
     }
 }

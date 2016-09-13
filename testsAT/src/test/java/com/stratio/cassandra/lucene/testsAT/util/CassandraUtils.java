@@ -38,6 +38,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.index;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConnection.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -157,12 +158,12 @@ public class CassandraUtils {
                                expectedMessage));
         } catch (Exception e) {
             assertEquals("Expected exception type is wrong", expectedClass, e.getClass());
-            assertEquals("Expected exception message is wrong", expectedMessage, e.getMessage());
+            assertTrue("Expected exception message is wrong", e.getMessage().contains(expectedMessage));
         }
         return this;
     }
 
-    public CassandraUtils waitForIndexBuilt() {
+    private CassandraUtils waitForIndexBuilt() {
         logger.debug("Waiting for the index to be created...");
         while (!isIndexBuilt()) {
             try {
@@ -220,6 +221,10 @@ public class CassandraUtils {
         return this;
     }
 
+    public <T extends Exception> CassandraUtils createTable(Class<T> expectedClass, String expectedMessage) {
+        return check(this::createTable, expectedClass, expectedMessage);
+    }
+
     public CassandraUtils createUDTs() {
         for (Map.Entry<String, Map<String, String>> entry : udts.entrySet()) {
             String name = entry.getKey();
@@ -267,7 +272,7 @@ public class CassandraUtils {
         return this;
     }
 
-    public CassandraUtilsSelect selectAllFromIndexQueryWithFiltering(int limit, String name, Object value) {
+    public CassandraUtilsSelect searchAllWithFiltering(int limit, String name, Object value) {
         return searchAll().andEq(name, value).limit(limit).allowFiltering(true);
     }
 
@@ -302,6 +307,15 @@ public class CassandraUtils {
 
     public CassandraUtils insert(String[] names, Object[] values) {
         execute(QueryBuilder.insertInto(keyspace, table).values(names, values));
+        return this;
+    }
+
+    public CassandraUtils insert(String[] names, Iterable<Object[]> values) {
+        Batch batch = QueryBuilder.unloggedBatch();
+        for (Object[] vs : values) {
+            batch.add(QueryBuilder.insertInto(keyspace, table).values(names, vs));
+        }
+        execute(batch);
         return this;
     }
 
@@ -341,16 +355,16 @@ public class CassandraUtils {
         return select().search().filter(all());
     }
 
-    public CassandraUtilsSelect query(Condition query) {
-        return select().query(query);
+    public CassandraUtilsSelect filter(Condition... conditions) {
+        return select().filter(conditions);
     }
 
-    public CassandraUtilsSelect filter(Condition filter) {
-        return select().filter(filter);
+    public CassandraUtilsSelect query(Condition... conditions) {
+        return select().query(conditions);
     }
 
-    public CassandraUtilsSelect sort(SortField... sort) {
-        return select().sort(sort);
+    public CassandraUtilsSelect sort(SortField... fields) {
+        return select().sort(fields);
     }
 
     public List<Row> searchWithPreparedStatement(Search search) {

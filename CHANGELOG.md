@@ -2,14 +2,27 @@
 
 ## 3.7.2 (Upcoming)
 
+Merged from 3.0.8.2:
+* Allow associativity in search-time geospatial transformations
+* Simplify naming of builder static methods for creating geospatial transformations
+* Fix paged index-sorted queries matching more than 65535 rows
+* Fix partition directed queries using dummy column syntax in skinny tables
+Merged from 3.0.8.1:
+* Upgrade query builder JSON serializer to Jackson 2.8.0
+* Add geospatial post filtering (ensures accuracy with any tree levels)
+* Set default number of indexing threads to number of processors available to the JVM
+* Fix mapping of timestamps and dates by their underlying numeric value (#177)
 Merged from 2.2.7.1:
 * Fix mapper referenced by alias in sortFields
 
 ## 3.7.1 (July 05, 2016)
 
 Merged from 3.0.7:
+* Modernize search syntax keeping backward compatibility
+* Add Lucene-specific CQL tracing
 * Fix parsing of data with CQL "date" type (#158)
 * Fix handling of immense term insertion mapping error
+* Fix indexing of tables with descending clustering key order (#165)
 
 ## 3.7.0 (June 20, 2016)
 
@@ -45,6 +58,7 @@ Merged from 3.0.5:
 * Fix memory consumption issues with high fetch sizes
 * Fix clustering key filtering with better token prefix collation
 * Fix deletion of unique component of a collection (#132)
+
 
 ## 3.5.0 (May 03, 2016)
 

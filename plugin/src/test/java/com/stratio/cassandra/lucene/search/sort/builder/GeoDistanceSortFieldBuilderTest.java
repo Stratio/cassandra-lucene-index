@@ -109,7 +109,7 @@ public class GeoDistanceSortFieldBuilderTest {
 
     @Test
     public void testJsonDefault() throws IOException {
-        String json1 = "{type:\"geo_distance\",field:\"geo_place\",latitude:0.0,longitude:0.0,reverse:true}";
+        String json1 = "{type:\"geo_distance\",field:\"geo_place\",latitude:0.0,longitude:0.0,reverse:false}";
         GeoDistanceSortFieldBuilder builder = JsonSerializer.fromString(json1, GeoDistanceSortFieldBuilder.class);
         String json2 = JsonSerializer.toString(builder);
         assertEquals("JSON serialization is wrong", json1, json2);
@@ -117,7 +117,7 @@ public class GeoDistanceSortFieldBuilderTest {
 
     @Test
     public void testJsonReverse() throws IOException {
-        String json1 = "{type:\"geo_distance\",field:\"geo_place\",latitude:0.0,longitude:0.0,reverse:true}";
+        String json1 = "{type:\"geo_distance\",field:\"geo_place\",latitude:0.0,longitude:0.0,reverse:false}";
         String json2 = JsonSerializer.toString(JsonSerializer.fromString(json1, GeoDistanceSortFieldBuilder.class));
         assertEquals("JSON serialization is wrong", json1, json2);
     }

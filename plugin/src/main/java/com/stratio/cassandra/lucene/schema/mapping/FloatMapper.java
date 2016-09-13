@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FloatField;
 import org.apache.lucene.document.SortedNumericDocValuesField;
@@ -51,22 +50,7 @@ public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
      */
     @JsonCreator
     public FloatMapper(String field, String column, Boolean validated, Float boost) {
-        super(field,
-              column,
-              true,
-              validated,
-              null,
-              Float.class,
-              AsciiType.instance,
-              ByteType.instance,
-              DecimalType.instance,
-              DoubleType.instance,
-              FloatType.instance,
-              IntegerType.instance,
-              Int32Type.instance,
-              LongType.instance,
-              ShortType.instance,
-              UTF8Type.instance);
+        super(field, column, true, validated, null, Float.class, NUMERIC_TYPES);
         this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 
@@ -79,10 +63,10 @@ public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
             try {
                 return Double.valueOf((String) value).floatValue();
             } catch (NumberFormatException e) {
-                throw new IndexException("Field '%s' with value '%s' can not be parsed as float", name, value);
+                throw new IndexException("Field '{}' with value '{}' can not be parsed as float", name, value);
             }
         }
-        throw new IndexException("Field '%s' requires a float, but found '%s'", name, value);
+        throw new IndexException("Field '{}' requires a float, but found '{}'", name, value);
     }
 
     /** {@inheritDoc} */
