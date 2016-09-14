@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.7.2 (Upcoming)
+## 3.7.2 (September 14, 2016)
 
 Merged from 3.0.8.2:
 * Allow associativity in search-time geospatial transformations
