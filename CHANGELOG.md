@@ -7,11 +7,13 @@ Merged from 3.0.8.2:
 * Simplify naming of builder static methods for creating geospatial transformations
 * Fix paged index-sorted queries matching more than 65535 rows
 * Fix partition directed queries using dummy column syntax in skinny tables
+
 Merged from 3.0.8.1:
 * Upgrade query builder JSON serializer to Jackson 2.8.0
 * Add geospatial post filtering (ensures accuracy with any tree levels)
 * Set default number of indexing threads to number of processors available to the JVM
 * Fix mapping of timestamps and dates by their underlying numeric value (#177)
+
 Merged from 2.2.7.1:
 * Fix mapper referenced by alias in sortFields
 
@@ -31,6 +33,7 @@ Merged from 3.0.7:
 ## 3.6.0 (June 18, 2016)
 
 * Upgrade to Apache Cassandra 3.6
+
 Merged from 3.0.6:
 * Fix clustering query collisions in Lucene's query cache
 * Fix deletion of columns with frozen type (UDT, tuples and frozen collections)
@@ -85,6 +88,7 @@ Merged from 3.0.5:
 ## 3.0.3.1 (March 04, 2016)
 
 * Fix performance issues with ClusteringIndexNamesFilter
+
 Merged from 2.2.5:
 * Add indexing of WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add search by WKT geographical shapes (point, linestring, polygon and their multipart)
