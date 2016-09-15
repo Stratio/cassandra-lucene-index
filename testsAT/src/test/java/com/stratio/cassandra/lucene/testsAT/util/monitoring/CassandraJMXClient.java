@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.testsAT.util;
+package com.stratio.cassandra.lucene.testsAT.util.monitoring;
+
+import com.datastax.driver.core.exceptions.InvalidQueryException;
 
 import javax.management.*;
 import javax.management.remote.JMXConnector;
@@ -25,12 +27,12 @@ import java.net.MalformedURLException;
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-class CassandraJMXClient {
+public class CassandraJMXClient implements CassandraMonitoringClient {
 
     private JMXConnector jmxc;
     private JMXServiceURL url;
 
-    CassandraJMXClient(String service) {
+    public CassandraJMXClient(String service) {
         try {
             url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + service + "/jmxrmi");
         } catch (MalformedURLException e) {
@@ -38,7 +40,7 @@ class CassandraJMXClient {
         }
     }
 
-    CassandraJMXClient connect() {
+    public CassandraJMXClient connect() {
         try {
             jmxc = JMXConnectorFactory.connect(url, null);
         } catch (IOException e) {
@@ -47,7 +49,7 @@ class CassandraJMXClient {
         return this;
     }
 
-    void disconnect() {
+    public void disconnect() {
         try {
             jmxc.close();
             jmxc = null;
@@ -56,16 +58,26 @@ class CassandraJMXClient {
         }
     }
 
-    void invoke(String beanName, String operation, Object[] params, String[] signature)
-    throws MalformedObjectNameException, IOException, MBeanException, InstanceNotFoundException, ReflectionException {
-        jmxc.getMBeanServerConnection().invoke(new ObjectName(beanName), operation, params, signature);
+    public void invoke(String beanName, String operation, Object[] params) throws RuntimeException {
+        String[] signature= new String[params.length];
+        for (int i=0;i<params.length;i++) {
+            signature[i]=params[i].getClass().getName();
+
+        }
+        try {
+            jmxc.getMBeanServerConnection().invoke(new ObjectName(beanName), operation, params, signature);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getLocalizedMessage());
+        }
     }
 
-    Object getAttribute(String s_name, String attribute)
-    throws IOException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException,
-           InstanceNotFoundException {
-        ObjectName name = new ObjectName(s_name);
-        return jmxc.getMBeanServerConnection().getAttribute(name, attribute);
+    public Object getAttribute(String s_name, String attribute) throws RuntimeException {
+        try {
+            ObjectName name = new ObjectName(s_name);
+            return jmxc.getMBeanServerConnection().getAttribute(name, attribute);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getLocalizedMessage());
+        }
     }
 
 }

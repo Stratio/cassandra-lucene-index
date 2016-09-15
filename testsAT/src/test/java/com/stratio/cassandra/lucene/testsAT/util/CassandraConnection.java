@@ -17,12 +17,14 @@ package com.stratio.cassandra.lucene.testsAT.util;
 
 import com.datastax.driver.core.*;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
+import com.stratio.cassandra.lucene.testsAT.util.monitoring.CassandraJMXClient;
+import com.stratio.cassandra.lucene.testsAT.util.monitoring.CassandraJolokiaClient;
+import com.stratio.cassandra.lucene.testsAT.util.monitoring.CassandraMonitoringClient;
 import org.slf4j.Logger;
 
-import javax.management.JMException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 
@@ -35,7 +37,7 @@ public class CassandraConnection {
 
     private static Cluster cluster;
     private static Session session;
-    private static List<CassandraJMXClient> jmxClients;
+    private static List<CassandraMonitoringClient> jmxClients;
 
     public static void connect() {
         logger.debug("Connecting to: " + HOST);
@@ -51,10 +53,15 @@ public class CassandraConnection {
                        .setConnectTimeoutMillis(100000);
 
                 session = cluster.connect();
-
-                jmxClients = new ArrayList<>(JMX_SERVICES.length);
-                for (String service : JMX_SERVICES) {
-                    jmxClients.add(new CassandraJMXClient(service).connect());
+                jmxClients = new ArrayList<>(MONITOR_SERVICES_URL.length);
+                if (Objects.equals(MONITOR_SERVICE, "jmx")) {
+                    for (String service : MONITOR_SERVICES_URL) {
+                        jmxClients.add(new CassandraJMXClient(service).connect());
+                    }
+                } else if (Objects.equals(MONITOR_SERVICE, "jolokia")) {
+                    for (String service : MONITOR_SERVICES_URL) {
+                        jmxClients.add(new CassandraJolokiaClient(service).connect());
+                    }
                 }
 
             } catch (Exception e) {
@@ -66,7 +73,7 @@ public class CassandraConnection {
     public static void disconnect() {
         session.close();
         cluster.close();
-        jmxClients.forEach(CassandraJMXClient::disconnect);
+        jmxClients.forEach(CassandraMonitoringClient::disconnect);
     }
 
     public static synchronized ResultSet execute(Statement statement) {
@@ -81,21 +88,21 @@ public class CassandraConnection {
     static List<Object> getJMXAttribute(String bean, String attribute) {
         try {
             List<Object> out = new ArrayList<>(jmxClients.size());
-            for (CassandraJMXClient client : jmxClients) {
+            for (CassandraMonitoringClient client : jmxClients) {
                 out.add(client.getAttribute(bean, attribute));
             }
             return out;
-        } catch (JMException | IOException e) {
+        } catch (RuntimeException e) {
             throw new RuntimeException(String.format("Error while reading JMX attribute %s.%s", bean, attribute), e);
         }
     }
 
-    static void invokeJMXMethod(String bean, String operation, Object[] params, String[] signature) {
+    static void invokeJMXMethod(String bean, String operation, Object[] params) {
         try {
-            for (CassandraJMXClient client : jmxClients) {
-                client.invoke(bean, operation, params, signature);
+            for (CassandraMonitoringClient client : jmxClients) {
+                client.invoke(bean, operation, params);
             }
-        } catch (JMException | IOException e) {
+        } catch (RuntimeException e) {
             throw new RuntimeException(String.format("Error while invoking JMX method %s", operation), e);
         }
     }
