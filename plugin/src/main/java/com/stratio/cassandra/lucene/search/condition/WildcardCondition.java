@@ -55,7 +55,7 @@ public class WildcardCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+    public Query doQuery(String field, SingleColumnMapper<?> mapper, Analyzer analyzer) {
         if (mapper.base == String.class) {
             Term term = new Term(field, value);
             return new WildcardQuery(term);

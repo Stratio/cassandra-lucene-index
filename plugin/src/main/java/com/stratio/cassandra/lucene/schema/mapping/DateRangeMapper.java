@@ -19,6 +19,7 @@ import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.IndexableField;
@@ -40,6 +41,8 @@ import java.util.List;
  */
 public class DateRangeMapper extends Mapper {
 
+    private static final DateRangePrefixTree tree = DateRangePrefixTree.INSTANCE;
+
     /** The name of the column containing the from date. */
     public final String from;
 
@@ -48,11 +51,6 @@ public class DateRangeMapper extends Mapper {
 
     /** The {@link DateParser}. */
     public final DateParser parser;
-
-    private final DateRangePrefixTree tree;
-
-    /** The {@link NumberRangePrefixTreeStrategy}. */
-    public final NumberRangePrefixTreeStrategy strategy;
 
     /**
      * Builds a new {@link DateRangeMapper}.
@@ -77,13 +75,15 @@ public class DateRangeMapper extends Mapper {
         this.from = from;
         this.to = to;
         this.parser = new DateParser(pattern);
-        tree = DateRangePrefixTree.INSTANCE;
-        strategy = new NumberRangePrefixTreeStrategy(tree, field);
+    }
+
+    public NumberRangePrefixTreeStrategy strategy(String field) {
+        return new NumberRangePrefixTreeStrategy(tree, field);
     }
 
     /** {@inheritDoc} */
     @Override
-    public List<IndexableField> indexableFields(Columns columns) {
+    public List<IndexableField> indexableFields(Columns columns, Partitioner.Decorator decorator) {
 
         Date fromDate = readFrom(columns);
         Date toDate = readTo(columns);
@@ -95,6 +95,7 @@ public class DateRangeMapper extends Mapper {
         validate(fromDate, toDate);
 
         NRShape shape = makeShape(fromDate, toDate);
+        NumberRangePrefixTreeStrategy strategy = strategy(decorator.decorate(field));
         return Arrays.asList(strategy.createIndexableFields(shape));
     }
 

@@ -18,10 +18,13 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.google.common.base.MoreObjects;
 import com.spatial4j.core.shape.Rectangle;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.spatial.SpatialStrategy;
+import org.apache.lucene.spatial.composite.CompositeSpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 
@@ -81,10 +84,11 @@ public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(GeoPointMapper mapper, Analyzer analyzer) {
+    public Query doQuery(GeoPointMapper mapper, Analyzer analyzer, Partitioner.Decorator decorator) {
         Rectangle rectangle = CONTEXT.makeRectangle(minLongitude, maxLongitude, minLatitude, maxLatitude);
         SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, rectangle);
-        return mapper.strategy.makeQuery(args);
+        SpatialStrategy strategy = mapper.strategy(decorator.decorate(field));
+        return strategy.makeQuery(args);
     }
 
     /** {@inheritDoc} */

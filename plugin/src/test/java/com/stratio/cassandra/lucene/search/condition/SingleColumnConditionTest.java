@@ -40,7 +40,7 @@ public class SingleColumnConditionTest {
         }
 
         @Override
-        public Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+        public Query doQuery(String field, SingleColumnMapper<?> mapper, Analyzer analyzer) {
             return new MatchAllDocsQuery();
         }
 

@@ -21,6 +21,7 @@ import com.stratio.cassandra.lucene.index.FSIndex;
 import com.stratio.cassandra.lucene.index.RAMIndex;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
 import com.stratio.cassandra.lucene.key.TokenMapper;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
@@ -43,6 +44,7 @@ import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
+import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +57,7 @@ import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Tuple2;
 
 import javax.management.JMException;
 import javax.management.ObjectName;
@@ -87,6 +90,7 @@ abstract class IndexService implements IndexServiceMBean {
     private final boolean mapsMultiCells;
     private String mbeanName;
     private ObjectName mbean;
+    private final Partitioner partitioner;
 
     /**
      * Constructor using the specified indexed table and index metadata.
@@ -128,6 +132,8 @@ abstract class IndexService implements IndexServiceMBean {
                              options.ramBufferMB,
                              options.maxMergeMB,
                              options.maxCachedMB);
+
+        partitioner = options.partitioner;
     }
 
     private static String column(IndexMetadata indexMetadata) {
@@ -248,7 +254,7 @@ abstract class IndexService implements IndexServiceMBean {
                            : expression.getIndexValue();
         String json = UTF8Type.instance.compose(value);
         Search search = SearchBuilder.fromJson(json).build();
-        search.validate(schema);
+        search.validate(schema, Partitioner.NOP_DECORATOR());
         return search;
     }
 
@@ -407,13 +413,15 @@ abstract class IndexService implements IndexServiceMBean {
      */
     void upsert(DecoratedKey key, Row row, int nowInSec) {
         queue.submitAsynchronous(key, () -> {
+            Partitioner.Decorator decorator = partitioner.decorator(key);
             Term term = term(key, row);
             Columns columns = columns(key, row).withoutDeleted(nowInSec);
-            List<IndexableField> fields = schema.indexableFields(columns);
+            List<IndexableField> fields = schema.indexableFields(columns, decorator);
             if (fields.isEmpty()) {
                 lucene.delete(term);
             } else {
                 Document document = new Document();
+                decorator.decorate(document);
                 fields.forEach(document::add);
                 keyIndexableFields(key, row).forEach(document::add);
                 lucene.upsert(term, document);
@@ -458,9 +466,10 @@ abstract class IndexService implements IndexServiceMBean {
         Tracer.trace("Building Lucene search");
         String expression = expression(command);
         Search search = SearchBuilder.fromJson(expression).build();
-        Query query = search.query(schema, query(command).orElse(null));
+        Partitioner.Decorator decorator = partitioner.query(command);
+        Query query = search.query(schema, query(command).orElse(null), decorator);
         Query after = after(search.paging(), command);
-        Sort sort = sort(search);
+        Sort sort = sort(search, decorator);
         int count = command.limits().count();
 
         // Refresh if required
@@ -578,10 +587,10 @@ abstract class IndexService implements IndexServiceMBean {
      * @param search the {@link Search} containing sorting requirements
      * @return a Lucene sort according to {@code search}
      */
-    private Sort sort(Search search) {
+    private Sort sort(Search search, Partitioner.Decorator decorator) {
         List<SortField> sortFields = new ArrayList<>();
         if (search.usesSorting()) {
-            sortFields.addAll(search.sortFields(schema));
+            sortFields.addAll(search.sortFields(schema, decorator));
         }
         if (search.usesRelevance()) {
             sortFields.add(FIELD_SCORE);
@@ -728,7 +737,7 @@ abstract class IndexService implements IndexServiceMBean {
 
             // Repeat search to sort partial results
             Query query = search.postProcessingQuery(schema);
-            Sort sort = sort(search);
+            Sort sort = sort(search, Partitioner.NOP_DECORATOR());
             List<Pair<Document, ScoreDoc>> documents = index.search(query, sort, limit, fieldsToLoad());
             index.close();
 
@@ -776,8 +785,9 @@ abstract class IndexService implements IndexServiceMBean {
      */
     void validate(PartitionUpdate update) {
         DecoratedKey key = update.partitionKey();
+        Partitioner.Decorator decorator = partitioner.decorator(key);
         for (Row row : update) {
-            schema.validate(columns(key, row));
+            schema.validate(columns(key, row), decorator);
         }
     }
 

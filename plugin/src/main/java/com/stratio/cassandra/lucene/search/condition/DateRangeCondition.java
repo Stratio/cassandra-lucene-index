@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
@@ -74,9 +75,9 @@ public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(DateRangeMapper mapper, Analyzer analyzer) {
+    public Query doQuery(DateRangeMapper mapper, Analyzer analyzer, Partitioner.Decorator decorator) {
 
-        SpatialStrategy strategy = mapper.strategy;
+        SpatialStrategy strategy = mapper.strategy(decorator.decorate(field));
 
         Date fromDate = mapper.base(from);
         Date toDate = mapper.base(to);

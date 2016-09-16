@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -40,7 +41,7 @@ public class ConditionTest {
         }
 
         @Override
-        public Query doQuery(Schema schema) {
+        public Query doQuery(Schema schema, Partitioner.Decorator decorator) {
             return new MatchAllDocsQuery();
         }
 

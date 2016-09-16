@@ -19,15 +19,14 @@ import com.google.common.base.MoreObjects;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queries.function.ValueSource;
-import org.apache.lucene.search.Sort;
 import org.apache.lucene.spatial.SpatialStrategy;
-import org.apache.lucene.spatial.composite.CompositeSpatialStrategy;
 
 import java.util.Collections;
 import java.util.Set;
@@ -70,7 +69,7 @@ public class GeoDistanceSortField extends SortField {
 
     /** {@inheritDoc} */
     @Override
-    public org.apache.lucene.search.SortField sortField(Schema schema) {
+    public org.apache.lucene.search.SortField sortField(Schema schema, Partitioner.Decorator decorator) {
         final Mapper mapper = schema.mapper(field);
         if (mapper == null) {
             throw new IndexException("Field '{}' is not found", field);
@@ -82,7 +81,7 @@ public class GeoDistanceSortField extends SortField {
         Point point = CONTEXT.makePoint(longitude, latitude);
 
         // Use the distance (in km) as source
-        SpatialStrategy strategy = geoPointMapper.strategy.getGeometryStrategy();
+        SpatialStrategy strategy = geoPointMapper.strategy(decorator.decorate(field)).getGeometryStrategy();
         ValueSource valueSource = strategy.makeDistanceValueSource(point, DistanceUtils.DEG_TO_KM);
         return valueSource.getSortField(reverse);
     }

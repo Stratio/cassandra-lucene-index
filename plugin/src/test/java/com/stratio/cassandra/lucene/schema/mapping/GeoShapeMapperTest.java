@@ -38,7 +38,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
         assertEquals("Max levels is not properly set", GeoShapeMapper.DEFAULT_MAX_LEVELS, mapper.maxLevels);
-        assertNotNull("Spatial strategy for distances is not properly set", mapper.strategy);
+        assertNotNull("Spatial strategy for distances is not properly set", mapper.strategy("field"));
         assertNotNull("Transformations list is not properly set", mapper.transformations);
         assertTrue("Transformations list is not properly set", mapper.transformations.isEmpty());
     }
@@ -56,7 +56,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
         assertEquals("Max levels is not properly set", 10, mapper.maxLevels);
-        assertNotNull("Spatial strategy for distances is not properly set", mapper.strategy);
+        assertNotNull("Spatial strategy for distances is not properly set", mapper.strategy("field"));
         assertNotNull("Transformations list is not properly set", mapper.transformations);
         assertEquals("Transformations list is not properly set", 2, mapper.transformations.size());
     }

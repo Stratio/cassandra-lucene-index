@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -69,11 +70,11 @@ public class BooleanCondition extends Condition {
 
     /** {@inheritDoc} */
     @Override
-    public BooleanQuery doQuery(Schema schema) {
+    public BooleanQuery doQuery(Schema schema, Partitioner.Decorator decorator) {
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
-        must.forEach(condition -> builder.add(condition.query(schema), MUST));
-        should.forEach(condition -> builder.add(condition.query(schema), SHOULD));
-        not.forEach(condition -> builder.add(condition.query(schema), MUST_NOT));
+        must.forEach(condition -> builder.add(condition.query(schema, decorator), MUST));
+        should.forEach(condition -> builder.add(condition.query(schema, decorator), SHOULD));
+        not.forEach(condition -> builder.add(condition.query(schema, decorator), MUST_NOT));
         if (must.isEmpty() && should.isEmpty() && !not.isEmpty()) {
             logger.warn("Performing resource-intensive pure negation query {}", this);
             builder.add(new MatchAllDocsQuery(), FILTER);

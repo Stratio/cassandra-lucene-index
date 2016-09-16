@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Field.Store;
@@ -112,16 +113,26 @@ public abstract class Mapper {
      * @param columns the columns
      * @return a list of indexable fields
      */
-    public abstract List<IndexableField> indexableFields(Columns columns);
+    public List<IndexableField> indexableFields(Columns columns) {
+        return indexableFields(columns, Partitioner.NOP_DECORATOR());
+    }
+
+    /**
+     * Returns the Lucene {@link IndexableField}s resulting from the mapping of the specified {@link Columns}.
+     *
+     * @param columns the columns
+     * @return a list of indexable fields
+     */
+    public abstract List<IndexableField> indexableFields(Columns columns, Partitioner.Decorator decorator);
 
     /**
      * Validates the specified {@link Columns} if {#validated}.
      *
      * @param columns the columns to be validated
      */
-    public final void validate(Columns columns) {
+    public final void validate(Columns columns, Partitioner.Decorator decorator) {
         if (validated) {
-            indexableFields(columns);
+            indexableFields(columns, decorator);
         }
     }
 

@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
@@ -31,6 +32,7 @@ import java.util.Set;
  * A {@link Condition} implementation that matches documents satisfying a Lucene Query Syntax.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
+ * @deprecated
  */
 public class LuceneCondition extends Condition {
 
@@ -76,7 +78,7 @@ public class LuceneCondition extends Condition {
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(Schema schema) {
+    public Query doQuery(Schema schema, Partitioner.Decorator decorator) {
         try {
             Analyzer analyzer = schema.analyzer();
             QueryParser queryParser = new QueryParser(defaultField, analyzer);

@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanQuery;
@@ -73,7 +74,7 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(BitemporalMapper mapper, Analyzer analyzer) {
+    public Query doQuery(BitemporalMapper mapper, Analyzer analyzer, Partitioner.Decorator decorator) {
 
         Long vtFromTime = parseTime(mapper, DEFAULT_FROM, vtFrom);
         Long vtToTime = parseTime(mapper, DEFAULT_TO, vtTo);
@@ -85,6 +86,7 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
 
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
+        String field = decorator.decorate(this.field);
         if (!((vtFromTime.equals(0L)) && (vtToTime.equals(Long.MAX_VALUE)))) {
 
             BooleanQuery.Builder validBuilder = new BooleanQuery.Builder();

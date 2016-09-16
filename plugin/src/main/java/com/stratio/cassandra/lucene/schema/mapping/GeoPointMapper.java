@@ -20,6 +20,7 @@ import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.IndexableField;
@@ -56,9 +57,6 @@ public class GeoPointMapper extends Mapper {
     /** The max number of levels in the tree. */
     public final int maxLevels;
 
-    /** The spatial strategy. */
-    public final CompositeSpatialStrategy strategy;
-
     /**
      * Builds a new {@link GeoPointMapper}.
      *
@@ -84,16 +82,18 @@ public class GeoPointMapper extends Mapper {
         this.latitude = latitude;
         this.longitude = longitude;
         this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels, DEFAULT_MAX_LEVELS);
+    }
 
+    public CompositeSpatialStrategy strategy(String field) {
         SpatialPrefixTree grid = new GeohashPrefixTree(CONTEXT, this.maxLevels);
         RecursivePrefixTreeStrategy indexStrategy = new RecursivePrefixTreeStrategy(grid, field);
         SerializedDVStrategy geometryStrategy = new SerializedDVStrategy(CONTEXT, field);
-        strategy = new CompositeSpatialStrategy(field, indexStrategy, geometryStrategy);
+        return new CompositeSpatialStrategy(field, indexStrategy, geometryStrategy);
     }
 
     /** {@inheritDoc} */
     @Override
-    public List<IndexableField> indexableFields(Columns columns) {
+    public List<IndexableField> indexableFields(Columns columns, Partitioner.Decorator decorator) {
 
         Double lon = readLongitude(columns);
         Double lat = readLatitude(columns);
@@ -108,6 +108,7 @@ public class GeoPointMapper extends Mapper {
 
         Point point = CONTEXT.makePoint(lon, lat);
 
+        CompositeSpatialStrategy strategy = strategy(decorator.decorate(field));
         return Arrays.asList(strategy.createIndexableFields(point));
     }
 

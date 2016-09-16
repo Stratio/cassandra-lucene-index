@@ -17,12 +17,15 @@ package com.stratio.cassandra.lucene;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.SchemaBuilder;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.Directories;
 import org.apache.cassandra.schema.IndexMetadata;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -65,6 +68,8 @@ public class IndexOptions {
 
     public static final String SCHEMA_OPTION = "schema";
 
+    public static final String PARTITIONER_OPTION = "partitioner";
+
     /** The mapping schema */
     public final Schema schema;
 
@@ -92,6 +97,9 @@ public class IndexOptions {
     /** The names of the data centers excluded from indexing */
     public final List<String> excludedDataCenters;
 
+    /** The index partitioner */
+    public final Partitioner partitioner;
+
     /**
      * Builds a new {@link IndexOptions} for the column family and index metadata.
      *
@@ -109,6 +117,7 @@ public class IndexOptions {
         excludedDataCenters = parseExcludedDataCenters(options);
         path = parsePath(options, tableMetadata, indexMetadata);
         schema = parseSchema(options, tableMetadata);
+        partitioner = parsePartitioner(options, tableMetadata);
     }
 
     /**
@@ -127,6 +136,7 @@ public class IndexOptions {
         parseExcludedDataCenters(options);
         parseSchema(options, metadata);
         parsePath(options, metadata, null);
+        parsePartitioner(options, metadata);
     }
 
     private static double parseRefresh(Map<String, String> options) {
@@ -271,6 +281,19 @@ public class IndexOptions {
             }
         } else {
             throw new IndexException("'{}' required", SCHEMA_OPTION);
+        }
+    }
+
+    private static Partitioner parsePartitioner(Map<String, String> options, CFMetaData tableMetadata) {
+        String partitionerOption = options.get(PARTITIONER_OPTION);
+        if (StringUtils.isBlank(partitionerOption)) {
+            return null;
+        } else {
+            try {
+                return JsonSerializer.fromString(partitionerOption, Partitioner.Builder.class).build(tableMetadata);
+            } catch (Exception e) {
+                throw new IndexException(e, "'{}' is invalid : {}", PARTITIONER_OPTION, e.getMessage());
+            }
         }
     }
 

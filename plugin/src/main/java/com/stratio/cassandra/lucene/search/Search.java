@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.search;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexPagingState;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import com.stratio.cassandra.lucene.search.sort.SortField;
@@ -134,18 +135,19 @@ public class Search {
      * @param range the additional data range filter, maybe {@code null}
      * @return a Lucene {@link Query}
      */
-    public Query query(Schema schema, Query range) {
+    public Query query(Schema schema, Query range, Partitioner.Decorator decorator) {
 
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         if (range != null) {
             builder.add(range, FILTER);
         }
 
-        filter.forEach(condition -> builder.add(condition.query(schema), FILTER));
-        query.forEach(condition -> builder.add(condition.query(schema), MUST));
+        filter.forEach(condition -> builder.add(condition.query(schema, decorator), FILTER));
+        query.forEach(condition -> builder.add(condition.query(schema, decorator), MUST));
 
         BooleanQuery booleanQuery = builder.build();
-        return booleanQuery.clauses().isEmpty() ? new MatchAllDocsQuery() : booleanQuery;
+        Query query = booleanQuery.clauses().isEmpty() ? new MatchAllDocsQuery() : booleanQuery;
+        return decorator.decorate(query);
     }
 
     public Query postProcessingQuery(Schema schema) {
@@ -153,7 +155,7 @@ public class Search {
             return new MatchAllDocsQuery();
         } else {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
-            query.forEach(condition -> builder.add(condition.query(schema), MUST));
+            query.forEach(condition -> builder.add(condition.query(schema, Partitioner.NOP_DECORATOR()), MUST));
             return builder.build();
         }
     }
@@ -173,8 +175,8 @@ public class Search {
      * @param schema the indexing schema to be used
      * @return the Lucene sort fields represented by this using {@code schema}
      */
-    public List<org.apache.lucene.search.SortField> sortFields(Schema schema) {
-        return sort.stream().map(s -> s.sortField(schema)).collect(Collectors.toList());
+    public List<org.apache.lucene.search.SortField> sortFields(Schema schema, Partitioner.Decorator decorator) {
+        return sort.stream().map(s -> s.sortField(schema, decorator)).collect(Collectors.toList());
     }
 
     public IndexPagingState paging() {
@@ -198,10 +200,10 @@ public class Search {
      *
      * @param schema a {@link Schema}
      */
-    public void validate(Schema schema) {
-        filter.forEach(condition -> condition.query(schema));
-        query.forEach(condition -> condition.query(schema));
-        sort.forEach(field -> field.sortField(schema));
+    public void validate(Schema schema, Partitioner.Decorator decorator) {
+        filter.forEach(condition -> condition.query(schema, decorator));
+        query.forEach(condition -> condition.query(schema, decorator));
+        sort.forEach(field -> field.sortField(schema, decorator));
     }
 
     /** {@inheritDoc} */

@@ -21,6 +21,7 @@ import com.spatial4j.core.shape.Circle;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.common.GeoDistanceUnit;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.lucene.analysis.Analyzer;
@@ -89,22 +90,22 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(GeoPointMapper mapper, Analyzer analyzer) {
-        SpatialStrategy spatialStrategy = mapper.strategy;
+    public Query doQuery(GeoPointMapper mapper, Analyzer analyzer, Partitioner.Decorator decorator) {
+        SpatialStrategy strategy = mapper.strategy(decorator.decorate(field));
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
-        builder.add(query(maxGeoDistance, spatialStrategy), FILTER);
+        builder.add(query(maxGeoDistance, strategy), FILTER);
         if (minGeoDistance != null) {
-            builder.add(query(minGeoDistance, spatialStrategy), MUST_NOT);
+            builder.add(query(minGeoDistance, strategy), MUST_NOT);
         }
         return builder.build();
     }
 
-    private Query query(GeoDistance geoDistance, SpatialStrategy spatialStrategy) {
+    private Query query(GeoDistance geoDistance, SpatialStrategy strategy) {
         double kms = geoDistance.getValue(GeoDistanceUnit.KILOMETRES);
         double distance = DistanceUtils.dist2Degrees(kms, DistanceUtils.EARTH_MEAN_RADIUS_KM);
         Circle circle = CONTEXT.makeCircle(longitude, latitude, distance);
         SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, circle);
-        return spatialStrategy.makeQuery(args);
+        return strategy.makeQuery(args);
     }
 
     /** {@inheritDoc} */

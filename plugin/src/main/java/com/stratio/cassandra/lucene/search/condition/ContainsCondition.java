@@ -67,11 +67,11 @@ public class ContainsCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+    public Query doQuery(String field, SingleColumnMapper<?> mapper, Analyzer analyzer) {
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         for (Object value : values) {
             MatchCondition condition = new MatchCondition(null, field, value, docValues);
-            builder.add(condition.doQuery(mapper, analyzer), BooleanClause.Occur.SHOULD);
+            builder.add(condition.doQuery(field, mapper, analyzer), BooleanClause.Occur.SHOULD);
         }
         return builder.build();
     }

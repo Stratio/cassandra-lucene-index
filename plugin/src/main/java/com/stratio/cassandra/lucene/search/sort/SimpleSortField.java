@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.search.sort;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.commons.lang3.StringUtils;
@@ -64,7 +65,7 @@ public class SimpleSortField extends SortField {
      * @return the equivalent Lucene sort field
      */
     @Override
-    public org.apache.lucene.search.SortField sortField(Schema schema) {
+    public org.apache.lucene.search.SortField sortField(Schema schema, Partitioner.Decorator decorator) {
         if (field.equalsIgnoreCase("score")) {
             return FIELD_SCORE;
         }
@@ -74,7 +75,7 @@ public class SimpleSortField extends SortField {
         } else if (!mapper.docValues) {
             throw new IndexException("Field '{}' does not support sorting", field);
         } else {
-            return mapper.sortField(field, reverse);
+            return mapper.sortField(decorator.decorate(field), reverse);
         }
     }
 

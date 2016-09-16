@@ -62,7 +62,7 @@ public class MatchCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+    public Query doQuery(String decoratedField, SingleColumnMapper<?> mapper, Analyzer analyzer) {
 
         // Check doc values
         if (docValues && !mapper.docValues) {
@@ -75,32 +75,32 @@ public class MatchCondition extends SingleColumnCondition {
             String base = (String) mapper.base(field, value);
             if (mapper instanceof TextMapper) {
                 QueryBuilder queryBuilder = new QueryBuilder(analyzer);
-                query = queryBuilder.createPhraseQuery(field, base, 0);
+                query = queryBuilder.createPhraseQuery(decoratedField, base, 0);
             } else {
-                query = query(base);
+                query = query(decoratedField, base);
             }
             if (query == null) {
                 query = new BooleanQuery.Builder().build();
             }
         } else if (clazz == Integer.class) {
-            query = query((Integer) mapper.base(field, value));
+            query = query(decoratedField, (Integer) mapper.base(field, value));
         } else if (clazz == Long.class) {
-            query = query((Long) mapper.base(field, value));
+            query = query(decoratedField, (Long) mapper.base(field, value));
         } else if (clazz == Float.class) {
-            query = query((Float) mapper.base(field, value));
+            query = query(decoratedField, (Float) mapper.base(field, value));
         } else if (clazz == Double.class) {
-            query = query((Double) mapper.base(field, value));
+            query = query(decoratedField, (Double) mapper.base(field, value));
         } else {
             throw new IndexException("Match queries are not supported by mapper '{}'", mapper);
         }
         return query;
     }
 
-    private Query query(String value) {
+    private Query query(String field, String value) {
         return docValues ? new DocValuesTermsQuery(field, value) : new TermQuery(new Term(field, value));
     }
 
-    private Query query(Integer value) {
+    private Query query(String field, Integer value) {
         if (docValues) {
             return new DocValuesNumbersQuery(field, docValue(value));
         } else {
@@ -110,7 +110,7 @@ public class MatchCondition extends SingleColumnCondition {
         }
     }
 
-    private Query query(Long value) {
+    private Query query(String field, Long value) {
         if (docValues) {
             return new DocValuesNumbersQuery(field, docValue(value));
         } else {
@@ -120,13 +120,13 @@ public class MatchCondition extends SingleColumnCondition {
         }
     }
 
-    private Query query(Float value) {
+    private Query query(String field, Float value) {
         return docValues
                ? new DocValuesNumbersQuery(field, docValue(value))
                : NumericRangeQuery.newFloatRange(field, value, value, true, true);
     }
 
-    private Query query(Double value) {
+    private Query query(String field, Double value) {
         return docValues
                ? new DocValuesNumbersQuery(field, docValue(value))
                : NumericRangeQuery.newDoubleRange(field, value, value, true, true);

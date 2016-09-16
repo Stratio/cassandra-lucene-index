@@ -19,6 +19,7 @@ import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexableField;
@@ -79,16 +80,16 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
 
     /** {@inheritDoc} */
     @Override
-    public List<IndexableField> indexableFields(Columns columns) {
+    public List<IndexableField> indexableFields(Columns columns, Partitioner.Decorator decorator) {
         List<IndexableField> fields = new LinkedList<>();
         for (Column c : columns.withMapperName(column)) {
-            fields.addAll(indexableFields(c));
+            fields.addAll(indexableFields(c, decorator));
         }
         return fields;
     }
 
-    private <K> List<IndexableField> indexableFields(Column<?> c) {
-        String name = column.equals(field) ? c.fieldName() : c.fieldName(field);
+    private <K> List<IndexableField> indexableFields(Column<?> c, Partitioner.Decorator decorator) {
+        String name = decorator.decorate(column.equals(field) ? c.fieldName() : c.fieldName(field));
         K value = c.value().getOrElse(null);
         if (value != null) {
             T base = base(c);

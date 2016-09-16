@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
@@ -46,7 +47,7 @@ public abstract class SingleColumnCondition extends SingleFieldCondition {
     /** {@inheritDoc} */
     @Override
     @SuppressWarnings("unchecked")
-    public final Query doQuery(Schema schema) {
+    public final Query doQuery(Schema schema, Partitioner.Decorator decorator) {
         Mapper mapper = schema.mapper(field);
         if (mapper == null) {
             throw new IndexException("No mapper found for field '{}'", field);
@@ -56,7 +57,7 @@ public abstract class SingleColumnCondition extends SingleFieldCondition {
                                      SingleColumnMapper.class.getSimpleName(),
                                      mapper);
         }
-        return doQuery((SingleColumnMapper<?>) mapper, schema.analyzer());
+        return doQuery(decorator.decorate(field), (SingleColumnMapper<?>) mapper, schema.analyzer());
     }
 
     /**
@@ -66,5 +67,5 @@ public abstract class SingleColumnCondition extends SingleFieldCondition {
      * @param analyzer the {@link Schema} analyzer
      * @return the Lucene query
      */
-    public abstract Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer);
+    public abstract Query doQuery(String field, SingleColumnMapper<?> mapper, Analyzer analyzer);
 }

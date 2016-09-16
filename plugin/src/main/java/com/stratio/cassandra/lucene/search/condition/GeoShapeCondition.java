@@ -20,6 +20,7 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoOperation;
 import com.stratio.cassandra.lucene.common.GeoShape;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
@@ -77,7 +78,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(Schema schema) {
+    public Query doQuery(Schema schema, Partitioner.Decorator decorator) {
 
         // Get the spatial strategy from the mapper
         SpatialStrategy strategy;
@@ -85,9 +86,9 @@ public class GeoShapeCondition extends SingleFieldCondition {
         if (mapper == null) {
             throw new IndexException("No mapper found for field '{}'", field);
         } else if (mapper instanceof GeoShapeMapper) {
-            strategy = ((GeoShapeMapper) mapper).strategy;
+            strategy = ((GeoShapeMapper) mapper).strategy(decorator.decorate(field));
         } else if (mapper instanceof GeoPointMapper) {
-            strategy = ((GeoPointMapper) mapper).strategy;
+            strategy = ((GeoPointMapper) mapper).strategy(decorator.decorate(field));
         } else {
             throw new IndexException("'geo_shape' search requires a mapper of type 'geo_point' or 'geo_shape' " +
                                      "but found {}:{}", field, mapper);

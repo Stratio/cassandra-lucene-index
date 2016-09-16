@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.search.sort;
 
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 
 import java.util.Set;
@@ -48,7 +49,17 @@ public abstract class SortField {
      * @param schema the {@link Schema} to be used
      * @return the Lucene's sort field
      */
-    public abstract org.apache.lucene.search.SortField sortField(Schema schema);
+    public org.apache.lucene.search.SortField sortField(Schema schema) {
+        return sortField(schema, Partitioner.NOP_DECORATOR());
+    }
+
+    /**
+     * Returns the Lucene's {@link org.apache.lucene.search.SortField} representing this {@link SortField}.
+     *
+     * @param schema the {@link Schema} to be used
+     * @return the Lucene's sort field
+     */
+    public abstract org.apache.lucene.search.SortField sortField(Schema schema, Partitioner.Decorator decorator);
 
     /**
      * Returns the names of the involved fields.

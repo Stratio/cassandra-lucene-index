@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.schema;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -103,7 +104,7 @@ public class SchemaTest {
     public void testAddFields() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
         Columns columns = new Columns().add("field1", "value");
-        List<IndexableField> fields = schema.indexableFields(columns);
+        List<IndexableField> fields = schema.indexableFields(columns, Partitioner.NOP_DECORATOR());
         assertFalse("Expected true", fields.isEmpty());
         schema.close();
     }
@@ -112,7 +113,7 @@ public class SchemaTest {
     public void testAddFieldsFailing() {
         Schema schema = SchemaBuilders.schema().mapper("field1", integerMapper()).build();
         Columns columns = new Columns().add("field1", "value");
-        List<IndexableField> fields = schema.indexableFields(columns);
+        List<IndexableField> fields = schema.indexableFields(columns, Partitioner.NOP_DECORATOR());
         assertTrue("Expected true", fields.isEmpty());
         schema.close();
     }

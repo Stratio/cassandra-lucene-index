@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
@@ -139,7 +140,7 @@ public class FuzzyCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+    public Query doQuery(String field, SingleColumnMapper<?> mapper, Analyzer analyzer) {
         if (mapper.base == String.class) {
             Term term = new Term(field, value);
             return new FuzzyQuery(term, maxEdits, prefixLength, maxExpansions, transpositions);

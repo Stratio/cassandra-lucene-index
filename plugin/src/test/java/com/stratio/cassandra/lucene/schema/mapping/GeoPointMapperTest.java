@@ -40,7 +40,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("lat"));
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("lon"));
         assertEquals("Max levels is not properly set", GeoPointMapper.DEFAULT_MAX_LEVELS, mapper.maxLevels);
-        assertNotNull("Spatial strategy is not properly set", mapper.strategy);
+        assertNotNull("Spatial strategy is not properly set", mapper.strategy("field"));
     }
 
     @Test
@@ -51,7 +51,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Latitude is not properly set", "lat", mapper.latitude);
         assertEquals("Longitude is not properly set", "lon", mapper.longitude);
         assertEquals("Max levels is not properly set", 5, mapper.maxLevels);
-        assertNotNull("Spatial strategy is not properly set", mapper.strategy);
+        assertNotNull("Spatial strategy is not properly set", mapper.strategy("field"));
     }
 
     @Test

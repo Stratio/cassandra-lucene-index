@@ -45,7 +45,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("to"));
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("from"));
         assertEquals("Date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.pattern);
-        assertNotNull("Strategy is not set to default value", mapper.strategy);
+        assertNotNull("Strategy is not set to default value", mapper.strategy("field"));
     }
 
     @Test
@@ -57,7 +57,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         assertEquals("From is not properly set", "from", mapper.from);
         assertEquals("To is not properly set", "to", mapper.to);
         assertEquals("Date pattern is not set to default value", "yyyyMMdd", mapper.parser.pattern);
-        assertNotNull("Strategy is not properly set", mapper.strategy);
+        assertNotNull("Strategy is not properly set", mapper.strategy("field"));
     }
 
     @Test

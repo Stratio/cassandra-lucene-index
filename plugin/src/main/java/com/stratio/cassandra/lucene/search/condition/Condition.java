@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
@@ -60,7 +61,17 @@ public abstract class Condition {
      * @return the Lucene query
      */
     public final Query query(Schema schema) {
-        Query query = doQuery(schema);
+        return query(schema, Partitioner.NOP_DECORATOR());
+    }
+
+    /**
+     * Returns the Lucene {@link Query} representation of this condition.
+     *
+     * @param schema the schema to be used
+     * @return the Lucene query
+     */
+    public final Query query(Schema schema, Partitioner.Decorator decorator) {
+        Query query = doQuery(schema, decorator);
         return boost == null ? query : new BoostQuery(query, boost);
     }
 
@@ -70,7 +81,17 @@ public abstract class Condition {
      * @param schema the schema to be used
      * @return the Lucene query
      */
-    protected abstract Query doQuery(Schema schema);
+    protected Query doQuery(Schema schema) {
+        return doQuery(schema, Partitioner.NOP_DECORATOR());
+    }
+
+    /**
+     * Returns the Lucene {@link Query} representation of this condition without boost.
+     *
+     * @param schema the schema to be used
+     * @return the Lucene query
+     */
+    protected abstract Query doQuery(Schema schema, Partitioner.Decorator decorator);
 
     /**
      * Returns the names of the involved fields.

@@ -19,6 +19,7 @@ import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.search.Search;
 import org.apache.cassandra.config.ColumnDefinition;
@@ -122,9 +123,18 @@ public class Schema implements Closeable {
      *
      * @param columns the {@link Columns} to be validated
      */
-    public void validate(Columns columns) {
+    public final void validate(Columns columns) {
+        validate(columns, Partitioner.NOP_DECORATOR());
+    }
+
+    /**
+     * Validates the specified {@link Columns} for mapping.
+     *
+     * @param columns the {@link Columns} to be validated
+     */
+    public void validate(Columns columns, Partitioner.Decorator decorator) {
         for (Mapper mapper : mappers.values()) {
-            mapper.validate(columns);
+            mapper.validate(columns, decorator);
         }
     }
 
@@ -135,11 +145,11 @@ public class Schema implements Closeable {
      * @param columns the {@link Columns} to be added
      * @return a list of indexable fields
      */
-    public List<IndexableField> indexableFields(Columns columns) {
+    public List<IndexableField> indexableFields(Columns columns, Partitioner.Decorator decorator) {
         List<IndexableField> fields = new LinkedList<>();
         for (Mapper mapper : mappers.values()) {
             try {
-                fields.addAll(mapper.indexableFields(columns));
+                fields.addAll(mapper.indexableFields(columns, decorator));
             } catch (IndexException e) {
                 logger.warn("Error in Lucene index:\n\t" +
                             "while mapping : {}\n\t" +
@@ -160,7 +170,7 @@ public class Schema implements Closeable {
      */
     public List<IndexableField> postProcessingIndexableFields(Columns columns, Search search) {
         List<IndexableField> fields = new LinkedList<>();
-        search.postProcessingFields().stream().forEach(field -> {
+        search.postProcessingFields().forEach(field -> {
             Mapper mapper = mapper(field);
             if (mapper != null) {
                 fields.addAll(mapper.indexableFields(columns));

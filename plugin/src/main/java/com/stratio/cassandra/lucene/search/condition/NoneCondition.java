@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -42,7 +43,7 @@ public class NoneCondition extends Condition {
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(Schema schema) {
+    public Query doQuery(Schema schema, Partitioner.Decorator decorator) {
         return new BooleanQuery.Builder().build();
     }
 

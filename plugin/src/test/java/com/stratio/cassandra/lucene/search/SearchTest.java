@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.google.common.collect.Sets;
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.MatchConditionBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
@@ -106,8 +107,8 @@ public class SearchTest {
     @Test
     public void testSort() {
         Schema schema = schema().mapper("f", stringMapper()).build();
-        assertNotNull("Sort fields is wrong", sort(FIELD).build().sortFields(schema));
-        assertTrue("Sort fields is wrong", filter(MATCH).build().sortFields(schema).isEmpty());
+        assertNotNull("Sort is wrong", sort(FIELD).build().sortFields(schema, Partitioner.NOP_DECORATOR()));
+        assertTrue("Sort is wrong", filter(MATCH).build().sortFields(schema, Partitioner.NOP_DECORATOR()).isEmpty());
     }
 
     @Test
@@ -117,12 +118,12 @@ public class SearchTest {
                 .query(MATCH)
                 .sort(FIELD)
                 .build()
-                .validate(schema);
+                .validate(schema, Partitioner.NOP_DECORATOR());
     }
 
     @Test
     public void testEmptyQuery() {
-        Query query = search().build().query(schema().build(), null);
+        Query query = search().build().query(schema().build(), null, Partitioner.NOP_DECORATOR());
         assertTrue("Pure negation is wrong", query instanceof MatchAllDocsQuery);
     }
 

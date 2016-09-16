@@ -60,9 +60,6 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
     /** The max number of levels in the tree. */
     public final int maxLevels;
 
-    /** The spatial strategy for radial distance searches. */
-    public final CompositeSpatialStrategy strategy;
-
     /** The sequence of transformations to be applied to the shape before indexing. */
     public final List<GeoTransformation> transformations;
 
@@ -91,13 +88,14 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
         }
 
         this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels, DEFAULT_MAX_LEVELS);
-        SpatialPrefixTree grid = new GeohashPrefixTree(CONTEXT, this.maxLevels);
+        this.transformations = transformations == null ? Collections.emptyList() : transformations;
+    }
 
+    public CompositeSpatialStrategy strategy(String field) {
+        SpatialPrefixTree grid = new GeohashPrefixTree(CONTEXT, this.maxLevels);
         RecursivePrefixTreeStrategy indexStrategy = new RecursivePrefixTreeStrategy(grid, field);
         SerializedDVStrategy geometryStrategy = new SerializedDVStrategy(CONTEXT, field);
-        strategy = new CompositeSpatialStrategy(field, indexStrategy, geometryStrategy);
-
-        this.transformations = transformations == null ? Collections.emptyList() : transformations;
+        return new CompositeSpatialStrategy(field, indexStrategy, geometryStrategy);
     }
 
     /** {@inheritDoc} */
@@ -107,6 +105,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
         for (GeoTransformation transformation : transformations) {
             shape = transformation.apply(shape);
         }
+        CompositeSpatialStrategy strategy = strategy(field);
         return Arrays.asList(strategy.createIndexableFields(shape));
     }
 

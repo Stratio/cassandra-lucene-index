@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.partitioning.Partitioner;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.BooleanConditionBuilder;
 import org.apache.lucene.search.BooleanQuery;
@@ -82,7 +83,7 @@ public class BooleanConditionTest extends AbstractConditionTest {
                                            .not(match("country", "england"))
                                            .boost(0.4f)
                                            .build();
-        BooleanQuery query = condition.doQuery(schema);
+        BooleanQuery query = (BooleanQuery) condition.doQuery(schema);
         assertEquals("Query count clauses is wrong", 5, query.clauses().size());
     }
 
@@ -90,7 +91,7 @@ public class BooleanConditionTest extends AbstractConditionTest {
     public void testQueryEmpty() {
         Schema schema = schema().build();
         BooleanCondition condition = bool().boost(0.4).build();
-        BooleanQuery query = condition.doQuery(schema);
+        BooleanQuery query = (BooleanQuery) condition.doQuery(schema);
         assertEquals("Query count clauses is wrong", 0, query.clauses().size());
     }
 
@@ -98,7 +99,7 @@ public class BooleanConditionTest extends AbstractConditionTest {
     public void testQueryPureNot() {
         Schema schema = schema().mapper("name", stringMapper()).build();
         BooleanCondition condition = bool().not(match("name", "jonathan")).boost(0.4).build();
-        BooleanQuery query = condition.doQuery(schema);
+        BooleanQuery query = (BooleanQuery) condition.doQuery(schema);
         assertEquals("Query count clauses is wrong", 2, query.clauses().size());
     }
 
