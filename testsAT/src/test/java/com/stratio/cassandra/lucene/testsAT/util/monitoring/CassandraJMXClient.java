@@ -58,7 +58,7 @@ public class CassandraJMXClient implements CassandraMonitoringClient {
         }
     }
 
-    public void invoke(String beanName, String operation, Object[] params) throws RuntimeException {
+    public void invokeMEthod(String beanName, String operation, Object[] params) throws RuntimeException {
         String[] signature= new String[params.length];
         for (int i=0;i<params.length;i++) {
             signature[i]=params[i].getClass().getName();
@@ -71,7 +71,7 @@ public class CassandraJMXClient implements CassandraMonitoringClient {
         }
     }
 
-    public Object getAttribute(String s_name, String attribute) throws RuntimeException {
+    public Object read(String s_name, String attribute) throws RuntimeException {
         try {
             ObjectName name = new ObjectName(s_name);
             return jmxc.getMBeanServerConnection().getAttribute(name, attribute);

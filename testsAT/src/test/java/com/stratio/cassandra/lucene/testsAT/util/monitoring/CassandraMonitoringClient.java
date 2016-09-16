@@ -19,9 +19,8 @@ package com.stratio.cassandra.lucene.testsAT.util.monitoring;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public interface CassandraMonitoringClient {
-
     CassandraMonitoringClient connect();
     void disconnect();
-    Object getAttribute(String s_name, String attribute) throws RuntimeException;
-    void invoke(String beanName, String operation, Object[] params) throws RuntimeException;
+    Object read(String s_name, String attribute) throws RuntimeException;
+    void invokeMEthod(String beanName, String operation, Object[] params) throws RuntimeException;
 }

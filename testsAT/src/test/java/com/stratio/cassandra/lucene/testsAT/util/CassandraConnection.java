@@ -89,7 +89,7 @@ public class CassandraConnection {
         try {
             List<Object> out = new ArrayList<>(jmxClients.size());
             for (CassandraMonitoringClient client : jmxClients) {
-                out.add(client.getAttribute(bean, attribute));
+                out.add(client.read(bean, attribute));
             }
             return out;
         } catch (RuntimeException e) {
@@ -100,7 +100,7 @@ public class CassandraConnection {
     static void invokeJMXMethod(String bean, String operation, Object[] params) {
         try {
             for (CassandraMonitoringClient client : jmxClients) {
-                client.invoke(bean, operation, params);
+                client.invokeMEthod(bean, operation, params);
             }
         } catch (RuntimeException e) {
             throw new RuntimeException(String.format("Error while invoking JMX method %s", operation), e);
