@@ -49,7 +49,6 @@ public class UDTPartialUpdateAT extends BaseAT {
                 }
             });
 
-
     private static Map<String, String> insertData3 = Collections.unmodifiableMap(
             new HashMap<String, String>() {
                 {
@@ -65,9 +64,10 @@ public class UDTPartialUpdateAT extends BaseAT {
                     put("address", "{ address:'HoneyWell st', number:105}");
                 }
             });
+
     @Test
     public void testNonFrozenPartialUpdate() {
-        CassandraUtils utils=builder("udt_partial_update")
+        CassandraUtils utils = builder("udt_partial_update")
                 .withTable("partial_updates_table")
                 .withUDT("address_t", "postal_code", "bigint")
                 .withUDT("address_t", "number", "bigint")
@@ -89,24 +89,24 @@ public class UDTPartialUpdateAT extends BaseAT {
                 .insert(insertData3)
                 .insert(insertData4);
 
-        utils.filter(match("address.address","fifth avenue")).refresh(true).checkUnorderedColumns("id",1L)
-             .filter(match("address.number",2)).checkUnorderedColumns("id",1L)
-             .filter(match("address.postal_code",10021)).check(0);
+        utils.filter(match("address.address", "fifth avenue")).refresh(true).checkUnorderedColumns("id", 1L)
+             .filter(match("address.number", 2)).checkUnorderedColumns("id", 1L)
+             .filter(match("address.postal_code", 10021)).check(0);
 
-        utils.execute("UPDATE %s SET address.postal_code = 10021 WHERE id =1; ",utils.getQualifiedTable());
+        utils.execute("UPDATE %s SET address.postal_code = 10021 WHERE id =1; ", utils.getQualifiedTable());
 
-        utils.filter(match("address.address","fifth avenue")).refresh(true).checkUnorderedColumns("id",1L)
-             .filter(match("address.number",2)).checkUnorderedColumns("id",1L)
-             .filter(match("address.postal_code",10021)).checkUnorderedColumns("id",1L);
+        utils.filter(match("address.address", "fifth avenue")).refresh(true).checkUnorderedColumns("id", 1L)
+             .filter(match("address.number", 2)).checkUnorderedColumns("id", 1L)
+             .filter(match("address.postal_code", 10021)).checkUnorderedColumns("id", 1L);
 
-        utils.filter(match("address.address","eliot ave")).refresh(true).checkUnorderedColumns("id",2L)
-             .filter(match("address.number",45)).checkUnorderedColumns("id",2L,3L)
-             .filter(match("address.postal_code",50004)).check(0)
-             .filter(match("address.address","69th Ln")).refresh(true).checkUnorderedColumns("id",3L)
-             .filter(match("address.number",45)).checkUnorderedColumns("id",2L,3L)
-             .filter(match("address.postal_code",558)).check(0)
-             .filter(match("address.address","HoneyWell st")).refresh(true).checkUnorderedColumns("id",4L)
-             .filter(match("address.number",105)).checkUnorderedColumns("id",4L)
-             .filter(match("address.postal_code",10020)).check(0);
+        utils.filter(match("address.address", "eliot ave")).refresh(true).checkUnorderedColumns("id", 2L)
+             .filter(match("address.number", 45)).checkUnorderedColumns("id", 2L, 3L)
+             .filter(match("address.postal_code", 50004)).check(0)
+             .filter(match("address.address", "69th Ln")).refresh(true).checkUnorderedColumns("id", 3L)
+             .filter(match("address.number", 45)).checkUnorderedColumns("id", 2L, 3L)
+             .filter(match("address.postal_code", 558)).check(0)
+             .filter(match("address.address", "HoneyWell st")).refresh(true).checkUnorderedColumns("id", 4L)
+             .filter(match("address.number", 105)).checkUnorderedColumns("id", 4L)
+             .filter(match("address.postal_code", 10020)).check(0);
     }
 }
