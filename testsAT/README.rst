@@ -1,6 +1,6 @@
-========================================
-Stratio’s Cassandra Lucene Index testsAT
-========================================
+=================================================
+Stratio’s Cassandra Lucene Index acceptance tests
+=================================================
 
 This project contains several functional tests (>800) for testing cassandra-lucene-index functionality.
 Tests can be executed against a patched Apache Cassandra cluster this way:
