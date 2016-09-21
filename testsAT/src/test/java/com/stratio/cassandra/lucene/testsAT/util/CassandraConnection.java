@@ -97,13 +97,13 @@ public class CassandraConnection {
         }
     }
 
-    static void invokeJMXMethod(String bean, String operation, Object[] params) {
+    static void invokeJMXMethod(String bean, String operation, Object[] params, String[] signature) {
         try {
             for (CassandraMonitoringClient client : jmxClients) {
-                client.invokeMEthod(bean, operation, params);
+                client.invoke(bean, operation, params, signature);
             }
         } catch (RuntimeException e) {
-            throw new RuntimeException(String.format("Error while invoking JMX method %s", operation), e);
+            throw new RuntimeException("Error while invoking JMX method " + operation, e);
         }
     }
 

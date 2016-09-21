@@ -37,9 +37,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.all;
 import static com.stratio.cassandra.lucene.builder.Builder.index;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConnection.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -381,19 +379,20 @@ public class CassandraUtils {
         logger.debug("JMX: Flush");
         invokeJMXMethod("org.apache.cassandra.db:type=StorageService",
                         "forceKeyspaceFlush",
-                        new Object[]{keyspace, new String[]{table}});
+                        new Object[]{keyspace, new String[]{table}},
+                        new String[]{String.class.getName(), String[].class.getName()});
         return this;
     }
 
     public CassandraUtils refresh() {
         logger.debug("JMX: Refresh");
-        invokeJMXMethod(indexBean, "refresh", new Object[]{});
+        invokeJMXMethod(indexBean, "refresh", new Object[]{}, new String[]{});
         return this;
     }
 
     public CassandraUtils commit() {
         logger.debug("JMX: Commit");
-        invokeJMXMethod(indexBean, "commit", new Object[]{});
+        invokeJMXMethod(indexBean, "commit", new Object[]{}, new String[]{});
         return this;
     }
 
@@ -401,12 +400,15 @@ public class CassandraUtils {
         logger.debug("JMX: Compact");
         invokeJMXMethod("org.apache.cassandra.db:type=StorageService",
                         "forceKeyspaceCompaction",
-                        new Object[]{splitOutput, keyspace, new String[]{table}});
+                        new Object[]{splitOutput, keyspace, new String[]{table}},
+                        new String[]{boolean.class.getName(),
+                                     String.class.getName(),
+                                     String[].class.getName()});
         return this;
     }
 
-    public long getIndexNumDocs() {
-        return getJMXAttribute(indexBean, "NumDocs").stream().mapToLong(o -> (long)o).sum() / REPLICATION;
+    public int getIndexNumDocs() {
+        return getJMXAttribute(indexBean, "NumDocs").stream().mapToInt(o -> ((Number) o).intValue()).sum() / REPLICATION;
     }
 
     @SuppressWarnings("unchecked")

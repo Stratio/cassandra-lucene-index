@@ -15,9 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.util.monitoring;
 
-import com.datastax.driver.core.exceptions.InvalidQueryException;
-
-import javax.management.*;
+import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -40,6 +38,8 @@ public class CassandraJMXClient implements CassandraMonitoringClient {
         }
     }
 
+    /** {@inheritDoc} */
+    @Override
     public CassandraJMXClient connect() {
         try {
             jmxc = JMXConnectorFactory.connect(url, null);
@@ -49,6 +49,8 @@ public class CassandraJMXClient implements CassandraMonitoringClient {
         return this;
     }
 
+    /** {@inheritDoc} */
+    @Override
     public void disconnect() {
         try {
             jmxc.close();
@@ -58,25 +60,24 @@ public class CassandraJMXClient implements CassandraMonitoringClient {
         }
     }
 
-    public void invokeMEthod(String beanName, String operation, Object[] params) throws RuntimeException {
-        String[] signature= new String[params.length];
-        for (int i=0;i<params.length;i++) {
-            signature[i]=params[i].getClass().getName();
-
-        }
+    /** {@inheritDoc} */
+    @Override
+    public void invoke(String bean, String operation, Object[] params, String[] signature) {
         try {
-            jmxc.getMBeanServerConnection().invoke(new ObjectName(beanName), operation, params, signature);
+            jmxc.getMBeanServerConnection().invoke(new ObjectName(bean), operation, params, signature);
         } catch (Exception e) {
-            throw new RuntimeException(e.getLocalizedMessage());
+            throw new RuntimeException(e.getLocalizedMessage(), e);
         }
     }
 
-    public Object read(String s_name, String attribute) throws RuntimeException {
+    /** {@inheritDoc} */
+    @Override
+    public Object read(String bean, String attribute) {
         try {
-            ObjectName name = new ObjectName(s_name);
+            ObjectName name = new ObjectName(bean);
             return jmxc.getMBeanServerConnection().getAttribute(name, attribute);
         } catch (Exception e) {
-            throw new RuntimeException(e.getLocalizedMessage());
+            throw new RuntimeException(e.getLocalizedMessage(), e);
         }
     }
 
