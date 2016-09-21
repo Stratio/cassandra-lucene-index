@@ -34,6 +34,7 @@ public class CheckNonFrozenUDTAT extends BaseAT {
 
     @Test
     public void testNotFrozenUDT() {
+
         CassandraUtils.builder("testNotFrozenUDT")
                       .withUDT("address_udt", "city", "text")
                       .withUDT("address_udt", "postcode", "int")
