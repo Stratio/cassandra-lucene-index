@@ -381,20 +381,19 @@ public class CassandraUtils {
         logger.debug("JMX: Flush");
         invokeJMXMethod("org.apache.cassandra.db:type=StorageService",
                         "forceKeyspaceFlush",
-                        new Object[]{keyspace, new String[]{table}},
-                        new String[]{String.class.getName(), String[].class.getName()});
+                        new Object[]{keyspace, new String[]{table}});
         return this;
     }
 
     public CassandraUtils refresh() {
         logger.debug("JMX: Refresh");
-        invokeJMXMethod(indexBean, "refresh", new Object[]{}, new String[]{});
+        invokeJMXMethod(indexBean, "refresh", new Object[]{});
         return this;
     }
 
     public CassandraUtils commit() {
         logger.debug("JMX: Commit");
-        invokeJMXMethod(indexBean, "commit", new Object[]{}, new String[]{});
+        invokeJMXMethod(indexBean, "commit", new Object[]{});
         return this;
     }
 
@@ -402,19 +401,12 @@ public class CassandraUtils {
         logger.debug("JMX: Compact");
         invokeJMXMethod("org.apache.cassandra.db:type=StorageService",
                         "forceKeyspaceCompaction",
-                        new Object[]{splitOutput, keyspace, new String[]{table}},
-                        new String[]{boolean.class.getName(),
-                                     String.class.getName(),
-                                     String[].class.getName()});
+                        new Object[]{splitOutput, keyspace, new String[]{table}});
         return this;
     }
 
-    public int getIndexNumDeletedDocs() {
-        return getJMXAttribute(indexBean, "NumDeletedDocs").stream().mapToInt(o -> (int) o).sum() / REPLICATION;
-    }
-
-    public int getIndexNumDocs() {
-        return getJMXAttribute(indexBean, "NumDocs").stream().mapToInt(o -> (int) o).sum() / REPLICATION;
+    public long getIndexNumDocs() {
+        return getJMXAttribute(indexBean, "NumDocs").stream().mapToLong(o -> (long)o).sum() / REPLICATION;
     }
 
     @SuppressWarnings("unchecked")
