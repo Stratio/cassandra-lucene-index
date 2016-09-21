@@ -28,6 +28,7 @@ import org.junit.runners.Suite;
                      UDTCollectionsAT.class,
                      UDTIndexingAT.class,
                      UDTPartialInsertsAT.class,
+                     UDTPartialUpdateAT.class,
                      UDTValidationAT.class,})
 public class UDTSuite {
 }
