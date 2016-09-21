@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.7.3 (Upcoming)
+
+* Add support for indexing non-frozen UDTs
+
 ## 3.7.2 (September 14, 2016)
 
 Merged from 3.0.8.2:
