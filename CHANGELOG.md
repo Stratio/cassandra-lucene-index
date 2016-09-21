@@ -1,5 +1,7 @@
 # Changelog
 
+## 3.0.8.3 (Upcoming)
+
 ## 3.0.8.2 (August 29, 2016)
 
 * Allow associativity in search-time geospatial transformations
