@@ -23,7 +23,7 @@ import java.util.{Date, UUID}
 import com.stratio.cassandra.lucene.IndexException
 import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db.marshal._
-import org.apache.cassandra.db.rows.{Cell, ComplexColumnData, Row}
+import org.apache.cassandra.db.rows.{Cell, CellPath, ComplexColumnData, Row}
 import org.apache.cassandra.serializers.CollectionSerializer
 import org.apache.cassandra.transport.Server._
 import org.apache.cassandra.utils.ByteBufferUtil
@@ -77,6 +77,16 @@ object ColumnsMapper {
         val keyComparator = mapType.nameComparator
         val nameSuffix = keyComparator.compose(keyValue).toString
         columns(isTombstone, column.withMapName(nameSuffix), itemComparator, value)
+      case userType:UserType =>
+        val cellPath=cell.path()
+        if (cellPath == null) {
+          columns(isTombstone, column, comparator, value)
+        } else {
+          val position = ByteBufferUtil.toShort(cellPath.get(0))
+          val name = userType.fieldNameAsString(position)
+          val typo = userType.`type`(position)
+          columns(isTombstone, column.withUDTName(name), typo, value)
+        }
       case _ =>
         columns(isTombstone, column, comparator, value)
     }
