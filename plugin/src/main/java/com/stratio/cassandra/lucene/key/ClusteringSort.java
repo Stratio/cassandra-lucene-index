@@ -15,37 +15,50 @@
  */
 package com.stratio.cassandra.lucene.key;
 
+import org.apache.cassandra.db.Clustering;
 import org.apache.lucene.search.FieldComparator;
 import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+
+import static com.stratio.cassandra.lucene.key.TokenMapper.COLLATION_BYTES;
+import static org.apache.cassandra.utils.FastByteOperations.compareUnsigned;
 
 /**
  * {@link SortField} to sort by primary key.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-class KeySort extends SortField {
+public class ClusteringSort extends SortField {
 
     /** The Lucene sort name. */
-    private static final String SORT_NAME = "<primary_key>";
+    private static final String SORT_NAME = "<clustering>";
 
     /**
-     * Builds a new {@link KeySort} for the specified {@link KeyMapper}.
+     * Builds a new {@link ClusteringSort} for the specified {@link ClusteringMapper}.
      *
      * @param mapper the primary key mapper to be used
      */
-    KeySort(KeyMapper mapper) {
-        super(KeyMapper.FIELD_NAME, new FieldComparatorSource() {
+    ClusteringSort(ClusteringMapper mapper) {
+        super(ClusteringMapper.FIELD_NAME, new FieldComparatorSource() {
             @Override
             public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
             throws IOException {
                 return new FieldComparator.TermValComparator(hits, field, false) {
                     @Override
-                    public int compareValues(BytesRef val1, BytesRef val2) {
-                        return mapper.entry(val1).compareTo(mapper.entry(val2));
+                    public int compareValues(BytesRef t1, BytesRef t2) {
+                        int comp = compareUnsigned(t1.bytes, 0, COLLATION_BYTES, t2.bytes, 0, COLLATION_BYTES);
+                        if (comp == 0) {
+                            ByteBuffer bb1 = ByteBuffer.wrap(t1.bytes, COLLATION_BYTES, t1.length - COLLATION_BYTES);
+                            ByteBuffer bb2 = ByteBuffer.wrap(t2.bytes, COLLATION_BYTES, t2.length - COLLATION_BYTES);
+                            Clustering clustering1 = mapper.clustering(bb1);
+                            Clustering clustering2 = mapper.clustering(bb2);
+                            comp = mapper.comparator.compare(clustering1, clustering2);
+                        }
+                        return comp;
                     }
                 };
             }

@@ -49,7 +49,7 @@ import java.util.List;
 public final class PartitionMapper {
 
     /** The Lucene field name. */
-    public static final String FIELD_NAME = "_partition_key";
+    public static final String FIELD_NAME = "_partition";
 
     /** The Lucene field type. */
     private static final FieldType FIELD_TYPE = new FieldType();
@@ -139,17 +139,6 @@ public final class PartitionMapper {
      */
     public Term term(DecoratedKey partitionKey) {
         return term(partitionKey.getKey());
-    }
-
-    /**
-     * Returns the {@link Term} representing the partition key of the specified {@link Document}.
-     *
-     * @param document the document
-     * @return the partition key term
-     */
-    public Term term(Document document) {
-        BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
-        return new Term(FIELD_NAME, bytesRef);
     }
 
     /**

@@ -15,53 +15,43 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.dht.Murmur3Partitioner.LongToken;
 import org.apache.cassandra.dht.Token;
+import org.apache.lucene.util.BytesRef;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertArrayEquals;
 
 /**
+ * Tests for {@link TokenMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class TokenMapperTest {
 
     private static final List<Token> TOKENS = Arrays.asList(new LongToken(Long.MIN_VALUE),
-                                                            new LongToken(-12345),
-                                                            new LongToken(-123),
-                                                            new LongToken(0),
-                                                            new LongToken(123),
-                                                            new LongToken(12345),
+                                                            new LongToken(-12345L),
+                                                            new LongToken(-123L),
+                                                            new LongToken(-2L),
+                                                            new LongToken(-1L),
+                                                            new LongToken(0L),
+                                                            new LongToken(1L),
+                                                            new LongToken(2L),
+                                                            new LongToken(123L),
+                                                            new LongToken(12345L),
                                                             new LongToken(Long.MAX_VALUE));
-
-    private static final List<String> STRINGS = Arrays.asList("0000000000000000",
-                                                              "7fffffffffffcfc7",
-                                                              "7fffffffffffff85",
-                                                              "8000000000000000",
-                                                              "800000000000007b",
-                                                              "8000000000003039",
-                                                              "ffffffffffffffff");
 
     @Test
     public void testToCollated() {
-        List<String> strings = TOKENS.stream()
-                                     .map(TokenMapper::toCollated)
-                                     .map(UTF8Type.instance::compose)
-                                     .collect(Collectors.toList());
-        assertArrayEquals("TokenMapper.toCollated is wrong", STRINGS.toArray(), strings.toArray());
-    }
-
-    @Test
-    public void testFromCollated() {
-        List<Token> tokens = STRINGS.stream()
-                                    .map(UTF8Type.instance::decompose)
-                                    .map(TokenMapper::fromCollated)
-                                    .collect(Collectors.toList());
-        assertArrayEquals("TokenMapper.toCollated is wrong", TOKENS.toArray(), tokens.toArray());
+        List<BytesRef> l1 = TOKENS.stream().map(TokenMapper::collate).map(BytesRef::new).collect(toList());
+        List<BytesRef> l2 = TOKENS.stream().map(TokenMapper::collate).map(BytesRef::new).collect(toList());
+        Collections.reverse(l2); // Modify order
+        Collections.sort(l2); // Lexicographical sort
+        assertArrayEquals("Token collation is wrong", l1.toArray(), l2.toArray());
     }
 }

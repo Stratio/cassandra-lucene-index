@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.8.3 (Upcoming)
+
+* Optimize clustering key index format (breaks backward compatibility)
+
 ## 3.0.8.2 (August 29, 2016)
 
 * Allow associativity in search-time geospatial transformations
