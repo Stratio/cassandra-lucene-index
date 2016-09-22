@@ -37,9 +37,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.all;
 import static com.stratio.cassandra.lucene.builder.Builder.index;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConnection.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -409,12 +407,8 @@ public class CassandraUtils {
         return this;
     }
 
-    public int getIndexNumDeletedDocs() {
-        return getJMXAttribute(indexBean, "NumDeletedDocs").stream().mapToInt(o -> (int) o).sum() / REPLICATION;
-    }
-
     public int getIndexNumDocs() {
-        return getJMXAttribute(indexBean, "NumDocs").stream().mapToInt(o -> (int) o).sum() / REPLICATION;
+        return getJMXAttribute(indexBean, "NumDocs").stream().mapToInt(o -> ((Number) o).intValue()).sum() / REPLICATION;
     }
 
     @SuppressWarnings("unchecked")
