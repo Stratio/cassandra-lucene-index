@@ -88,7 +88,7 @@ Requirements
 ------------
 
 -  Cassandra (identified by the three first numbers of the plugin version)
--  Java >= 1.7 (OpenJDK and Sun have been tested)
+-  Java >= 1.8 (OpenJDK and Sun have been tested)
 -  Maven >= 3.0
 
 Build and install
