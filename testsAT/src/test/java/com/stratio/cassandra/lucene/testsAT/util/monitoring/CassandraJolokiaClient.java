@@ -20,7 +20,6 @@ import org.jolokia.client.exception.J4pException;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pReadRequest;
 import org.jolokia.client.request.J4pReadResponse;
-import org.jolokia.client.request.J4pResponse;
 
 import javax.management.MalformedObjectNameException;
 
@@ -28,52 +27,53 @@ import javax.management.MalformedObjectNameException;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class CassandraJolokiaClient implements CassandraMonitoringClient {
+
     private J4pClient j4pClient;
     private String service;
+
     public CassandraJolokiaClient(String service) {
-        this.service=service;
+        this.service = service;
     }
 
+    /** {@inheritDoc} */
+    @Override
     public CassandraJolokiaClient connect() {
-        j4pClient = new J4pClient("http://"+service+"/jolokia");
+        j4pClient = new J4pClient("http://" + service + "/jolokia");
         return this;
     }
 
+    /** {@inheritDoc} */
+    @Override
     public void disconnect() {
-        this.j4pClient=null;
+        this.j4pClient = null;
     }
 
-    public Object read(String s_name, String attribute) throws RuntimeException {
-        System.out.println("calling getAtribute with s_name: "+s_name+" atribute: "+attribute);
-        J4pReadRequest req = null;
+    /** {@inheritDoc} */
+    @Override
+    public Object read(String bean, String attribute) {
+        J4pReadRequest req;
         try {
-            req = new J4pReadRequest(s_name, attribute);
+            req = new J4pReadRequest(bean, attribute);
         } catch (MalformedObjectNameException e) {
-            e.printStackTrace();
-            throw new RuntimeException("MalformedObjectNameException: "+e.getMessage());
+            throw new RuntimeException("MalformedObjectNameException: " + e.getMessage());
         }
         try {
-            J4pReadResponse response= j4pClient.execute(req);
+            J4pReadResponse response = j4pClient.execute(req);
             return response.getValue();
         } catch (J4pException e) {
-            e.printStackTrace();
-            throw new RuntimeException("J4pException: "+e.getMessage());
+            throw new RuntimeException("J4pException: " + e.getMessage(), e);
         }
 
     }
 
+    /** {@inheritDoc} */
     @Override
-    public void invokeMEthod(String beanName, String operation, Object[] params) throws RuntimeException {
-        String[] signature= new String[params.length];
-        for (int i=0;i<params.length;i++) {
-            signature[i]=params[i].getClass().getName();
-        }
+    public void invoke(String bean, String operation, Object[] params, String[] signature) {
         try {
-            J4pExecRequest exec = new J4pExecRequest(beanName, operation, params);
+            J4pExecRequest exec = new J4pExecRequest(bean, operation, params);
             j4pClient.execute(exec);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getLocalizedMessage());
+            throw new RuntimeException(e.getLocalizedMessage(), e);
         }
 
     }

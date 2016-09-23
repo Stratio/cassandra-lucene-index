@@ -16,11 +16,41 @@
 package com.stratio.cassandra.lucene.testsAT.util.monitoring;
 
 /**
+ * Client for consuming the JMX monitoring services of a Cassandra node.
+ *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public interface CassandraMonitoringClient {
+
+    /**
+     * Connects to the node.
+     *
+     * @return this
+     */
     CassandraMonitoringClient connect();
+
+    /**
+     * Closes the connection to the node.
+     */
     void disconnect();
-    Object read(String s_name, String attribute) throws RuntimeException;
-    void invokeMEthod(String beanName, String operation, Object[] params) throws RuntimeException;
+
+    /**
+     * Gets the value of a specific attribute of a named MBean.
+     *
+     * @param bean the name of the MBean from which the attribute is to be retrieved
+     * @param attribute the name of the attribute to be retrieved
+     * @return the value of the retrieved attribute
+     */
+    Object read(String bean, String attribute);
+
+    /**
+     * Invokes an operation on an MBean.
+     *
+     * @param bean the name of the MBean from which the attribute is to be retrieved
+     * @param operation the name of the operation to be invoked
+     * @param params n array containing the parameters to be set when the operation is invoked
+     * @param signature An array containing the signature of the operation, an array of class names in the format
+     * returned by {@link Class#getName()}.
+     */
+    void invoke(String bean, String operation, Object[] params, String[] signature);
 }
