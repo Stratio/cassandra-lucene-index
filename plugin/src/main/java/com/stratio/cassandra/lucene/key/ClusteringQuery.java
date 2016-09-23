@@ -30,7 +30,7 @@ import org.apache.lucene.util.BytesRef;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static com.stratio.cassandra.lucene.key.TokenMapper.COLLATION_BYTES;
+import static com.stratio.cassandra.lucene.key.ClusteringMapper.PREFIX_BYTES;
 import static org.apache.cassandra.utils.FastByteOperations.compareUnsigned;
 
 /**
@@ -62,7 +62,7 @@ public class ClusteringQuery extends MultiTermQuery {
         this.token = position.getToken();
         this.start = start;
         this.stop = stop;
-        seek = TokenMapper.collate(token);
+        seek = ClusteringMapper.prefix(token);
     }
 
     /** {@inheritDoc} */
@@ -137,7 +137,7 @@ public class ClusteringQuery extends MultiTermQuery {
         protected AcceptStatus accept(BytesRef term) {
 
             // Check token range
-            int comp = compareUnsigned(term.bytes, 0, COLLATION_BYTES, seek, 0, COLLATION_BYTES);
+            int comp = compareUnsigned(term.bytes, 0, PREFIX_BYTES, seek, 0, PREFIX_BYTES);
             if (comp < 0) {
                 return AcceptStatus.NO;
             }
@@ -146,7 +146,7 @@ public class ClusteringQuery extends MultiTermQuery {
             }
 
             // Check clustering range
-            ByteBuffer bb = ByteBuffer.wrap(term.bytes, COLLATION_BYTES, term.length - COLLATION_BYTES);
+            ByteBuffer bb = ByteBuffer.wrap(term.bytes, PREFIX_BYTES, term.length - PREFIX_BYTES);
             Clustering clustering = mapper.clustering(bb);
             if (start != null && mapper.comparator.compare(start, clustering) > 0) {
                 return AcceptStatus.NO;

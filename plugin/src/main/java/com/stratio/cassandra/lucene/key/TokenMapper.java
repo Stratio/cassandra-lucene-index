@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import com.google.common.primitives.Longs;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
@@ -160,21 +159,5 @@ public final class TokenMapper {
      */
     public Query query(Token token) {
         return new TermQuery(new Term(FIELD_NAME, bytesRef(token)));
-    }
-
-    /** The number of bytes produced by token collation. */
-    static int COLLATION_BYTES = 8;
-
-    /**
-     * Returns a lexicographically sortable representation of the specified token.
-     *
-     * @param token a token
-     * @return a lexicographically sortable 8 bytes array
-     */
-    @SuppressWarnings("NumericOverflow")
-    static byte[] collate(Token token) {
-        long value = value(token);
-        long collated = Long.MIN_VALUE * -1 + value;
-        return Longs.toByteArray(collated);
     }
 }

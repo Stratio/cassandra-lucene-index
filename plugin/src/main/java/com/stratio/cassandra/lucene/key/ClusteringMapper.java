@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.key;
 
+import com.google.common.primitives.Longs;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
@@ -41,11 +42,11 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
-import static com.stratio.cassandra.lucene.key.TokenMapper.COLLATION_BYTES;
 import static org.apache.cassandra.db.PartitionPosition.Kind.ROW_KEY;
 import static org.apache.cassandra.utils.ByteBufferUtil.EMPTY_BYTE_BUFFER;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
@@ -71,6 +72,9 @@ public final class ClusteringMapper {
         FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
         FIELD_TYPE.freeze();
     }
+
+    /** The number of bytes produced by token collation. */
+    static int PREFIX_BYTES = 8;
 
     /** The indexed table metadata */
     public final CFMetaData metadata;
@@ -121,37 +125,6 @@ public final class ClusteringMapper {
     }
 
     /**
-     * Returns the {@link ByteBuffer} representation of the primary key formed by the specified partition key and the
-     * clustering key.
-     *
-     * @param key the partition key
-     * @param clustering the clustering key
-     * @return the {@link ByteBuffer} representation of the primary key
-     */
-    private ByteBuffer docValuesByteBuffer(DecoratedKey key, Clustering clustering) {
-        ByteBuffer clusteringBytes = byteBuffer(clustering);
-        ByteBuffer bb = ByteBuffer.allocate(COLLATION_BYTES + clusteringBytes.remaining());
-        bb.put(TokenMapper.collate(key.getToken()));
-        bb.put(clusteringBytes);
-        bb.flip();
-        return bb;
-    }
-
-    /**
-     * Returns a {@link ByteBuffer} representing the specified clustering key
-     *
-     * @param clustering the clustering key
-     * @return the byte buffer representing {@code clustering}
-     */
-    private ByteBuffer byteBuffer(Clustering clustering) {
-        CompositeType.Builder builder = type.builder();
-        for (ByteBuffer component : clustering.getRawValues()) {
-            builder.add(component);
-        }
-        return builder.build();
-    }
-
-    /**
      * Returns the Lucene {@link IndexableField} representing the primary key formed by the specified primary key.
      *
      * @param key the partition key
@@ -159,10 +132,20 @@ public final class ClusteringMapper {
      * @return a indexable field
      */
     public List<IndexableField> indexableFields(DecoratedKey key, Clustering clustering) {
-        List<IndexableField> fields = new ArrayList<>();
-        fields.add(new Field(FIELD_NAME, bytesRef(key, clustering), FIELD_TYPE));
-        fields.add(new StoredField(FIELD_NAME, bytesRef(clustering)));
-        return fields;
+
+        // Build stored field for clustering key retrieval
+        CompositeType.Builder builder = type.builder();
+        Arrays.stream(clustering.getRawValues()).forEach(builder::add);
+        BytesRef plainClustering = ByteBufferUtils.bytesRef(builder.build());
+        Field storedField = new StoredField(FIELD_NAME, plainClustering);
+
+        // Build indexed field prefixed by token value collation
+        ByteBuffer bb = ByteBuffer.allocate(PREFIX_BYTES + plainClustering.length);
+        bb.put(prefix(key.getToken())).put(plainClustering.bytes).flip();
+        BytesRef prefixedClustering = ByteBufferUtils.bytesRef(bb);
+        Field indexedField = new Field(FIELD_NAME, prefixedClustering, FIELD_TYPE);
+
+        return Arrays.asList(indexedField, storedField);
     }
 
     /**
@@ -173,29 +156,6 @@ public final class ClusteringMapper {
      */
     public Clustering clustering(ByteBuffer clustering) {
         return new Clustering(type.split(clustering));
-    }
-
-    /**
-     * Returns the {@link BytesRef} representation of the specified clustering key.
-     *
-     * @param clustering a clustering key
-     * @return a Lucene field binary value
-     */
-    private BytesRef bytesRef(Clustering clustering) {
-        ByteBuffer bb = byteBuffer(clustering);
-        return ByteBufferUtils.bytesRef(bb);
-    }
-
-    /**
-     * Returns the {@link BytesRef} representation of the specified primary key.
-     *
-     * @param key the partition key
-     * @param clustering the clustering key
-     * @return a Lucene field binary value
-     */
-    private BytesRef bytesRef(DecoratedKey key, Clustering clustering) {
-        ByteBuffer bb = docValuesByteBuffer(key, clustering);
-        return ByteBufferUtils.bytesRef(bb);
     }
 
     /**
@@ -318,6 +278,19 @@ public final class ClusteringMapper {
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         sliceFilter.requestedSlices().forEach(slice -> builder.add(query(key, slice), SHOULD));
         return builder.build();
+    }
+
+    /**
+     * Returns a lexicographically sortable representation of the specified token.
+     *
+     * @param token a token
+     * @return a lexicographically sortable 8 bytes array
+     */
+    @SuppressWarnings("NumericOverflow")
+    static byte[] prefix(Token token) {
+        long value = TokenMapper.value(token);
+        long collated = Long.MIN_VALUE * -1 + value;
+        return Longs.toByteArray(collated);
     }
 
 }

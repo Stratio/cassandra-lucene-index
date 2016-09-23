@@ -32,7 +32,7 @@ import static org.junit.Assert.assertArrayEquals;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class TokenMapperTest {
+public class ClusteringMapperTest {
 
     private static final List<Token> TOKENS = Arrays.asList(new LongToken(Long.MIN_VALUE),
                                                             new LongToken(-12345L),
@@ -48,8 +48,8 @@ public class TokenMapperTest {
 
     @Test
     public void testToCollated() {
-        List<BytesRef> l1 = TOKENS.stream().map(TokenMapper::collate).map(BytesRef::new).collect(toList());
-        List<BytesRef> l2 = TOKENS.stream().map(TokenMapper::collate).map(BytesRef::new).collect(toList());
+        List<BytesRef> l1 = TOKENS.stream().map(ClusteringMapper::prefix).map(BytesRef::new).collect(toList());
+        List<BytesRef> l2 = TOKENS.stream().map(ClusteringMapper::prefix).map(BytesRef::new).collect(toList());
         Collections.reverse(l2); // Modify order
         Collections.sort(l2); // Lexicographical sort
         assertArrayEquals("Token collation is wrong", l1.toArray(), l2.toArray());
