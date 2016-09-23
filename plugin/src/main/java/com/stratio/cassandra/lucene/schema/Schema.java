@@ -160,7 +160,7 @@ public class Schema implements Closeable {
      */
     public List<IndexableField> postProcessingIndexableFields(Columns columns, Search search) {
         List<IndexableField> fields = new LinkedList<>();
-        search.postProcessingFields().stream().forEach(field -> {
+        search.postProcessingFields().forEach(field -> {
             Mapper mapper = mapper(field);
             if (mapper != null) {
                 fields.addAll(mapper.indexableFields(columns));
