@@ -29,10 +29,10 @@ import java.nio.ByteBuffer;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-class PartitionSort extends SortField {
+public class PartitionSort extends SortField {
 
     /** The Lucene sort name. */
-    private static final String SORT_NAME = "<partition_key>";
+    private static final String SORT_NAME = "<partition>";
 
     /**
      * Builds a new {@link PartitionSort} for the specified {@link PartitionMapper}.

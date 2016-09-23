@@ -117,7 +117,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
             finished = scoreDocs.length < page;
             for (ScoreDoc scoreDoc : scoreDocs) {
                 after = scoreDoc;
-                Document document = searcher.doc(scoreDoc.doc, fields); // TODO: DocumentStoredFieldVisitor
+                Document document = searcher.doc(scoreDoc.doc, fields);
                 documents.add(Pair.create(document, scoreDoc));
             }
 

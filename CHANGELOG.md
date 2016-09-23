@@ -4,6 +4,9 @@
 
 * Add support for indexing non-frozen UDTs
 
+Merged from 3.0.8.2:
+* Optimize clustering key index format (breaks backward compatibility)
+
 ## 3.7.2 (September 14, 2016)
 
 Merged from 3.0.8.2:

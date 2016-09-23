@@ -47,6 +47,7 @@ import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
@@ -72,6 +73,9 @@ import static org.apache.lucene.search.SortField.FIELD_SCORE;
 abstract class IndexService implements IndexServiceMBean {
 
     protected static final Logger logger = LoggerFactory.getLogger(IndexService.class);
+
+    private static final String POST_PROCESSING_FIELD = "_id";
+    private static final Set<String> POST_PROCESSING_FIELDS = Collections.singleton(POST_PROCESSING_FIELD);
 
     final String qualifiedName;
     final TokenMapper tokenMapper;
@@ -302,14 +306,6 @@ abstract class IndexService implements IndexServiceMBean {
      * @return a Lucene identifying {@link Term}
      */
     abstract Term term(DecoratedKey key, Row row);
-
-    /**
-     * Returns a Lucene {@link Term} uniquely identifying the specified {@link Document}.
-     *
-     * @param document the document
-     * @return a Lucene identifying {@link Term}
-     */
-    abstract Term term(Document document);
 
     /**
      * Returns a Lucene {@link Term} identifying documents representing all the {@link Row}'s which are in the partition
@@ -717,29 +713,28 @@ abstract class IndexService implements IndexServiceMBean {
 
             // Index collected rows in memory
             RAMIndex index = new RAMIndex(schema.analyzer());
-            Map<Term, SimpleRowIterator> rowsByTerm = new HashMap<>();
+            Integer id = 0;
             for (Pair<DecoratedKey, SimpleRowIterator> pair : collectedRows) {
                 DecoratedKey key = pair.left;
                 SimpleRowIterator rowIterator = pair.right;
                 Row row = rowIterator.getRow();
-                Term term = term(key, row);
-                rowsByTerm.put(term, rowIterator);
                 Document document = document(key, row, search);
+                document.add(new StoredField(POST_PROCESSING_FIELD, id++));
                 index.add(document);
             }
 
             // Repeat search to sort partial results
             Query query = search.postProcessingQuery(schema);
             Sort sort = sort(search);
-            List<Pair<Document, ScoreDoc>> documents = index.search(query, sort, limit, fieldsToLoad());
+            List<Pair<Document, ScoreDoc>> documents = index.search(query, sort, limit, POST_PROCESSING_FIELDS);
             index.close();
 
             // Collect post processed results
             for (Pair<Document, ScoreDoc> pair : documents) {
                 Document document = pair.left;
                 Float score = pair.right.score;
-                Term term = term(document);
-                SimpleRowIterator rowIterator = rowsByTerm.get(term);
+                id = Integer.parseInt(document.get(POST_PROCESSING_FIELD));
+                SimpleRowIterator rowIterator = collectedRows.get(id).right;
                 rowIterator.setDecorator(row -> decorate(row, score, nowInSec));
                 processedRows.add(rowIterator);
             }

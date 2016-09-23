@@ -25,7 +25,6 @@ import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.utils.concurrent.OpOrder;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
@@ -91,12 +90,6 @@ class IndexServiceSkinny extends IndexService {
     @Override
     public Term term(DecoratedKey key, Row row) {
         return partitionMapper.term(key);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Term term(Document document) {
-        return partitionMapper.term(document);
     }
 
     /** {@inheritDoc} */

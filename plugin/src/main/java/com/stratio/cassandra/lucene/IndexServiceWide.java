@@ -18,10 +18,13 @@ package com.stratio.cassandra.lucene;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
+import com.stratio.cassandra.lucene.key.ClusteringMapper;
 import com.stratio.cassandra.lucene.key.KeyMapper;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
+import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
+import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.index.transactions.IndexTransaction;
@@ -36,9 +39,8 @@ import org.apache.lucene.search.SortField;
 
 import java.util.*;
 
-import static org.apache.cassandra.db.PartitionPosition.Kind.MAX_BOUND;
-import static org.apache.cassandra.db.PartitionPosition.Kind.MIN_BOUND;
-import static org.apache.cassandra.db.PartitionPosition.Kind.ROW_KEY;
+import static org.apache.cassandra.db.PartitionPosition.Kind.*;
+import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 /**
@@ -48,6 +50,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
  */
 class IndexServiceWide extends IndexService {
 
+    private final ClusteringMapper clusteringMapper;
     private final KeyMapper keyMapper;
 
     /**
@@ -58,6 +61,7 @@ class IndexServiceWide extends IndexService {
      */
     IndexServiceWide(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         super(table, indexMetadata);
+        clusteringMapper = new ClusteringMapper(metadata);
         keyMapper = new KeyMapper(metadata);
         super.init();
     }
@@ -65,13 +69,13 @@ class IndexServiceWide extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Set<String> fieldsToLoad() {
-        return new HashSet<>(Arrays.asList(PartitionMapper.FIELD_NAME, KeyMapper.FIELD_NAME));
+        return new HashSet<>(Arrays.asList(PartitionMapper.FIELD_NAME, ClusteringMapper.FIELD_NAME));
     }
 
     /** {@inheritDoc} */
     @Override
     public List<SortField> keySortFields() {
-        return Arrays.asList(tokenMapper.sortField(), keyMapper.sortField());
+        return Arrays.asList(tokenMapper.sortField(), partitionMapper.sortField(), clusteringMapper.sortField());
     }
 
     /**
@@ -81,7 +85,7 @@ class IndexServiceWide extends IndexService {
      * @return the clustering key contained in {@code document}
      */
     public Clustering clustering(Document document) {
-        return keyMapper.clustering(document);
+        return clusteringMapper.clustering(document);
     }
 
     /** {@inheritDoc} */
@@ -97,16 +101,20 @@ class IndexServiceWide extends IndexService {
     @Override
     public Columns columns(DecoratedKey key, Row row) {
         return new Columns().add(partitionMapper.columns(key))
-                            .add(keyMapper.columns(row.clustering()))
+                            .add(clusteringMapper.columns(row.clustering()))
                             .add(ColumnsMapper.columns(row));
     }
 
     /** {@inheritDoc} */
     @Override
     protected List<IndexableField> keyIndexableFields(DecoratedKey key, Row row) {
-        return Arrays.asList(tokenMapper.indexableField(key),
-                             partitionMapper.indexableField(key),
-                             keyMapper.indexableField(key, row.clustering()));
+        Clustering clustering = row.clustering();
+        List<IndexableField> fields = new ArrayList<>();
+        fields.add(tokenMapper.indexableField(key));
+        fields.add(partitionMapper.indexableField(key));
+        fields.add(keyMapper.indexableField(key, clustering));
+        fields.addAll(clusteringMapper.indexableFields(key, clustering));
+        return fields;
     }
 
     /** {@inheritDoc} */
@@ -129,20 +137,29 @@ class IndexServiceWide extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Term term(Document document) {
-        return KeyMapper.term(document);
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public Query query(DecoratedKey key, ClusteringIndexFilter filter) {
-        return filter.selectsAllPartition() ? partitionMapper.query(key) : keyMapper.query(key, filter);
+        if (filter.selectsAllPartition()) {
+            return partitionMapper.query(key);
+        } else if (filter instanceof ClusteringIndexNamesFilter) {
+            return keyMapper.query(key, (ClusteringIndexNamesFilter) filter);
+        } else if (filter instanceof ClusteringIndexSliceFilter) {
+            return clusteringMapper.query(key, (ClusteringIndexSliceFilter) filter);
+        } else {
+            throw new IndexException("Unknown filter type {}", filter);
+        }
     }
 
     private Query query(PartitionPosition position) {
         return position.kind() == ROW_KEY
                ? partitionMapper.query((DecoratedKey) position)
                : tokenMapper.query(position.getToken());
+    }
+
+    private Query query(PartitionPosition position, ClusteringPrefix start, ClusteringPrefix stop) {
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(query(position), FILTER);
+        builder.add(clusteringMapper.query(position, start, stop), FILTER);
+        return builder.build();
     }
 
     /** {@inheritDoc} */
@@ -159,8 +176,8 @@ class IndexServiceWide extends IndexService {
         PartitionPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
-        ClusteringPrefix startClustering = KeyMapper.startClusteringPrefix(dataRange).orElse(null);
-        ClusteringPrefix stopClustering = KeyMapper.stopClusteringPrefix(dataRange).orElse(null);
+        ClusteringPrefix startClustering = ClusteringMapper.startClusteringPrefix(dataRange).orElse(null);
+        ClusteringPrefix stopClustering = ClusteringMapper.stopClusteringPrefix(dataRange).orElse(null);
         boolean includeStartClustering = startClustering != null && startClustering.size() > 0;
         boolean includeStopClustering = stopClustering != null && stopClustering.size() > 0;
 
@@ -169,7 +186,7 @@ class IndexServiceWide extends IndexService {
             if (!includeStartClustering && !includeStopClustering) {
                 return Optional.of(query(startPosition));
             }
-            return Optional.of(keyMapper.query(startPosition, startClustering, stopClustering));
+            return Optional.of(query(startPosition, startClustering, stopClustering));
         }
 
         // Prepare query builder
@@ -177,7 +194,7 @@ class IndexServiceWide extends IndexService {
 
         // Add first partition filter
         if (includeStartClustering) {
-            builder.add(keyMapper.query(startPosition, startClustering, null), SHOULD);
+            builder.add(query(startPosition, startClustering, null), SHOULD);
         }
 
         // Add token range filter
@@ -188,7 +205,7 @@ class IndexServiceWide extends IndexService {
 
         // Add last partition filter
         if (includeStopClustering) {
-            builder.add(keyMapper.query(stopPosition, null, stopClustering), SHOULD);
+            builder.add(query(stopPosition, null, stopClustering), SHOULD);
         }
 
         // Return query, or empty if there are no restrictions

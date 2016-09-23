@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.key;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
@@ -33,8 +32,6 @@ import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.BytesRefBuilder;
 import org.apache.lucene.util.NumericUtils;
 
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.util.Optional;
 
 /**
@@ -162,33 +159,5 @@ public final class TokenMapper {
      */
     public Query query(Token token) {
         return new TermQuery(new Term(FIELD_NAME, bytesRef(token)));
-    }
-
-    private static final BigInteger OFFSET = BigInteger.valueOf(Long.MIN_VALUE).negate();
-
-    /**
-     * Returns a lexicographically sortable representation of the specified token.
-     *
-     * @param token the token
-     * @return a UTF-8 string serialized as a byte buffer
-     */
-    static ByteBuffer toCollated(Token token) {
-        long value = value(token);
-        BigInteger afterOffset = BigInteger.valueOf(value).add(OFFSET);
-        String text = String.format("%016x", afterOffset);
-        return UTF8Type.instance.decompose(text);
-    }
-
-    /**
-     * Returns the token represented by the specified output of {@link #toCollated(Token)}.
-     *
-     * @param bb a byte buffer generated with {@link #toCollated(Token)}
-     * @return the token represented by {@code bb}
-     */
-    static Token fromCollated(ByteBuffer bb) {
-        String text = UTF8Type.instance.compose(bb);
-        BigInteger beforeOffset = new BigInteger(text, 16);
-        long value = beforeOffset.subtract(OFFSET).longValue();
-        return new Murmur3Partitioner.LongToken(value);
     }
 }

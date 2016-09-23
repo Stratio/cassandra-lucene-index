@@ -16,8 +16,10 @@
 package com.stratio.cassandra.lucene.key;
 
 import com.google.common.base.MoreObjects;
-import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.db.Clustering;
+import org.apache.cassandra.db.ClusteringPrefix;
+import org.apache.cassandra.db.PartitionPosition;
+import org.apache.cassandra.dht.Token;
 import org.apache.lucene.index.FilteredTermsEnum;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
@@ -28,21 +30,20 @@ import org.apache.lucene.util.BytesRef;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static org.apache.cassandra.db.PartitionPosition.Kind.ROW_KEY;
+import static com.stratio.cassandra.lucene.key.ClusteringMapper.PREFIX_BYTES;
+import static org.apache.cassandra.utils.FastByteOperations.compareUnsigned;
 
 /**
  * {@link MultiTermQuery} to get a range of clustering keys.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-class KeyQuery extends MultiTermQuery {
+public class ClusteringQuery extends MultiTermQuery {
 
-    private final KeyMapper mapper;
-    private final DecoratedKey key;
+    private final ClusteringMapper mapper;
+    private final Token token;
     private final ClusteringPrefix start, stop;
-    private final ByteBuffer collatedToken;
-    private final ClusteringComparator clusteringComparator;
-    private final BytesRef seek;
+    private final byte[] seek;
 
     /**
      * Returns a new clustering key query for the specified clustering key range using the specified mapper.
@@ -52,18 +53,16 @@ class KeyQuery extends MultiTermQuery {
      * @param start the start clustering
      * @param stop the stop clustering
      */
-    KeyQuery(KeyMapper mapper,
-             PartitionPosition position,
-             ClusteringPrefix start,
-             ClusteringPrefix stop) {
-        super(KeyMapper.FIELD_NAME);
+    ClusteringQuery(ClusteringMapper mapper,
+                    PartitionPosition position,
+                    ClusteringPrefix start,
+                    ClusteringPrefix stop) {
+        super(ClusteringMapper.FIELD_NAME);
         this.mapper = mapper;
+        this.token = position.getToken();
         this.start = start;
         this.stop = stop;
-        key = position.kind() == ROW_KEY ? (DecoratedKey) position : null;
-        collatedToken = TokenMapper.toCollated(position.getToken());
-        clusteringComparator = mapper.clusteringComparator();
-        seek = mapper.seek(position);
+        seek = ClusteringMapper.prefix(token);
     }
 
     /** {@inheritDoc} */
@@ -77,7 +76,7 @@ class KeyQuery extends MultiTermQuery {
     public String toString(String field) {
         return MoreObjects.toStringHelper(this)
                           .add("field", field)
-                          .add("key", key)
+                          .add("token", token)
                           .add("start", start == null ? null : mapper.toString(start))
                           .add("stop", stop == null ? null : mapper.toString(stop))
                           .toString();
@@ -101,15 +100,15 @@ class KeyQuery extends MultiTermQuery {
             return false;
         }
 
-        KeyQuery keyQuery = (KeyQuery) o;
+        ClusteringQuery clusteringQuery = (ClusteringQuery) o;
 
-        if (!key.equals(keyQuery.key)) {
+        if (!token.equals(clusteringQuery.token)) {
             return false;
         }
-        if (start != null ? !start.equals(keyQuery.start) : keyQuery.start != null) {
+        if (start != null ? !start.equals(clusteringQuery.start) : clusteringQuery.start != null) {
             return false;
         }
-        return stop != null ? stop.equals(keyQuery.stop) : keyQuery.stop == null;
+        return stop != null ? stop.equals(clusteringQuery.stop) : clusteringQuery.stop == null;
     }
 
     /**
@@ -120,7 +119,7 @@ class KeyQuery extends MultiTermQuery {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + key.hashCode();
+        result = 31 * result + token.hashCode();
         result = 31 * result + (start != null ? start.hashCode() : 0);
         result = 31 * result + (stop != null ? stop.hashCode() : 0);
         return result;
@@ -130,41 +129,29 @@ class KeyQuery extends MultiTermQuery {
 
         FullKeyDataRangeFilteredTermsEnum(TermsEnum tenum) {
             super(tenum);
-            setInitialSeekTerm(seek);
+            setInitialSeekTerm(new BytesRef(seek));
         }
 
         /** {@inheritDoc} */
         @Override
         protected AcceptStatus accept(BytesRef term) {
 
-            KeyEntry entry = mapper.entry(term);
-
-            // Check token
-            int tokenComparison = UTF8Type.instance.compare(entry.getCollatedToken(), collatedToken);
-            if (tokenComparison < 0) {
+            // Check token range
+            int comp = compareUnsigned(term.bytes, 0, PREFIX_BYTES, seek, 0, PREFIX_BYTES);
+            if (comp < 0) {
                 return AcceptStatus.NO;
             }
-            if (tokenComparison > 0) {
+            if (comp > 0) {
                 return AcceptStatus.END;
             }
 
-            // Check partition key
-            if (key != null) {
-                Integer keyComparison = entry.getDecoratedKey().compareTo(key);
-                if (keyComparison < 0) {
-                    return AcceptStatus.NO;
-                }
-                if (keyComparison > 0) {
-                    return AcceptStatus.NO;
-                }
-            }
-
-            // Check clustering key range
-            Clustering clustering = entry.getClustering();
-            if (start != null && clusteringComparator.compare(start, clustering) > 0) {
+            // Check clustering range
+            ByteBuffer bb = ByteBuffer.wrap(term.bytes, PREFIX_BYTES, term.length - PREFIX_BYTES);
+            Clustering clustering = mapper.clustering(bb);
+            if (start != null && mapper.comparator.compare(start, clustering) > 0) {
                 return AcceptStatus.NO;
             }
-            if (stop != null && clusteringComparator.compare(stop, clustering) < 0) {
+            if (stop != null && mapper.comparator.compare(stop, clustering) < 0) {
                 return AcceptStatus.NO;
             }
 
