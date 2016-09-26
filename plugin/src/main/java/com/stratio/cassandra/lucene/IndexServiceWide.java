@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
-import com.stratio.cassandra.lucene.key.ClusteringMapper;
 import com.stratio.cassandra.lucene.key.KeyMapper;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
 import org.apache.cassandra.db.*;
@@ -36,6 +35,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
+import com.stratio.cassandra.lucene.key.ClusteringMapper;
 
 import java.util.*;
 
@@ -69,7 +69,7 @@ class IndexServiceWide extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Set<String> fieldsToLoad() {
-        return new HashSet<>(Arrays.asList(PartitionMapper.FIELD_NAME, ClusteringMapper.FIELD_NAME));
+        return new HashSet<>(Arrays.asList(PartitionMapper.FIELD_NAME, ClusteringMapper.fieldName()));
     }
 
     /** {@inheritDoc} */
@@ -176,8 +176,8 @@ class IndexServiceWide extends IndexService {
         PartitionPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
-        ClusteringPrefix startClustering = ClusteringMapper.startClusteringPrefix(dataRange).orElse(null);
-        ClusteringPrefix stopClustering = ClusteringMapper.stopClusteringPrefix(dataRange).orElse(null);
+        ClusteringPrefix startClustering = ClusteringMapper.startClusteringPrefix(dataRange).getOrElse(null);
+        ClusteringPrefix stopClustering = ClusteringMapper.stopClusteringPrefix(dataRange).getOrElse(null);
         boolean includeStartClustering = startClustering != null && startClustering.size() > 0;
         boolean includeStopClustering = stopClustering != null && stopClustering.size() > 0;
 
