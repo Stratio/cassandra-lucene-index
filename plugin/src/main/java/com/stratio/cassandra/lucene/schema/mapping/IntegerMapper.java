@@ -16,13 +16,20 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.column.Column;
 import org.apache.cassandra.db.marshal.*;
+import org.apache.cassandra.serializers.SimpleDateSerializer;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 import org.apache.lucene.search.SortedNumericSortField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
 
 /**
  * A {@link Mapper} to map an integer field.
@@ -31,6 +38,7 @@ import org.apache.lucene.search.SortedNumericSortField;
  */
 public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer> {
 
+    private static final Logger logger = LoggerFactory.getLogger(IntegerMapper.class);
     /** The default boost. */
     public static final Float DEFAULT_BOOST = 1.0f;
 
@@ -61,15 +69,22 @@ public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer>
               Int32Type.instance,
               LongType.instance,
               ShortType.instance,
-              UTF8Type.instance);
+              UTF8Type.instance,
+              SimpleDateType.instance,
+              TimestampType.instance);
         this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 
     /** {@inheritDoc} */
     @Override
     protected Integer doBase(String name, Object value) {
+        logger.debug("parsing an object with type: "+value.getClass()+" and value: "+value.toString());
         if (value instanceof Number) {
             return ((Number) value).intValue();
+        } else if (value instanceof Date) {
+            int ret=SimpleDateSerializer.timeInMillisToDay(((Date) value).getTime());
+            logger.debug(" returning: " + Integer.toString(ret));
+            return ret;
         } else if (value instanceof String) {
             try {
                 return Double.valueOf((String) value).intValue();

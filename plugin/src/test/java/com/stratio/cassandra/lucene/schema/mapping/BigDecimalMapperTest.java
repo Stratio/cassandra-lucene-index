@@ -271,7 +271,6 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
         Short shorty = new Short("-32768");
         String parsed = mapper.base("test", shorty);
         assertEquals("Base value is not properly parsed", "099967231.9999", parsed);
-
     }
 
     @Test
@@ -280,7 +279,6 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
         Short shorty = new Short("32767");
         String parsed = mapper.base("test", shorty);
         assertEquals("Base value is not properly parsed", "100032766.9999", parsed);
-
     }
 
     @Test
@@ -289,7 +287,6 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
         Integer integer = 0;
         String parsed = mapper.base("test", integer);
         assertEquals("Base value is not properly parsed", "09999.9999", parsed);
-
     }
 
     @Test
@@ -298,7 +295,6 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
         Integer integer = 1;
         String parsed = mapper.base("test", integer);
         assertEquals("Base value is not properly parsed", "10000.9999", parsed);
-
     }
 
     @Test
@@ -307,7 +303,6 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
         Integer integer = -15;
         String parsed = mapper.base("test", integer);
         assertEquals("Base value is not properly parsed", "09984.9999", parsed);
-
     }
 
     @Test

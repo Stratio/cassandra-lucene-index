@@ -152,7 +152,6 @@ public class FloatMapperTest extends AbstractMapperTest {
         FloatMapper mapper = floatMapper().boost(1f).build("field");
         Float parsed = mapper.base("test", 3.5d);
         assertEquals("Base for doubles is wrong", Float.valueOf(3.5f), parsed);
-
     }
 
     @Test
@@ -160,7 +159,6 @@ public class FloatMapperTest extends AbstractMapperTest {
         FloatMapper mapper = floatMapper().boost(1f).build("field");
         Float parsed = mapper.base("test", 3.6d);
         assertEquals("Base for doubles is wrong", Float.valueOf(3.6f), parsed);
-
     }
 
     @Test
@@ -182,7 +180,6 @@ public class FloatMapperTest extends AbstractMapperTest {
         FloatMapper mapper = floatMapper().boost(1f).build("field");
         Float parsed = mapper.base("test", "3.6");
         assertEquals("Base for strings is wrong", Float.valueOf(3.6f), parsed);
-
     }
 
     @Test

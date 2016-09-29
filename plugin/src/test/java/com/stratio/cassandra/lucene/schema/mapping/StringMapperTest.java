@@ -118,7 +118,6 @@ public class StringMapperTest extends AbstractMapperTest {
         StringMapper mapper = stringMapper().caseSensitive(true).build("field");
         String parsed = mapper.base("test", 3.5f);
         assertEquals("Base for floats is wrong", "3.5", parsed);
-
     }
 
     @Test
@@ -140,7 +139,6 @@ public class StringMapperTest extends AbstractMapperTest {
         StringMapper mapper = stringMapper().caseSensitive(true).build("field");
         String parsed = mapper.base("test", 3.5d);
         assertEquals("Base for double is wrong", "3.5", parsed);
-
     }
 
     @Test
@@ -148,7 +146,6 @@ public class StringMapperTest extends AbstractMapperTest {
         StringMapper mapper = stringMapper().caseSensitive(true).build("field");
         String parsed = mapper.base("test", 3.6d);
         assertEquals("Base for double is wrong", "3.6", parsed);
-
     }
 
     @Test
@@ -170,7 +167,6 @@ public class StringMapperTest extends AbstractMapperTest {
         StringMapper mapper = stringMapper().caseSensitive(true).build("field");
         String parsed = mapper.base("test", "3.6");
         assertEquals("Base for strings is wrong", "3.6", parsed);
-
     }
 
     @Test

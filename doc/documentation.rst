@@ -939,7 +939,7 @@ Maps a 64-bit decimal number.
     };
 
 
-Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, text, timestamp,  tinyint, varchar, varint
+Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, text, tinyint, varchar, varint
 
 Float mapper
 ____________
@@ -967,7 +967,7 @@ Maps a 32-bit decimal number.
     };
 
 
-Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, timestamp, tinyint, varchar, varint
+Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, tinyint, varchar, varint
 
 Geo point mapper
 ________________
@@ -1265,7 +1265,7 @@ Maps a 32-bit integer number.
     };
 
 
-Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, text, timestamp, tinyint, varchar, varint
+Supported CQL types: ascii, bigint, date, decimal, double, float, int, smallint, text, timestamp, tinyint, varchar, varint
 
 Long mapper
 ___________
@@ -1293,7 +1293,7 @@ Maps a 64-bit integer number.
     };
 
 
-Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, text, timestamp, tinyint, varchar, varint
+Supported CQL types: ascii, bigint, date, decimal, double, float, int, smallint, text, timestamp, tinyint, varchar, varint
 
 String mapper
 _____________
