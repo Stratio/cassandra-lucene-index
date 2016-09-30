@@ -1,6 +1,10 @@
 # Changelog
 
-## 3.0.8.3 (Upcoming)
+## 3.0.9.0 (Upcoming)
+
+* Upgrade to Apache Cassandra 3.0.9
+
+## 3.0.8.3 (September 30, 2016)
 
 * Optimize clustering key index format (breaks backward compatibility)
 
