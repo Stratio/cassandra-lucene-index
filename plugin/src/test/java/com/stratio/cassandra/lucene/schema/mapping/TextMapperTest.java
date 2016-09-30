@@ -121,7 +121,6 @@ public class TextMapperTest extends AbstractMapperTest {
         TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", 3.5f);
         assertEquals("Base for floats is wrong", "3.5", parsed);
-
     }
 
     @Test
@@ -143,7 +142,6 @@ public class TextMapperTest extends AbstractMapperTest {
         TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", 3.5d);
         assertEquals("Base for doubles is wrong", "3.5", parsed);
-
     }
 
     @Test
@@ -172,7 +170,6 @@ public class TextMapperTest extends AbstractMapperTest {
         TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", "3.6");
         assertEquals("Base for strings is wrong", "3.6", parsed);
-
     }
 
     @Test

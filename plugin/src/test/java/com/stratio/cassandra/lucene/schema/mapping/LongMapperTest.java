@@ -22,6 +22,8 @@ import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
 
+import java.util.Date;
+
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.longMapper;
 import static org.junit.Assert.*;
 
@@ -127,7 +129,6 @@ public class LongMapperTest extends AbstractMapperTest {
         LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", 3.5f);
         assertEquals("Base for float is wrong", Long.valueOf(3), parsed);
-
     }
 
     @Test
@@ -135,7 +136,6 @@ public class LongMapperTest extends AbstractMapperTest {
         LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", 3.6f);
         assertEquals("Base for float is wrong", Long.valueOf(3), parsed);
-
     }
 
     @Test
@@ -150,7 +150,6 @@ public class LongMapperTest extends AbstractMapperTest {
         LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", 3.5d);
         assertEquals("Base for double is wrong", Long.valueOf(3), parsed);
-
     }
 
     @Test
@@ -158,7 +157,6 @@ public class LongMapperTest extends AbstractMapperTest {
         LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", 3.6d);
         assertEquals("Base for double is wrong", Long.valueOf(3), parsed);
-
     }
 
     @Test
@@ -173,7 +171,6 @@ public class LongMapperTest extends AbstractMapperTest {
         LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", "3.2");
         assertEquals("Base for string is wrong", Long.valueOf(3), parsed);
-
     }
 
     @Test
@@ -181,6 +178,13 @@ public class LongMapperTest extends AbstractMapperTest {
         LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", "3.2");
         assertEquals("Base for string is wrong", Long.valueOf(3), parsed);
+    }
+
+    @Test
+    public void testValueWithDate() {
+        LongMapper mapper = longMapper().boost(1f).build("field");
+        Long parsed = mapper.base("test", new Date(10));
+        assertEquals("Base for dates is wrong", Long.valueOf(10), parsed);
     }
 
     @Test

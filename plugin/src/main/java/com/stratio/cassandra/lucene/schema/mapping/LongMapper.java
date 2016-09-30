@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.column.Column;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
@@ -23,6 +24,10 @@ import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 import org.apache.lucene.search.SortedNumericSortField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
 
 /**
  * A {@link Mapper} to map a long field.
@@ -31,6 +36,7 @@ import org.apache.lucene.search.SortedNumericSortField;
  */
 public class LongMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
 
+    private static final Logger logger = LoggerFactory.getLogger(LongMapper.class);
     /** The default boost. */
     public static final Float DEFAULT_BOOST = 1.0f;
 
@@ -61,15 +67,22 @@ public class LongMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
               Int32Type.instance,
               LongType.instance,
               ShortType.instance,
-              UTF8Type.instance);
+              UTF8Type.instance,
+              SimpleDateType.instance,
+              TimestampType.instance);
         this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 
     /** {@inheritDoc} */
     @Override
     protected Long doBase(String name, Object value) {
+        logger.debug("parsing an object with type: "+value.getClass()+" and value: "+value.toString());
         if (value instanceof Number) {
             return ((Number) value).longValue();
+        } else if (value instanceof Date) {
+            long ret=((Date) value).getTime();
+            logger.debug("returning: " + Long.toString(ret));
+            return ret;
         } else if (value instanceof String) {
             try {
                 return Double.valueOf((String) value).longValue();
@@ -79,8 +92,16 @@ public class LongMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
         }
         throw new IndexException("Field '%s' requires a long, but found '%s'", name, value);
     }
-
     /** {@inheritDoc} */
+    @Override
+    protected <K> Long doBase(Column<K> column) {
+        if (column.getType() instanceof SimpleDateType) {
+            return SimpleDateType.instance.toTimeInMillis(column.getDecomposedValue());
+        } else {
+            return doBase(column.getFieldName(field), column.getComposedValue());
+        }
+    }
+        /** {@inheritDoc} */
     @Override
     public Field indexedField(String name, Long value) {
         LongField field = new LongField(name, value, STORE);

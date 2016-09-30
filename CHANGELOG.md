@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.2.8.0 (Upcoming)
+
+* Upgrade to Apache Cassandra 2.2.8
+
+Merged from 3.0.8.1:
+* Fix mapping of timestamp and date by the underlying numeric value (#177)
+
 ## 2.2.7.1 (July 18, 2016)
 
 * Fix mapper referenced by alias in sortFields
