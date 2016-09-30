@@ -16,23 +16,31 @@
 package com.stratio.cassandra.lucene.key
 
 import com.stratio.cassandra.lucene.BaseScalaTest
+import com.stratio.cassandra.lucene.util.ByteBufferUtils
 import org.apache.cassandra.dht.Murmur3Partitioner
-import org.apache.lucene.util.BytesRef
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
 /**
-  * Tests for [[ClusteringMapper]].
+  * Tests for [[TokenMapper]].
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 @RunWith(classOf[JUnitRunner])
-class ClusteringMapperTest extends BaseScalaTest {
+class TokenMapperTest extends BaseScalaTest {
 
-  test("collate prefix") {
-    val values = List(Long.MinValue, -12345L, -123L, -2L, -1L, 0L, 1L, 2L, 123L, 12345L, Long.MaxValue)
-    val tokens = values.map(new Murmur3Partitioner.LongToken(_))
-    val bytes = tokens.map(ClusteringMapper.prefix(_)).map(new BytesRef(_))
-    bytes shouldBe bytes.reverse.sorted
+  test("long value") {
+    val v1 = List(Long.MinValue, -12345L, -123L, -2L, -1L, 0L, 1L, 2L, 123L, 12345L, Long.MaxValue)
+    val v2 = v1.map(new Murmur3Partitioner.LongToken(_)).map(TokenMapper.longValue)
+    v1 shouldBe v2
+  }
+
+  test("bytes ref") {
+    def hex(n:Long):String = ByteBufferUtils.toHex(TokenMapper.bytesRef(new Murmur3Partitioner.LongToken(n)))
+    hex(Long.MinValue) shouldBe "2000000000000000000000"
+    hex(Long.MaxValue) shouldBe "20017f7f7f7f7f7f7f7f7f"
+    hex(-1) shouldBe "20007f7f7f7f7f7f7f7f7f"
+    hex(0) shouldBe "2001000000000000000000"
+    hex(1) shouldBe "2001000000000000000001"
   }
 }

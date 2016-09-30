@@ -57,9 +57,9 @@ public class FSIndexTest {
                                     Paths.get(folder.newFolder("directory" + UUID.randomUUID()).getPath()),
                                     new StandardAnalyzer(),
                                     REFRESH_SECONDS,
-                                    IndexOptions.DEFAULT_RAM_BUFFER_MB,
-                                    IndexOptions.DEFAULT_MAX_MERGE_MB,
-                                    IndexOptions.DEFAULT_MAX_CACHED_MB);
+                                    IndexOptions.DEFAULT_RAM_BUFFER_MB(),
+                                    IndexOptions.DEFAULT_MAX_MERGE_MB(),
+                                    IndexOptions.DEFAULT_MAX_CACHED_MB());
         Sort sort = new Sort(new SortedSetSortField("field", false));
         Set<String> fields = Sets.newHashSet("field");
         index.init(sort, fields);

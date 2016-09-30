@@ -89,7 +89,7 @@ public class Index implements org.apache.cassandra.index.Index {
         } catch (Exception e) {
             throw new IndexException(e);
         }
-        name = service.qualifiedName;
+        name = service.qualifiedName();
     }
 
     /**
@@ -103,7 +103,7 @@ public class Index implements org.apache.cassandra.index.Index {
     public static Map<String, String> validateOptions(Map<String, String> options, CFMetaData metadata) {
         logger.debug("Validating Lucene index options");
         try {
-            IndexOptions.validateOptions(options, metadata);
+            IndexOptions.validate(options, metadata);
         } catch (IndexException e) {
             logger.error("Invalid index options: " + options, e);
             throw new ConfigurationException(e.getMessage());
@@ -423,7 +423,7 @@ public class Index implements org.apache.cassandra.index.Index {
     public org.apache.cassandra.index.Index.Searcher searcherFor(ReadCommand command) {
         logger.trace("Getting searcher for {}", command);
         try {
-            return service.searcher(command);
+            return (ReadOrderGroup orderGroup) -> service.search(command, orderGroup);
         } catch (Exception e) {
             logger.error("Error getting searcher for command: " + command, e);
             throw new InvalidRequestException(e.getMessage());

@@ -94,13 +94,13 @@ case class Column[A](cellName: String,
 
 object Column {
 
-  val NO_DELETION_TIME: Int = Int.MaxValue
+  val NO_DELETION_TIME = Int.MaxValue
 
-  private val UDT_SEPARATOR: String = "."
-  private val MAP_SEPARATOR: String = "$"
+  private val UDT_SEPARATOR = "."
+  private val MAP_SEPARATOR = "$"
 
-  private[this] val UDT_PATTERN: String = Pattern.quote(UDT_SEPARATOR)
-  private[this] val MAP_PATTERN: String = Pattern.quote(MAP_SEPARATOR)
+  private[this] val UDT_PATTERN = Pattern.quote(UDT_SEPARATOR)
+  private[this] val MAP_PATTERN = Pattern.quote(MAP_SEPARATOR)
 
   def apply(cellName: String): Column[_] =
     new Column(cellName = cellName)
