@@ -16,13 +16,16 @@
 package com.stratio.cassandra.lucene.key;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.codecs.SerializableSortField;
+import com.stratio.cassandra.lucene.util.NumericQueryUtils;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.LongPoint;
+import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
@@ -32,6 +35,8 @@ import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.BytesRefBuilder;
 import org.apache.lucene.util.NumericUtils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -44,18 +49,6 @@ public final class TokenMapper {
     /** The Lucene field name */
     private static final String FIELD_NAME = "_token";
 
-    /** The Lucene field type */
-    private static final FieldType FIELD_TYPE = new FieldType();
-
-    static {
-        FIELD_TYPE.setTokenized(true);
-        FIELD_TYPE.setOmitNorms(true);
-        FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
-        FIELD_TYPE.setNumericType(FieldType.NumericType.LONG);
-        FIELD_TYPE.setDocValuesType(DocValuesType.NUMERIC);
-        FIELD_TYPE.freeze();
-    }
-
     /**
      * Constructor taking the cache size.
      */
@@ -66,15 +59,15 @@ public final class TokenMapper {
     }
 
     /**
-     * Returns the Lucene {@link IndexableField} associated to the token of the specified row key.
+     * Returns the Lucene {@link IndexableField}s associated to the token of the specified row key.
      *
      * @param key the raw partition key to be added
-     * @return a indexable field
+     * @return a list of indexable field
      */
-    public IndexableField indexableField(DecoratedKey key) {
+    public List<IndexableField> indexableFields(DecoratedKey key) {
         Token token = key.getToken();
         Long value = value(token);
-        return new LongField(FIELD_NAME, value, FIELD_TYPE);
+        return Arrays.asList(new LongPoint(FIELD_NAME, value), new NumericDocValuesField(FIELD_NAME, value));
     }
 
     /**
@@ -85,19 +78,6 @@ public final class TokenMapper {
      */
     public static Long value(Token token) {
         return (Long) token.getTokenValue();
-    }
-
-    /**
-     * Returns the {@link BytesRef} indexing value of the specified Murmur3 partitioning {@link Token}.
-     *
-     * @param token a Murmur3 token
-     * @return the {@code token}'s indexing value
-     */
-    private static BytesRef bytesRef(Token token) {
-        Long value = value(token);
-        BytesRefBuilder bytesRef = new BytesRefBuilder();
-        NumericUtils.longToPrefixCoded(value, 0, bytesRef);
-        return bytesRef.get();
     }
 
     /**
@@ -147,7 +127,7 @@ public final class TokenMapper {
         // Do query
         Query query = docValues(start, stop)
                       ? DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper)
-                      : NumericRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
+                      : NumericQueryUtils.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
         return Optional.of(query);
     }
 
@@ -158,6 +138,6 @@ public final class TokenMapper {
      * @return the query to find the documents containing {@code token}
      */
     public Query query(Token token) {
-        return new TermQuery(new Term(FIELD_NAME, bytesRef(token)));
+        return LongPoint.newExactQuery(FIELD_NAME, value(token));
     }
 }

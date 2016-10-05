@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.common;
 
 import com.google.common.base.MoreObjects;
-import com.spatial4j.core.distance.DistanceUtils;
+import org.locationtech.spatial4j.distance.DistanceUtils;
 import com.stratio.cassandra.lucene.IndexException;
 import org.codehaus.jackson.annotate.JsonCreator;
 

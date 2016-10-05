@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
@@ -59,7 +59,7 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public Optional<Field> indexedField(String name, Long value) {
-        return Optional.of(new LongField(name, value, STORE));
+        return Optional.of(new LongPoint(name, value));
     }
 
     /** {@inheritDoc} */

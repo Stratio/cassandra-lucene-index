@@ -15,10 +15,15 @@
  */
 package com.stratio.cassandra.lucene.key;
 
+import com.stratio.cassandra.lucene.codecs.SerializableSortField;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.config.Schema;
 import org.apache.lucene.search.FieldComparator;
 import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.store.DataInput;
+import org.apache.lucene.store.DataOutput;
 import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
@@ -29,10 +34,16 @@ import java.nio.ByteBuffer;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class PartitionSort extends SortField {
+public class PartitionSort extends SerializableSortField {
 
     /** The Lucene sort name. */
     private static final String SORT_NAME = "<partition>";
+
+    private PartitionMapper mapper;
+
+    public PartitionSort() {
+        super();
+    }
 
     /**
      * Builds a new {@link PartitionSort} for the specified {@link PartitionMapper}.
@@ -54,7 +65,19 @@ public class PartitionSort extends SortField {
                 };
             }
         });
+        this.mapper=mapper;
     }
+    public PartitionSort read(DataInput input) throws IOException {
+        String keyspace=input.readString();
+        String table=input.readString();
+        CFMetaData metadata= Schema.instance.getCFMetaData(keyspace,table);
+        return new PartitionSort(PartitionMapper.instance(metadata));
+    }
+    public void write(DataOutput output) throws IOException {
+        output.writeString(this.mapper.metadata.ksName);
+        output.writeString(this.mapper.metadata.cfName);
+    }
+
 
     /** {@inheritDoc} */
     @Override

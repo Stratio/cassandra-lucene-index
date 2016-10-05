@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
-import com.spatial4j.core.shape.Point;
+import org.locationtech.spatial4j.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;

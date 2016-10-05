@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.key;
 
 import com.google.common.primitives.Longs;
+import com.stratio.cassandra.lucene.codecs.SerializableSortField;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
@@ -42,9 +43,7 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 import static org.apache.cassandra.db.PartitionPosition.Kind.ROW_KEY;
@@ -85,12 +84,23 @@ public final class ClusteringMapper {
     /** A composite type composed by the types of the clustering key */
     public final CompositeType type;
 
+    private static Map<CFMetaData,ClusteringMapper> instances= new HashMap<>();
+
+    public static ClusteringMapper instance(CFMetaData metadata) {
+        ClusteringMapper mapper=instances.get(metadata);
+        if (mapper==null) {
+            mapper= new ClusteringMapper(metadata);
+            instances.put(metadata,mapper);
+        }
+        return mapper;
+
+    }
     /**
      * Constructor specifying the partition and clustering key mappers.
      *
      * @param metadata the indexed table metadata
      */
-    public ClusteringMapper(CFMetaData metadata) {
+    private ClusteringMapper(CFMetaData metadata) {
         this.metadata = metadata;
         comparator = metadata.comparator;
         type = CompositeType.getInstance(comparator.subtypes());
@@ -240,7 +250,7 @@ public final class ClusteringMapper {
      *
      * @return the sort field
      */
-    public SortField sortField() {
+    public SerializableSortField sortField() {
         return new ClusteringSort(this);
     }
 

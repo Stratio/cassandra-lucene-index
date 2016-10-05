@@ -15,10 +15,15 @@
  */
 package com.stratio.cassandra.lucene.key;
 
+import com.stratio.cassandra.lucene.codecs.SerializableSortField;
+import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.config.Schema;
 import org.apache.cassandra.db.Clustering;
 import org.apache.lucene.search.FieldComparator;
 import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.store.DataInput;
+import org.apache.lucene.store.DataOutput;
 import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
@@ -32,10 +37,15 @@ import static org.apache.cassandra.utils.FastByteOperations.compareUnsigned;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class ClusteringSort extends SortField {
+public class ClusteringSort extends SerializableSortField {
 
     /** The Lucene sort name. */
     private static final String SORT_NAME = "<clustering>";
+    private ClusteringMapper mapper;
+
+    public ClusteringSort() {
+        super();
+    }
 
     /**
      * Builds a new {@link ClusteringSort} for the specified {@link ClusteringMapper}.
@@ -63,8 +73,19 @@ public class ClusteringSort extends SortField {
                 };
             }
         });
-    }
+        this.mapper=mapper;
 
+    }
+    public ClusteringSort read(DataInput input) throws IOException {
+        String keyspace=input.readString();
+        String table=input.readString();
+        CFMetaData metadata= Schema.instance.getCFMetaData(keyspace, table);
+        return new ClusteringSort(ClusteringMapper.instance(metadata));
+    }
+    public void write(DataOutput output) throws IOException {
+        output.writeString(this.mapper.metadata.ksName);
+        output.writeString(this.mapper.metadata.cfName);
+    }
     /** {@inheritDoc} */
     @Override
     public String toString() {

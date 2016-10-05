@@ -19,6 +19,7 @@ import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import com.sun.jna.WeakIdentityHashMap;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.config.DatabaseDescriptor;
@@ -39,7 +40,9 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.BytesRef;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class for several partition key mappings between Cassandra and Lucene.
@@ -63,16 +66,34 @@ public final class PartitionMapper {
         FIELD_TYPE.freeze();
     }
 
-    private final CFMetaData metadata;
+    protected final CFMetaData metadata;
     private final IPartitioner partitioner;
     private final AbstractType<?> type;
+
+
+    private static Map<CFMetaData,PartitionMapper> instances= new HashMap<>();
 
     /**
      * Constructor specifying the indexed table {@link CFMetaData}.
      *
      * @param metadata the indexed table metadata
+     * @return PartitionMapper cached by {@link CFMetaData}.
+     *
      */
-    public PartitionMapper(CFMetaData metadata) {
+    public synchronized static PartitionMapper instance(CFMetaData metadata) {
+        PartitionMapper mapper=instances.get(metadata);
+        if (mapper==null) {
+            mapper= new PartitionMapper(metadata);
+            instances.put(metadata,mapper);
+        }
+        return mapper;
+    }
+    /**
+     * Constructor specifying the indexed table {@link CFMetaData}.
+     *
+     * @param metadata the indexed table metadata
+     */
+    private PartitionMapper(CFMetaData metadata) {
         this.metadata = metadata;
         partitioner = DatabaseDescriptor.getPartitioner();
         type = metadata.getKeyValidator();

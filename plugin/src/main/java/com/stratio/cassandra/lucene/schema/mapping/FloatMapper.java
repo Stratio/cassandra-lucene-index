@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FloatField;
+import org.apache.lucene.document.FloatPoint;
 import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
@@ -72,9 +72,9 @@ public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
     /** {@inheritDoc} */
     @Override
     public Optional<Field> indexedField(String name, Float value) {
-        FloatField floatField = new FloatField(name, value, STORE);
-        floatField.setBoost(boost);
-        return Optional.of(floatField);
+        FloatPoint floatPoint = new FloatPoint(name, value);
+        floatPoint.setBoost(boost);
+        return Optional.of(floatPoint);
     }
 
     /** {@inheritDoc} */

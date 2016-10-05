@@ -16,8 +16,8 @@
 package com.stratio.cassandra.lucene.common;
 
 import com.google.common.base.MoreObjects;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.jts.JtsGeometry;
+import org.locationtech.spatial4j.shape.Rectangle;
+import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Geometry;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;

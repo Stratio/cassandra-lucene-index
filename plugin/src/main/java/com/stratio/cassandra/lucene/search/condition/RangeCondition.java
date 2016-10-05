@@ -18,9 +18,9 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
+import com.stratio.cassandra.lucene.util.NumericQueryUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.DocValuesRangeQuery;
-import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
 
@@ -138,25 +138,25 @@ public class RangeCondition extends SingleColumnCondition {
     private Query query(Integer start, Integer stop) {
         return docValues
                ? DocValuesRangeQuery.newLongRange(field, docValue(start), docValue(stop), includeLower, includeUpper)
-               : NumericRangeQuery.newIntRange(field, start, stop, includeLower, includeUpper);
+               : NumericQueryUtils.newIntRange(field, start, stop, includeLower, includeUpper);
     }
 
     private Query query(Long start, Long stop) {
         return docValues
                ? DocValuesRangeQuery.newLongRange(field, docValue(start), docValue(stop), includeLower, includeUpper)
-               : NumericRangeQuery.newLongRange(field, start, stop, includeLower, includeUpper);
+               : NumericQueryUtils.newLongRange(field, start, stop, includeLower, includeUpper);
     }
 
     private Query query(Float start, Float stop) {
         return docValues
                ? DocValuesRangeQuery.newLongRange(field, docValue(start), docValue(stop), includeLower, includeUpper)
-               : NumericRangeQuery.newFloatRange(field, start, stop, includeLower, includeUpper);
+               : NumericQueryUtils.newFloatRange(field, start, stop, includeLower, includeUpper);
     }
 
     private Query query(Double start, Double stop) {
         return docValues
                ? DocValuesRangeQuery.newLongRange(field, docValue(start), docValue(stop), includeLower, includeUpper)
-               : NumericRangeQuery.newDoubleRange(field, start, stop, includeLower, includeUpper);
+               : NumericQueryUtils.newDoubleRange(field, start, stop, includeLower, includeUpper);
     }
 
     /**

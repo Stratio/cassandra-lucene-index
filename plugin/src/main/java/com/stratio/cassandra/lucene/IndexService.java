@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.codecs.SerializableSortField;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.index.FSIndex;
@@ -117,7 +118,7 @@ abstract class IndexService implements IndexServiceMBean {
         // Setup mapping
         schema = options.schema;
         tokenMapper = new TokenMapper();
-        partitionMapper = new PartitionMapper(metadata);
+        partitionMapper = PartitionMapper.instance(metadata);
         mapsMultiCells = metadata.allColumns()
                                  .stream()
                                  .filter(x -> schema.mappedCells().contains(x.name.toString()))

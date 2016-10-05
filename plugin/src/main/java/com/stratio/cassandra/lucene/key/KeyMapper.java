@@ -54,6 +54,7 @@ public final class KeyMapper {
     /** The type of the primary key, which is composed by token, partition key and clustering key types. */
     private final CompositeType type;
 
+
     /**
      * Constructor specifying the partition and clustering key mappers.
      *
@@ -63,6 +64,7 @@ public final class KeyMapper {
         clusteringComparator = metadata.comparator;
         clusteringType = CompositeType.getInstance(clusteringComparator.subtypes());
         type = CompositeType.getInstance(metadata.getKeyValidator(), clusteringType);
+
     }
 
     private ByteBuffer byteBuffer(DecoratedKey key, Clustering clustering) {

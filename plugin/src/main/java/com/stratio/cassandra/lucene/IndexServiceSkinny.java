@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.codecs.SerializableSortField;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
@@ -83,7 +84,10 @@ class IndexServiceSkinny extends IndexService {
     /** {@inheritDoc} */
     @Override
     protected List<IndexableField> keyIndexableFields(DecoratedKey key, Row row) {
-        return Arrays.asList(tokenMapper.indexableField(key), partitionMapper.indexableField(key));
+        List<IndexableField> output= new ArrayList<>();
+        output.addAll(tokenMapper.indexableFields(key));
+                output.add(partitionMapper.indexableField(key));
+        return output;
     }
 
     /** {@inheritDoc} */

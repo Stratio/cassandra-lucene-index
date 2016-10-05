@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
-import com.spatial4j.core.shape.Rectangle;
+import org.locationtech.spatial4j.shape.Rectangle;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;

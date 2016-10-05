@@ -19,7 +19,12 @@ import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
+import com.stratio.cassandra.lucene.util.NumericQueryUtils;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.document.DoublePoint;
+import org.apache.lucene.document.FloatPoint;
+import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRefBuilder;
@@ -101,35 +106,19 @@ public class MatchCondition extends SingleColumnCondition {
     }
 
     private Query query(Integer value) {
-        if (docValues) {
-            return new DocValuesNumbersQuery(field, docValue(value));
-        } else {
-            BytesRefBuilder ref = new BytesRefBuilder();
-            NumericUtils.intToPrefixCoded(value, 0, ref);
-            return new TermQuery(new Term(field, ref.toBytesRef()));
-        }
+        return docValues ? new DocValuesNumbersQuery(field, docValue(value)) : IntPoint.newExactQuery(field, value);
     }
 
     private Query query(Long value) {
-        if (docValues) {
-            return new DocValuesNumbersQuery(field, docValue(value));
-        } else {
-            BytesRefBuilder ref = new BytesRefBuilder();
-            NumericUtils.longToPrefixCoded(value, 0, ref);
-            return new TermQuery(new Term(field, ref.toBytesRef()));
-        }
+        return docValues ? new DocValuesNumbersQuery(field, docValue(value)) : LongPoint.newExactQuery(field, value);
     }
 
     private Query query(Float value) {
-        return docValues
-               ? new DocValuesNumbersQuery(field, docValue(value))
-               : NumericRangeQuery.newFloatRange(field, value, value, true, true);
+        return docValues ? new DocValuesNumbersQuery(field, docValue(value)) : FloatPoint.newExactQuery(field, value);
     }
 
     private Query query(Double value) {
-        return docValues
-               ? new DocValuesNumbersQuery(field, docValue(value))
-               : NumericRangeQuery.newDoubleRange(field, value, value, true, true);
+        return docValues ? new DocValuesNumbersQuery(field, docValue(value)) : DoublePoint.newExactQuery(field, value);
     }
 
     /** {@inheritDoc} */

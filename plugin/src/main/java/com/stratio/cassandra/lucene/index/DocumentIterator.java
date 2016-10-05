@@ -106,7 +106,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
                 FieldDoc fieldDoc = after == null ? null : (FieldDoc) after;
                 TopFieldCollector collector = TopFieldCollector.create(sort, page, fieldDoc, true, false, false);
                 int hits = numReadDocuments + page;
-                searcher.search(query, new EarlyTerminatingSortingCollector(collector, sort, hits, indexSort));
+                searcher.search(query, new EarlyTerminatingSortingCollector(collector, sort, hits));
                 topDocs = collector.topDocs();
             } else {
                 topDocs = searcher.searchAfter(after, query, page, sort);

@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.codecs.SerializableSortField;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
@@ -61,7 +62,7 @@ class IndexServiceWide extends IndexService {
      */
     IndexServiceWide(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         super(table, indexMetadata);
-        clusteringMapper = new ClusteringMapper(metadata);
+        clusteringMapper = ClusteringMapper.instance(metadata);
         keyMapper = new KeyMapper(metadata);
         super.init();
     }
@@ -110,7 +111,7 @@ class IndexServiceWide extends IndexService {
     protected List<IndexableField> keyIndexableFields(DecoratedKey key, Row row) {
         Clustering clustering = row.clustering();
         List<IndexableField> fields = new ArrayList<>();
-        fields.add(tokenMapper.indexableField(key));
+        fields.addAll(tokenMapper.indexableFields(key));
         fields.add(partitionMapper.indexableField(key));
         fields.add(keyMapper.indexableField(key, clustering));
         fields.addAll(clusteringMapper.indexableFields(key, clustering));
