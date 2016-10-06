@@ -23,7 +23,7 @@ import java.util.{Date, UUID}
 import com.stratio.cassandra.lucene.IndexException
 import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db.marshal._
-import org.apache.cassandra.db.rows.{Cell, CellPath, ComplexColumnData, Row}
+import org.apache.cassandra.db.rows.{Cell, ComplexColumnData, Row}
 import org.apache.cassandra.serializers.CollectionSerializer
 import org.apache.cassandra.transport.Server._
 import org.apache.cassandra.utils.ByteBufferUtil

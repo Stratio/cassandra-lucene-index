@@ -425,7 +425,7 @@ public class Index implements org.apache.cassandra.index.Index {
         try {
             return service.searcher(command);
         } catch (Exception e) {
-            logger.debug("Error getting searcher for command: " + command, e);
+            logger.error("Error getting searcher for command: " + command, e);
             throw new InvalidRequestException(e.getMessage());
         }
     }

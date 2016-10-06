@@ -59,7 +59,7 @@ public class LongMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
             return ((Number) value).longValue();
         } else if (value instanceof Date) {
             return ((Date) value).getTime();
-        } if (value instanceof String) {
+        } else if (value instanceof String) {
             try {
                 return Double.valueOf((String) value).longValue();
             } catch (NumberFormatException e) {

@@ -108,5 +108,7 @@ public class UDTPartialUpdateAT extends BaseAT {
              .filter(match("address.address", "HoneyWell st")).refresh(true).checkUnorderedColumns("id", 4L)
              .filter(match("address.number", 105)).checkUnorderedColumns("id", 4L)
              .filter(match("address.postal_code", 10020)).check(0);
+
+        utils.dropTable().dropKeyspace();
     }
 }
