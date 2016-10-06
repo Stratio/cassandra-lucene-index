@@ -274,6 +274,7 @@ compatibility matrix that states between which versions it is not needed to dele
 | 3.7.2     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |
 +-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
 
+
 **(1):** Compatible only if you are not using geospatial mappers.
 
 Alternative syntaxes
@@ -2258,6 +2259,7 @@ You can also write this search without the ``type`` attribute:
           must: [{type: "wildcard", field: "food", value: "tu*"}]
        }
     }');
+
 
 It is also possible to write the search this way:
 

@@ -155,12 +155,10 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void testMatchDateField2() {
-
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, -1);
         Date date = calendar.getTime();
-
         filter(match("date_1", df.format(date))).check(0);
     }
 
@@ -171,12 +169,10 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void testMatchDateField4() {
-
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, -1);
         Date date = calendar.getTime();
-
         filter(match("date_1", df.format(date))).check(0);
     }
 
@@ -255,8 +251,7 @@ public class MatchSearchAT extends AbstractSearchAT {
     public void testMatchUUIDField3() {
         String msg
                 = "Field 'uuid_1' with value '60297440-b4fa-11e3-0002a5d5c51b' can not be parsed as UUID";
-        filter(match("uuid_1", "60297440-b4fa-11e3-0002a5d5c51b")).check(InvalidQueryException.class,
-                                                                         msg);
+        filter(match("uuid_1", "60297440-b4fa-11e3-0002a5d5c51b")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -272,9 +267,7 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void testMatchTimeUUIDField3() {
-        String
-                msg
-                = "Field 'timeuuid_1' with value 'a4a70900-24e1-11df-001ff3591711' can not be parsed as UUID";
+        String msg = "Field 'timeuuid_1' with value 'a4a70900-24e1-11df-001ff3591711' can not be parsed as UUID";
         filter(match("timeuuid_1",
                      "a4a70900-24e1-11df-001ff3591711")).check(InvalidQueryException.class, msg);
     }

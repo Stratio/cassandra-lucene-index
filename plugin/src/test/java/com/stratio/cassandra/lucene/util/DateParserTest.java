@@ -16,14 +16,11 @@
 package com.stratio.cassandra.lucene.util;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
-import org.apache.cassandra.db.marshal.SimpleDateType;
 import org.apache.cassandra.utils.UUIDGen;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.UUID;

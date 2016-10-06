@@ -142,7 +142,6 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testIntersectsPoint1() {
         filter("POINT(-3.793030 40.435450)", "intersects").check(0);
-
     }
 
     @Test
