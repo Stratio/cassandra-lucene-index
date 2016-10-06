@@ -133,7 +133,7 @@
                         <includes>
                             <include>org.scala-lang:*</include>
                             <include>org.apache.lucene:*</include>
-                            <include>com.spatial4j:*</include>
+                            <include>org.locationtech.spatial4j:*</include>
                         </includes>
                         <excludes>
                             <exclude>org.apache.cassandra:*</exclude>
@@ -141,6 +141,16 @@
 
                     </artifactSet>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                 </configuration>
                 <executions>
                     <execution>

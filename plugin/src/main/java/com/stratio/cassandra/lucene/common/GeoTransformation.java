@@ -16,16 +16,16 @@
 package com.stratio.cassandra.lucene.common;
 
 import com.google.common.base.MoreObjects;
-import org.locationtech.spatial4j.shape.Rectangle;
-import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Geometry;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.locationtech.spatial4j.shape.Rectangle;
+import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 
 import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.CONTEXT;
-import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.SHAPE_FACTORY;
 
 /**
  * Class representing the transformation of a JTS geographical shape into a new shape.
@@ -62,8 +62,8 @@ public interface GeoTransformation {
         @Override
         public JtsGeometry apply(JtsGeometry shape) {
             Rectangle rectangle = shape.getBoundingBox();
-            Geometry geometry = CONTEXT.getGeometryFrom(rectangle);
-            return CONTEXT.makeShape(geometry);
+            Geometry geometry = SHAPE_FACTORY.getGeometryFrom(rectangle);
+            return SHAPE_FACTORY.makeShape(geometry);
         }
 
         /** {@inheritDoc} */
@@ -109,13 +109,13 @@ public interface GeoTransformation {
         public JtsGeometry apply(JtsGeometry shape) {
 
             JtsGeometry max = maxDistance == null
-                              ? CONTEXT.makeShape(shape.getGeom())
+                              ? SHAPE_FACTORY.makeShape(shape.getGeom())
                               : shape.getBuffered(maxDistance.getDegrees(), CONTEXT);
 
             if (minDistance != null) {
                 JtsGeometry min = shape.getBuffered(minDistance.getDegrees(), CONTEXT);
                 Geometry difference = max.getGeom().difference(min.getGeom());
-                return CONTEXT.makeShape(difference);
+                return SHAPE_FACTORY.makeShape(difference);
             }
             return max;
         }
@@ -144,7 +144,7 @@ public interface GeoTransformation {
         @Override
         public JtsGeometry apply(JtsGeometry shape) {
             Geometry centroid = shape.getGeom().getCentroid();
-            return CONTEXT.makeShape(centroid);
+            return SHAPE_FACTORY.makeShape(centroid);
         }
 
         /** {@inheritDoc} */
@@ -168,7 +168,7 @@ public interface GeoTransformation {
         @Override
         public JtsGeometry apply(JtsGeometry shape) {
             Geometry centroid = shape.getGeom().convexHull();
-            return CONTEXT.makeShape(centroid);
+            return SHAPE_FACTORY.makeShape(centroid);
         }
 
         /** {@inheritDoc} */

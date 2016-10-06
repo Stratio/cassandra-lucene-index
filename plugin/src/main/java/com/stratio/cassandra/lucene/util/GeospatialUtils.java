@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.util;
 import org.locationtech.spatial4j.context.SpatialContext;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
+import org.locationtech.spatial4j.shape.ShapeFactory;
 
 /**
  * Utilities for geospatial related stuff.
@@ -28,6 +29,8 @@ public class GeospatialUtils {
 
     /** The spatial context to be used. */
     public static final SpatialContext CONTEXT = SpatialContext.GEO;
+
+    public static final ShapeFactory SHAPE_FACTORY = CONTEXT.getShapeFactory();
 
     /** The min accepted longitude. */
     public static final double MIN_LATITUDE = -90.0;

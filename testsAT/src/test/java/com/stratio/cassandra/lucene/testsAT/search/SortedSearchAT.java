@@ -141,13 +141,16 @@ public class SortedSearchAT extends AbstractSearchAT {
                       .insert(new String[]{"id", "field"}, new Object[]{4, "word cat dog"})
                       .insert(new String[]{"id", "field"}, new Object[]{5, "dog"})
                       .refresh()
-                      .query(match("field", "word"))
-                      .checkOrderedColumns("id", 1, 2, 3, 4)
                       .filter(match("field", "word"))
-                      .checkOrderedColumns("id", 1, 2, 4, 3)
+                      .sort(field("id").reverse(false))
+                      .checkOrderedColumns("id", 1, 2, 3, 4)
                       .filter(match("field", "word"))
                       .sort(field("id").reverse(true))
                       .checkOrderedColumns("id", 4, 3, 2, 1)
+                      .filter(match("field", "word"))
+                      .checkOrderedColumns("id", 1, 2, 4, 3)
+                      .query(match("field", "word"))
+                      .checkOrderedColumns("id", 2, 1, 3, 4)
                       .dropKeyspace();
     }
 

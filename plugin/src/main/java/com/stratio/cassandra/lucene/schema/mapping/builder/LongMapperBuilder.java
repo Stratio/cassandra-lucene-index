@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.stratio.cassandra.lucene.schema.mapping.LongMapper;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link SingleColumnMapperBuilder} to build a new {@link LongMapper}.
@@ -24,20 +23,6 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class LongMapperBuilder extends SingleColumnMapperBuilder<LongMapper, LongMapperBuilder> {
-
-    @JsonProperty("boost")
-    private Float boost;
-
-    /**
-     * Sets the boost to be used.
-     *
-     * @param boost the boost to be used
-     * @return this
-     */
-    public LongMapperBuilder boost(Float boost) {
-        this.boost = boost;
-        return this;
-    }
 
     /**
      * Returns the {@link LongMapper} represented by this {@link MapperBuilder}.
@@ -47,6 +32,6 @@ public class LongMapperBuilder extends SingleColumnMapperBuilder<LongMapper, Lon
      */
     @Override
     public LongMapper build(String field) {
-        return new LongMapper(field, column, validated, boost);
+        return new LongMapper(field, column, validated);
     }
 }

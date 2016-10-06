@@ -34,23 +34,15 @@ import java.util.Optional;
  */
 public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer> {
 
-    /** The default boost. */
-    public static final Float DEFAULT_BOOST = 1.0f;
-
-    /** The boost. */
-    public final Float boost;
-
     /**
      * Builds a new {@link IntegerMapper} using the specified boost.
      *
      * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
-     * @param boost the boost
      */
-    public IntegerMapper(String field, String column, Boolean validated, Float boost) {
+    public IntegerMapper(String field, String column, Boolean validated) {
         super(field, column, true, validated, null, Integer.class, NUMERIC_TYPES_WITH_DATE);
-        this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 
     /** {@inheritDoc} */
@@ -73,9 +65,7 @@ public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer>
     /** {@inheritDoc} */
     @Override
     public Optional<Field> indexedField(String name, Integer value) {
-        IntPoint intPoint = new IntPoint(name, value);
-        intPoint.setBoost(boost);
-        return Optional.of(intPoint);
+        return Optional.of(new IntPoint(name, value));
     }
 
     /** {@inheritDoc} */
@@ -93,7 +83,7 @@ public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer>
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return toStringHelper(this).add("boost", boost).toString();
+        return toStringHelper(this).toString();
     }
 
 }

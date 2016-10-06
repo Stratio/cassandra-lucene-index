@@ -15,27 +15,10 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * A {@link Mapper} to map a double field.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class DoubleMapper extends SingleColumnMapper<DoubleMapper> {
-
-    /** The field's index-time boost. */
-    @JsonProperty("boost")
-    Float boost;
-
-    /**
-     * Sets the boost to be used.
-     *
-     * @param boost the boost
-     * @return this with the specified boost
-     */
-    public DoubleMapper boost(float boost) {
-        this.boost = boost;
-        return this;
-    }
 }

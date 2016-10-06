@@ -96,7 +96,6 @@ public class SchemaBuilder {
      * @return a new schema
      */
     public Schema build() {
-
         Map<String, Mapper> mappers = new LinkedHashMap<>(mapperBuilders.size());
         for (Map.Entry<String, MapperBuilder<?, ?>> entry : mapperBuilders.entrySet()) {
             String name = entry.getKey();

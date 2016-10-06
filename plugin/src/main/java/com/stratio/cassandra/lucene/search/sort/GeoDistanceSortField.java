@@ -30,7 +30,7 @@ import org.locationtech.spatial4j.shape.Point;
 import java.util.Collections;
 import java.util.Set;
 
-import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
+import static com.stratio.cassandra.lucene.util.GeospatialUtils.SHAPE_FACTORY;
 
 /**
  * {@link SortField} to sort geo points by their distance to a fixed reference point.
@@ -77,7 +77,7 @@ public class GeoDistanceSortField extends SortField {
         }
         GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
 
-        Point point = CONTEXT.makePoint(longitude, latitude);
+        Point point = SHAPE_FACTORY.pointXY(longitude, latitude);
 
         // Use the distance (in km) as source
         SpatialStrategy strategy = geoPointMapper.strategy.getGeometryStrategy();

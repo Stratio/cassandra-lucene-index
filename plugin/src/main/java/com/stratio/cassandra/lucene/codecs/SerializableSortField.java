@@ -16,7 +16,10 @@
 package com.stratio.cassandra.lucene.codecs;
 
 import java.io.IOException;
+import java.util.List;
 
+import org.apache.lucene.index.CodecReader;
+import org.apache.lucene.index.MultiSorter;
 import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.store.DataInput;
@@ -34,4 +37,5 @@ public abstract class SerializableSortField extends SortField {
 
     public abstract SerializableSortField read(DataInput input) throws IOException;
     public abstract void write(DataOutput output) throws IOException;
+    public abstract MultiSorter.CrossReaderComparator getCrossReaderComparator(List<CodecReader> readers) throws IOException;
 }

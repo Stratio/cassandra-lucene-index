@@ -19,15 +19,22 @@ import com.stratio.cassandra.lucene.codecs.SerializableSortField;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.Schema;
+import org.apache.lucene.index.BinaryDocValues;
+import org.apache.lucene.index.CodecReader;
+import org.apache.lucene.index.DocValues;
+import org.apache.lucene.index.MultiSorter;
 import org.apache.lucene.search.FieldComparator;
 import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.store.DataInput;
 import org.apache.lucene.store.DataOutput;
+import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@link SortField} to sort by partition key.
@@ -78,6 +85,20 @@ public class PartitionSort extends SerializableSortField {
         output.writeString(this.mapper.metadata.cfName);
     }
 
+    @Override
+    public MultiSorter.CrossReaderComparator getCrossReaderComparator(List<CodecReader> readers) throws IOException {
+        List<BinaryDocValues> values = new ArrayList<>();
+        for(CodecReader reader : readers)
+            values.add(DocValues.getBinary(reader,this.getField()));
+
+        return (readerIndexA, docIDA, readerIndexB, docIDB) -> {
+            BytesRef valueA= values.get(readerIndexA).get(docIDA);
+            BytesRef valueB = values.get(readerIndexB).get(docIDB);
+            ByteBuffer bb1 = ByteBufferUtils.byteBuffer(valueA);
+            ByteBuffer bb2 = ByteBufferUtils.byteBuffer(valueB);
+            return mapper.getType().compare(bb1, bb2);
+        };
+    }
 
     /** {@inheritDoc} */
     @Override

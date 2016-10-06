@@ -15,10 +15,13 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
+import com.stratio.cassandra.lucene.Index;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract builder for creating new {@link Mapper}s.

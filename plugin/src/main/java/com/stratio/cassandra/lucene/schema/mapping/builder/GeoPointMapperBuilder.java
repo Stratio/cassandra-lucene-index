@@ -47,8 +47,10 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPoin
     @JsonCreator
     public GeoPointMapperBuilder(@JsonProperty("latitude") String latitude,
                                  @JsonProperty("longitude") String longitude) {
+
         this.latitude = latitude;
         this.longitude = longitude;
+
     }
 
     /**

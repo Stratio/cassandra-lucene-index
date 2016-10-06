@@ -60,7 +60,7 @@ public class FSIndexTest {
                                     IndexOptions.DEFAULT_RAM_BUFFER_MB,
                                     IndexOptions.DEFAULT_MAX_MERGE_MB,
                                     IndexOptions.DEFAULT_MAX_CACHED_MB);
-        Sort sort = new Sort(new SortedSetSortField("field", false));
+        Sort sort = new Sort(new SortField("key", SortField.Type.STRING));
         Set<String> fields = Sets.newHashSet("field");
         index.init(sort, fields);
 

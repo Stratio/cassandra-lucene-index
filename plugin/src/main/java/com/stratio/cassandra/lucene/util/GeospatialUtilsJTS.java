@@ -23,6 +23,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import org.apache.commons.lang3.StringUtils;
+import org.locationtech.spatial4j.shape.jts.JtsShapeFactory;
 
 /**
  * Utilities for Java Topology Suite (JTS) related stuff.
@@ -39,6 +40,7 @@ public class GeospatialUtilsJTS extends GeospatialUtils {
     /** The spatial context to be used. */
     public static final JtsSpatialContext CONTEXT = JtsSpatialContext.GEO;
 
+    public static final JtsShapeFactory SHAPE_FACTORY = CONTEXT.getShapeFactory();
     /**
      * Returns the {@link JtsGeometry} represented by the specified WKT text.
      *
@@ -50,13 +52,13 @@ public class GeospatialUtilsJTS extends GeospatialUtils {
             throw new IndexException("Shape shouldn't be blank");
         }
         try {
-            GeometryFactory geometryFactory = CONTEXT.getGeometryFactory();
+            GeometryFactory geometryFactory = SHAPE_FACTORY.getGeometryFactory();
             WKTReader reader = new WKTReader(geometryFactory);
             Geometry geometry = reader.read(string);
             if (!geometry.isValid()) {
                 geometry = geometry.buffer(0);
             }
-            return CONTEXT.makeShape(geometry);
+            return SHAPE_FACTORY.makeShape(geometry);
         } catch (ParseException | IllegalArgumentException e) {
             throw new IndexException(e, "Shape '{}' is not parseable", string);
         }

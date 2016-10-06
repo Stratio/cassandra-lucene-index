@@ -720,14 +720,10 @@ Details and default values are listed in the table below.
 | `double <#double-mapper>`__         | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | column          | string          | mapper_name of the schema      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | boost           | integer         | 0.1f                           | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `float <#float-mapper>`__           | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | column          | string          | mapper_name of the schema      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | boost           | integer         | 0.1f                           | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `geo_point <#geo-point-mapper>`__   | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
@@ -752,14 +748,10 @@ Details and default values are listed in the table below.
 | `integer <#integer-mapper>`__       | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | column          | string          | mapper_name of the schema      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | boost           | integer         | 0.1f                           | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `long <#long-mapper>`__             | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | column          | string          | mapper_name of the schema      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | boost           | integer         | 0.1f                           | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `string <#string-mapper>`__         | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
@@ -1085,7 +1077,6 @@ Maps a 64-bit decimal number.
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the double to be indexed.
--  **boost** (default = 0.1f): the Lucene's index-time boosting factor.
 
 **Supported CQL types:**
 
@@ -1103,7 +1094,6 @@ Maps a 64-bit decimal number.
           fields: {
              double: {
                 type: "double",
-                 boost: 2.0,
                  validated: true,
                  column: "column_name"
              }
@@ -1121,7 +1111,6 @@ Maps a 32-bit decimal number.
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the float to be indexed.
--  **boost** (default = 0.1f): the Lucene's index-time boosting factor.
 
 **Supported CQL types:**
 
@@ -1139,7 +1128,6 @@ Maps a 32-bit decimal number.
           fields: {
              float: {
                 type: "float",
-                boost: 2.0,
                 validated: true,
                 column: "column_name"
              }
@@ -1466,7 +1454,6 @@ Maps a 32-bit integer number.
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the integer to be indexed.
--  **boost** (default = 0.1f): the Lucene's index-time boosting factor.
 
 **Supported CQL types:**
 
@@ -1486,7 +1473,6 @@ Maps a 32-bit integer number.
                 type: "integer",
                 validated: true,
                 column: "column_name"
-                boost: 2.0,
              }
           }
        }'
@@ -1502,7 +1488,6 @@ Maps a 64-bit integer number.
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the double to be indexed.
--  **boost** (default = 0.1f): the Lucene's index-time boosting factor.
 
 **Supported CQL types:**
 
@@ -1522,7 +1507,6 @@ Maps a 64-bit integer number.
                 type: "long",
                 validated: true,
                 column: "column_name"
-                 boost: 2.0
              }
           }
        }'
@@ -1770,7 +1754,7 @@ examples can be downloaded as a CQL script:
 `extended-search-examples.cql </doc/resources/extended-search-examples.cql>`__.
 
 In addition to the options described in the table, all search types have
-a “\ **boost**\ ” option that acts as a weight on the resulting score.
+a “\ **boost**\ ” option that acts as a weight multiplier on the resulting score.
 
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | Search type                             | Option          | Value type      | Default value                  | Mandatory |

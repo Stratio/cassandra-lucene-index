@@ -33,12 +33,6 @@ import java.util.Optional;
  */
 public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
 
-    /** The default boost. */
-    public static final float DEFAULT_BOOST = 1.0f;
-
-    /** The boost. */
-    public final Float boost;
-
     /**
      * Builds a new {@link DoubleMapper} using the specified boost.
      *
@@ -47,9 +41,8 @@ public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
      * @param validated if the field must be validated
      * @param boost the boost
      */
-    public DoubleMapper(String field, String column, Boolean validated, Float boost) {
+    public DoubleMapper(String field, String column, Boolean validated) {
         super(field, column, true, validated, null, Double.class, NUMERIC_TYPES);
-        this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 
     /** {@inheritDoc} */
@@ -70,9 +63,7 @@ public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
     /** {@inheritDoc} */
     @Override
     public Optional<Field> indexedField(String name, Double value) {
-        DoublePoint doublePoint = new DoublePoint(name, value);
-        doublePoint.setBoost(boost);
-        return Optional.of(doublePoint);
+        return Optional.of(new DoublePoint(name, value));
     }
 
     /** {@inheritDoc} */
@@ -91,6 +82,6 @@ public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return toStringHelper(this).add("boost", boost).toString();
+        return toStringHelper(this).toString();
     }
 }

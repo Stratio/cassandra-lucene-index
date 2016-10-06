@@ -21,7 +21,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 
-import static com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper.BitemporalDateTime;
+import static com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper.*;
 import static org.apache.lucene.document.LongPoint.newRangeQuery;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;

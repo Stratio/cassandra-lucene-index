@@ -101,14 +101,11 @@ public class Index implements org.apache.cassandra.index.Index {
      * @throws ConfigurationException if the options are not valid
      */
     public static Map<String, String> validateOptions(Map<String, String> options, CFMetaData metadata) {
-        logger.debug("Validating Lucene index options");
         try {
             IndexOptions.validateOptions(options, metadata);
         } catch (IndexException e) {
-            logger.error("Invalid index options: " + options, e);
             throw new ConfigurationException(e.getMessage());
         }
-        logger.debug("Lucene index options are valid");
         return Collections.emptyMap();
     }
 

@@ -77,7 +77,7 @@ public class DateRangeMapper extends Mapper {
         this.from = from;
         this.to = to;
         this.parser = new DateParser(pattern);
-        tree = DateRangePrefixTree.INSTANCE;
+        tree = new DateRangePrefixTree(DateRangePrefixTree.DEFAULT_CAL);
         strategy = new NumberRangePrefixTreeStrategy(tree, field);
     }
 

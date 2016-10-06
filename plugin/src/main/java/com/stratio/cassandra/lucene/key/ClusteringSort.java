@@ -19,6 +19,10 @@ import com.stratio.cassandra.lucene.codecs.SerializableSortField;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.Schema;
 import org.apache.cassandra.db.Clustering;
+import org.apache.lucene.index.BinaryDocValues;
+import org.apache.lucene.index.CodecReader;
+import org.apache.lucene.index.DocValues;
+import org.apache.lucene.index.MultiSorter;
 import org.apache.lucene.search.FieldComparator;
 import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.SortField;
@@ -28,6 +32,8 @@ import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.stratio.cassandra.lucene.key.ClusteringMapper.PREFIX_BYTES;
 import static org.apache.cassandra.utils.FastByteOperations.compareUnsigned;
@@ -86,6 +92,28 @@ public class ClusteringSort extends SerializableSortField {
         output.writeString(this.mapper.metadata.ksName);
         output.writeString(this.mapper.metadata.cfName);
     }
+
+    @Override
+    public MultiSorter.CrossReaderComparator getCrossReaderComparator(List<CodecReader> readers) throws IOException {
+        List<BinaryDocValues> values = new ArrayList<>();
+        for(CodecReader reader : readers)
+            values.add(DocValues.getBinary(reader, this.getField()));
+
+        return (readerIndexA, docIDA, readerIndexB, docIDB) -> {
+            BytesRef valueA= values.get(readerIndexA).get(docIDA);
+            BytesRef valueB = values.get(readerIndexB).get(docIDB);
+            int comp = compareUnsigned(valueA.bytes, 0, PREFIX_BYTES, valueB.bytes, 0, PREFIX_BYTES);
+            if (comp == 0) {
+                ByteBuffer bb1 = ByteBuffer.wrap(valueA.bytes, PREFIX_BYTES, valueA.length - PREFIX_BYTES);
+                ByteBuffer bb2 = ByteBuffer.wrap(valueB.bytes, PREFIX_BYTES, valueB.length - PREFIX_BYTES);
+                Clustering clustering1 = mapper.clustering(bb1);
+                Clustering clustering2 = mapper.clustering(bb2);
+                comp = mapper.comparator.compare(clustering1, clustering2);
+            }
+            return comp;
+        };
+    }
+
     /** {@inheritDoc} */
     @Override
     public String toString() {

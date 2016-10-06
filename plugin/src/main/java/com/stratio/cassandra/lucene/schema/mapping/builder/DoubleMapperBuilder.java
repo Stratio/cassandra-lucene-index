@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.stratio.cassandra.lucene.schema.mapping.DoubleMapper;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link SingleColumnMapperBuilder} to build a new {@link DoubleMapper}.
@@ -24,20 +23,6 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class DoubleMapperBuilder extends SingleColumnMapperBuilder<DoubleMapper, DoubleMapperBuilder> {
-
-    @JsonProperty("boost")
-    private Float boost;
-
-    /**
-     * Sets the boost to be used.
-     *
-     * @param boost the boost to be used
-     * @return this
-     */
-    public DoubleMapperBuilder boost(Float boost) {
-        this.boost = boost;
-        return this;
-    }
 
     /**
      * Returns the {@link DoubleMapper} represented by this {@link MapperBuilder}.
@@ -47,6 +32,6 @@ public class DoubleMapperBuilder extends SingleColumnMapperBuilder<DoubleMapper,
      */
     @Override
     public DoubleMapper build(String field) {
-        return new DoubleMapper(field, column, validated, boost);
+        return new DoubleMapper(field, column, validated);
     }
 }

@@ -33,23 +33,15 @@ import java.util.Optional;
  */
 public class LongMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
 
-    /** The default boost. */
-    public static final Float DEFAULT_BOOST = 1.0f;
-
-    /** The boost. */
-    public final Float boost;
-
     /**
      * Builds a new {@link LongMapper} using the specified boost.
      *
      * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
-     * @param boost the boost
      */
-    public LongMapper(String field, String column, Boolean validated, Float boost) {
+    public LongMapper(String field, String column, Boolean validated) {
         super(field, column, true, validated, null, Long.class, NUMERIC_TYPES_WITH_DATE);
-        this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 
     /** {@inheritDoc} */
@@ -72,9 +64,7 @@ public class LongMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public Optional<Field> indexedField(String name, Long value) {
-        LongPoint longPoint = new LongPoint(name, value);
-        longPoint.setBoost(boost);
-        return Optional.of(longPoint);
+        return Optional.of(new LongPoint(name, value));
     }
 
     /** {@inheritDoc} */
@@ -92,6 +82,6 @@ public class LongMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return toStringHelper(this).add("boost", boost).toString();
+        return toStringHelper(this).toString();
     }
 }
