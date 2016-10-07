@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.9.1 (Upcoming)
+
+* Add support for geospatial shapes in bounding box search
+* Add support for geospatial shapes in distance search
+
 ## 3.0.9.0 (September 30, 2016)
 
 * Upgrade to Apache Cassandra 3.0.9

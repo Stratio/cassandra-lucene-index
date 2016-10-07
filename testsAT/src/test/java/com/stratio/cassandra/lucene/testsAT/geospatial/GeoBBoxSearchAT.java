@@ -26,8 +26,7 @@ import org.junit.runners.JUnit4;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.stratio.cassandra.lucene.builder.Builder.geoBBox;
-import static com.stratio.cassandra.lucene.builder.Builder.geoPointMapper;
+import static com.stratio.cassandra.lucene.builder.Builder.*;
 
 @RunWith(JUnit4.class)
 public class GeoBBoxSearchAT extends BaseAT {
@@ -41,6 +40,7 @@ public class GeoBBoxSearchAT extends BaseAT {
         data1.put("place", "'Madrid'");
         data1.put("latitude", "0.0");
         data1.put("longitude", "0.0");
+        data1.put("shape", "'POINT(0.0 0.0)'");
     }
 
     public static final Map<String, String> data2;
@@ -50,6 +50,7 @@ public class GeoBBoxSearchAT extends BaseAT {
         data2.put("place", "'Barcelona'");
         data2.put("latitude", "50.000002");
         data2.put("longitude", "50.000002");
+        data2.put("shape", "'POINT(50.000002 50.000002)'");
     }
 
     @BeforeClass
@@ -60,7 +61,8 @@ public class GeoBBoxSearchAT extends BaseAT {
                               .withColumn("place", "text", null)
                               .withColumn("latitude", "decimal", null)
                               .withColumn("longitude", "decimal", null)
-                              .withMapper("location", geoPointMapper("latitude", "longitude"))
+                              .withColumn("shape", "text", geoShapeMapper())
+                              .withMapper("point", geoPointMapper("latitude", "longitude"))
                               .build()
                               .createKeyspace()
                               .createTable()
@@ -76,14 +78,25 @@ public class GeoBBoxSearchAT extends BaseAT {
     }
 
     @Test
-    public void geoBBoxSearchBasicSuccess() {
-        utils.query(geoBBox("location", 0.0, 0.0, 0.0, 0.0)).check(1);
-        utils.query(geoBBox("location", 0.0, 1.0, 0.0, 1.0)).check(1);
-        utils.query(geoBBox("location", 0.0, 1.0, -1.0, 0.0)).check(1);
-        utils.query(geoBBox("location", 0.0, 0.0, 1.0, 2.0)).check(0);
-        utils.query(geoBBox("location", 1.0, 2.0, 0.0, 0.0)).check(0);
-        utils.query(geoBBox("location", -0000.1, 0.0001, -0.0001, 0.0001)).check(1);
-        utils.query(geoBBox("location", 50.000001, 50.000003, 50.000001, 50.000003)).check(1);
+    public void geoBBoxSearchBasicSuccessWithPointMapper() {
+        utils.query(geoBBox("point", 0.0, 0.0, 0.0, 0.0)).check(1);
+        utils.query(geoBBox("point", 0.0, 1.0, 0.0, 1.0)).check(1);
+        utils.query(geoBBox("point", 0.0, 1.0, -1.0, 0.0)).check(1);
+        utils.query(geoBBox("point", 0.0, 0.0, 1.0, 2.0)).check(0);
+        utils.query(geoBBox("point", 1.0, 2.0, 0.0, 0.0)).check(0);
+        utils.query(geoBBox("point", -0000.1, 0.0001, -0.0001, 0.0001)).check(1);
+        utils.query(geoBBox("point", 50.000001, 50.000003, 50.000001, 50.000003)).check(1);
+    }
+
+    @Test
+    public void geoBBoxSearchBasicSuccessWithShapeMapper() {
+        utils.query(geoBBox("shape", 0.0, 0.0, 0.0, 0.0)).check(1);
+        utils.query(geoBBox("shape", 0.0, 1.0, 0.0, 1.0)).check(1);
+        utils.query(geoBBox("shape", 0.0, 1.0, -1.0, 0.0)).check(1);
+        utils.query(geoBBox("shape", 0.0, 0.0, 1.0, 2.0)).check(0);
+        utils.query(geoBBox("shape", 1.0, 2.0, 0.0, 0.0)).check(0);
+        utils.query(geoBBox("shape", -0000.1, 0.0001, -0.0001, 0.0001)).check(1);
+        utils.query(geoBBox("shape", 50.000001, 50.000003, 50.000001, 50.000003)).check(1);
     }
 
 }
