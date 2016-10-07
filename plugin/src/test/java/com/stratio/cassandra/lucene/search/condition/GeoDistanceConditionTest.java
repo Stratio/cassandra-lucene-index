@@ -146,8 +146,18 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
     }
 
     @Test
-    public void testQueryMinMax() {
+    public void testQueryMinMaxWithPointMapper() {
         Schema schema = schema().mapper("name", geoPointMapper("lat", "lon").maxLevels(8)).build();
+        testQueryMinMaxWithValidSchema(schema);
+    }
+
+    @Test
+    public void testQueryMinMaxWithShapeMapper() {
+        Schema schema = schema().mapper("name", geoShapeMapper().maxLevels(8)).build();
+        testQueryMinMaxWithValidSchema(schema);
+    }
+
+    private void testQueryMinMaxWithValidSchema(Schema schema) {
         GeoDistanceCondition condition = new GeoDistanceCondition(0.5f,
                                                                   "name",
                                                                   90D,
