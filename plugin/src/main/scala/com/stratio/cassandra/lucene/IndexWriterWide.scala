@@ -22,6 +22,7 @@ import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
 
 import scala.collection.JavaConversions._
+import java.{util => java}
 
 /** [[IndexWriter]] for wide rows.
   *
@@ -39,8 +40,8 @@ class IndexWriterWide(service: IndexServiceWide,
                       transactionType: IndexTransaction.Type)
   extends IndexWriter(service, key, nowInSec, opGroup, transactionType) {
 
-  private val rowsToRead = new java.util.TreeSet[Clustering](service.metadata.comparator)
-  private val rows = new java.util.LinkedHashMap[Clustering, Option[Row]]
+  private val rowsToRead = new java.TreeSet[Clustering](service.metadata.comparator)
+  private val rows = new java.LinkedHashMap[Clustering, Option[Row]]
 
   /** @inheritdoc */
   override def delete() {

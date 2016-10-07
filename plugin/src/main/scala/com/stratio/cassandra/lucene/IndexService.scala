@@ -44,6 +44,7 @@ import org.apache.lucene.search.{Query, ScoreDoc, Sort, SortField}
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
+import java.{util => java}
 
 /** Lucene index service provider.
   *
@@ -67,17 +68,17 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   val tokenMapper = new TokenMapper
   val partitionMapper = new PartitionMapper(metadata)
   val mapsMultiCells = metadata.allColumns.filter(x => schema.mappedCells.contains(x.name.toString))
-                       .exists(_.`type`.isMultiCell)
+    .exists(_.`type`.isMultiCell)
 
   // Setup FS index and write queue
   val queue = new AsyncExecutor(options.indexingThreads, options.indexingQueuesSize)
   val lucene = new FSIndex(name,
-                           options.path,
-                           options.schema.analyzer,
-                           options.refreshSeconds,
-                           options.ramBufferMB,
-                           options.maxMergeMB,
-                           options.maxCachedMB)
+    options.path,
+    options.schema.analyzer,
+    options.refreshSeconds,
+    options.ramBufferMB,
+    options.maxMergeMB,
+    options.maxCachedMB)
 
   // Delay JMX MBean creation
   var mBean: ObjectName = _
@@ -396,12 +397,8 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
 
   def after(pagingState: IndexPagingState, command: ReadCommand): Option[Query] = {
     try {
-      if (pagingState != null) {
-        val position = pagingState.forCommand(command)
-        return if (position == null) None
-        else after(position.left, position.right)
-      }
-      None
+      if (pagingState == null) return None
+      pagingState.forCommand(command).flatMap(x => after(x._1, x._2))
     } catch {
       case e: RuntimeException => throw new IndexException(e, "Invalid paging state")
     }
@@ -442,7 +439,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @return a row iterator
     */
   def read(key: DecoratedKey,
-           clusterings: java.util.NavigableSet[Clustering],
+           clusterings: java.NavigableSet[Clustering],
            nowInSec: Int,
            group: OpOrder.Group): UnfilteredRowIterator = {
     val filter = new ClusteringIndexNamesFilter(clusterings, false)
@@ -458,7 +455,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @return a row iterator
     */
   def read(key: DecoratedKey, nowInSec: Int, opGroup: OpOrder.Group): UnfilteredRowIterator = {
-    val clusterings = new java.util.TreeSet[Clustering](metadata.comparator)
+    val clusterings = new java.TreeSet[Clustering](metadata.comparator)
     clusterings.add(Clustering.EMPTY)
     read(key, clusterings, nowInSec, opGroup)
   }
@@ -507,7 +504,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   }
 
   def collect(partitions: PartitionIterator): List[(DecoratedKey, SimpleRowIterator)] = {
-    val rows = new java.util.ArrayList[(DecoratedKey, SimpleRowIterator)]
+    val rows = new java.ArrayList[(DecoratedKey, SimpleRowIterator)]
     val time = TimeCounter.create.start
     for (partition <- partitions) {
       try {
@@ -543,7 +540,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     index.close()
 
     // Collect post processed results
-    val merged = new java.util.LinkedList[SimpleRowIterator]
+    val merged = new java.LinkedList[SimpleRowIterator]
     for ((doc, score) <- docs.map(x => (x.left, x.right))) {
       val i = doc.get(field).toInt
       val rowIterator = rows.get(i)._2
@@ -588,32 +585,32 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     update.foreach(row => schema.validate(columns(key, row)))
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def commit() {
     queue.submitSynchronous(lucene.commit())
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def getNumDocs: Int = {
     lucene.getNumDocs
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def getNumDeletedDocs: Int = {
     lucene.getNumDeletedDocs
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def forceMerge(maxNumSegments: Int, doWait: Boolean) {
     queue.submitSynchronous(lucene.forceMerge(maxNumSegments, doWait))
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def forceMergeDeletes(doWait: Boolean) {
     queue.submitSynchronous(lucene.forceMergeDeletes(doWait))
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def refresh() {
     queue.submitSynchronous(lucene.refresh())
   }

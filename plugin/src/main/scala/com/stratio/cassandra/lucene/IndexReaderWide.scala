@@ -19,6 +19,7 @@ import com.stratio.cassandra.lucene.index.DocumentIterator
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter
 import org.apache.lucene.document.Document
+import java.{util => java}
 
 /** [[IndexReader]] for wide rows.
   *
@@ -38,8 +39,8 @@ class IndexReaderWide(service: IndexServiceWide,
   private[this] val comparator = service.metadata.comparator
   private[this] var nextDoc: Document = _
 
-  private[this] def readClusterings(key: DecoratedKey): java.util.NavigableSet[Clustering] = {
-    val clusterings = new java.util.TreeSet[Clustering](comparator)
+  private[this] def readClusterings(key: DecoratedKey): java.NavigableSet[Clustering] = {
+    val clusterings = new java.TreeSet[Clustering](comparator)
     var clustering = service.clustering(nextDoc)
     var lastClustering: Clustering = null
     var continue = true
