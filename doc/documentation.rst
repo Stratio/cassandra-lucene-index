@@ -2912,7 +2912,7 @@ where:
                value: "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))"
             }
         }
-    }';
+    }');
 
 Using the `Java query builder <#query-builder>`__:
 
@@ -2939,7 +2939,7 @@ Florida's coastline:
         filter: {
             type: "geo_shape",
             field: "place",
-            relation: "intersects",
+            operation: "intersects",
             shape: {
                type: "buffer",
                max_distance: "10km",
@@ -2949,7 +2949,7 @@ Florida's coastline:
                }
             }
         }
-    }';
+    }');
 
 Using the `Java query builder <#query-builder>`__:
 
@@ -3659,7 +3659,7 @@ where:
        filter: {
           type: "geo_shape",
           field: "place",
-          relation: "intersects",
+          operation: "intersects",
           shape: {
              type: "wkt",
              value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
@@ -3692,7 +3692,7 @@ of a WKT shape:
        filter: {
           type: "geo_shape",
           field: "place",
-          relation: "intersects",
+          operation: "intersects",
           shape: {
              type: "bbox",
              shape: {
@@ -3734,7 +3734,7 @@ defined by a buffer 10 kilometers around a segment of the Florida's coastline:
        filter: {
           type: "geo_shape",
           field: "place",
-          relation: "intersects",
+          operation: "intersects",
           shape: {
              type: "buffer",
              max_distance: "10km",
@@ -3770,7 +3770,7 @@ WKT shape:
        filter: {
           type: "geo_shape",
           field: "place",
-          relation: "intersects",
+          operation: "intersects",
           shape: {
              type: "centroid",
              shape: {
@@ -3805,7 +3805,7 @@ a WKT shape:
        filter: {
           type: "geo_shape",
           field: "place",
-          relation: "intersects",
+          operation: "intersects",
           shape: {
              type: "convex_hull",
              shape: {
