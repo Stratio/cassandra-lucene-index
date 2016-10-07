@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.8.4 (Upcoming)
+
+* Add support for geospatial shapes in bounding box search
+* Add support for geospatial shapes in distance search
+
 ## 3.0.8.3 (September 30, 2016)
 
 * Optimize clustering key index format (breaks backward compatibility)

@@ -21,9 +21,7 @@ import com.spatial4j.core.shape.Circle;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.common.GeoDistanceUnit;
-import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
@@ -39,7 +37,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.MUST_NOT;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> {
+public class GeoDistanceCondition extends GeospatialCondition {
 
     /** The latitude of the reference point. */
     public final double latitude;
@@ -70,7 +68,7 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
                                 Double longitude,
                                 GeoDistance minGeoDistance,
                                 GeoDistance maxGeoDistance) {
-        super(boost, field, GeoPointMapper.class);
+        super(boost, field, "geo_distance");
 
         this.latitude = GeospatialUtils.checkLatitude("latitude", latitude);
         this.longitude = GeospatialUtils.checkLongitude("longitude", longitude);
@@ -89,12 +87,11 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(GeoPointMapper mapper, Analyzer analyzer) {
-        SpatialStrategy spatialStrategy = mapper.strategy;
+    public Query doQuery(SpatialStrategy strategy) {
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
-        builder.add(query(maxGeoDistance, spatialStrategy), FILTER);
+        builder.add(query(maxGeoDistance, strategy), FILTER);
         if (minGeoDistance != null) {
-            builder.add(query(minGeoDistance, spatialStrategy), MUST_NOT);
+            builder.add(query(minGeoDistance, strategy), MUST_NOT);
         }
         return builder.build();
     }
