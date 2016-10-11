@@ -71,7 +71,7 @@ class IndexServiceSkinny extends IndexService {
                                          int nowInSec,
                                          OpOrder.Group opGroup,
                                          IndexTransaction.Type transactionType) {
-        return new IndexWriterSkinny(this, key, nowInSec, opGroup, transactionType);
+        return new IndexWriterSkinny(this, key, nowInSec, transactionType);
     }
 
     /** {@inheritDoc} */

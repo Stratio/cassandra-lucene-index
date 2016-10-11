@@ -1,6 +1,9 @@
 # Changelog
+## 3.8.0 (Upcoming)
 
-## 3.7.3 (Upcoming)
+* Upgrade to Apache Cassandra 3.8
+
+## 3.7.3 (October 07, 2016)
 
 * Add support for indexing non-frozen UDTs
 

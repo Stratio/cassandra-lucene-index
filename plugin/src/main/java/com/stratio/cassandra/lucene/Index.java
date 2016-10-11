@@ -199,6 +199,7 @@ public class Index implements org.apache.cassandra.index.Index {
         return () -> {
             logger.info("Flushing Lucene index {}", name);
             service.commit();
+            logger.info("Flushed Lucene index {}", name);
             return null;
         };
     }

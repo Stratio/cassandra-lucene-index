@@ -39,15 +39,13 @@ class IndexWriterSkinny extends IndexWriter {
      * @param service the service to perform the indexing operation
      * @param key key of the partition being modified
      * @param nowInSec current time of the update operation
-     * @param opGroup operation group spanning the update operation
      * @param transactionType what kind of update is being performed on the base data
      */
     IndexWriterSkinny(IndexServiceSkinny service,
                       DecoratedKey key,
                       int nowInSec,
-                      OpOrder.Group opGroup,
                       IndexTransaction.Type transactionType) {
-        super(service, key, nowInSec, opGroup, transactionType);
+        super(service, key, nowInSec, transactionType);
         optionalRow = Optional.empty();
     }
 
@@ -71,7 +69,7 @@ class IndexWriterSkinny extends IndexWriter {
             optionalRow.ifPresent(row -> {
                 if (transactionType == IndexTransaction.Type.COMPACTION || service.needsReadBeforeWrite(key, row)) {
                     Tracer.trace("Lucene index reading before write");
-                    UnfilteredRowIterator iterator = service.read(key, nowInSec, opGroup);
+                    UnfilteredRowIterator iterator = service.read(key, nowInSec);
                     if (iterator.hasNext()) {
                         row = (Row) iterator.next();
                     }

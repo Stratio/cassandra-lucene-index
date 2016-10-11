@@ -36,7 +36,6 @@ abstract class IndexWriter implements Index.Indexer {
     protected final IndexService service;
     protected final DecoratedKey key;
     protected final int nowInSec;
-    protected final OpOrder.Group opGroup;
     protected final IndexTransaction.Type transactionType;
 
     /**
@@ -45,18 +44,15 @@ abstract class IndexWriter implements Index.Indexer {
      * @param service the service to perform the indexing operation
      * @param key key of the partition being modified
      * @param nowInSec current time of the update operation
-     * @param opGroup operation group spanning the update operation
      * @param transactionType what kind of update is being performed on the base data
      */
     IndexWriter(IndexService service,
                 DecoratedKey key,
                 int nowInSec,
-                OpOrder.Group opGroup,
                 IndexTransaction.Type transactionType) {
         this.service = service;
         this.key = key;
         this.nowInSec = nowInSec;
-        this.opGroup = opGroup;
         this.transactionType = transactionType;
     }
 

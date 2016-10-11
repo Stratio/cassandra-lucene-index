@@ -94,7 +94,7 @@ class IndexServiceWide extends IndexService {
                                        int nowInSec,
                                        OpOrder.Group opGroup,
                                        IndexTransaction.Type transactionType) {
-        return new IndexWriterWide(this, key, nowInSec, opGroup, transactionType);
+        return new IndexWriterWide(this, key, nowInSec, transactionType);
     }
 
     /** {@inheritDoc} */

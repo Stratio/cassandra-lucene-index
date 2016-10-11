@@ -16,9 +16,7 @@
 package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.column.Columns;
-import com.stratio.cassandra.lucene.index.DocumentIterator;
-import com.stratio.cassandra.lucene.index.FSIndex;
-import com.stratio.cassandra.lucene.index.RAMIndex;
+import com.stratio.cassandra.lucene.index.*;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
 import com.stratio.cassandra.lucene.key.TokenMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
@@ -592,17 +590,17 @@ abstract class IndexService implements IndexServiceMBean {
      * @param key the partition key
      * @param clusterings the clustering keys
      * @param nowInSec max allowed time in seconds
-     * @param opGroup operation group spanning the calling operation
      * @return a {@link Row} iterator
      */
     UnfilteredRowIterator read(DecoratedKey key,
                                NavigableSet<Clustering> clusterings,
-                               int nowInSec,
-                               OpOrder.Group opGroup) {
+                               int nowInSec) {
         ClusteringIndexNamesFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
         ColumnFilter columnFilter = ColumnFilter.all(metadata);
-        return SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter)
-                                         .queryMemtableAndDisk(table, opGroup);
+        SinglePartitionReadCommand readCommand= SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter);
+        try(ReadExecutionController controller=readCommand.executionController()) {
+            return readCommand.queryMemtableAndDisk(table,controller);
+        }
     }
 
     /**
@@ -610,11 +608,10 @@ abstract class IndexService implements IndexServiceMBean {
      *
      * @param key the partition key
      * @param nowInSec max allowed time in seconds
-     * @param opGroup operation group spanning the calling operation
      * @return a {@link Row} iterator
      */
-    UnfilteredRowIterator read(DecoratedKey key, int nowInSec, OpOrder.Group opGroup) {
-        return read(key, clusterings(Clustering.EMPTY), nowInSec, opGroup);
+    UnfilteredRowIterator read(DecoratedKey key, int nowInSec) {
+        return read(key, clusterings(Clustering.EMPTY), nowInSec);
     }
 
     /**

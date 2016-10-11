@@ -23,6 +23,7 @@ import com.google.common.collect.Lists
 import com.stratio.cassandra.lucene.BaseScalaTest
 import com.stratio.cassandra.lucene.column.ColumnsMapper._
 import org.apache.cassandra.config.ColumnDefinition
+import org.apache.cassandra.cql3.FieldIdentifier
 import org.apache.cassandra.db.marshal._
 import org.apache.cassandra.db.rows.{BufferCell, Cell}
 import org.apache.cassandra.utils.UUIDGen
@@ -252,7 +253,7 @@ class ColumnsMapperTest extends BaseScalaTest {
     new UserType(
       "ks",
       UTF8Type.instance.decompose("cell"),
-      Lists.newArrayList(names.map(x => UTF8Type.instance.decompose(x)).asJava),
+      Lists.newArrayList(names.map(x => new FieldIdentifier(UTF8Type.instance.decompose(x))).asJava),
       Lists.newArrayList(types.asJava),false)
   }
 }

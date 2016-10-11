@@ -49,9 +49,8 @@ class IndexWriterWide extends IndexWriter {
     IndexWriterWide(IndexServiceWide service,
                     DecoratedKey key,
                     int nowInSec,
-                    OpOrder.Group opGroup,
                     IndexTransaction.Type transactionType) {
-        super(service, key, nowInSec, opGroup, transactionType);
+        super(service, key, nowInSec, transactionType);
         rowsToRead = service.clusterings();
         rows = new LinkedHashMap<>();
     }
@@ -86,7 +85,7 @@ class IndexWriterWide extends IndexWriter {
         if (transactionType != IndexTransaction.Type.CLEANUP) {
 
             // Read required rows from storage engine
-            service.read(key, rowsToRead, nowInSec, opGroup).forEachRemaining(unfiltered -> {
+            service.read(key, rowsToRead, nowInSec).forEachRemaining(unfiltered -> {
                 Row row = (Row) unfiltered;
                 rows.put(row.clustering(), Optional.of(row));
             });
