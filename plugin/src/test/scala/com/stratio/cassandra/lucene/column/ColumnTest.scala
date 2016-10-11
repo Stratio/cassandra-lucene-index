@@ -103,7 +103,7 @@ class ColumnTest extends BaseScalaTest {
 
   test("toString with default attributes") {
     Column("cell").toString shouldBe
-      s"Column{cell=cell, name=cell, value=null, deletionTime=${Column.NO_DELETION_TIME}}"
+      s"Column{cell=cell, name=cell, value=None, deletionTime=${Column.NO_DELETION_TIME}}"
   }
 
   test("toString with all attributes") {
@@ -115,6 +115,6 @@ class ColumnTest extends BaseScalaTest {
       .withDeletionTime(10)
       .withValue(5)
       .toString shouldBe
-      "Column{cell=cell, name=cell.u1.u2$m1$m2, value=5, deletionTime=10}"
+      "Column{cell=cell, name=cell.u1.u2$m1$m2, value=Some(5), deletionTime=10}"
   }
 }

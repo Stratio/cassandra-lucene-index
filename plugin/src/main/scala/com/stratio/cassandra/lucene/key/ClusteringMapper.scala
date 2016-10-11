@@ -36,6 +36,7 @@ import org.apache.lucene.index._
 import org.apache.lucene.search.BooleanClause.Occur.SHOULD
 import org.apache.lucene.search._
 import org.apache.lucene.util.{AttributeSource, BytesRef}
+import org.apache.lucene.search.FieldComparator.TermValComparator
 
 import scala.collection.JavaConversions._
 
@@ -47,10 +48,10 @@ import scala.collection.JavaConversions._
 class ClusteringMapper(metadata: CFMetaData) {
 
   /** The clustering key comparator */
-  val comparator: ClusteringComparator = metadata.comparator
+  val comparator = metadata.comparator
 
   /** A composite type composed by the types of the clustering key */
-  val clusteringType: CompositeType = CompositeType.getInstance(comparator.subtypes)
+  val clusteringType = CompositeType.getInstance(comparator.subtypes)
 
   /** Returns the columns contained in the specified [[Clustering]].
     *
@@ -77,8 +78,8 @@ class ClusteringMapper(metadata: CFMetaData) {
     // TODO: return Seq
 
     // Build stored field for clustering key retrieval
-    val plainClustering: BytesRef = bytesRef(byteBuffer(clustering))
-    val storedField: Field = new StoredField(FIELD_NAME, plainClustering)
+    val plainClustering = bytesRef(byteBuffer(clustering))
+    val storedField = new StoredField(FIELD_NAME, plainClustering)
 
     // Build indexed field prefixed by token value collation
     val bb = ByteBuffer.allocate(PREFIX_SIZE + plainClustering.length)
@@ -102,8 +103,8 @@ class ClusteringMapper(metadata: CFMetaData) {
     * @param prefix the clustering prefix
     * @return a @code String representing @code prefix
     */
-  def toString(prefix: ClusteringPrefix): String = {
-    if (prefix == null) null else prefix.toString(metadata)
+  def toString(prefix: Option[ClusteringPrefix]): String = {
+    prefix.map(_.toString(metadata)).orNull
   }
 
   /** Returns the clustering key represented by the specified [[ByteBuffer]].
@@ -133,31 +134,28 @@ class ClusteringMapper(metadata: CFMetaData) {
     new ClusteringSort(this)
   }
 
-  /**
-    * Returns a Lucene [[Query]] to retrieve all the rows in the specified partition slice.
+  /** Returns a Lucene [[Query]] to retrieve all the rows in the specified partition slice.
     *
     * @param position the partition position
     * @param start    the start clustering prefix
     * @param stop     the stop clustering prefix
     * @return the Lucene query
     */
-  def query(position: PartitionPosition, start: ClusteringPrefix, stop: ClusteringPrefix): Query = {
+  def query(position: PartitionPosition, start: Option[ClusteringPrefix], stop: Option[ClusteringPrefix]): Query = {
     new ClusteringQuery(this, position, start, stop)
   }
 
-  /**
-    * Returns a Lucene [[Query]] to retrieve all the rows in the specified clustering slice.
+  /** Returns a Lucene [[Query]] to retrieve all the rows in the specified clustering slice.
     *
     * @param key   the partition key
     * @param slice the slice
     * @return the Lucene query
     */
   def query(key: DecoratedKey, slice: Slice): Query = {
-    query(key, slice.start, slice.end)
+    query(key, Option(slice.start), Option(slice.end))
   }
 
-  /**
-    * Returns a Lucene [[Query]] to retrieve all the rows in the specified clustering slice filter.
+  /** Returns a Lucene [[Query]] to retrieve all the rows in the specified clustering slice filter.
     *
     * @param key    the partition key
     * @param filter the slice filter
@@ -235,15 +233,13 @@ object ClusteringMapper {
   }
 }
 
-/**
-  * [[SortField]] to sort by token and clustering key.
+/** [[SortField]] to sort by token and clustering key.
   *
   * @param mapper the primary key mapper to be used
-  * @author Andres de la Pena `adelapena@stratio.com`
   */
 class ClusteringSort(mapper: ClusteringMapper) extends SortField(FIELD_NAME, new FieldComparatorSource {
   override def newComparator(field: String, hits: Int, sortPos: Int, reversed: Boolean): FieldComparator[_] = {
-    new FieldComparator.TermValComparator(hits, field, false) {
+    new TermValComparator(hits, field, false) {
       override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
         val comp = compareUnsigned(t1.bytes, 0, PREFIX_SIZE, t2.bytes, 0, PREFIX_SIZE)
         if (comp != 0) return comp
@@ -268,23 +264,21 @@ class ClusteringSort(mapper: ClusteringMapper) extends SortField(FIELD_NAME, new
 
 }
 
-
-/**
-  * [[MultiTermQuery]] to get a range of clustering keys.
+/** [[MultiTermQuery]] to get a range of clustering keys.
   *
   * @param mapper   the clustering key mapper to be used
   * @param position the partition position
   * @param start    the start clustering
   * @param stop     the stop clustering
-  * @author Andres de la Pena `adelapena@stratio.com`
   */
 class ClusteringQuery(val mapper: ClusteringMapper,
                       val position: PartitionPosition,
-                      val start: ClusteringPrefix,
-                      val stop: ClusteringPrefix) extends MultiTermQuery(FIELD_NAME) {
+                      val start: Option[ClusteringPrefix],
+                      val stop: Option[ClusteringPrefix]) extends MultiTermQuery(FIELD_NAME) {
 
   val token = position.getToken
   val seek = ClusteringMapper.prefix(token)
+  val comparator = mapper.comparator
 
   /** @inheritdoc*/
   override def getTermsEnum(terms: Terms, attributes: AttributeSource): TermsEnum = {
@@ -293,9 +287,7 @@ class ClusteringQuery(val mapper: ClusteringMapper,
 
   /** Important to avoid collisions in Lucene's query cache. */
   override def equals(o: Any): Boolean = o match {
-    case q: ClusteringQuery => token == q.token &&
-      (start == null && q.start == null || start == q.start) &&
-      (stop == null && q.stop == null || stop == q.stop)
+    case q: ClusteringQuery => token == q.token && start == q.start && stop == q.stop
     case _ => false
   }
 
@@ -303,8 +295,8 @@ class ClusteringQuery(val mapper: ClusteringMapper,
   override def hashCode: Int = {
     var result = super.hashCode
     result = 31 * result + token.hashCode
-    result = 31 * result + (if (start != null) start.hashCode else 0)
-    result = 31 * result + (if (stop != null) stop.hashCode else 0)
+    result = 31 * result + start.map(_.hashCode).getOrElse(0)
+    result = 31 * result + stop.map(_.hashCode).getOrElse(0)
     result
   }
 
@@ -324,7 +316,7 @@ class ClusteringQuery(val mapper: ClusteringMapper,
     setInitialSeekTerm(new BytesRef(seek))
 
     /** @inheritdoc*/
-    override def accept(term: BytesRef): FilteredTermsEnum.AcceptStatus = {
+    override def accept(term: BytesRef): AcceptStatus = {
 
       // Check token range
       val comp = compareUnsigned(term.bytes, 0, PREFIX_SIZE, seek, 0, PREFIX_SIZE)
@@ -334,8 +326,8 @@ class ClusteringQuery(val mapper: ClusteringMapper,
       // Check clustering range
       val bb = ByteBuffer.wrap(term.bytes, PREFIX_SIZE, term.length - PREFIX_SIZE)
       val clustering = mapper.clustering(bb)
-      if (start != null && mapper.comparator.compare(start, clustering) > 0) return AcceptStatus.NO
-      if (stop != null && mapper.comparator.compare(stop, clustering) < 0) return AcceptStatus.NO
+      if (start.exists(comparator.compare(_, clustering) > 0)) return AcceptStatus.NO
+      if (stop.exists(comparator.compare(_, clustering) < 0)) return AcceptStatus.NO
 
       AcceptStatus.YES
     }

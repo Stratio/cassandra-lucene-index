@@ -31,15 +31,13 @@ import org.apache.cassandra.utils.ByteBufferUtil
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 
-/**
-  * Maps Cassandra rows to [[Columns]].
+/** Maps Cassandra rows to [[Columns]].
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 object ColumnsMapper {
 
-  /**
-    * Returns a [[Columns]] representing the specified row.
+  /** Returns a [[Columns]] representing the specified row.
     *
     * @param row the Cassandra row to be mapped
     */

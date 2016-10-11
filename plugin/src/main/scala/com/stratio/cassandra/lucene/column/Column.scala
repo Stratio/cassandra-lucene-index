@@ -21,8 +21,7 @@ import com.google.common.base.MoreObjects
 import com.stratio.cassandra.lucene.IndexException
 import org.apache.commons.lang3.StringUtils
 
-/**
-  * A cell of a CQL3 logic column, which in most cases is different from a storage engine column.
+/** A cell of a CQL3 logic column, which in most cases is different from a storage engine column.
   *
   * @param cellName     the name of the base cell
   * @param udtNames     the UDT fields
@@ -87,7 +86,7 @@ case class Column[A](cellName: String,
     MoreObjects.toStringHelper(this)
       .add("cell", cellName)
       .add("name", fieldName)
-      .add("value", value.getOrElse("null"))
+      .add("value", value)
       .add("deletionTime", deletionTime)
       .toString
 }

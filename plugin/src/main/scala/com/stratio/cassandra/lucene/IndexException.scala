@@ -25,7 +25,7 @@ import org.slf4j.helpers.MessageFormatter
   * @param cause   the cause
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-case class IndexException(message: String = null, cause: Throwable = null) extends RuntimeException(message, cause) {
+case class IndexException(message: String, cause: Throwable) extends RuntimeException(message, cause) {
 
   /** Constructs a new index exception with the specified cause.
     *

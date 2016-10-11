@@ -15,7 +15,8 @@
  */
 package com.stratio.cassandra.lucene
 
-/**
+/** JMX methods to be exposed by [[IndexService]].
+  *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 trait IndexServiceMBean {

@@ -176,8 +176,7 @@ class Index(table: ColumnFamilyStore, indexMetadata: IndexMetadata) extends org.
     service.dependsOn(column)
   }
 
-  /**
-    * Called to determine whether this index can provide a searcher to execute a query on the supplied column using the
+  /** Called to determine whether this index can provide a searcher to execute a query on the supplied column using the
     * specified operator. This forms part of the query validation done before a CQL select statement is executed.
     *
     * @param column   the target column of a search query predicate
@@ -264,7 +263,7 @@ class Index(table: ColumnFamilyStore, indexMetadata: IndexMetadata) extends org.
                           nowInSec: Int,
                           opGroup: OpOrder.Group,
                           transactionType: IndexTransaction.Type): Indexer = {
-    service.indexWriter(key, nowInSec, opGroup, transactionType)
+    service.writer(key, nowInSec, opGroup, transactionType)
   }
 
   /** Return a function which performs post processing on the results of a partition range read command. In future,

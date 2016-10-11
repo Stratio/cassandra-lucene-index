@@ -26,7 +26,11 @@ import java.util.function.BiFunction
 object JavaConversions {
 
   implicit def asJavaCallable[A](f:() => A): Callable[A] = {
-    new Callable[A] {override def call: A = f.apply()}
+    new Callable[A] {override def call: A = f.apply}
+  }
+
+  implicit def asJavaRunnable(f:() => Unit): Runnable = {
+    new Runnable {override def run(): Unit = f.apply}
   }
 
   implicit def asJavaBiFunction[A, B, C](sf: (A, B) => C): BiFunction[A, B, C] = {

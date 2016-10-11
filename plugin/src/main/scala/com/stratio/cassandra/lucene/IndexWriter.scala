@@ -20,8 +20,9 @@ import org.apache.cassandra.db.{DecoratedKey, DeletionTime, RangeTombstone}
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
 import org.slf4j.LoggerFactory
+import org.apache.cassandra.index.Index.Indexer
 
-/** [[org.apache.cassandra.index.Index.Indexer]] for Lucene-based index.
+/** [[Indexer]] for Lucene-based index.
   *
   * @param service         the service to perform the indexing operation
   * @param key             key of the partition being modified
@@ -34,38 +35,38 @@ abstract class IndexWriter(service: IndexService,
                            key: DecoratedKey,
                            nowInSec: Int,
                            opGroup: OpOrder.Group,
-                           transactionType: IndexTransaction.Type) extends org.apache.cassandra.index.Index.Indexer {
+                           transactionType: IndexTransaction.Type) extends Indexer {
 
   protected val logger = LoggerFactory.getLogger(classOf[IndexWriter])
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def begin() {
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partitionDelete(deletionTime: DeletionTime) {
     logger.trace(s"Delete partition during $transactionType: $deletionTime")
     delete()
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def rangeTombstone(tombstone: RangeTombstone) {
     logger.trace(s"Range tombstone during $transactionType: $tombstone")
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def insertRow(row: Row): Unit = {
     logger.trace(s"Insert rows during $transactionType: $row")
     index(row)
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def updateRow(oldRowData: Row, newRowData: Row): Unit = {
     logger.trace(s"Update row during $transactionType: $oldRowData TO $newRowData")
     index(newRowData)
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def removeRow(row: Row): Unit = {
     logger.trace(s"Remove row during $transactionType: $row")
     index(row)

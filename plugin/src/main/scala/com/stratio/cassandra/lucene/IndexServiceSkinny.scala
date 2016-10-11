@@ -15,8 +15,6 @@
  */
 package com.stratio.cassandra.lucene
 
-import java.util.Optional
-
 import com.stratio.cassandra.lucene.column.{Columns, ColumnsMapper}
 import com.stratio.cassandra.lucene.index.DocumentIterator
 import com.stratio.cassandra.lucene.key.PartitionMapper
@@ -26,65 +24,59 @@ import org.apache.cassandra.db.filter.ClusteringIndexFilter
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.schema.IndexMetadata
-import org.apache.cassandra.utils.concurrent.OpOrder
+import org.apache.cassandra.utils.concurrent.OpOrder.Group
 import org.apache.lucene.index.{IndexableField, Term}
 import org.apache.lucene.search.{Query, SortField, TermQuery}
 
-import scala.collection.JavaConversions._
-
 /** [[IndexService]] for skinny rows.
   *
-  * @param cfs           the indexed table
-  * @param im the index metadata
+  * @param table the indexed table
+  * @param index the index metadata
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class IndexServiceSkinny(val cfs: ColumnFamilyStore, val im: IndexMetadata)
-  extends IndexService(cfs, im) {
+class IndexServiceSkinny(table: ColumnFamilyStore, index: IndexMetadata) extends IndexService(table, index) {
 
   init()
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def fieldsToLoad: Set[String] = {
     Set(PartitionMapper.FIELD_NAME)
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def keySortFields: List[SortField] = {
     List(tokenMapper.sortField, partitionMapper.sortField)
   }
 
-  /** @inheritdoc*/
-  override def indexWriter(key: DecoratedKey,
-                           nowInSec: Int,
-                           opGroup: OpOrder.Group,
-                           transactionType: IndexTransaction.Type): IndexWriterSkinny = {
-    new IndexWriterSkinny(this, key, nowInSec, opGroup, transactionType)
+  /** @inheritdoc */
+  override def writer(key: DecoratedKey, now: Int, group: Group, transaction: IndexTransaction.Type): IndexWriter = {
+    new IndexWriterSkinny(this, key, now, group, transaction)
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def columns(key: DecoratedKey, row: Row): Columns = {
     Columns() + partitionMapper.columns(key) + ColumnsMapper.columns(row)
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def keyIndexableFields(key: DecoratedKey, row: Row): List[IndexableField] = {
     List(tokenMapper.indexableField(key), partitionMapper.indexableField(key))
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def term(key: DecoratedKey, row: Row): Term = {
     partitionMapper.term(key)
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def query(key: DecoratedKey, filter: ClusteringIndexFilter): Query = {
     new TermQuery(term(key))
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def query(dataRange: DataRange): Option[Query] = {
-    val start: PartitionPosition = dataRange.startKey
-    val stop: PartitionPosition = dataRange.stopKey
+    val start = dataRange.startKey
+    val stop = dataRange.stopKey
     if ((start.kind eq ROW_KEY) && (stop.kind eq ROW_KEY) && start == stop) {
       Some(partitionMapper.query(start.asInstanceOf[DecoratedKey]))
     } else {
@@ -92,13 +84,13 @@ class IndexServiceSkinny(val cfs: ColumnFamilyStore, val im: IndexMetadata)
     }
   }
 
-  /** @inheritdoc*/
-  override def after(key: DecoratedKey, clustering: Clustering): Option[Query] = {
-    if (key == null) None else Some(partitionMapper.query(key))
+  /** @inheritdoc */
+  override def after(key: DecoratedKey, clustering: Clustering): Query = {
+    partitionMapper.query(key)
   }
 
-  /** @inheritdoc*/
-  override def indexReader(documents: DocumentIterator, command: ReadCommand, orderGroup: ReadOrderGroup): IndexReaderSkinny = {
-    new IndexReaderSkinny(this, command, table, orderGroup, documents)
+  /** @inheritdoc */
+  override def reader(documents: DocumentIterator, command: ReadCommand, group: ReadOrderGroup): IndexReader = {
+    new IndexReaderSkinny(this, command, table, group, documents)
   }
 }

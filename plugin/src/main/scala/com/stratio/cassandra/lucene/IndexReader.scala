@@ -22,7 +22,7 @@ import org.apache.cassandra.db.filter.ClusteringIndexFilter
 import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator
 import org.apache.cassandra.db.rows.UnfilteredRowIterator
 
-/** [[org.apache.cassandra.db.partitions.UnfilteredPartitionIterator]] for retrieving rows from a [[DocumentIterator]].
+/** [[UnfilteredPartitionIterator]] for retrieving rows from a [[DocumentIterator]].
   *
   * @param command    the read command
   * @param table      the base table

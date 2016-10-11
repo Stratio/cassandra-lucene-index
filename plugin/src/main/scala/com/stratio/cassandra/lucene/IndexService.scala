@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene
 
 import java.lang.management.ManagementFactory
 import java.util.function.Function
+import java.{util => java}
 import javax.management.{JMException, ObjectName}
 
 import com.stratio.cassandra.lucene.IndexService._
@@ -44,7 +45,6 @@ import org.apache.lucene.search.{Query, ScoreDoc, Sort, SortField}
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
-import java.{util => java}
 
 /** Lucene index service provider.
   *
@@ -67,11 +67,12 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   val schema = options.schema
   val tokenMapper = new TokenMapper
   val partitionMapper = new PartitionMapper(metadata)
-  val mapsMultiCells = metadata.allColumns.filter(x => schema.mappedCells.contains(x.name.toString))
+  val mapsMultiCells = metadata.allColumns
+    .filter(x => schema.mappedCells.contains(x.name.toString))
     .exists(_.`type`.isMultiCell)
 
   // Setup FS index and write queue
-  val queue = new AsyncExecutor(options.indexingThreads, options.indexingQueuesSize)
+  val queue = TaskQueue.build(options.indexingThreads, options.indexingQueuesSize)
   val lucene = new FSIndex(name,
     options.path,
     options.schema.analyzer,
@@ -151,10 +152,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @return `true` if the expression is targeted to this index, `false` otherwise
     */
   def supportsExpression(columnDef: ColumnDefinition, operator: Operator): Boolean = {
-    column != null &&
-      (operator eq Operator.EQ) &&
-      (column == columnDef.name.toString) &&
-      columnDef.cellValueType.isInstanceOf[UTF8Type]
+    operator == Operator.EQ && column.contains(columnDef.name.toString)
   }
 
   /** Returns a copy of the specified [[RowFilter]] without any Lucene expressions.
@@ -163,7 +161,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @return a copy of `filter` without Lucene expressions
     */
   def getPostIndexQueryFilter(filter: RowFilter): RowFilter = {
-    if (column == null) return filter
+    if (column.isEmpty) return filter
     filter.foldLeft(filter)((f, e) => if (supportsExpression(e)) f.without(e) else f)
   }
 
@@ -246,17 +244,17 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param transaction what kind of update is being performed on the base data
     * @return the newly created index writer
     */
-  def indexWriter(key: DecoratedKey, now: Int, group: OpOrder.Group, transaction: IndexTransaction.Type): IndexWriter
+  def writer(key: DecoratedKey, now: Int, group: OpOrder.Group, transaction: IndexTransaction.Type): IndexWriter
 
   /** Deletes all the index contents. */
   def truncate() {
-    queue.submitSynchronous(lucene.truncate())
+    queue.submitSynchronous(lucene.truncate)
   }
 
   /** Closes and removes all the index files. */
   def delete() {
     try {
-      queue.shutdown()
+      queue.close()
       ManagementFactory.getPlatformMBeanServer.unregisterMBean(mBean)
     } catch {
       case e: JMException => logger.error("Error while unregistering Lucene index MBean", e)
@@ -272,7 +270,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param nowInSec now in seconds
     */
   def upsert(key: DecoratedKey, row: Row, nowInSec: Int) {
-    queue.submitAsynchronous(key, {
+    queue.submitAsynchronous(key, () => {
       val t = term(key, row)
       val cols = columns(key, row).withoutDeleted(nowInSec)
       val fields = schema.indexableFields(cols)
@@ -293,7 +291,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param row the row to be deleted
     */
   def delete(key: DecoratedKey, row: Row) {
-    queue.submitAsynchronous(key, lucene.delete(term(key, row)))
+    queue.submitAsynchronous(key, () => lucene.delete(term(key, row)))
   }
 
   /** Deletes the partition identified by the specified key.
@@ -301,7 +299,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param key the partition key
     */
   def delete(key: DecoratedKey) {
-    queue.submitAsynchronous(key, lucene.delete(term(key)))
+    queue.submitAsynchronous(key, () => lucene.delete(term(key)))
   }
 
   /** Returns a new index searcher for the specified read command.
@@ -329,7 +327,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     // Search
     Tracer.trace("Lucene index searching for {} rows", n)
     val documents = lucene.search(a, q, s, n)
-    indexReader(documents, command, orderGroup)
+    reader(documents, command, orderGroup)
   }
 
   def parseSearch(command: ReadCommand): Search = {
@@ -396,12 +394,8 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   def query(dataRange: DataRange): Option[Query]
 
   def after(pagingState: IndexPagingState, command: ReadCommand): Option[Query] = {
-    try {
-      if (pagingState == null) return None
-      pagingState.forCommand(command).flatMap(x => after(x._1, x._2))
-    } catch {
-      case e: RuntimeException => throw new IndexException(e, "Invalid paging state")
-    }
+    if (pagingState == null) return None
+    pagingState.forCommand(command).map { case (key, clustering) => after(key, clustering) }
   }
 
   /** Returns a Lucene query to retrieve the row identified by the specified paging state.
@@ -410,7 +404,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param clustering the clustering key
     * @return the query to retrieve the row
     */
-  def after(key: DecoratedKey, clustering: Clustering): Option[Query]
+  def after(key: DecoratedKey, clustering: Clustering): Query
 
   /** Returns the Lucene sort with the specified search sorting requirements followed by the
     * Cassandra's natural ordering based on partitioning token and cell name.
@@ -467,7 +461,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param orderGroup the Cassandra read order group
     * @return the local rows satisfying the search
     */
-  def indexReader(documents: DocumentIterator, command: ReadCommand, orderGroup: ReadOrderGroup): IndexReader
+  def reader(documents: DocumentIterator, command: ReadCommand, orderGroup: ReadOrderGroup): IndexReader
 
   /** Post processes in the coordinator node the results of a distributed search. Gets the k globally best results from
     * all the k best node-local results.
@@ -585,34 +579,34 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     update.foreach(row => schema.validate(columns(key, row)))
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def commit() {
-    queue.submitSynchronous(lucene.commit())
+    queue.submitSynchronous(lucene.commit)
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def getNumDocs: Int = {
     lucene.getNumDocs
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def getNumDeletedDocs: Int = {
     lucene.getNumDeletedDocs
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def forceMerge(maxNumSegments: Int, doWait: Boolean) {
-    queue.submitSynchronous(lucene.forceMerge(maxNumSegments, doWait))
+    queue.submitSynchronous(() => lucene.forceMerge(maxNumSegments, doWait))
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def forceMergeDeletes(doWait: Boolean) {
-    queue.submitSynchronous(lucene.forceMergeDeletes(doWait))
+    queue.submitSynchronous(() => lucene.forceMergeDeletes(doWait))
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def refresh() {
-    queue.submitSynchronous(lucene.refresh())
+    queue.submitSynchronous(lucene.refresh)
   }
 
 }
@@ -635,14 +629,12 @@ object IndexService {
     }
   }
 
-  def indexedColumn(indexMetadata: IndexMetadata): String = {
-    val column = indexMetadata.options.get(IndexTarget.TARGET_OPTION_NAME)
-    if (StringUtils.isBlank(column)) null else column
+  def indexedColumn(indexMetadata: IndexMetadata): Option[String] = {
+    Option(indexMetadata.options.get(IndexTarget.TARGET_OPTION_NAME)).filterNot(StringUtils.isBlank)
   }
 
-  def getColumnDefinition(metadata: CFMetaData, name: String): Option[ColumnDefinition] = name match {
-    case n if StringUtils.isBlank(name) => None
-    case n => metadata.allColumns.find(_.name.toString == n)
+  def getColumnDefinition(metadata: CFMetaData, name: Option[String]): Option[ColumnDefinition] = {
+    name.flatMap(name => metadata.allColumns.find(_.name.toString == name))
   }
 
 }

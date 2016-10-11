@@ -24,22 +24,22 @@ import org.apache.cassandra.db.filter.{ClusteringIndexFilter, ClusteringIndexNam
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.schema.IndexMetadata
-import org.apache.cassandra.utils.concurrent.OpOrder
+import org.apache.cassandra.utils.concurrent.OpOrder.Group
 import org.apache.lucene.document.Document
 import org.apache.lucene.index.{IndexableField, Term}
 import org.apache.lucene.search.BooleanClause.Occur._
 import org.apache.lucene.search.{BooleanQuery, Query, SortField}
+import java.{util => java}
 
 import scala.collection.JavaConversions._
 
 /** [[IndexService]] for wide rows.
   *
-  * @param cfs the indexed table
-  * @param im  the index metadata
+  * @param table the indexed table
+  * @param index the index metadata
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class IndexServiceWide(val cfs: ColumnFamilyStore, val im: IndexMetadata)
-  extends IndexService(cfs, im) {
+class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata) extends IndexService(table, index) {
 
   val clusteringMapper = new ClusteringMapper(metadata)
   val keyMapper = new KeyMapper(metadata)
@@ -56,8 +56,7 @@ class IndexServiceWide(val cfs: ColumnFamilyStore, val im: IndexMetadata)
     List(tokenMapper.sortField, partitionMapper.sortField, clusteringMapper.sortField)
   }
 
-  /**
-    * Returns the clustering key contained in the specified document.
+  /** Returns the clustering key contained in the specified document.
     *
     * @param document a { @link Document} containing the clustering key to be get
     * @return the clustering key contained in { @code document}
@@ -67,11 +66,8 @@ class IndexServiceWide(val cfs: ColumnFamilyStore, val im: IndexMetadata)
   }
 
   /** @inheritdoc */
-  override def indexWriter(key: DecoratedKey,
-                  nowInSec: Int,
-                  opGroup: OpOrder.Group,
-                  transactionType: IndexTransaction.Type): IndexWriterWide = {
-    new IndexWriterWide(this, key, nowInSec, opGroup, transactionType)
+  override def writer(key: DecoratedKey, now: Int, group: Group, transaction: IndexTransaction.Type): IndexWriter = {
+    new IndexWriterWide(this, key, now, group, transaction)
   }
 
   /** @inheritdoc */
@@ -82,7 +78,7 @@ class IndexServiceWide(val cfs: ColumnFamilyStore, val im: IndexMetadata)
   /** @inheritdoc */
   override def keyIndexableFields(key: DecoratedKey, row: Row): List[IndexableField] = {
     val clustering = row.clustering
-    val fields = scala.collection.mutable.ListBuffer[IndexableField]()
+    val fields = new java.LinkedList[IndexableField]()
     fields.add(tokenMapper.indexableField(key))
     fields.add(partitionMapper.indexableField(key))
     fields.add(keyMapper.indexableField(key, clustering))
@@ -93,8 +89,7 @@ class IndexServiceWide(val cfs: ColumnFamilyStore, val im: IndexMetadata)
   /** @inheritdoc */
   override def term(key: DecoratedKey, row: Row): Term = term(key, row.clustering)
 
-  /**
-    * Returns a Lucene term identifying the document representing the row identified by the
+  /** Returns a Lucene term identifying the document representing the row identified by the
     * specified partition and clustering keys.
     *
     * @param key        the partition key
@@ -118,11 +113,12 @@ class IndexServiceWide(val cfs: ColumnFamilyStore, val im: IndexMetadata)
     case _ => tokenMapper.query(position.getToken)
   }
 
-  def query(position: PartitionPosition, start: ClusteringPrefix, stop: ClusteringPrefix): Query = {
-    val builder = new BooleanQuery.Builder
-    builder.add(query(position), FILTER)
-    builder.add(clusteringMapper.query(position, start, stop), FILTER)
-    builder.build
+  def query(position: PartitionPosition, start: Option[ClusteringPrefix], stop: Option[ClusteringPrefix]): Query = {
+    if (start.isEmpty && stop.isEmpty) return query(position)
+    new BooleanQuery.Builder()
+      .add(query(position), FILTER)
+      .add(clusteringMapper.query(position, start, stop), FILTER)
+      .build
   }
 
   /** @inheritdoc */
@@ -136,27 +132,26 @@ class IndexServiceWide(val cfs: ColumnFamilyStore, val im: IndexMetadata)
     val stopPosition = dataRange.stopKey
     val startToken = startPosition.getToken
     val stopToken = stopPosition.getToken
-    val startClustering = ClusteringMapper.startClusteringPrefix(dataRange).orNull(null)
-    val stopClustering = ClusteringMapper.stopClusteringPrefix(dataRange).orNull(null)
-    val includeStartClustering = startClustering != null && startClustering.size > 0
-    val includeStopClustering = stopClustering != null && stopClustering.size > 0
+    val startClustering = ClusteringMapper.startClusteringPrefix(dataRange).filter(_.size > 0)
+    val stopClustering = ClusteringMapper.stopClusteringPrefix(dataRange).filter(_.size > 0)
 
     // Try single partition
     if (startToken.compareTo(stopToken) == 0) {
-      if (!includeStartClustering && !includeStopClustering) return Some(query(startPosition))
+      if (startClustering.isEmpty && stopClustering.isEmpty) return Some(query(startPosition))
       return Some(query(startPosition, startClustering, stopClustering))
     }
+
     // Prepare query builder
     val builder = new BooleanQuery.Builder
 
     // Add token range filter
-    val includeStartToken = (startPosition.kind eq MIN_BOUND) && !includeStartClustering
-    val includeStopToken = (stopPosition.kind eq MAX_BOUND) && !includeStopClustering
+    val includeStartToken = startPosition.kind == MIN_BOUND && startClustering.isEmpty
+    val includeStopToken = stopPosition.kind == MAX_BOUND && stopClustering.isEmpty
     tokenMapper.query(startToken, stopToken, includeStartToken, includeStopToken).foreach(builder.add(_, SHOULD))
 
     // Add first and last partition filters
-    if (includeStartClustering) builder.add(query(startPosition, startClustering, null), SHOULD)
-    if (includeStopClustering) builder.add(query(stopPosition, null, stopClustering), SHOULD)
+    if (startClustering.isDefined) builder.add(query(startPosition, startClustering, None), SHOULD)
+    if (stopClustering.isDefined) builder.add(query(stopPosition, None, stopClustering), SHOULD)
 
     // Return query, or empty if there are no restrictions
     val booleanQuery = builder.build
@@ -164,15 +159,13 @@ class IndexServiceWide(val cfs: ColumnFamilyStore, val im: IndexMetadata)
   }
 
   /** @inheritdoc */
-  override def after(key: DecoratedKey, clustering: Clustering): Option[Query] = {
-    if (key == null) None
-    else if (clustering == null) Some(partitionMapper.query(key))
-    else Some(keyMapper.query(key, clustering))
+  override def after(key: DecoratedKey, clustering: Clustering): Query = {
+    keyMapper.query(key, clustering)
   }
 
   /** @inheritdoc */
-  override def indexReader(docs: DocumentIterator, command: ReadCommand, group: ReadOrderGroup): IndexReaderWide = {
-    new IndexReaderWide(this, command, table, group, docs)
+  override def reader(documents: DocumentIterator, command: ReadCommand, group: ReadOrderGroup): IndexReader = {
+    new IndexReaderWide(this, command, table, group, documents)
   }
 
 }

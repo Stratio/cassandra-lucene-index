@@ -15,12 +15,9 @@
  */
 package com.stratio.cassandra.lucene.column
 
-import java.util.stream.StreamSupport
-
 import com.google.common.base.MoreObjects
 
-/**
-  * A sorted list of CQL3 logic [[Column]]s.
+/** A sorted list of CQL3 logic [[Column]]s.
   *
   * @param columns the [[Column]]s composing this
   * @author Andres de la Pena `adelapena@stratio.com`
@@ -40,9 +37,6 @@ case class Columns(columns: Column[_]*) extends Traversable[Column[_]] with java
     import collection.JavaConversions._
     columns.iterator
   }
-
-  def stream: java.util.stream.Stream[Column[_]] =
-    StreamSupport.stream(spliterator(), false)
 
   /** Returns a copy of this with the specified column appended. */
   def +(column: Column[_]): Columns =
@@ -92,6 +86,6 @@ case class Columns(columns: Column[_]*) extends Traversable[Column[_]] with java
 
   override def toString: String =
     columns.foldLeft(MoreObjects.toStringHelper(this))((helper, column) =>
-      helper.add(column.fieldName, column.value.getOrElse("null"))).toString
+      helper.add(column.fieldName, column.value)).toString
 
 }

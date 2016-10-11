@@ -15,26 +15,27 @@
  */
 package com.stratio.cassandra.lucene
 
+import java.{util => java}
+
 import com.stratio.cassandra.lucene.index.DocumentIterator
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter
 import org.apache.lucene.document.Document
-import java.{util => java}
 
 /** [[IndexReader]] for wide rows.
   *
-  * @param service    the index service
-  * @param command    the read command
-  * @param table      the base table
-  * @param orderGroup the order group of the read operation
-  * @param documents  the documents iterator
+  * @param service   the index service
+  * @param command   the read command
+  * @param table     the base table
+  * @param group     the order group of the read operation
+  * @param documents the documents iterator
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 class IndexReaderWide(service: IndexServiceWide,
                       command: ReadCommand,
                       table: ColumnFamilyStore,
-                      orderGroup: ReadOrderGroup,
-                      documents: DocumentIterator) extends IndexReader(command, table, orderGroup, documents) {
+                      group: ReadOrderGroup,
+                      documents: DocumentIterator) extends IndexReader(command, table, group, documents) {
 
   private[this] val comparator = service.metadata.comparator
   private[this] var nextDoc: Document = _

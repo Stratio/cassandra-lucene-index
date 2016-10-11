@@ -20,19 +20,18 @@ import org.apache.cassandra.db._
 
 /** [[IndexReader]] for skinny rows.
   *
-  * @param service    the index service
-  * @param command    the read command
-  * @param table      the base table
-  * @param orderGroup the order group of the read operation
-  * @param documents  the documents iterator
+  * @param service   the index service
+  * @param command   the read command
+  * @param table     the base table
+  * @param group     the order group of the read operation
+  * @param documents the documents iterator
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 class IndexReaderSkinny(service: IndexServiceSkinny,
                         command: ReadCommand,
                         table: ColumnFamilyStore,
-                        orderGroup: ReadOrderGroup,
-                        documents: DocumentIterator)
-  extends IndexReader(command, table, orderGroup, documents) {
+                        group: ReadOrderGroup,
+                        documents: DocumentIterator) extends IndexReader(command, table, group, documents) {
 
   /** @inheritdoc */
   override protected def prepareNext(): Boolean = {

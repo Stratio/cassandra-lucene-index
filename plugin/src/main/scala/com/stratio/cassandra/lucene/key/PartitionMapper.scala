@@ -161,8 +161,10 @@ class PartitionSort(mapper: PartitionMapper) extends SortField(FIELD_NAME, new F
   }
 }) {
 
+  /** @inheritdoc **/
   override def toString: String = "<partition>"
 
+  /** @inheritdoc **/
   override def equals(o: Any): Boolean = o match {
     case ps: PartitionSort => true
     case _ => false
