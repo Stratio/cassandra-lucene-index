@@ -3878,7 +3878,7 @@ You can index, search and sort tuples this way:
     INSERT INTO collect_things (k, v) VALUES(2, (3, 'foo', 2.1));
 
 
-    CREATE CUSTOM INDEX idx ON  collect_things () USING 'com.stratio.cassandra.lucene.Index' WITH OPTIONS = {
+    CREATE CUSTOM INDEX idx ON  collect_things() USING 'com.stratio.cassandra.lucene.Index' WITH OPTIONS = {
     'refresh_seconds':'1',
     'schema':'{
         fields:{
@@ -3887,7 +3887,7 @@ You can index, search and sort tuples this way:
             "v.2": {type: "float"} }
      }'};
 
-    SELECT * FROM collect_things WHERE expr(tweets_index, '{
+    SELECT * FROM collect_things WHERE expr(idx, '{
        filter: {
           type: "match",
           field: "v.0",
@@ -3895,7 +3895,7 @@ You can index, search and sort tuples this way:
        }
     }');
 
-    SELECT * FROM collect_things WHERE expr(tweets_index, '{
+    SELECT * FROM collect_things WHERE expr(idx, '{
        filter: {
           type: "match",
           field: "v.1",
@@ -3903,7 +3903,7 @@ You can index, search and sort tuples this way:
         }
     }');
 
-    SELECT * FROM collect_things WHERE expr(tweets_index, '{
+    SELECT * FROM collect_things WHERE expr(idx, '{
         sort: {field: "v.2"}
     }');
 
@@ -3925,14 +3925,14 @@ Since Cassandra 2.1.X users can declare `User Defined Types <http://docs.datasta
         login text PRIMARY KEY,
         first_name text,
         last_name text,
-        address address_udt
+        address frozen<address_udt>
     );
 
 The components of UDTs can be indexed, searched and sorted this way:
 
 .. code-block:: sql
 
-    CREATE CUSTOM INDEX test_index ON test.user_profiles()
+    CREATE CUSTOM INDEX user_profiles_idx ON test.user_profiles()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
        'refresh_seconds': '1',
@@ -3944,20 +3944,28 @@ The components of UDTs can be indexed, searched and sorted this way:
        }'
     };
 
-    SELECT * FROM user_profiles WHERE expr(tweets_index,'{
+    INSERT INTO user_profiles (login, first_name, last_name, address)
+    VALUES('jsmith', 'John', 'Smith', {street: 'S Ellis Ave', city: 'Chicago', zip: 60601});
+
+    SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
        filter: {
           type: "match",
           field: "address.city",
-          value: "San Fransisco"
+          value: "Chicago"
        }
     }');
 
-    SELECT * FROM user_profiles WHERE expr(tweets_index,'{
+    SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
        filter: {
-          type: "range",
+          type: "match",
           field: "address.zip",
-          lower: 0,
-          upper: 10
+          value: 60601
+       }
+    }');
+
+    SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
+       sort: {
+          field: "address.zip"
        }
     }');
 
@@ -3966,7 +3974,7 @@ Collections
 
 CQL `collections <http://docs.datastax.com/en/cql/3.0/cql/cql_using/use_collections_c.html>`__ (lists, sets and maps) can be indexed.
 
-List ans sets are indexed in the same way as regular columns, using their base type:
+Lists ans sets are indexed in the same way as regular columns, using their base type:
 
 .. code-block:: sql
 
@@ -3977,7 +3985,7 @@ List ans sets are indexed in the same way as regular columns, using their base t
        cities list<text>
     );
 
-    CREATE CUSTOM INDEX test_index ON test.user_profiles()
+    CREATE CUSTOM INDEX user_profiles_idx ON user_profiles()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
        'refresh_seconds': '1',
@@ -3992,15 +4000,18 @@ Searches are also done in the same way as with regular columns:
 
 .. code-block:: sql
 
-    SELECT * FROM user_profiles WHERE expr(tweets_index,'{
+    INSERT INTO user_profiles (login, first_name, last_name, cities)
+    VALUES('jsmith', 'John', 'Smith', ['London', 'Madrid']);
+
+    SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
        filter: {
           type: "match",
           field: "cities",
-          value: "San Francisco"
+          value: "London"
        }
     }');
 
-Maps are indexed associating values to their keys:
+Maps values are indexed using their keys as field name suffixes:
 
 .. code-block:: sql
 
@@ -4011,7 +4022,7 @@ Maps are indexed associating values to their keys:
        addresses map<text,text>
     );
 
-    CREATE CUSTOM INDEX test_index ON test.user_profiles()
+    CREATE CUSTOM INDEX user_profiles_idx ON user_profiles()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
        'refresh_seconds': '1',
@@ -4027,25 +4038,23 @@ For searching map values under a certain key you should use '$' as field-key sep
 .. code-block:: sql
 
     INSERT INTO user_profiles (login, first_name, last_name, addresses)
-       VALUES('user','Peter','Handsome',
-               {'San Francisco':'Market street 2', 'Madrid': 'Calle Velazquez' })
+    VALUES('jsmith', 'John', 'Smith', {'London': 'Camden Road', 'Madrid': 'Buenavista'});
 
-    SELECT * FROM user_profiles WHERE expr(tweets_index,'{
+    SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
        filter: {
           type: "match",
-          field: "cities$Madrid",
-          value: "San Francisco"
+          field: "addresses$London",
+          value: "Camden Road"
        }
     }');
 
 Please don't use map keys containing the separator chars, which are '.' and '$'.
 
-UDTs can be indexed even while being inside collections. It is done so using '.' as name separator:
+UDTs can be indexed even while being inside collections:
 
 .. code-block:: sql
 
     CREATE TYPE address (
-       street text,
        city text,
        zip int
     );
@@ -4054,20 +4063,40 @@ UDTs can be indexed even while being inside collections. It is done so using '.'
        login text PRIMARY KEY,
        first_name text,
        last_name text,
-       addresses list<frozen<address>>
+       addresses map<text, frozen<address>>
     );
 
-    CREATE CUSTOM INDEX test_index ON test.user_profiles()
+    CREATE CUSTOM INDEX user_profiles_idx ON user_profiles()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
        'refresh_seconds': '1',
        'schema': '{
           fields: {
-             "addresses.city": {type: "string"},
-             "addresses.zip": {type: "integer"}
+             "addresses.city" : {type: "string"},
+             "addresses.zip"  : {type: "integer"}
           }
        }'
     };
+
+    INSERT INTO user_profiles (login, first_name, last_name, addresses)
+    VALUES('jsmith', 'John', 'Smith',
+       {'Illinois':{city: 'Chicago', zip: 60601}, 'Colorado':{city: 'Denver', zip: 80012}});
+
+    SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
+       filter: {
+          type: "match",
+          field: "addresses.city$Illinois",
+          value: "Chicago"
+       }
+    }');
+
+    SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
+       filter: {
+          type: "match",
+          field: "addresses.zip$Illinois",
+          value: 60601
+       }
+    }');
 
 -------------
 Query Builder
