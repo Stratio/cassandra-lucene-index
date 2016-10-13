@@ -67,9 +67,8 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   val schema = options.schema
   val tokenMapper = new TokenMapper
   val partitionMapper = new PartitionMapper(metadata)
-  val mapsMultiCells = metadata.allColumns
-    .filter(x => schema.mappedCells.contains(x.name.toString))
-    .exists(_.`type`.isMultiCell)
+  val mapsMultiCells = metadata.allColumns.filter(schema.maps).exists(_.`type`.isMultiCell)
+  val mappedRegularCells = metadata.partitionColumns.regulars.map(_.name.toString).filter(schema.mappedCells.contains)
 
   // Setup FS index and write queue
   val queue = TaskQueue.build(options.indexingThreads, options.indexingQueuesSize)
@@ -222,9 +221,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @return `true` if read-before-write is required, `false` otherwise
     */
   def needsReadBeforeWrite(key: DecoratedKey, row: Row): Boolean = {
-    if (mapsMultiCells) return true
-    val cols = columns(key, row)
-    schema.mappedCells.exists(x => cols.withCellName(x).isEmpty)
+    mapsMultiCells || !row.columns.map(_.name.toString).containsAll(mappedRegularCells)
   }
 
   /** Returns the [[DecoratedKey]] contained in the specified Lucene document.
@@ -330,7 +327,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     reader(documents, command, orderGroup)
   }
 
-  def parseSearch(command: ReadCommand): Search = {
+  def search(command: ReadCommand): Search = {
     SearchBuilder.fromJson(expression(command)).build
   }
 
@@ -339,29 +336,14 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   }
 
   def expression(command: ReadCommand): String = {
-    for (expression <- command.rowFilter.getExpressions) {
-      expression match {
-        case e: CustomExpression if name == e.getTargetIndex.name =>
-          return UTF8Type.instance.compose(e.getValue)
-        case e if supportsExpression(e) =>
-          return UTF8Type.instance.compose(e.getIndexValue)
-        case _ =>
-      }
-    }
-    throw new IndexException("Lucene search expression not found in command expressions")
+    command.rowFilter.getExpressions.collect {
+      case e: CustomExpression if name == e.getTargetIndex.name => e.getValue
+      case e if supportsExpression(e) => e.getIndexValue
+    }.map(UTF8Type.instance.compose).head
   }
 
   def expression(group: SinglePartitionReadCommand.Group): String = {
-    var result: String = null
-    for (command <- group.commands) {
-      val expr = expression(command)
-      if (result == null) {
-        result = expr
-      } else if (result != expr) {
-        throw new IndexException("Unable to process command group with different index clauses")
-      }
-    }
-    result
+    expression(group.commands.head)
   }
 
   /** Returns the key range query represented by the specified read command.
@@ -370,11 +352,11 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @return the key range query
     */
   def query(command: ReadCommand): Option[Query] = command match {
-    case c: SinglePartitionReadCommand =>
-      val key = c.partitionKey
-      val clusteringFilter = c.clusteringIndexFilter(key)
-      Some(query(key, clusteringFilter))
-    case c: PartitionRangeReadCommand => query(c.dataRange)
+    case command: SinglePartitionReadCommand =>
+      val key = command.partitionKey
+      val filter = command.clusteringIndexFilter(key)
+      Some(query(key, filter))
+    case command: PartitionRangeReadCommand => query(command.dataRange)
     case _ => throw new IndexException("Unsupported read command {}", command.getClass)
   }
 
@@ -484,7 +466,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     */
   def postProcess(partitions: PartitionIterator, command: ReadCommand): PartitionIterator = command match {
     case c: SinglePartitionReadCommand => partitions
-    case _ => postProcess(partitions, parseSearch(command), command.limits.count, command.nowInSec)
+    case _ => postProcess(partitions, search(command), command.limits.count, command.nowInSec)
   }
 
   def postProcess(partitions: PartitionIterator, search: Search, limit: Int, now: Int): PartitionIterator = {
@@ -579,32 +561,32 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     update.foreach(row => schema.validate(columns(key, row)))
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def commit() {
     queue.submitSynchronous(lucene.commit)
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def getNumDocs: Int = {
     lucene.getNumDocs
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def getNumDeletedDocs: Int = {
     lucene.getNumDeletedDocs
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def forceMerge(maxNumSegments: Int, doWait: Boolean) {
     queue.submitSynchronous(() => lucene.forceMerge(maxNumSegments, doWait))
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def forceMergeDeletes(doWait: Boolean) {
     queue.submitSynchronous(() => lucene.forceMergeDeletes(doWait))
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def refresh() {
     queue.submitSynchronous(lucene.refresh)
   }

@@ -48,7 +48,7 @@ class IndexWriterSkinny(service: IndexServiceSkinny,
 
   /** @inheritdoc */
   override def index(row: Row) {
-    this.row = Some(row)
+    this.row = Option(row)
   }
 
   /** @inheritdoc */

@@ -4,6 +4,7 @@
 
 * Add support for geospatial shapes in bounding box search
 * Add support for geospatial shapes in distance search
+* Improve performance of needs before write calculation
 
 ## 3.0.9.0 (September 30, 2016)
 
