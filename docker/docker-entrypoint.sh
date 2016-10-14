@@ -15,7 +15,7 @@ fi
 
 HOST=$(hostname --ip-address)
 sed -i "s|^rpc_address.*|rpc_address: 0.0.0.0|"  /etc/sds/cassandra/cassandra.yaml
-sed -i "s|^broadcast_rpc_address.*|broadcast_rpc_address: ${HOST}|" /etc/sds/cassandra/cassandra.yaml
+sed -i "s|^# broadcast_rpc_address.*|broadcast_rpc_address: ${HOST}|" /etc/sds/cassandra/cassandra.yaml
 sed -i "s|- seeds.*|- seeds: '${SEEDS:=${HOST}}'|" /etc/sds/cassandra/cassandra.yaml
 sed -i "s|^listen_address.*|listen_address: ${HOST}|" /etc/sds/cassandra/cassandra.yaml
 sed -i "s|^enable_user_defined_functions.*|enable_user_defined_functions: true|" /etc/sds/cassandra/cassandra.yaml
