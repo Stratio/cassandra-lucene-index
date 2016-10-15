@@ -1,7 +1,12 @@
 # Changelog
+
+## 3.9.1 (Upcoming)
+
+* Fix version conflicts between Lucene and SASI snowball analyser versions (#216)
+
 ## 3.9.0 (October 11, 2016)
 
-* Pending changelog
+* Upgrade to Apache Cassandra 3.9
 
 ## 3.8.0 (October 11, 2016)
 
