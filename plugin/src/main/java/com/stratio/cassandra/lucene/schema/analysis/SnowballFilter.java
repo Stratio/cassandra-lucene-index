@@ -24,8 +24,6 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.KeywordAttribute;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.tartarus.snowball.SnowballStemmer;
-import org.tartarus.snowball.ext.EnglishStemmer;
-import org.tartarus.snowball.ext.englishStemmer;
 
 /**
  * Version of {@link org.apache.lucene.analysis.snowball.SnowballFilter} modified to be compatible with
