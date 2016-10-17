@@ -2,6 +2,7 @@
 
 ## 3.9.1 (Upcoming)
 
+Merged from 3.8.1:
 * Fix conflict between Lucene and SASI Snowball stemmer version (#216)
 
 ## 3.9.0 (October 13, 2016)
