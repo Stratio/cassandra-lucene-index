@@ -245,8 +245,7 @@ public abstract class Builder {
      * Returns a new {@link SnowballAnalyzer} for the specified language and stopwords.
      *
      * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
-     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
-     * Basque and Catalan.
+     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Hungarian and Turkish.
      * @return a new snowball analyzer
      */
     public static SnowballAnalyzer snowballAnalyzer(String language) {

@@ -32,6 +32,7 @@ import org.junit.runners.Suite.SuiteClasses;
                SearchMatchingManyRowsAT.class,
                SearchWithLongSkinnyRowsAT.class,
                SearchWithLongWideRowsAT.class,
+               SASICompatibilityAT.class,
                SortWithSkinnyRowsAT.class,
                SortWithWideRowsAT.class,
                StatelessSearchWithSkinnyRowsAT.class,
