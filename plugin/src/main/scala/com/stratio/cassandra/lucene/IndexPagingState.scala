@@ -114,7 +114,7 @@ class IndexPagingState(var remaining: Int) {
       while (partition.hasNext) {
         val newRowIterator = new SimpleRowIterator(partition)
         rowIterators.add(newRowIterator)
-        entries.put(key, newRowIterator.getRow.clustering)
+        entries.put(key, newRowIterator.row.clustering)
         if (remaining > 0) remaining -= 1
         count += 1
       }
@@ -144,7 +144,7 @@ class IndexPagingState(var remaining: Int) {
         bound.foreach(bound => entries.keys.filter(bound.contains).foreach(entries.remove))
         val newRowIterator = new SimpleRowIterator(partition)
         rowIterators.add(newRowIterator)
-        val clustering = newRowIterator.getRow.clustering
+        val clustering = newRowIterator.row.clustering
         entries.put(key, clustering)
         if (remaining > 0) remaining -= 1
         count += 1

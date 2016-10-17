@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.util
 import java.util.Optional
 import java.util.concurrent.Callable
 import java.util.function.BiFunction
+import java.util.function.Function
 
 /** Implicit Scala to Java conversions
   *
@@ -31,6 +32,10 @@ object JavaConversions {
 
   implicit def asJavaRunnable(f:() => Unit): Runnable = {
     new Runnable {override def run(): Unit = f.apply}
+  }
+
+  implicit def asJavaFunction[A, B](f: A => B): Function[A, B] = {
+    new Function[A,B] {override def apply(a: A): B = f(a)}
   }
 
   implicit def asJavaBiFunction[A, B, C](sf: (A, B) => C): BiFunction[A, B, C] = {

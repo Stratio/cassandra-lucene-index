@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene
 
 import java.lang.management.ManagementFactory
-import java.util.function.Function
 import java.{util => java}
 import javax.management.{JMException, ObjectName}
 
@@ -479,8 +478,8 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     partitions
   }
 
-  def collect(partitions: PartitionIterator): List[(DecoratedKey, SimpleRowIterator)] = {
-    val rows = new java.ArrayList[(DecoratedKey, SimpleRowIterator)]
+  def collect(partitions: PartitionIterator): Seq[(DecoratedKey, SimpleRowIterator)] = {
+    val rows = new java.LinkedList[(DecoratedKey, SimpleRowIterator)]
     val time = TimeCounter.create.start
     for (partition <- partitions) {
       try {
@@ -488,48 +487,42 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
         while (partition.hasNext) {
           rows.add((key, new SimpleRowIterator(partition)))
         }
-      } finally {
-        partition.close()
-      }
+      } finally partition.close()
     }
     logger.debug("Collected {} rows in {}", rows.size, time.stop)
-    rows.toList
+    rows
   }
 
-  def merge(search: Search, limit: Int, now: Int, rows: List[(DecoratedKey, SimpleRowIterator)]): PartitionIterator = {
-
+  def merge(search: Search, limit: Int, now: Int, rows: Seq[(DecoratedKey, SimpleRowIterator)]): PartitionIterator = {
     val time = TimeCounter.create.start
-    val field = "_i"
+    val field = "_id"
     val index = new RAMIndex(schema.analyzer)
+    try {
 
-    // Index collected rows in memory
-    for (i <- rows.indices) {
-      val (key, rowIterator) = rows(i)
-      val row = rowIterator.getRow
-      val doc = document(key, row, search)
-      doc.add(new StoredField(field, i)) // Mark document
-      index.add(doc)
-    }
+      // Index collected rows in memory
+      for (id <- rows.indices) {
+        val (key, rowIterator) = rows(id)
+        val row = rowIterator.row
+        val doc = document(key, row, search)
+        doc.add(new StoredField(field, id)) // Mark document
+        index.add(doc)
+      }
 
-    // Repeat search to sort partial results
-    val docs = index.search(search.postProcessingQuery(schema), sort(search), limit, Set(field))
-    index.close()
+      // Repeat search to sort partial results
+      val docs = index.search(search.postProcessingQuery(schema), sort(search), limit, Set(field))
 
-    // Collect post processed results
-    val merged = new java.LinkedList[SimpleRowIterator]
-    for ((doc, score) <- docs.map(x => (x.left, x.right))) {
-      val i = doc.get(field).toInt
-      val rowIterator = rows.get(i)._2
-      rowIterator.setDecorator(new Function[Row, Row] {
-        override def apply(row: Row): Row = decorate(row, score, now)
-      })
-      merged.add(rowIterator)
-    }
+      // Collect and decorate
+      val merged = for ((doc, score) <- docs) yield {
+        val id = doc.get(field).toInt
+        val rowIterator = rows.get(id)._2
+        rowIterator.decorated(row => decorate(row, score, now))
+      }
 
-    Tracer.trace(s"Lucene post-process ${rows.size} collected rows to ${merged.size} rows")
-    logger.debug(s"Post-processed ${rows.size} rows to ${merged.size} rows in ${time.stop}")
+      Tracer.trace(s"Lucene post-process ${rows.size} collected rows to ${merged.size} rows")
+      logger.debug(s"Post-processed ${rows.size} rows to ${merged.size} rows in ${time.stop}")
+      new SimplePartitionIterator(merged)
 
-    new SimplePartitionIterator(merged)
+    } finally index.close()
   }
 
   def decorate(row: Row, score: ScoreDoc, now: Int): Row = {
@@ -561,32 +554,32 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     update.foreach(row => schema.validate(columns(key, row)))
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def commit() {
     queue.submitSynchronous(lucene.commit)
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def getNumDocs: Int = {
     lucene.getNumDocs
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def getNumDeletedDocs: Int = {
     lucene.getNumDeletedDocs
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def forceMerge(maxNumSegments: Int, doWait: Boolean) {
     queue.submitSynchronous(() => lucene.forceMerge(maxNumSegments, doWait))
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def forceMergeDeletes(doWait: Boolean) {
     queue.submitSynchronous(() => lucene.forceMergeDeletes(doWait))
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def refresh() {
     queue.submitSynchronous(lucene.refresh)
   }
