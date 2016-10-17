@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.util;
 
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.SingleColumnMapper;
 
@@ -35,6 +36,7 @@ public class CassandraUtilsBuilder {
     private Boolean useNewQuerySyntax = USE_NEW_QUERY_SYNTAX;
     private Map<String, String> columns;
     private Map<String, Mapper> mappers;
+    private Map<String, Analyzer> analyzers;
     private List<String> partitionKey;
     private List<String> clusteringKey;
     private String clusteringOrderColumn;
@@ -47,6 +49,7 @@ public class CassandraUtilsBuilder {
         this.name = name;
         this.columns = new HashMap<>();
         this.mappers = new HashMap<>();
+        this.analyzers = new HashMap<>();
         this.partitionKey = new ArrayList<>();
         this.clusteringKey = new ArrayList<>();
         this.udts = new LinkedHashMap<>();
@@ -125,6 +128,11 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
+    public CassandraUtilsBuilder withAnalyzer(String name, Analyzer analyzer) {
+        analyzers.put(name, analyzer);
+        return this;
+    }
+
     public CassandraUtilsBuilder withClusteringOrder(String columnName, boolean ascending) {
         clusteringOrderColumn = columnName;
         clusteringOrderAscending = ascending;
@@ -183,6 +191,7 @@ public class CassandraUtilsBuilder {
                                   useNewQuerySyntax,
                                   columns,
                                   mappers,
+                                  analyzers,
                                   partitionKey,
                                   clusteringKey,
                                   udts,
