@@ -22,7 +22,6 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.StopFilter;
-import org.apache.lucene.analysis.snowball.SnowballFilter;
 import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.util.CharArraySet;
@@ -36,7 +35,7 @@ import java.util.List;
  * {@link AnalyzerBuilder} for tartarus.org snowball {@link Analyzer}.
  *
  * The supported languages are English, French, Spanish, Portuguese, Italian, Romanian, German, Dutch, Swedish,
- * Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian, Basque and Catalan.
+ * Norwegian, Danish, Russian, Finnish, Hungarian and Turkish.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -52,7 +51,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
      * Builds a new {@link SnowballAnalyzerBuilder} for the specified language and stopwords.
      *
      * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
-     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
+     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Hungarian and Turkish.
      * Basque and Catalan.
      * @param stopwords the comma separated stopwords list.
      */
