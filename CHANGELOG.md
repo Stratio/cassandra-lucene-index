@@ -26,6 +26,7 @@
 * Add geospatial post filtering (ensures accuracy with any tree levels)
 * Set default number of indexing threads to number of processors available to the JVM
 * Fix mapping of timestamps and dates by their underlying numeric value (#177)
+
 Merged from 2.2.7.1:
 * Fix mapper referenced by alias in sortFields
 
@@ -104,6 +105,7 @@ Merged from 3.0.6:
 ## 3.0.3.1 (March 04, 2016)
 
 * Fix performance issues with ClusteringIndexNamesFilter
+
 Merged from 2.2.5:
 * Add indexing of WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add search by WKT geographical shapes (point, linestring, polygon and their multipart)
