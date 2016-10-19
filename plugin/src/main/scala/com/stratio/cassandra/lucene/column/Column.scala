@@ -70,7 +70,7 @@ case class Column[A](cellName: String,
   def fieldName(field: String): String =
     field + mapSuffix
 
-  /** Returns true this is a deletion at the specified UNIX timestamp in seconds, false otherwise. */
+  /** Returns if this is a deletion at the specified UNIX timestamp in seconds. */
   def isDeleted(timeInSec: Int): Boolean =
     value.isEmpty || deletionTime <= timeInSec
 
@@ -82,6 +82,7 @@ case class Column[A](cellName: String,
   def +(columns: Columns): Columns =
     Columns(this) + columns
 
+  /** @inheritdoc */
   override def toString: String =
     MoreObjects.toStringHelper(this)
       .add("cell", cellName)

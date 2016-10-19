@@ -44,14 +44,14 @@ class KeyMapper(metadata: CFMetaData) {
   /** A composite type composed by the types of the clustering key */
   val clusteringType = CompositeType.getInstance(clusteringComparator.subtypes)
 
-  /** The type of the primary key, which is composed by token, partition key and clustering key types. */
+  /** The type of the primary key, which is composed by token and clustering key types. */
   val keyType = CompositeType.getInstance(metadata.getKeyValidator, clusteringType)
 
   /**
     * Returns a [[ByteBuffer]] representing the specified clustering key
     *
     * @param clustering the clustering key
-    * @return the byte buffer representing { @code clustering}
+    * @return the byte buffer representing `clustering`
     */
   private def byteBuffer(clustering: Clustering): ByteBuffer = {
     clustering.getRawValues.foldLeft(clusteringType.builder)(_ add _).build
@@ -71,7 +71,7 @@ class KeyMapper(metadata: CFMetaData) {
     *
     * @param key        a partition key
     * @param clustering a clustering key
-    * @return the Lucene { @link Term} representing the primary key
+    * @return the Lucene term representing the primary key
     */
   def term(key: DecoratedKey, clustering: Clustering): Term = {
     new Term(FIELD_NAME, bytesRef(key, clustering))
@@ -98,7 +98,8 @@ class KeyMapper(metadata: CFMetaData) {
     * @return the Lucene query
     */
   def query(key: DecoratedKey, filter: ClusteringIndexNamesFilter): Query = {
-    filter.requestedRows.foldLeft(new BooleanQuery.Builder)((b, c) => b.add(query(key, c), SHOULD)).build
+    filter.requestedRows.foldLeft(new BooleanQuery.Builder)(
+      (b, c) => b.add(query(key, c), SHOULD)).build
   }
 
 }

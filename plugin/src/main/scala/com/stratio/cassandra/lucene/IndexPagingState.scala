@@ -32,9 +32,9 @@ import org.apache.cassandra.service.pager.PagingState
 
 import scala.collection.JavaConversions._
 
-/** The paging state of a CQL query using Lucene. It tracks the primary keys of the last seen rows for each internal read
-  * command of a CQL query. It also keeps the count of the remaining rows. This state can be serialized to be attached to
-  * a CQL [[PagingState]] and/or to a search predicate.
+/** The paging state of a CQL query using Lucene. It tracks the primary keys of the last seen rows
+  * for each internal read command of a CQL query. It also keeps the count of the remaining rows.
+  * This state can be serialized to be attached to a [[PagingState]] and/or to a search predicate.
   *
   * @param remaining the number of remaining rows to be retrieved
   * @author Andres de la Pena `adelapena@stratio.com`
@@ -50,11 +50,13 @@ class IndexPagingState(var remaining: Int) {
   /** Returns the primary key of the last seen row for the specified read command.
     *
     * @param command a read command
-    * @return the primary key of the last seen row for { @code command}
+    * @return the primary key of the last seen row for `command`
     */
   def forCommand(command: ReadCommand): Option[(DecoratedKey, Clustering)] = command match {
-    case c: SinglePartitionReadCommand => entries.find { case (key, clustering) => c.partitionKey == key }
-    case c: PartitionRangeReadCommand => entries.find { case (key, clustering) => c.dataRange contains key }
+    case c: SinglePartitionReadCommand =>
+      entries.find { case (key, clustering) => c.partitionKey == key }
+    case c: PartitionRangeReadCommand =>
+      entries.find { case (key, clustering) => c.dataRange contains key }
     case _ => throw new IndexException(s"Unsupported read command type: ${command.getClass}")
   }
 
@@ -68,7 +70,9 @@ class IndexPagingState(var remaining: Int) {
     val cfs = Keyspace.open(command.metadata.ksName).getColumnFamilyStore(command.metadata.cfName)
     for (expr <- command.rowFilter.getExpressions) {
       for (index <- cfs.indexManager.listIndexes) {
-        if (index.isInstanceOf[Index] && index.supportsExpression(expr.column, expr.operator)) return expr
+        if (index.isInstanceOf[Index] && index.supportsExpression(
+          expr.column,
+          expr.operator)) return expr
       }
     }
     throw new IndexException("Not found expression")
@@ -95,21 +99,26 @@ class IndexPagingState(var remaining: Int) {
 
   /** Updates this paging state with the results of the specified query.
     *
-    * @param query the query
-    * @param data  the results
-    * @param cl    the query consistency level
+    * @param query       the query
+    * @param partitions  the results
+    * @param consistency the query consistency level
     * @return a copy of the query results
     */
-  def update(query: ReadQuery, data: PartitionIterator, cl: ConsistencyLevel): PartitionIterator = query match {
-    case c: SinglePartitionReadCommand.Group => update(c, data)
-    case c: PartitionRangeReadCommand => update(c, data, cl)
+  def update(
+      query: ReadQuery,
+      partitions: PartitionIterator,
+      consistency: ConsistencyLevel): PartitionIterator = query match {
+    case c: SinglePartitionReadCommand.Group => update(c, partitions)
+    case c: PartitionRangeReadCommand => update(c, partitions, consistency)
     case _ => throw new IndexException(s"Unsupported query type ${query.getClass}")
   }
 
-  private def update(group: SinglePartitionReadCommand.Group, data: PartitionIterator): PartitionIterator = {
+  private def update(
+      group: SinglePartitionReadCommand.Group,
+      partitions: PartitionIterator): PartitionIterator = {
     val rowIterators = new java.LinkedList[SimpleRowIterator]
     var count = 0
-    for (partition <- data) {
+    for (partition <- partitions) {
       val key = partition.partitionKey
       while (partition.hasNext) {
         val newRowIterator = new SimpleRowIterator(partition)
@@ -120,23 +129,24 @@ class IndexPagingState(var remaining: Int) {
       }
       partition.close()
     }
-    data.close()
+    partitions.close()
     hasMorePages = remaining > 0 && count >= group.limits.count
     new SimplePartitionIterator(rowIterators)
   }
 
-  private def update(command: PartitionRangeReadCommand,
-                     data: PartitionIterator,
-                     consistencyLevel: ConsistencyLevel): PartitionIterator = {
+  private def update(
+      command: PartitionRangeReadCommand,
+      partitions: PartitionIterator,
+      consistency: ConsistencyLevel): PartitionIterator = {
 
     // Collect query bounds
-    val rangeMerger = LuceneStorageProxy.rangeMerger(command, consistencyLevel)
+    val rangeMerger = LuceneStorageProxy.rangeMerger(command, consistency)
     val bounds = rangeMerger.map(_.range).toList
 
     val rowIterators = new java.LinkedList[SimpleRowIterator]
 
     var count = 0
-    for (partition <- data) {
+    for (partition <- partitions) {
 
       val key = partition.partitionKey
       val bound = bounds.find(_ contains key)
@@ -151,7 +161,7 @@ class IndexPagingState(var remaining: Int) {
       }
       partition.close()
     }
-    data.close()
+    partitions.close()
 
     hasMorePages = remaining > 0 && count >= command.limits.count
     new SimplePartitionIterator(rowIterators)
@@ -165,12 +175,13 @@ class IndexPagingState(var remaining: Int) {
     if (hasMorePages) new PagingState(toByteBuffer, null, remaining, remaining) else null
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def toString: String = {
     MoreObjects.toStringHelper(this).add("remaining", remaining).add("entries", entries).toString
   }
 
-  /** Returns a byte buffer representation of this. Thew returned result can be read with [[fromByteBuffer(ByteBuffer)]].
+  /** Returns a byte buffer representation of this.
+    * The returned result can be read with [[fromByteBuffer(ByteBuffer)]].
     *
     * @return a byte buffer representing this
     */
@@ -195,26 +206,27 @@ object IndexPagingState {
   private lazy val expressionValueField = classOf[RowFilter.Expression].getDeclaredField("value")
   expressionValueField.setAccessible(true)
 
-  /** Returns the paging state represented by the specified byte buffer, which should have been generated with [[
-    * #toByteBuffer()]].
+  /** Returns the paging state represented by the specified byte buffer, which should have been
+    * generated with [[IndexPagingState.toByteBuffer()]].
     *
-    * @param bb a byte buffer generated by { @link #toByteBuffer()}
-    * @return the paging state represented by { @code bb}
+    * @param bb a byte buffer generated by [[IndexPagingState.toByteBuffer()]]
+    * @return the paging state represented by `bb`
     */
   def fromByteBuffer(bb: ByteBuffer): IndexPagingState = {
     val remaining = bb.getInt
     val state = new IndexPagingState(remaining)
-    ByteBufferUtils.decompose(bb).map(bbe => {
-      val values = ByteBufferUtils.decompose(bbe)
-      val key = DatabaseDescriptor.getPartitioner.decorateKey(values(0))
-      val clustering = new Clustering(values.slice(1, values.length): _*)
-      state.entries.put(key, clustering)
-    })
+    ByteBufferUtils.decompose(bb).map(
+      bbe => {
+        val values = ByteBufferUtils.decompose(bbe)
+        val key = DatabaseDescriptor.getPartitioner.decorateKey(values(0))
+        val clustering = new Clustering(values.slice(1, values.length): _*)
+        state.entries.put(key, clustering)
+      })
     state
   }
 
-  /** Returns the Lucene paging state contained in the specified CQL [[PagingState]]. If the specified paging state
-    * is null, then an empty Lucene paging state will be returned.
+  /** Returns the Lucene paging state contained in the specified CQL [[PagingState]].
+    * If the specified paging state is null, then an empty Lucene paging state will be returned.
     *
     * @param state a CQL paging state
     * @param limit the query user limit

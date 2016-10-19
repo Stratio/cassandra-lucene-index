@@ -30,9 +30,9 @@ import org.apache.cassandra.cql3.Operator
 import org.apache.cassandra.cql3.statements.IndexTarget
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.RowFilter.CustomExpression
-import org.apache.cassandra.db.filter.{ClusteringIndexFilter, ClusteringIndexNamesFilter, ColumnFilter, RowFilter}
+import org.apache.cassandra.db.filter._
 import org.apache.cassandra.db.marshal.UTF8Type
-import org.apache.cassandra.db.partitions.{PartitionIterator, PartitionUpdate, UnfilteredPartitionIterator}
+import org.apache.cassandra.db.partitions._
 import org.apache.cassandra.db.rows._
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.schema.IndexMetadata
@@ -44,6 +44,7 @@ import org.apache.lucene.search.{Query, ScoreDoc, Sort, SortField}
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
+import scala.collection.mutable
 
 /** Lucene index service provider.
   *
@@ -51,13 +52,16 @@ import scala.collection.JavaConversions._
   * @param indexMetadata the index metadata
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: IndexMetadata) extends IndexServiceMBean {
+abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: IndexMetadata)
+  extends IndexServiceMBean {
 
   val metadata = table.metadata
+  val ksName = metadata.ksName
+  val cfName = metadata.cfName
   val name = indexMetadata.name
   val column = indexedColumn(indexMetadata)
   val columnDefinition = getColumnDefinition(metadata, column)
-  val qualifiedName = String.format("%s.%s.%s", metadata.ksName, metadata.cfName, indexMetadata.name)
+  val qualifiedName = s"$ksName.$cfName.$name"
 
   // Parse options
   val options = new IndexOptions(metadata, indexMetadata)
@@ -67,11 +71,14 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   val tokenMapper = new TokenMapper
   val partitionMapper = new PartitionMapper(metadata)
   val mapsMultiCells = metadata.allColumns.filter(schema.maps).exists(_.`type`.isMultiCell)
-  val mappedRegularCells = metadata.partitionColumns.regulars.map(_.name.toString).filter(schema.mappedCells.contains)
+  val mappedRegularCells = metadata.
+    partitionColumns.regulars.map(_.name.toString)
+    .filter(schema.mappedCells.contains)
 
   // Setup FS index and write queue
   val queue = TaskQueue.build(options.indexingThreads, options.indexingQueuesSize)
-  val lucene = new FSIndex(name,
+  val lucene = new FSIndex(
+    name,
     options.path,
     options.schema.analyzer,
     options.refreshSeconds,
@@ -89,13 +96,14 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
       val sort = new Sort(keySortFields.toArray: _*)
       lucene.init(sort, fieldsToLoad)
     } catch {
-      case e: Exception => logger.error(s"Initialization of Lucene FS directory for index '$name' has failed:", e)
+      case e: Exception => logger
+        .error(s"Initialization of Lucene FS directory for index '$name' has failed:", e)
     }
 
     // Register JMX MBean
     try {
       val mBeanName = "com.stratio.cassandra.lucene:type=Lucene," +
-        s"keyspace=${metadata.ksName},table=${metadata.cfName},index=$name"
+        s"keyspace=$ksName,table=$cfName,index=$name"
       mBean = new ObjectName(mBeanName)
       ManagementFactory.getPlatformMBeanServer.registerMBean(this, this.mBean)
     } catch {
@@ -103,7 +111,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     }
   }
 
-  /** Returns the Lucene [[SortField]]s required to retrieve documents sorted by Cassandra's primary key.
+  /** Returns the Lucene [[SortField]]s required to retrieve documents sorted by primary key.
     *
     * @return the sort fields
     */
@@ -143,7 +151,8 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     supportsExpression(expression.column, expression.operator)
   }
 
-  /** Returns if a CQL expression with the specified column definition and operator is targeted to this index
+  /** Returns if a CQL expression with the specified column definition and operator is targeted to
+    * this index.
     *
     * @param columnDef the expression column definition
     * @param operator  the expression operator
@@ -178,7 +187,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     search.validate(schema)
   }
 
-  /** Returns the Lucene document representing the specified row. <p> Only the fields required by the
+  /** Returns the Lucene document representing the specified row. Only the fields required by the
     * post processing phase of the specified search will be added.
     *
     * @param key    the partition key
@@ -202,8 +211,8 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     */
   def term(key: DecoratedKey, row: Row): Term
 
-  /** Returns a Lucene term identifying documents representing all the row's which are in the partition
-    * the specified [[DecoratedKey]].
+  /** Returns a Lucene term identifying documents representing all the row's which are in the
+    * partition the specified [[DecoratedKey]].
     *
     * @param key the partition key
     * @return a Lucene term representing `key`
@@ -212,8 +221,8 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     partitionMapper.term(key)
   }
 
-  /** Returns if SSTables can contain additional columns of the specified row so read-before-write is required
-    * prior to indexing.
+  /** Returns if SSTables can contain additional columns of the specified row so read-before-write
+    * is required prior to indexing.
     *
     * @param key the partition key
     * @param row the row
@@ -234,13 +243,17 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
 
   /** Creates an new [[IndexWriter]] object for updates to a given partition.
     *
-    * @param key         key of the partition being modified
-    * @param now         current time of the update operation
-    * @param group       operation group spanning the update operation
-    * @param transaction what kind of update is being performed on the base data
+    * @param key             key of the partition being modified
+    * @param nowInSec        current time of the update operation
+    * @param orderGroup      operation group spanning the update operation
+    * @param transactionType what kind of update is being performed on the base data
     * @return the newly created index writer
     */
-  def writer(key: DecoratedKey, now: Int, group: OpOrder.Group, transaction: IndexTransaction.Type): IndexWriter
+  def writer(
+      key: DecoratedKey,
+      nowInSec: Int,
+      orderGroup: OpOrder.Group,
+      transactionType: IndexTransaction.Type): IndexWriter
 
   /** Deletes all the index contents. */
   def truncate() {
@@ -266,19 +279,20 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param nowInSec now in seconds
     */
   def upsert(key: DecoratedKey, row: Row, nowInSec: Int) {
-    queue.submitAsynchronous(key, () => {
-      val t = term(key, row)
-      val cols = columns(key, row).withoutDeleted(nowInSec)
-      val fields = schema.indexableFields(cols)
-      if (fields.isEmpty) {
-        lucene.delete(t)
-      } else {
-        val doc = new Document()
-        keyIndexableFields(key, row).foreach(doc.add)
-        fields.foreach(doc.add)
-        lucene.upsert(t, doc)
-      }
-    })
+    queue.submitAsynchronous(
+      key, () => {
+        val t = term(key, row)
+        val cols = columns(key, row).withoutDeleted(nowInSec)
+        val fields = schema.indexableFields(cols)
+        if (fields.isEmpty) {
+          lucene.delete(t)
+        } else {
+          val doc = new Document()
+          keyIndexableFields(key, row).foreach(doc.add)
+          fields.foreach(doc.add)
+          lucene.upsert(t, doc)
+        }
+      })
   }
 
   /** Deletes the partition identified by the specified key.
@@ -310,7 +324,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     val expr = expression(command)
     val search = SearchBuilder.fromJson(expr).build
     val q = search.query(schema, query(command).orNull)
-    val a = after(search.paging, command).orNull
+    val a = after(search.paging, command)
     val s = sort(search)
     val n = command.limits.count
 
@@ -321,7 +335,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     }
 
     // Search
-    Tracer.trace("Lucene index searching for {} rows", n)
+    Tracer.trace(s"Lucene index searching for $n rows")
     val documents = lucene.search(a, q, s, n)
     reader(documents, command, orderGroup)
   }
@@ -356,10 +370,10 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
       val filter = command.clusteringIndexFilter(key)
       Some(query(key, filter))
     case command: PartitionRangeReadCommand => query(command.dataRange)
-    case _ => throw new IndexException("Unsupported read command {}", command.getClass)
+    case _ => throw new IndexException(s"Unsupported read command ${command.getClass}")
   }
 
-  /** Returns a Lucene query to get the documents satisfying the specified key and clustering filter.
+  /** Returns a query to get the documents satisfying the specified key and clustering filter.
     *
     * @param key    the partition key
     * @param filter the clustering key range
@@ -367,14 +381,14 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     */
   def query(key: DecoratedKey, filter: ClusteringIndexFilter): Query
 
-  /** Returns a Lucene query to get the documents satisfying the specified [[DataRange]].
+  /** Returns a query to get the documents satisfying the specified data range.
     *
     * @param dataRange the data range
     * @return a query to get the documents satisfying the data range
     */
   def query(dataRange: DataRange): Option[Query]
 
-  def after(pagingState: IndexPagingState, command: ReadCommand): Option[Query] = {
+  def after(pagingState: IndexPagingState, command: ReadCommand): Option[Term] = {
     if (pagingState == null) return None
     pagingState.forCommand(command).map { case (key, clustering) => after(key, clustering) }
   }
@@ -385,7 +399,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param clustering the clustering key
     * @return the query to retrieve the row
     */
-  def after(key: DecoratedKey, clustering: Clustering): Query
+  def after(key: DecoratedKey, clustering: Clustering): Term
 
   /** Returns the Lucene sort with the specified search sorting requirements followed by the
     * Cassandra's natural ordering based on partitioning token and cell name.
@@ -394,7 +408,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @return a Lucene sort according to `search`
     */
   def sort(search: Search): Sort = {
-    val sortFields = scala.collection.mutable.ListBuffer[SortField]()
+    val sortFields = mutable.ListBuffer[SortField]()
     if (search.usesSorting) {
       sortFields.addAll(search.sortFields(schema))
     }
@@ -413,13 +427,15 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param group       operation group spanning the calling operation
     * @return a row iterator
     */
-  def read(key: DecoratedKey,
-           clusterings: java.NavigableSet[Clustering],
-           nowInSec: Int,
-           group: OpOrder.Group): UnfilteredRowIterator = {
+  def read(
+      key: DecoratedKey,
+      clusterings: java.NavigableSet[Clustering],
+      nowInSec: Int,
+      group: OpOrder.Group): UnfilteredRowIterator = {
     val filter = new ClusteringIndexNamesFilter(clusterings, false)
     val columnFilter = ColumnFilter.all(metadata)
-    SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter).queryMemtableAndDisk(table, group)
+    SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter)
+      .queryMemtableAndDisk(table, group)
   }
 
   /** Retrieves from the local storage all the rows in the specified partition.
@@ -442,37 +458,48 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param orderGroup the Cassandra read order group
     * @return the local rows satisfying the search
     */
-  def reader(documents: DocumentIterator, command: ReadCommand, orderGroup: ReadOrderGroup): IndexReader
+  def reader(
+      documents: DocumentIterator,
+      command: ReadCommand,
+      orderGroup: ReadOrderGroup): IndexReader
 
-  /** Post processes in the coordinator node the results of a distributed search. Gets the k globally best results from
-    * all the k best node-local results.
+  /** Post processes in the coordinator node the results of a distributed search.  In other words,
+    * gets the k globally best results from all the k best node-local results.
     *
     * @param partitions the node results iterator
     * @param group      the read command group
     * @return the k globally best results
     */
-  def postProcess(partitions: PartitionIterator, group: SinglePartitionReadCommand.Group): PartitionIterator = {
-    if (group.commands.size <= 1) return partitions // Skip unneeded post processing if only one partition is involved
+  def postProcess(
+      partitions: PartitionIterator,
+      group: SinglePartitionReadCommand.Group): PartitionIterator = {
+    if (group.commands.size <= 1) return partitions //Only one partition is involved
     postProcess(partitions, search(group), group.limits.count, group.nowInSec)
   }
 
-  /** Post processes in the coordinator node the results of a distributed search. Gets the k globally best results from
-    * all the k best node-local results.
+  /** Post processes in the coordinator node the results of a distributed search. In other words,
+    * gets the k globally best results from all the k best node-local results.
     *
     * @param partitions the node results iterator
     * @param command    the read command
     * @return the k globally best results
     */
-  def postProcess(partitions: PartitionIterator, command: ReadCommand): PartitionIterator = command match {
+  def postProcess(
+      partitions: PartitionIterator,
+      command: ReadCommand): PartitionIterator = command match {
     case c: SinglePartitionReadCommand => partitions
     case _ => postProcess(partitions, search(command), command.limits.count, command.nowInSec)
   }
 
-  def postProcess(partitions: PartitionIterator, search: Search, limit: Int, now: Int): PartitionIterator = {
+  def postProcess(
+      partitions: PartitionIterator,
+      search: Search,
+      limit: Int,
+      nowInSec: Int): PartitionIterator = {
     if (search.requiresFullScan) {
       val rows = collect(partitions)
       if (search.requiresPostProcessing && rows.nonEmpty) {
-        return merge(search, limit, now, rows)
+        return merge(search, limit, nowInSec, rows)
       }
     }
     partitions
@@ -489,11 +516,16 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
         }
       } finally partition.close()
     }
-    logger.debug("Collected {} rows in {}", rows.size, time.stop)
+    logger.debug(s"Collected ${rows.size} rows in ${time.stop}")
     rows
   }
 
-  def merge(search: Search, limit: Int, now: Int, rows: Seq[(DecoratedKey, SimpleRowIterator)]): PartitionIterator = {
+  def merge(
+      search: Search,
+      limit: Int,
+      nowInSec: Int,
+      rows: Seq[(DecoratedKey, SimpleRowIterator)]): PartitionIterator = {
+
     val time = TimeCounter.create.start
     val field = "_id"
     val index = new RAMIndex(schema.analyzer)
@@ -515,7 +547,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
       val merged = for ((doc, score) <- docs) yield {
         val id = doc.get(field).toInt
         val rowIterator = rows.get(id)._2
-        rowIterator.decorated(row => decorate(row, score, now))
+        rowIterator.decorated(row => decorate(row, score, nowInSec))
       }
 
       Tracer.trace(s"Lucene post-process ${rows.size} collected rows to ${merged.size} rows")
@@ -525,13 +557,13 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     } finally index.close()
   }
 
-  def decorate(row: Row, score: ScoreDoc, now: Int): Row = {
+  def decorate(row: Row, score: ScoreDoc, nowInSec: Int): Row = {
 
     // Skip if there is no base column or score
     if (columnDefinition.isEmpty) return row
 
     // Copy row
-    val builder = BTreeRow.unsortedBuilder(now)
+    val builder = BTreeRow.unsortedBuilder(nowInSec)
     builder.newRow(row.clustering)
     builder.addRowDeletion(row.deletion)
     builder.addPrimaryKeyLivenessInfo(row.primaryKeyLivenessInfo)
@@ -545,7 +577,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     builder.build
   }
 
-  /** Ensures that values present in the specified partition update are valid according to the schema.
+  /** Ensures that values present in a partition update are valid according to the schema.
     *
     * @param update the partition update containing the values to be validated
     */

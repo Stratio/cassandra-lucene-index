@@ -75,7 +75,7 @@ abstract class IndexWriter(service: IndexService,
   /** Deletes all the partition. */
   protected def delete()
 
-  /** Indexes the specified partition's row. It behaviours as an upsert and may involve read-before-write.
+  /** Indexes the specified row. It behaviours as an upsert and may involve read-before-write.
     *
     * @param row the row to be indexed.
     */

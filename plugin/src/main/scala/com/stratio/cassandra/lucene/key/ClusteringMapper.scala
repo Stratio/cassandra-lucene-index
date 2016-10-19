@@ -34,9 +34,9 @@ import org.apache.lucene.document.{Document, Field, FieldType, StoredField}
 import org.apache.lucene.index.FilteredTermsEnum.AcceptStatus
 import org.apache.lucene.index._
 import org.apache.lucene.search.BooleanClause.Occur.SHOULD
+import org.apache.lucene.search.FieldComparator.TermValComparator
 import org.apache.lucene.search._
 import org.apache.lucene.util.{AttributeSource, BytesRef}
-import org.apache.lucene.search.FieldComparator.TermValComparator
 
 import scala.collection.JavaConversions._
 
@@ -59,13 +59,14 @@ class ClusteringMapper(metadata: CFMetaData) {
     * @return the columns
     */
   def columns(clustering: Clustering): Columns = {
-    metadata.clusteringColumns.foldLeft(new Columns)((columns, columnDefinition) => {
-      val name = columnDefinition.name.toString
-      val position = columnDefinition.position
-      val value = clustering.get(position)
-      val valueType = columnDefinition.cellValueType
-      columns.add(Column.apply(name).withValue(ColumnsMapper.compose(value, valueType)))
-    })
+    metadata.clusteringColumns.foldLeft(new Columns)(
+      (columns, columnDefinition) => {
+        val name = columnDefinition.name.toString
+        val position = columnDefinition.position
+        val value = clustering.get(position)
+        val valueType = columnDefinition.cellValueType
+        columns.add(Column.apply(name).withValue(ColumnsMapper.compose(value, valueType)))
+      })
   }
 
   /** Returns a list of Lucene [[IndexableField]]s representing the specified primary key.
@@ -98,10 +99,10 @@ class ClusteringMapper(metadata: CFMetaData) {
     clustering.getRawValues.foldLeft(clusteringType.builder)(_ add _).build()
   }
 
-  /** Returns the @code String human-readable representation of the specified [[ClusteringPrefix]].
+  /** Returns the [[String]] human-readable representation of the specified [[ClusteringPrefix]].
     *
     * @param prefix the clustering prefix
-    * @return a @code String representing @code prefix
+    * @return a [[String]] representing the prefix
     */
   def toString(prefix: Option[ClusteringPrefix]): String = {
     prefix.map(_.toString(metadata)).orNull
@@ -118,15 +119,15 @@ class ClusteringMapper(metadata: CFMetaData) {
 
   /** Returns the clustering key contained in the specified [[Document]].
     *
-    * @param document a { @link Document} containing the clustering key to be get
-    * @return the clustering key contained in { @code document}
+    * @param document a document containing the clustering key to be get
+    * @return the clustering key contained in the document
     */
   def clustering(document: Document): Clustering = {
     val bytesRef = document.getBinaryValue(FIELD_NAME)
     clustering(ByteBufferUtils.byteBuffer(bytesRef))
   }
 
-  /** Returns a Lucene [[SortField]] to sort documents by primary key according to Cassandra's natural order.
+  /** Returns a Lucene [[SortField]] to sort documents by primary key.
     *
     * @return the sort field
     */
@@ -141,7 +142,10 @@ class ClusteringMapper(metadata: CFMetaData) {
     * @param stop     the stop clustering prefix
     * @return the Lucene query
     */
-  def query(position: PartitionPosition, start: Option[ClusteringPrefix], stop: Option[ClusteringPrefix]): Query = {
+  def query(
+      position: PartitionPosition,
+      start: Option[ClusteringPrefix],
+      stop: Option[ClusteringPrefix]): Query = {
     new ClusteringQuery(this, position, start, stop)
   }
 
@@ -162,9 +166,10 @@ class ClusteringMapper(metadata: CFMetaData) {
     * @return the Lucene query
     */
   def query(key: DecoratedKey, filter: ClusteringIndexSliceFilter): Query = {
-    filter.requestedSlices.foldLeft(new BooleanQuery.Builder)((builder, slice) => {
-      builder.add(query(key, slice), SHOULD)
-    }).build
+    filter.requestedSlices.foldLeft(new BooleanQuery.Builder)(
+      (builder, slice) => {
+        builder.add(query(key, slice), SHOULD)
+      }).build
   }
 
 }
@@ -201,16 +206,17 @@ object ClusteringMapper {
   /** Returns the start [[ClusteringPrefix]] of the first partition of the specified [[DataRange]].
     *
     * @param range the data range
-    * @return the optional start clustering prefix of @code dataRange, empty if there is no such start
+    * @return the optional start clustering prefix of the data range
     */
   def startClusteringPrefix(range: DataRange): Option[ClusteringPrefix] = {
     val filter = range.startKey match {
       case key: DecoratedKey => range.clusteringIndexFilter(key)
-      case p => range.clusteringIndexFilter(new BufferDecoratedKey(p.getToken, EMPTY_BYTE_BUFFER))
+      case position =>
+        range.clusteringIndexFilter(new BufferDecoratedKey(position.getToken, EMPTY_BYTE_BUFFER))
     }
     filter match {
-      case f: ClusteringIndexSliceFilter => Some(f.requestedSlices.get(0).start)
-      case f: ClusteringIndexNamesFilter => Some(f.requestedRows.first)
+      case slices: ClusteringIndexSliceFilter => Some(slices.requestedSlices.get(0).start)
+      case names: ClusteringIndexNamesFilter => Some(names.requestedRows.first)
       case _ => None
     }
   }
@@ -218,16 +224,19 @@ object ClusteringMapper {
   /** Returns the stop [[ClusteringPrefix]] of the last partition of the specified [[DataRange]].
     *
     * @param range the data range
-    * @return the optional stop clustering prefix of @code dataRange, empty if there is no such start
+    * @return the optional stop clustering prefix of the data range
     */
   def stopClusteringPrefix(range: DataRange): Option[ClusteringPrefix] = {
     val filter = range.stopKey match {
       case key: DecoratedKey => range.clusteringIndexFilter(key)
-      case p => range.clusteringIndexFilter(new BufferDecoratedKey(p.getToken, EMPTY_BYTE_BUFFER))
+      case position =>
+        range.clusteringIndexFilter(new BufferDecoratedKey(position.getToken, EMPTY_BYTE_BUFFER))
     }
     filter match {
-      case f: ClusteringIndexSliceFilter => Some(f.requestedSlices.get(f.requestedSlices.size - 1).end)
-      case f: ClusteringIndexNamesFilter => Some(f.requestedRows.last)
+      case slices: ClusteringIndexSliceFilter =>
+        Some(slices.requestedSlices.get(slices.requestedSlices.size - 1).end)
+      case names: ClusteringIndexNamesFilter =>
+        Some(names.requestedRows.last)
       case _ => None
     }
   }
@@ -237,21 +246,26 @@ object ClusteringMapper {
   *
   * @param mapper the primary key mapper to be used
   */
-class ClusteringSort(mapper: ClusteringMapper) extends SortField(FIELD_NAME, new FieldComparatorSource {
-  override def newComparator(field: String, hits: Int, sortPos: Int, reversed: Boolean): FieldComparator[_] = {
-    new TermValComparator(hits, field, false) {
-      override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
-        val comp = compareUnsigned(t1.bytes, 0, PREFIX_SIZE, t2.bytes, 0, PREFIX_SIZE)
-        if (comp != 0) return comp
-        val bb1 = ByteBuffer.wrap(t1.bytes, PREFIX_SIZE, t1.length - PREFIX_SIZE)
-        val bb2 = ByteBuffer.wrap(t2.bytes, PREFIX_SIZE, t2.length - PREFIX_SIZE)
-        val clustering1 = mapper.clustering(bb1)
-        val clustering2 = mapper.clustering(bb2)
-        mapper.comparator.compare(clustering1, clustering2)
+class ClusteringSort(mapper: ClusteringMapper) extends SortField(
+  FIELD_NAME, new FieldComparatorSource {
+    override def newComparator(
+        field: String,
+        hits: Int,
+        sortPos: Int,
+        reversed: Boolean): FieldComparator[_] = {
+      new TermValComparator(hits, field, false) {
+        override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
+          val comp = compareUnsigned(t1.bytes, 0, PREFIX_SIZE, t2.bytes, 0, PREFIX_SIZE)
+          if (comp != 0) return comp
+          val bb1 = ByteBuffer.wrap(t1.bytes, PREFIX_SIZE, t1.length - PREFIX_SIZE)
+          val bb2 = ByteBuffer.wrap(t2.bytes, PREFIX_SIZE, t2.length - PREFIX_SIZE)
+          val clustering1 = mapper.clustering(bb1)
+          val clustering2 = mapper.clustering(bb2)
+          mapper.comparator.compare(clustering1, clustering2)
+        }
       }
     }
-  }
-}) {
+  }) {
 
   /** @inheritdoc */
   override def toString: String = "<clustering>"
@@ -271,16 +285,17 @@ class ClusteringSort(mapper: ClusteringMapper) extends SortField(FIELD_NAME, new
   * @param start    the start clustering
   * @param stop     the stop clustering
   */
-class ClusteringQuery(val mapper: ClusteringMapper,
-                      val position: PartitionPosition,
-                      val start: Option[ClusteringPrefix],
-                      val stop: Option[ClusteringPrefix]) extends MultiTermQuery(FIELD_NAME) {
+class ClusteringQuery(
+    val mapper: ClusteringMapper,
+    val position: PartitionPosition,
+    val start: Option[ClusteringPrefix],
+    val stop: Option[ClusteringPrefix]) extends MultiTermQuery(FIELD_NAME) {
 
   val token = position.getToken
   val seek = ClusteringMapper.prefix(token)
   val comparator = mapper.comparator
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def getTermsEnum(terms: Terms, attributes: AttributeSource): TermsEnum = {
     new FullKeyDataRangeFilteredTermsEnum(terms.iterator)
   }
@@ -300,22 +315,22 @@ class ClusteringQuery(val mapper: ClusteringMapper,
     result
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def toString(field: String): String = {
     MoreObjects.toStringHelper(this)
-    .add("field", field)
-    .add("token", token)
-    .add("start", mapper.toString(start))
-    .add("stop", mapper.toString(stop))
-    .toString
+      .add("field", field)
+      .add("token", token)
+      .add("start", mapper.toString(start))
+      .add("stop", mapper.toString(stop))
+      .toString
   }
 
-  private class FullKeyDataRangeFilteredTermsEnum(tenum: TermsEnum) extends FilteredTermsEnum(tenum) {
+  class FullKeyDataRangeFilteredTermsEnum(tenum: TermsEnum) extends FilteredTermsEnum(tenum) {
 
     // Jump to the start of the partition
     setInitialSeekTerm(new BytesRef(seek))
 
-    /** @inheritdoc*/
+    /** @inheritdoc */
     override def accept(term: BytesRef): AcceptStatus = {
 
       // Check token range

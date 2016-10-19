@@ -113,19 +113,19 @@ object IndexOptions {
   }
 
   def parseRefresh(options: Map[String, String]): Double = {
-    parseDoubleStrictlyPositive(options, REFRESH_SECONDS_OPTION, DEFAULT_REFRESH_SECONDS)
+    parseStrictlyPositiveDouble(options, REFRESH_SECONDS_OPTION, DEFAULT_REFRESH_SECONDS)
   }
 
   def parseRamBufferMB(options: Map[String, String]): Int = {
-    parseIntStrictlyPositive(options, RAM_BUFFER_MB_OPTION, DEFAULT_RAM_BUFFER_MB)
+    parseStrictlyPositiveInt(options, RAM_BUFFER_MB_OPTION, DEFAULT_RAM_BUFFER_MB)
   }
 
   def parseMaxMergeMB(options: Map[String, String]): Int = {
-    parseIntStrictlyPositive(options, MAX_MERGE_MB_OPTION, DEFAULT_MAX_MERGE_MB)
+    parseStrictlyPositiveInt(options, MAX_MERGE_MB_OPTION, DEFAULT_MAX_MERGE_MB)
   }
 
   def parseMaxCachedMB(options: Map[String, String]): Int = {
-    parseIntStrictlyPositive(options, MAX_CACHED_MB_OPTION, DEFAULT_MAX_CACHED_MB)
+    parseStrictlyPositiveInt(options, MAX_CACHED_MB_OPTION, DEFAULT_MAX_CACHED_MB)
   }
 
   def parseIndexingThreads(options: Map[String, String]): Int = {
@@ -133,7 +133,7 @@ object IndexOptions {
   }
 
   def parseIndexingQueuesSize(options: Map[String, String]): Int = {
-    parseIntStrictlyPositive(options, INDEXING_QUEUES_SIZE_OPTION, DEFAULT_INDEXING_QUEUES_SIZE)
+    parseStrictlyPositiveInt(options, INDEXING_QUEUES_SIZE_OPTION, DEFAULT_INDEXING_QUEUES_SIZE)
   }
 
   def parseExcludedDataCenters(options: Map[String, String]): List[String] = {
@@ -143,12 +143,13 @@ object IndexOptions {
       .getOrElse(DEFAULT_EXCLUDED_DATA_CENTERS)
   }
 
-  def parsePath(options: Map[String, String], table: CFMetaData, index: Option[IndexMetadata]): Path = {
-    options
-      .get(DIRECTORY_PATH_OPTION)
-      .map(Paths.get(_))
-      .getOrElse(
-        index.map(index => {
+  def parsePath(
+      options: Map[String, String],
+      table: CFMetaData,
+      index: Option[IndexMetadata]): Path = {
+    options.get(DIRECTORY_PATH_OPTION).map(Paths.get(_)).getOrElse(
+      index.map(
+        index => {
           val directories = new Directories(table)
           val basePath = directories.getDirectoryForNewSSTables.getAbsolutePath
           Paths.get(basePath + File.separator + INDEXES_DIR_NAME + File.separator + index.name)
@@ -156,49 +157,55 @@ object IndexOptions {
   }
 
   def parseSchema(options: Map[String, String], table: CFMetaData): Schema = {
-    options
-      .get(SCHEMA_OPTION)
-      .map(v =>
-        try {
-          val schema = SchemaBuilder.fromJson(v).build
-          for (mapper <- schema.mappers.values) {
-            for (column <- mapper.mappedColumns) {
-              ColumnsMapper.validate(table, column, mapper.field, mapper.supportedTypes)
-            }
-          }
-          schema
-        } catch {
-          case e: Exception => throw new IndexException(e, "'{}' is invalid : {}", SCHEMA_OPTION, e.getMessage)
-        })
-      .getOrElse(throw new IndexException("'{}' required", SCHEMA_OPTION))
+    options.get(SCHEMA_OPTION).map(
+      value => try {
+        val schema = SchemaBuilder.fromJson(value).build
+        for (mapper <- schema.mappers.values; column <- mapper.mappedColumns) {
+          ColumnsMapper.validate(table, column, mapper.field, mapper.supportedTypes)
+        }
+        schema
+      } catch {
+        case e: Exception => throw new IndexException(
+          e,
+          s"'$SCHEMA_OPTION' is invalid : ${e.getMessage}")
+      }).getOrElse(throw new IndexException(s"'$SCHEMA_OPTION' is required"))
   }
 
   private def parseInt(options: Map[String, String], name: String, default: Int): Int = {
-    options
-      .get(name)
-      .map(v => try v.toInt catch {
-        case e: NumberFormatException => throw new IndexException("'{}' must be an integer", name)
-      }
-      ).getOrElse(default)
+    options.get(name).map(
+      string => try string.toInt catch {
+        case e: NumberFormatException =>
+          throw new IndexException(s"'$name' must be an integer, found: $string")
+      }).getOrElse(default)
   }
 
-  private def parseIntStrictlyPositive(options: Map[String, String], name: String, default: Int): Int = {
-    options
-      .get(name)
-      .map(v => try v.toInt catch {
-        case e: NumberFormatException => throw new IndexException("'{}' must be a strictly positive integer", name)
-      })
-      .map(v => if (v > 0) v else throw new IndexException("'{}' must be strictly positive", name))
-      .getOrElse(default)
+  private def parseStrictlyPositiveInt(
+      options: Map[String, String],
+      name: String,
+      default: Int): Int = {
+    options.get(name).map(
+      string => try string.toInt catch {
+        case e: NumberFormatException =>
+          throw new IndexException(s"'$name' must be a strictly positive integer, found: $string")
+      }).map(
+      integer => if (integer > 0) integer
+      else {
+        throw new IndexException(s"'$name' must be strictly positive, found: $integer")
+      }).getOrElse(default)
   }
 
-  private def parseDoubleStrictlyPositive(options: Map[String, String], name: String, default: Double): Double = {
-    options
-      .get(name)
-      .map(v => try v.toDouble catch {
-        case e: NumberFormatException => throw new IndexException("'{}' must be a strictly positive decimal", name)
-      })
-      .map(v => if (v > 0) v else throw new IndexException("'{}' must be strictly positive", name))
-      .getOrElse(default)
+  private def parseStrictlyPositiveDouble(
+      options: Map[String, String],
+      name: String,
+      default: Double): Double = {
+    options.get(name).map(
+      string => try string.toDouble catch {
+        case e: NumberFormatException =>
+          throw new IndexException(s"'$name' must be a strictly positive decimal, found: $string")
+      }).map(
+      double => if (double > 0) double
+      else {
+        throw new IndexException(s"'$name' must be strictly positive, found: $double")
+      }).getOrElse(default)
   }
 }

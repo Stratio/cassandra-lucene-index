@@ -25,7 +25,10 @@ import org.slf4j.helpers.MessageFormatter
   * @param cause   the cause
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-case class IndexException(message: String, cause: Throwable) extends RuntimeException(message, cause) {
+case class IndexException(
+    message: String,
+    cause: Throwable)
+  extends RuntimeException(message, cause) {
 
   /** Constructs a new index exception with the specified cause.
     *
@@ -176,7 +179,13 @@ case class IndexException(message: String, cause: Throwable) extends RuntimeExce
     * @param a2      second argument
     * @param a3      third argument
     */
-  def this(logger: Logger, cause: Throwable, message: String, a1: AnyRef, a2: AnyRef, a3: AnyRef) = {
+  def this(
+      logger: Logger,
+      cause: Throwable,
+      message: String,
+      a1: AnyRef,
+      a2: AnyRef,
+      a3: AnyRef) = {
     this(formatN(message, a1, a2, a3), cause)
     logger.error(getMessage, cause)
   }
@@ -191,7 +200,14 @@ case class IndexException(message: String, cause: Throwable) extends RuntimeExce
     * @param a3      third argument
     * @param a4      fourth argument
     */
-  def this(logger: Logger, cause: Throwable, message: String, a1: AnyRef, a2: AnyRef, a3: AnyRef, a4: AnyRef) = {
+  def this(
+      logger: Logger,
+      cause: Throwable,
+      message: String,
+      a1: AnyRef,
+      a2: AnyRef,
+      a3: AnyRef,
+      a4: AnyRef) = {
     this(formatN(message, a1, a2, a3, a4), cause)
     logger.error(getMessage, cause)
   }

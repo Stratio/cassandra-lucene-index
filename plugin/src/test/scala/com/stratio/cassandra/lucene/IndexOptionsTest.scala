@@ -19,7 +19,7 @@ import com.stratio.cassandra.lucene.IndexOptions._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
-/** Tests [[IndexOptions]].
+/** Tests for [[IndexOptions]].
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
@@ -41,18 +41,21 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   test("parse refresh seconds option with failing non numeric value") {
-    val e = intercept[IndexException] {parseRefresh(Map(REFRESH_SECONDS_OPTION -> "a"))}
-    e.getMessage shouldBe s"'$REFRESH_SECONDS_OPTION' must be a strictly positive decimal"
+    intercept[IndexException] {
+      parseRefresh(Map(REFRESH_SECONDS_OPTION -> "a"))
+    }.getMessage shouldBe s"'$REFRESH_SECONDS_OPTION' must be a strictly positive decimal, found: a"
   }
 
   test("parse refresh seconds option with failing zero value") {
-    val e = intercept[IndexException] {parseRefresh(Map(REFRESH_SECONDS_OPTION -> "0"))}
-    e.getMessage shouldBe s"'$REFRESH_SECONDS_OPTION' must be strictly positive"
+    intercept[IndexException] {
+      parseRefresh(Map(REFRESH_SECONDS_OPTION -> "0"))
+    }.getMessage shouldBe s"'$REFRESH_SECONDS_OPTION' must be strictly positive, found: 0.0"
   }
 
   test("parse refresh seconds option with failing negative value") {
-    val e = intercept[IndexException] {parseRefresh(Map(REFRESH_SECONDS_OPTION -> "-1"))}
-    e.getMessage shouldBe s"'$REFRESH_SECONDS_OPTION' must be strictly positive"
+    intercept[IndexException] {
+      parseRefresh(Map(REFRESH_SECONDS_OPTION -> "-1"))
+    }.getMessage shouldBe s"'$REFRESH_SECONDS_OPTION' must be strictly positive, found: -1.0"
   }
 
   // RAM buffer MB option tests
@@ -66,23 +69,27 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   test("parse RAM buffer MB option with failing decimal") {
-    val e = intercept[IndexException] {parseRamBufferMB(Map(RAM_BUFFER_MB_OPTION -> "0.1"))}
-    e.getMessage shouldBe s"'$RAM_BUFFER_MB_OPTION' must be a strictly positive integer"
+    intercept[IndexException] {
+      parseRamBufferMB(Map(RAM_BUFFER_MB_OPTION -> "0.1"))
+    }.getMessage shouldBe s"'$RAM_BUFFER_MB_OPTION' must be a strictly positive integer, found: 0.1"
   }
 
   test("parse RAM buffer MB option with failing non numeric value") {
-    val e = intercept[IndexException] {parseRamBufferMB(Map(RAM_BUFFER_MB_OPTION -> "a"))}
-    e.getMessage shouldBe s"'$RAM_BUFFER_MB_OPTION' must be a strictly positive integer"
+    intercept[IndexException] {
+      parseRamBufferMB(Map(RAM_BUFFER_MB_OPTION -> "a"))
+    }.getMessage shouldBe s"'$RAM_BUFFER_MB_OPTION' must be a strictly positive integer, found: a"
   }
 
   test("parse RAM buffer MB option with failing zero value") {
-    val e = intercept[IndexException] {parseRamBufferMB(Map(RAM_BUFFER_MB_OPTION -> "0"))}
-    e.getMessage shouldBe s"'$RAM_BUFFER_MB_OPTION' must be strictly positive"
+    intercept[IndexException] {
+      parseRamBufferMB(Map(RAM_BUFFER_MB_OPTION -> "0"))
+    }.getMessage shouldBe s"'$RAM_BUFFER_MB_OPTION' must be strictly positive, found: 0"
   }
 
   test("parse RAM buffer MB option with failing negative value") {
-    val e = intercept[IndexException] {parseRamBufferMB(Map(RAM_BUFFER_MB_OPTION -> "-1"))}
-    e.getMessage shouldBe s"'$RAM_BUFFER_MB_OPTION' must be strictly positive"
+    intercept[IndexException] {
+      parseRamBufferMB(Map(RAM_BUFFER_MB_OPTION -> "-1"))
+    }.getMessage shouldBe s"'$RAM_BUFFER_MB_OPTION' must be strictly positive, found: -1"
   }
 
   // Max merge MB option tests
@@ -96,23 +103,27 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   test("parse max merge MB option with failing decimal") {
-    val e = intercept[IndexException] {parseMaxMergeMB(Map(MAX_MERGE_MB_OPTION -> "0.1"))}
-    e.getMessage shouldBe s"'$MAX_MERGE_MB_OPTION' must be a strictly positive integer"
+    intercept[IndexException] {
+      parseMaxMergeMB(Map(MAX_MERGE_MB_OPTION -> "0.1"))
+    }.getMessage shouldBe s"'$MAX_MERGE_MB_OPTION' must be a strictly positive integer, found: 0.1"
   }
 
   test("parse max merge MB option with failing non numeric value") {
-    val e = intercept[IndexException] {parseMaxMergeMB(Map(MAX_MERGE_MB_OPTION -> "a"))}
-    e.getMessage shouldBe s"'$MAX_MERGE_MB_OPTION' must be a strictly positive integer"
+    intercept[IndexException] {
+      parseMaxMergeMB(Map(MAX_MERGE_MB_OPTION -> "a"))
+    }.getMessage shouldBe s"'$MAX_MERGE_MB_OPTION' must be a strictly positive integer, found: a"
   }
 
   test("parse max merge MB option with failing zero value") {
-    val e = intercept[IndexException] {parseMaxMergeMB(Map(MAX_MERGE_MB_OPTION -> "0"))}
-    e.getMessage shouldBe s"'$MAX_MERGE_MB_OPTION' must be strictly positive"
+    intercept[IndexException] {
+      parseMaxMergeMB(Map(MAX_MERGE_MB_OPTION -> "0"))
+    }.getMessage shouldBe s"'$MAX_MERGE_MB_OPTION' must be strictly positive, found: 0"
   }
 
   test("parse max merge MB option with failing negative value") {
-    val e = intercept[IndexException] {parseMaxMergeMB(Map(MAX_MERGE_MB_OPTION -> "-1"))}
-    e.getMessage shouldBe s"'$MAX_MERGE_MB_OPTION' must be strictly positive"
+    intercept[IndexException] {
+      parseMaxMergeMB(Map(MAX_MERGE_MB_OPTION -> "-1"))
+    }.getMessage shouldBe s"'$MAX_MERGE_MB_OPTION' must be strictly positive, found: -1"
   }
 
   // Max cached MB option tests
@@ -126,23 +137,27 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   test("parse max cached MB option with failing decimal") {
-    val e = intercept[IndexException] {parseMaxCachedMB(Map(MAX_CACHED_MB_OPTION -> "0.1"))}
-    e.getMessage shouldBe s"'$MAX_CACHED_MB_OPTION' must be a strictly positive integer"
+    intercept[IndexException] {
+      parseMaxCachedMB(Map(MAX_CACHED_MB_OPTION -> "0.1"))
+    }.getMessage shouldBe s"'$MAX_CACHED_MB_OPTION' must be a strictly positive integer, found: 0.1"
   }
 
   test("parse max cached MB option with failing non numeric value") {
-    val e = intercept[IndexException] {parseMaxCachedMB(Map(MAX_CACHED_MB_OPTION -> "a"))}
-    e.getMessage shouldBe s"'$MAX_CACHED_MB_OPTION' must be a strictly positive integer"
+    intercept[IndexException] {
+      parseMaxCachedMB(Map(MAX_CACHED_MB_OPTION -> "a"))
+    }.getMessage shouldBe s"'$MAX_CACHED_MB_OPTION' must be a strictly positive integer, found: a"
   }
 
   test("parse max cached MB option with failing zero value") {
-    val e = intercept[IndexException] {parseMaxCachedMB(Map(MAX_CACHED_MB_OPTION -> "0"))}
-    e.getMessage shouldBe s"'$MAX_CACHED_MB_OPTION' must be strictly positive"
+    intercept[IndexException] {
+      parseMaxCachedMB(Map(MAX_CACHED_MB_OPTION -> "0"))
+    }.getMessage shouldBe s"'$MAX_CACHED_MB_OPTION' must be strictly positive, found: 0"
   }
 
   test("parse max cached MB option with failing negative value") {
-    val e = intercept[IndexException] {parseMaxCachedMB(Map(MAX_CACHED_MB_OPTION -> "-1"))}
-    e.getMessage shouldBe s"'$MAX_CACHED_MB_OPTION' must be strictly positive"
+    intercept[IndexException] {
+      parseMaxCachedMB(Map(MAX_CACHED_MB_OPTION -> "-1"))
+    }.getMessage shouldBe s"'$MAX_CACHED_MB_OPTION' must be strictly positive, found: -1"
   }
 
   // Indexing threads option tests
@@ -156,13 +171,15 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   test("parse indexing threads option with failing decimal") {
-    val e = intercept[IndexException] {parseIndexingThreads(Map(INDEXING_THREADS_OPTION -> "0.1"))}
-    e.getMessage shouldBe s"'$INDEXING_THREADS_OPTION' must be an integer"
+    intercept[IndexException] {
+      parseIndexingThreads(Map(INDEXING_THREADS_OPTION -> "0.1"))
+    }.getMessage shouldBe s"'$INDEXING_THREADS_OPTION' must be an integer, found: 0.1"
   }
 
   test("parse indexing threads option with failing non numeric value") {
-    val e = intercept[IndexException] {parseIndexingThreads(Map(INDEXING_THREADS_OPTION -> "a"))}
-    e.getMessage shouldBe s"'$INDEXING_THREADS_OPTION' must be an integer"
+    intercept[IndexException] {
+      parseIndexingThreads(Map(INDEXING_THREADS_OPTION -> "a"))
+    }.getMessage shouldBe s"'$INDEXING_THREADS_OPTION' must be an integer, found: a"
   }
 
   test("parse indexing threads option with zero value") {
@@ -184,23 +201,29 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   test("parse indexing queues size option with failing decimal") {
-    val e = intercept[IndexException] {parseIndexingQueuesSize(Map(INDEXING_QUEUES_SIZE_OPTION -> "0.1"))}
-    e.getMessage shouldBe s"'$INDEXING_QUEUES_SIZE_OPTION' must be a strictly positive integer"
+    intercept[IndexException] {
+      parseIndexingQueuesSize(Map(INDEXING_QUEUES_SIZE_OPTION -> "0.1"))
+    }.getMessage shouldBe
+      s"'$INDEXING_QUEUES_SIZE_OPTION' must be a strictly positive integer, found: 0.1"
   }
 
   test("parse indexing queues size option with failing non numeric value") {
-    val e = intercept[IndexException] {parseIndexingQueuesSize(Map(INDEXING_QUEUES_SIZE_OPTION -> "a"))}
-    e.getMessage shouldBe s"'$INDEXING_QUEUES_SIZE_OPTION' must be a strictly positive integer"
+    intercept[IndexException] {
+      parseIndexingQueuesSize(Map(INDEXING_QUEUES_SIZE_OPTION -> "a"))
+    }.getMessage shouldBe
+      s"'$INDEXING_QUEUES_SIZE_OPTION' must be a strictly positive integer, found: a"
   }
 
   test("parse indexing queues size option with failing zero value") {
-    val e = intercept[IndexException] {parseIndexingQueuesSize(Map(INDEXING_QUEUES_SIZE_OPTION -> "0"))}
-    e.getMessage shouldBe s"'$INDEXING_QUEUES_SIZE_OPTION' must be strictly positive"
+    intercept[IndexException] {
+      parseIndexingQueuesSize(Map(INDEXING_QUEUES_SIZE_OPTION -> "0"))
+    }.getMessage shouldBe s"'$INDEXING_QUEUES_SIZE_OPTION' must be strictly positive, found: 0"
   }
 
   test("parse indexing queues size option with failing negative value") {
-    val e = intercept[IndexException] {parseIndexingQueuesSize(Map(INDEXING_QUEUES_SIZE_OPTION -> "-1"))}
-    e.getMessage shouldBe s"'$INDEXING_QUEUES_SIZE_OPTION' must be strictly positive"
+    intercept[IndexException] {
+      parseIndexingQueuesSize(Map(INDEXING_QUEUES_SIZE_OPTION -> "-1"))
+    }.getMessage shouldBe s"'$INDEXING_QUEUES_SIZE_OPTION' must be strictly positive, found: -1"
   }
 
   // Excluded data centers size option tests
@@ -218,10 +241,12 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   test("parse excluded data centers option with multiple list") {
-    parseExcludedDataCenters(Map(EXCLUDED_DATA_CENTERS_OPTION -> "dc1,dc2")) shouldBe List("dc1", "dc2")
+    val options = Map(EXCLUDED_DATA_CENTERS_OPTION -> " dc1,dc2 ")
+    parseExcludedDataCenters(options) shouldBe List("dc1", "dc2")
   }
 
   test("parse excluded data centers option with multiple list and spaces") {
-    parseExcludedDataCenters(Map(EXCLUDED_DATA_CENTERS_OPTION -> " dc1 , dc2 ")) shouldBe List("dc1", "dc2")
+    val options = Map(EXCLUDED_DATA_CENTERS_OPTION -> " dc1 , dc2 ")
+    parseExcludedDataCenters(options) shouldBe List("dc1", "dc2")
   }
 }

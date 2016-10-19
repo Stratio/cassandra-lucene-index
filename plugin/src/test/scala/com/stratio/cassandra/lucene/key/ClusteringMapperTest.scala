@@ -21,8 +21,7 @@ import org.apache.lucene.util.BytesRef
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
-/**
-  * Tests for [[ClusteringMapper]].
+/** Tests for [[ClusteringMapper]].
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
@@ -30,7 +29,7 @@ import org.scalatest.junit.JUnitRunner
 class ClusteringMapperTest extends BaseScalaTest {
 
   test("collate prefix") {
-    val values = List(Long.MinValue, -12345L, -123L, -2L, -1L, 0L, 1L, 2L, 123L, 12345L, Long.MaxValue)
+    val values = List(Long.MinValue, -10L, -2L, -1L, 0L, 1L, 2L, 10L, Long.MaxValue)
     val tokens = values.map(new Murmur3Partitioner.LongToken(_))
     val bytes = tokens.map(ClusteringMapper.prefix(_)).map(new BytesRef(_))
     bytes shouldBe bytes.reverse.sorted

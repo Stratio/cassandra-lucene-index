@@ -16,13 +16,12 @@
 package com.stratio.cassandra.lucene.key
 
 import com.stratio.cassandra.lucene.BaseScalaTest
-import com.stratio.cassandra.lucene.util.ByteBufferUtils
+import com.stratio.cassandra.lucene.util.ByteBufferUtils.toHex
 import org.apache.cassandra.dht.Murmur3Partitioner
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
-/**
-  * Tests for [[TokenMapper]].
+/** Tests for [[TokenMapper]].
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
@@ -36,7 +35,7 @@ class TokenMapperTest extends BaseScalaTest {
   }
 
   test("bytes ref") {
-    def hex(n:Long):String = ByteBufferUtils.toHex(TokenMapper.bytesRef(new Murmur3Partitioner.LongToken(n)))
+    def hex(n: Long) = toHex(TokenMapper.bytesRef(new Murmur3Partitioner.LongToken(n)))
     hex(Long.MinValue) shouldBe "2000000000000000000000"
     hex(Long.MaxValue) shouldBe "20017f7f7f7f7f7f7f7f7f"
     hex(-1) shouldBe "20007f7f7f7f7f7f7f7f7f"

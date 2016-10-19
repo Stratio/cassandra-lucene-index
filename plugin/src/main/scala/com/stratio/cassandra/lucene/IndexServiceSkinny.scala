@@ -24,7 +24,7 @@ import org.apache.cassandra.db.filter.ClusteringIndexFilter
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.schema.IndexMetadata
-import org.apache.cassandra.utils.concurrent.OpOrder.Group
+import org.apache.cassandra.utils.concurrent.OpOrder
 import org.apache.lucene.index.{IndexableField, Term}
 import org.apache.lucene.search.{Query, SortField, TermQuery}
 
@@ -34,7 +34,8 @@ import org.apache.lucene.search.{Query, SortField, TermQuery}
   * @param index the index metadata
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class IndexServiceSkinny(table: ColumnFamilyStore, index: IndexMetadata) extends IndexService(table, index) {
+class IndexServiceSkinny(table: ColumnFamilyStore, index: IndexMetadata)
+    extends IndexService(table, index) {
 
   init()
 
@@ -49,8 +50,12 @@ class IndexServiceSkinny(table: ColumnFamilyStore, index: IndexMetadata) extends
   }
 
   /** @inheritdoc */
-  override def writer(key: DecoratedKey, now: Int, group: Group, transaction: IndexTransaction.Type): IndexWriter = {
-    new IndexWriterSkinny(this, key, now, group, transaction)
+  override def writer(
+      key: DecoratedKey,
+      nowInSec: Int,
+      opGroup: OpOrder.Group,
+      transactionType: IndexTransaction.Type): IndexWriter = {
+    new IndexWriterSkinny(this, key, nowInSec, opGroup, transactionType)
   }
 
   /** @inheritdoc */
@@ -80,17 +85,24 @@ class IndexServiceSkinny(table: ColumnFamilyStore, index: IndexMetadata) extends
     if ((start.kind eq ROW_KEY) && (stop.kind eq ROW_KEY) && start == stop) {
       Some(partitionMapper.query(start.asInstanceOf[DecoratedKey]))
     } else {
-      tokenMapper.query(start.getToken, stop.getToken, start.kind eq MIN_BOUND, stop.kind eq MAX_BOUND)
+      tokenMapper.query(
+        start.getToken,
+        stop.getToken,
+        start.kind == MIN_BOUND,
+        stop.kind == MAX_BOUND)
     }
   }
 
   /** @inheritdoc */
-  override def after(key: DecoratedKey, clustering: Clustering): Query = {
-    partitionMapper.query(key)
+  override def after(key: DecoratedKey, clustering: Clustering): Term = {
+    partitionMapper.term(key)
   }
 
   /** @inheritdoc */
-  override def reader(documents: DocumentIterator, command: ReadCommand, group: ReadOrderGroup): IndexReader = {
-    new IndexReaderSkinny(this, command, table, group, documents)
+  override def reader(
+      documents: DocumentIterator,
+      command: ReadCommand,
+      orderGroup: ReadOrderGroup): IndexReader = {
+    new IndexReaderSkinny(this, command, table, orderGroup, documents)
   }
 }

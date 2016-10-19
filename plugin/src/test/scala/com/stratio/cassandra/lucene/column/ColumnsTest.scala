@@ -19,8 +19,7 @@ import com.stratio.cassandra.lucene.BaseScalaTest
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
-/**
-  * Tests [[Column]].
+/** Tests for [[Column]].
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */

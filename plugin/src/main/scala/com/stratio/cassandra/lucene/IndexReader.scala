@@ -30,10 +30,12 @@ import org.apache.cassandra.db.rows.UnfilteredRowIterator
   * @param documents  the documents iterator
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-abstract class IndexReader(command: ReadCommand,
-                           table: ColumnFamilyStore,
-                           orderGroup: ReadOrderGroup,
-                           documents: DocumentIterator) extends UnfilteredPartitionIterator {
+abstract class IndexReader(
+    command: ReadCommand,
+    table: ColumnFamilyStore,
+    orderGroup: ReadOrderGroup,
+    documents: DocumentIterator)
+  extends UnfilteredPartitionIterator {
 
   protected var nextData: Option[UnfilteredRowIterator] = None
 
@@ -72,15 +74,16 @@ abstract class IndexReader(command: ReadCommand,
 
   protected def prepareNext(): Boolean
 
-  protected def read(key: DecoratedKey, filter: ClusteringIndexFilter): Option[UnfilteredRowIterator] = {
-    Option(SinglePartitionReadCommand.create(isForThrift,
-                                             table.metadata,
-                                             command.nowInSec,
-                                             command.columnFilter,
-                                             command.rowFilter,
-                                             command.limits,
-                                             key,
-                                             filter).queryMemtableAndDisk(table, orderGroup.baseReadOpOrderGroup))
+  protected def read(key: DecoratedKey, filter: ClusteringIndexFilter): UnfilteredRowIterator = {
+    SinglePartitionReadCommand.create(
+      isForThrift,
+      table.metadata,
+      command.nowInSec,
+      command.columnFilter,
+      command.rowFilter,
+      command.limits,
+      key,
+      filter).queryMemtableAndDisk(table, orderGroup.baseReadOpOrderGroup)
   }
 
 

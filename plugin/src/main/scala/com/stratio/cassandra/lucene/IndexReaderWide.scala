@@ -24,18 +24,20 @@ import org.apache.lucene.document.Document
 
 /** [[IndexReader]] for wide rows.
   *
-  * @param service   the index service
-  * @param command   the read command
-  * @param table     the base table
-  * @param group     the order group of the read operation
-  * @param documents the documents iterator
+  * @param service    the index service
+  * @param command    the read command
+  * @param table      the base table
+  * @param orderGroup the order group of the read operation
+  * @param documents  the documents iterator
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class IndexReaderWide(service: IndexServiceWide,
-                      command: ReadCommand,
-                      table: ColumnFamilyStore,
-                      group: ReadOrderGroup,
-                      documents: DocumentIterator) extends IndexReader(command, table, group, documents) {
+class IndexReaderWide(
+    service: IndexServiceWide,
+    command: ReadCommand,
+    table: ColumnFamilyStore,
+    orderGroup: ReadOrderGroup,
+    documents: DocumentIterator)
+  extends IndexReader(command, table, orderGroup, documents) {
 
   private[this] val comparator = service.metadata.comparator
   private[this] var nextDoc: Document = _
@@ -52,11 +54,11 @@ class IndexReaderWide(service: IndexServiceWide,
         clusterings.add(clustering)
       }
       if (documents.hasNext) {
-        nextDoc = documents.next.left
+        nextDoc = documents.next._1
         clustering = service.clustering(nextDoc)
       }
       else nextDoc = null
-      continue = !documents.needsFetch()
+      continue = !documents.needsFetch
     }
     clusterings
   }
@@ -68,7 +70,7 @@ class IndexReaderWide(service: IndexServiceWide,
 
     if (nextDoc == null) {
       if (!documents.hasNext) return false
-      nextDoc = documents.next.left
+      nextDoc = documents.next._1
     }
 
     val key = service.decoratedKey(nextDoc)
@@ -77,12 +79,13 @@ class IndexReaderWide(service: IndexServiceWide,
     if (clusterings.isEmpty) return prepareNext()
 
     val filter = new ClusteringIndexNamesFilter(clusterings, false)
-    nextData = read(key, filter)
+    nextData = Some(read(key, filter))
 
-    nextData.foreach(data => if (data.isEmpty) {
-      data.close()
-      return prepareNext()
-    })
+    nextData.foreach(
+      data => if (data.isEmpty) {
+        data.close()
+        return prepareNext()
+      })
 
     true
   }

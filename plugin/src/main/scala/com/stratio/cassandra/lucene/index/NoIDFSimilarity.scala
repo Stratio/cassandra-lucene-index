@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.index;
+package com.stratio.cassandra.lucene.index
 
-import org.apache.lucene.search.similarities.ClassicSimilarity;
+import org.apache.lucene.search.similarities.{ClassicSimilarity, Similarity}
 
-/**
- * {@link ClassicSimilarity} that ignores the inverse document frequency, doing the similarity independent of the index
- * context.
- *
- * @author Andres de la Pena {@literal <adelapena@stratio.com>}
- */
+/** [[Similarity]] that ignores the inverse document frequency, doing the similarity independent of the index
+  * context.
+  *
+  * @author Andres de la Pena `adelapena@stratio.com`
+  */
 class NoIDFSimilarity extends ClassicSimilarity {
 
-    /**
-     * Returns a constant neutral score value of {@code 1.0}.
-     */
-    @Override
-    public float idf(long docFreq, long numDocs) {
-        return 1.0f;
-    }
+  /** Returns a constant neutral score value of `1.0`.
+    *
+    * @param docFreq the number of documents which contain the term
+    * @param numDocs the total number of documents in the collection
+    * @return a constant value
+    */
+  override def idf(docFreq: Long, numDocs: Long): Float = 1.0f
+
 }

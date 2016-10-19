@@ -36,16 +36,16 @@ trait IndexServiceMBean {
     */
   def getNumDeletedDocs: Int
 
-  /** Optimizes the index forcing merge segments leaving the specified number of segments. This operation may block
-    * until all merging completes.
+  /** Optimizes the index forcing merge segments leaving the specified number of segments. This
+    * operation may block until all merging completes.
     *
     * @param maxNumSegments the maximum number of segments left in the index after merging finishes
     * @param doWait         `true` if the call should block until the operation completes
     */
   def forceMerge(maxNumSegments: Int, doWait: Boolean)
 
-  /** Optimizes the index forcing merge of all segments that have deleted documents. This operation may block until
-    * all merging completes.
+  /** Optimizes the index forcing merge of all segments that have deleted documents. This operation
+    * may block until all merging completes.
     *
     * @param doWait `true` if the call should block until the operation completes
     */

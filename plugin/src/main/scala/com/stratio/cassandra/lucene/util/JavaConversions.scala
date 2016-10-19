@@ -20,7 +20,7 @@ import java.util.concurrent.Callable
 import java.util.function.BiFunction
 import java.util.function.Function
 
-/** Implicit Scala to Java conversions
+/** Implicit Scala to Java conversions.
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */

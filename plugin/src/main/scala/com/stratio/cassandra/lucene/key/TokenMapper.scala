@@ -46,7 +46,7 @@ class TokenMapper {
     new LongField(FIELD_NAME, value, FIELD_TYPE)
   }
 
-  /** Returns a Lucene [[SortField]] for sorting documents/rows according to the partitioner's order.
+  /** Returns a Lucene [[SortField]] for sorting documents according to the partitioner's order.
     *
     * @return a sort field for sorting by token
     */
@@ -54,15 +54,19 @@ class TokenMapper {
     new SortField(FIELD_NAME, SortField.Type.LONG)
   }
 
-  /** Returns a Lucene query to find the documents containing a token inside the specified token range.
+  /** Returns a query to find the documents containing a token inside the specified token range.
     *
-    * @param lower        the lower token
-    * @param upper        the upper token
+    * @param lower the lower token
+    * @param upper the upper token
     * @param includeLower if the lower token should be included
     * @param includeUpper if the upper token should be included
     * @return the query to find the documents containing a token inside the range
     */
-  def query(lower: Token, upper: Token, includeLower: Boolean, includeUpper: Boolean): Option[Query] = {
+  def query(
+      lower: Token,
+      upper: Token,
+      includeLower: Boolean,
+      includeUpper: Boolean): Option[Query] = {
 
     // Skip if it's full data range
     if (lower.isMinimum && upper.isMinimum) return None
@@ -104,10 +108,10 @@ object TokenMapper {
   FIELD_TYPE.setDocValuesType(DocValuesType.NUMERIC)
   FIELD_TYPE.freeze()
 
-  /** Returns the {code Long} value of the specified Murmur3 partitioning [[Token]].
+  /** Returns the `Long` value of the specified Murmur3 partitioning [[Token]].
     *
     * @param token a Murmur3 token
-    * @return the { @code token}'s {code Long} value
+    * @return the `token`'s `Long` value
     */
   def longValue(token: Token): Long = {
     token.getTokenValue.asInstanceOf[Long]

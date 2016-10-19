@@ -30,7 +30,7 @@ import org.apache.cassandra.db.partitions.PartitionIterator
 import org.apache.cassandra.exceptions.InvalidRequestException
 import org.apache.cassandra.service.{LuceneStorageProxy, QueryState}
 import org.apache.cassandra.transport.messages.ResultMessage
-import org.apache.cassandra.transport.messages.ResultMessage.Rows
+import org.apache.cassandra.transport.messages.ResultMessage.{Prepared, Rows}
 import org.apache.cassandra.utils.{FBUtilities, MD5Digest}
 import org.slf4j.LoggerFactory
 
@@ -45,40 +45,46 @@ class IndexQueryHandler extends QueryHandler {
 
   type Payload = java.Map[String, ByteBuffer]
 
-  /** @inheritdoc*/
-  override def prepare(query: String, state: QueryState, payload: Payload): ResultMessage.Prepared = {
+  /** @inheritdoc */
+  override def prepare(query: String, state: QueryState, payload: Payload): Prepared = {
     QueryProcessor.instance.prepare(query, state)
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def getPrepared(id: MD5Digest): ParsedStatement.Prepared = {
     QueryProcessor.instance.getPrepared(id)
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def getPreparedForThrift(id: Integer): ParsedStatement.Prepared = {
     QueryProcessor.instance.getPreparedForThrift(id)
   }
 
-  /** @inheritdoc*/
-  override def processBatch(statement: BatchStatement,
-                            state: QueryState,
-                            options: BatchQueryOptions,
-                            payload: Payload): ResultMessage = {
+  /** @inheritdoc */
+  override def processBatch(
+      statement: BatchStatement,
+      state: QueryState,
+      options: BatchQueryOptions,
+      payload: Payload): ResultMessage = {
     QueryProcessor.instance.processBatch(statement, state, options, payload)
   }
 
-  /** @inheritdoc*/
-  override def processPrepared(statement: CQLStatement,
-                               state: QueryState,
-                               options: QueryOptions,
-                               payload: Payload): ResultMessage = {
+  /** @inheritdoc */
+  override def processPrepared(
+      statement: CQLStatement,
+      state: QueryState,
+      options: QueryOptions,
+      payload: Payload): ResultMessage = {
     QueryProcessor.metrics.preparedStatementsExecuted.inc()
     processStatement(statement, state, options)
   }
 
-  /** @inheritdoc*/
-  override def process(query: String, state: QueryState, options: QueryOptions, payload: Payload): ResultMessage = {
+  /** @inheritdoc */
+  override def process(
+      query: String,
+      state: QueryState,
+      options: QueryOptions,
+      payload: Payload): ResultMessage = {
     val p = QueryProcessor.getStatement(query, state.getClientState)
     options.prepare(p.boundNames)
     val prepared = p.statement
@@ -91,7 +97,10 @@ class IndexQueryHandler extends QueryHandler {
     processStatement(prepared, state, options)
   }
 
-  private def processStatement(statement: CQLStatement, state: QueryState, options: QueryOptions): ResultMessage = {
+  def processStatement(
+      statement: CQLStatement,
+      state: QueryState,
+      options: QueryOptions): ResultMessage = {
 
     logger.trace(s"Process $statement @CL.${options.getConsistency}")
     val clientState = state.getClientState
@@ -109,7 +118,7 @@ class IndexQueryHandler extends QueryHandler {
           } catch {
             case e: ReflectiveOperationException => throw new IndexException(e)
           } finally {
-            logger.debug("Lucene search total time: {}\n", time.stop)
+            logger.debug(s"Lucene search total time: ${time.stop}\n")
           }
         }
       case _ =>
@@ -117,17 +126,19 @@ class IndexQueryHandler extends QueryHandler {
     execute(statement, state, options)
   }
 
-  private def luceneExpressions(select: SelectStatement, options: QueryOptions): java.Map[Expression, Index] = {
+  def luceneExpressions(
+      select: SelectStatement,
+      options: QueryOptions): java.Map[Expression, Index] = {
     val map = new java.LinkedHashMap[Expression, Index]
     val expressions = select.getRowFilter(options).getExpressions
     val cfs = Keyspace.open(select.keyspace).getColumnFamilyStore(select.columnFamily)
     val indexes = cfs.indexManager.listIndexes.collect { case index: Index => index }
     expressions.foreach {
-      case expr: CustomExpression =>
-        val clazz = expr.getTargetIndex.options.get(IndexTarget.CUSTOM_INDEX_OPTION_NAME)
+      case expression: CustomExpression =>
+        val clazz = expression.getTargetIndex.options.get(IndexTarget.CUSTOM_INDEX_OPTION_NAME)
         if (clazz == classOf[Index].getCanonicalName) {
-          val index = cfs.indexManager.getIndex(expr.getTargetIndex).asInstanceOf[Index]
-          map.put(expr, index)
+          val index = cfs.indexManager.getIndex(expression.getTargetIndex).asInstanceOf[Index]
+          map.put(expression, index)
         }
       case expr =>
         indexes.filter(_.supportsExpression(expr.column, expr.operator)).foreach(map.put(expr, _))
@@ -135,19 +146,21 @@ class IndexQueryHandler extends QueryHandler {
     map
   }
 
-  private def execute(statement: CQLStatement, state: QueryState, options: QueryOptions): ResultMessage = {
+  def execute(statement: CQLStatement, state: QueryState, options: QueryOptions): ResultMessage = {
     val result = statement.execute(state, options)
     if (result == null) new ResultMessage.Void else result
   }
 
   @throws[ReflectiveOperationException]
-  private def executeLuceneQuery(select: SelectStatement,
-                                 state: QueryState,
-                                 options: QueryOptions,
-                                 expressions: java.Map[Expression, Index]): ResultMessage = {
+  def executeLuceneQuery(
+      select: SelectStatement,
+      state: QueryState,
+      options: QueryOptions,
+      expressions: java.Map[Expression, Index]): ResultMessage = {
 
     if (expressions.size > 1) {
-      throw new InvalidRequestException("Lucene index only supports one search expression per query.")
+      throw new InvalidRequestException(
+        "Lucene index only supports one search expression per query.")
     }
 
     // Validate expression
@@ -157,7 +170,7 @@ class IndexQueryHandler extends QueryHandler {
 
     // Get paging info
     val limit = select.getLimit(options)
-    val page = getPageSizeMethod.invoke(select, options).asInstanceOf[Int]
+    val page = getPageSize.invoke(select, options).asInstanceOf[Int]
 
     // Take control of paging if there is paging and the query requires post processing
     if (search.requiresPostProcessing && page > 0 && page < limit) {
@@ -168,7 +181,10 @@ class IndexQueryHandler extends QueryHandler {
   }
 
   @throws[ReflectiveOperationException]
-  private def executeSortedLuceneQuery(select: SelectStatement, state: QueryState, options: QueryOptions): Rows = {
+  def executeSortedLuceneQuery(
+      select: SelectStatement,
+      state: QueryState,
+      options: QueryOptions): Rows = {
 
     // Check consistency level
     val consistency = options.getConsistency
@@ -193,8 +209,12 @@ class IndexQueryHandler extends QueryHandler {
     // Process data updating paging state
     try {
       val processedData = pagingState.update(query, data, consistency)
-      val rows = processResultsMethod.invoke(
-        select, processedData, options, now.asInstanceOf[AnyRef], page.asInstanceOf[AnyRef]).asInstanceOf[Rows]
+      val rows = processResults.invoke(
+        select,
+        processedData,
+        options,
+        now.asInstanceOf[AnyRef],
+        page.asInstanceOf[AnyRef]).asInstanceOf[Rows]
       rows.result.metadata.setHasMorePages(pagingState.toPagingState)
       rows
     } finally {
@@ -207,11 +227,11 @@ object IndexQueryHandler {
 
   val logger = LoggerFactory.getLogger(classOf[IndexQueryHandler])
 
-  val getPageSizeMethod = classOf[SelectStatement].getDeclaredMethod("getPageSize", classOf[QueryOptions])
-  getPageSizeMethod.setAccessible(true)
+  val getPageSize = classOf[SelectStatement].getDeclaredMethod("getPageSize", classOf[QueryOptions])
+  getPageSize.setAccessible(true)
 
-  val processResultsMethod = classOf[SelectStatement]
-    .getDeclaredMethod("processResults", classOf[PartitionIterator], classOf[QueryOptions], classOf[Int], classOf[Int])
-  processResultsMethod.setAccessible(true)
+  val processResults = classOf[SelectStatement].getDeclaredMethod(
+    "processResults", classOf[PartitionIterator], classOf[QueryOptions], classOf[Int], classOf[Int])
+  processResults.setAccessible(true)
 
 }

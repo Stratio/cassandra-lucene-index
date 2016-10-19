@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.util
 
 import java.io.Closeable
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit.DAYS
 import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.stratio.cassandra.lucene.IndexException
@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory
 
 import scala.concurrent.ExecutionException
 
-/** A queue that executes each submitted task using one of possibly several pooled threads. Tasks can be submitted with
-  * an identifier, ensuring that all tasks with same identifier will be executed orderly in the same thread. Each thread
-  * has its own task queue.
+/** A queue that executes each submitted task using one of possibly several pooled threads.
+  * Tasks can be submitted with an identifier, ensuring that all tasks with same identifier will be
+  * executed orderly in the same thread. Each thread has its own task queue.
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
@@ -36,35 +36,35 @@ sealed trait TaskQueue extends Closeable {
 
   /** Submits a non value-returning task for asynchronous execution.
     *
-    * The specified identifier is used to choose the thread executor where the task will be queued. The selection and
-    * load balancing is based in the hashcode of the supplied id.
+    * The specified identifier is used to choose the thread executor where the task will be queued.
+    * The selection and load balancing is based in the hashcode of the supplied id.
     *
-    * @param id   the identifier of the task used to choose the thread executor where the task will be queued for
-    *             asynchronous execution
+    * @param id   the identifier of the task used to choose the thread executor where the task will
+    *             be queued for asynchronous execution
     * @param task the task to be queued for asynchronous execution
     */
-  def submitAsynchronous[A](id: AnyRef, task:() => A): Unit
+  def submitAsynchronous[A](id: AnyRef, task: () => A): Unit
 
   /**
-    * Submits a non value-returning task for synchronous execution. It waits for all synchronous tasks to be
-    * completed.
+    * Submits a non value-returning task for synchronous execution. It waits for all synchronous
+    * tasks to be completed.
     *
     * @param task a task to be executed synchronously
     * @return the result of the task
     */
-  def submitSynchronous[A](task:() => A): A
+  def submitSynchronous[A](task: () => A): A
 }
 
 /** Trivial [[TaskQueue]] not using parallel nor asynchronous processing */
 private class TaskQueueSync extends TaskQueue {
 
-  /** @inheritdoc*/
-  override def submitAsynchronous[A](id: AnyRef, task:() => A): Unit = task.apply
+  /** @inheritdoc */
+  override def submitAsynchronous[A](id: AnyRef, task: () => A): Unit = task.apply
 
-  /** @inheritdoc*/
-  override def submitSynchronous[A](task:() => A): A = task.apply
+  /** @inheritdoc */
+  override def submitSynchronous[A](task: () => A): A = task.apply
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def close() = {}
 
 }
@@ -76,11 +76,11 @@ private class TaskQueueSync extends TaskQueue {
   */
 private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue {
 
-  private val pools = (1 to numThreads).map(i => new BlockingExecutor(1, queuesSize, 1, TimeUnit.DAYS))
+  private val pools = (1 to numThreads).map(i => new BlockingExecutor(1, queuesSize, 1, DAYS))
   private val lock = new ReentrantReadWriteLock(true)
 
-  /** @inheritdoc*/
-  override def submitAsynchronous[A](id: AnyRef, task:() => A): Unit = {
+  /** @inheritdoc */
+  override def submitAsynchronous[A](id: AnyRef, task: () => A): Unit = {
     lock.readLock.lock()
     try {
       val pool = pools(Math.abs(id.hashCode % numThreads)) // Choose pool
@@ -92,8 +92,8 @@ private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue
     } finally lock.readLock.unlock()
   }
 
-  /** @inheritdoc*/
-  override def submitSynchronous[A](task:() => A): A = {
+  /** @inheritdoc */
+  override def submitSynchronous[A](task: () => A): A = {
     lock.writeLock().lock()
     try {
       pools.map(_.submit(() => {})).foreach(_.get()) // Wait for queued tasks completion
@@ -111,7 +111,7 @@ private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue
     } finally lock.writeLock.unlock()
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def close() = {
     lock.writeLock.lock()
     try pools.foreach(_.shutdown())

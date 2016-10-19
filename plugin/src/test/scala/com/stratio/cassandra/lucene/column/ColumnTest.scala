@@ -19,8 +19,7 @@ import com.stratio.cassandra.lucene.BaseScalaTest
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
-/**
-  * Tests [[Column]].
+/** Tests for [[Column]].
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
@@ -98,7 +97,8 @@ class ColumnTest extends BaseScalaTest {
   }
 
   test("add columns") {
-    Column("a") + Columns(Column("b"), Column("c")) shouldBe Columns(Column("a"), Column("b"), Column("c"))
+    Column("a") + Columns(Column("b"), Column("c")) shouldBe
+      Columns(Column("a"), Column("b"), Column("c"))
   }
 
   test("toString with default attributes") {

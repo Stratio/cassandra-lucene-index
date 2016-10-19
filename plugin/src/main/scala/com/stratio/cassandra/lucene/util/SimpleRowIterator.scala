@@ -21,17 +21,19 @@ import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db.rows.{Row, RowIterator}
 import org.apache.cassandra.db.{DecoratedKey, PartitionColumns}
 
-/** [[RowIterator]] representing a single CQL [[Row]], gotten from the head position of the specified [[RowIterator]].
-  * Any other rows in the specified iterator won't be read.
+/** [[RowIterator]] representing a single CQL [[Row]], gotten from the head position of the
+  * specified [[RowIterator]]. Any other rows in the specified iterator won't be read.
   *
   * @param iterator  the [[Row]] iterator
-  * @param headRow  a row to override the first row in the iterator
+  * @param headRow   a row to override the first row in the iterator
   * @param decorator a function to decorate the row
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class SimpleRowIterator(iterator: RowIterator,
-                        headRow: Option[Row] = None,
-                        decorator: Option[Row => Row] = None) extends RowIterator {
+class SimpleRowIterator(
+    iterator: RowIterator,
+    headRow: Option[Row] = None,
+    decorator: Option[Row => Row] = None)
+  extends RowIterator {
 
   val row = headRow.getOrElse(iterator.next)
 

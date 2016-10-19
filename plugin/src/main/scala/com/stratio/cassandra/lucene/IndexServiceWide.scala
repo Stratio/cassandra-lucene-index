@@ -15,21 +15,23 @@
  */
 package com.stratio.cassandra.lucene
 
+import java.{util => java}
+
 import com.stratio.cassandra.lucene.column.{Columns, ColumnsMapper}
 import com.stratio.cassandra.lucene.index.DocumentIterator
+import com.stratio.cassandra.lucene.key.ClusteringMapper._
 import com.stratio.cassandra.lucene.key.{ClusteringMapper, KeyMapper, PartitionMapper}
 import org.apache.cassandra.db.PartitionPosition.Kind._
 import org.apache.cassandra.db._
-import org.apache.cassandra.db.filter.{ClusteringIndexFilter, ClusteringIndexNamesFilter, ClusteringIndexSliceFilter}
+import org.apache.cassandra.db.filter._
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.schema.IndexMetadata
-import org.apache.cassandra.utils.concurrent.OpOrder.Group
+import org.apache.cassandra.utils.concurrent.OpOrder
 import org.apache.lucene.document.Document
 import org.apache.lucene.index.{IndexableField, Term}
 import org.apache.lucene.search.BooleanClause.Occur._
 import org.apache.lucene.search.{BooleanQuery, Query, SortField}
-import java.{util => java}
 
 import scala.collection.JavaConversions._
 
@@ -39,7 +41,8 @@ import scala.collection.JavaConversions._
   * @param index the index metadata
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata) extends IndexService(table, index) {
+class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
+  extends IndexService(table, index) {
 
   val clusteringMapper = new ClusteringMapper(metadata)
   val keyMapper = new KeyMapper(metadata)
@@ -48,7 +51,7 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata) extends I
 
   /** @inheritdoc */
   override def fieldsToLoad: Set[String] = {
-    Set[String](PartitionMapper.FIELD_NAME, ClusteringMapper.FIELD_NAME)
+    Set(PartitionMapper.FIELD_NAME, ClusteringMapper.FIELD_NAME)
   }
 
   /** @inheritdoc */
@@ -58,21 +61,28 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata) extends I
 
   /** Returns the clustering key contained in the specified document.
     *
-    * @param document a { @link Document} containing the clustering key to be get
-    * @return the clustering key contained in { @code document}
+    * @param document a document containing the clustering key to be get
+    * @return the clustering key contained in `document`
     */
   def clustering(document: Document): Clustering = {
     clusteringMapper.clustering(document)
   }
 
   /** @inheritdoc */
-  override def writer(key: DecoratedKey, now: Int, group: Group, transaction: IndexTransaction.Type): IndexWriter = {
-    new IndexWriterWide(this, key, now, group, transaction)
+  override def writer(
+      key: DecoratedKey,
+      nowInSec: Int,
+      opGroup: OpOrder.Group,
+      transactionType: IndexTransaction.Type): IndexWriter = {
+    new IndexWriterWide(this, key, nowInSec, opGroup, transactionType)
   }
 
   /** @inheritdoc */
   override def columns(key: DecoratedKey, row: Row): Columns = {
-    Columns() + partitionMapper.columns(key) + clusteringMapper.columns(row.clustering) + ColumnsMapper.columns(row)
+    Columns()
+      .add(partitionMapper.columns(key))
+      .add(clusteringMapper.columns(row.clustering))
+      .add(ColumnsMapper.columns(row))
   }
 
   /** @inheritdoc */
@@ -105,7 +115,7 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata) extends I
     case f if f.selectsAllPartition() => partitionMapper.query(key)
     case f: ClusteringIndexNamesFilter => keyMapper.query(key, f)
     case f: ClusteringIndexSliceFilter => clusteringMapper.query(key, f)
-    case _ => throw new IndexException("Unknown filter type {}", filter)
+    case _ => throw new IndexException(s"Unknown filter type $filter")
   }
 
   def query(position: PartitionPosition): Query = position match {
@@ -113,7 +123,10 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata) extends I
     case _ => tokenMapper.query(position.getToken)
   }
 
-  def query(position: PartitionPosition, start: Option[ClusteringPrefix], stop: Option[ClusteringPrefix]): Query = {
+  def query(
+      position: PartitionPosition,
+      start: Option[ClusteringPrefix],
+      stop: Option[ClusteringPrefix]): Query = {
     if (start.isEmpty && stop.isEmpty) return query(position)
     new BooleanQuery.Builder()
       .add(query(position), FILTER)
@@ -132,8 +145,8 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata) extends I
     val stopPosition = dataRange.stopKey
     val startToken = startPosition.getToken
     val stopToken = stopPosition.getToken
-    val startClustering = ClusteringMapper.startClusteringPrefix(dataRange).filter(_.size > 0)
-    val stopClustering = ClusteringMapper.stopClusteringPrefix(dataRange).filter(_.size > 0)
+    val startClustering = startClusteringPrefix(dataRange).filter(_.size > 0)
+    val stopClustering = stopClusteringPrefix(dataRange).filter(_.size > 0)
 
     // Try single partition
     if (startToken.compareTo(stopToken) == 0) {
@@ -147,7 +160,9 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata) extends I
     // Add token range filter
     val includeStartToken = startPosition.kind == MIN_BOUND && startClustering.isEmpty
     val includeStopToken = stopPosition.kind == MAX_BOUND && stopClustering.isEmpty
-    tokenMapper.query(startToken, stopToken, includeStartToken, includeStopToken).foreach(builder.add(_, SHOULD))
+    tokenMapper
+      .query(startToken, stopToken, includeStartToken, includeStopToken)
+      .foreach(builder.add(_, SHOULD))
 
     // Add first and last partition filters
     if (startClustering.isDefined) builder.add(query(startPosition, startClustering, None), SHOULD)
@@ -159,13 +174,16 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata) extends I
   }
 
   /** @inheritdoc */
-  override def after(key: DecoratedKey, clustering: Clustering): Query = {
-    keyMapper.query(key, clustering)
+  override def after(key: DecoratedKey, clustering: Clustering): Term = {
+    keyMapper.term(key, clustering)
   }
 
   /** @inheritdoc */
-  override def reader(documents: DocumentIterator, command: ReadCommand, group: ReadOrderGroup): IndexReader = {
-    new IndexReaderWide(this, command, table, group, documents)
+  override def reader(
+      documents: DocumentIterator,
+      command: ReadCommand,
+      orderGroup: ReadOrderGroup): IndexReader = {
+    new IndexReaderWide(this, command, table, orderGroup, documents)
   }
 
 }

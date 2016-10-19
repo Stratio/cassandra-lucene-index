@@ -84,7 +84,7 @@ public class Schema implements Closeable {
      * @return the default {@link Analyzer}
      */
     public Analyzer defaultAnalyzer() {
-        return analyzer.getDefaultAnalyzer().getAnalyzer();
+        return analyzer.getDefaultAnalyzer().analyzer();
     }
 
     /**
@@ -94,7 +94,7 @@ public class Schema implements Closeable {
      * @return an {@link Analyzer}
      */
     public Analyzer analyzer(String fieldName) {
-        return analyzer.getAnalyzer(fieldName).getAnalyzer();
+        return analyzer.getAnalyzer(fieldName).analyzer();
     }
 
     /**

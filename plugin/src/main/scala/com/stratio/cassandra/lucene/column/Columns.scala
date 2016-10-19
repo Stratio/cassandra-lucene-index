@@ -23,7 +23,9 @@ import com.google.common.base.MoreObjects
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 @scala.annotation.varargs
-case class Columns(columns: Column[_]*) extends Traversable[Column[_]] with java.lang.Iterable[Column[_]] {
+case class Columns(columns: Column[_]*)
+  extends Traversable[Column[_]]
+    with java.lang.Iterable[Column[_]] {
 
   /** @constructor create a new columns with a list of columns. */
   def this(columns: Traversable[Column[_]]) = this(columns.toArray: _*)
@@ -40,18 +42,18 @@ case class Columns(columns: Column[_]*) extends Traversable[Column[_]] with java
 
   /** Returns a copy of this with the specified column appended. */
   def +(column: Column[_]): Columns =
-    new Columns(columns :+ column)
+  new Columns(columns :+ column)
 
   /** Returns a copy of this with the specified columns appended. */
   def +(columns: Columns): Columns =
-    new Columns(this.columns ++ columns)
+  new Columns(this.columns ++ columns)
 
   override def head: Column[_] =
     if (columns.isEmpty) null else columns.head
 
   /** Returns copy of this with only the columns with the specified full name. */
   def withFieldName(name: String): Columns =
-    new Columns(filter(_.fieldName == name))
+  new Columns(filter(_.fieldName == name))
 
   /** Returns copy of this with only the columns with the specified cell name. */
   def withCellName(name: String): Columns = {
@@ -70,7 +72,7 @@ case class Columns(columns: Column[_]*) extends Traversable[Column[_]] with java
     * @param timeInSec the max allowed UNIX time in seconds
     */
   def withoutDeleted(timeInSec: Int): Columns =
-    new Columns(filterNot(_.isDeleted(timeInSec)))
+  new Columns(filterNot(_.isDeleted(timeInSec)))
 
   def add[A](column: Column[A]) =
     this + column
@@ -85,7 +87,7 @@ case class Columns(columns: Column[_]*) extends Traversable[Column[_]] with java
     this + Column(cellName, value = Option(value))
 
   override def toString: String =
-    columns.foldLeft(MoreObjects.toStringHelper(this))((helper, column) =>
-      helper.add(column.fieldName, column.value)).toString
+    columns.foldLeft(MoreObjects.toStringHelper(this))(
+      (helper, column) => helper.add(column.fieldName, column.value)).toString
 
 }
