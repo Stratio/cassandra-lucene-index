@@ -605,6 +605,11 @@ default values are listed in the table below.
 |                 | stopwords   | string       | null            |
 +-----------------+-------------+--------------+-----------------+
 
+The analyzers defined in this section can by referenced by mappers. Additionally, there are prebuilt analyzers for
+Arabic, Bulgarian, Brazilian, Catalan, Sorani, Czech, Danish, German, Greek, English, Spanish, Basque, Persian, Finnish,
+French, Irish, Galician, Hindi, Hungarian, Armenian, Indonesian, Italian, Latvian, Dutch, Norwegian, Portuguese,
+Romanian, Russian, Swedish, Thai and Turkish.
+
 Classpath analyzer
 __________________
 
@@ -648,14 +653,14 @@ Example:
              an_analyzer: {
                 type: "snowball",
                 language: "English",
-                 stopwords: "a,an,the,this,that"
+                stopwords: "a,an,the,this,that"
              }
           }
        }'
     };
 
-Supported languages: English, French, Spanish, Portuguese, Italian, Romanian, German, Dutch, Swedish, Norwegian,
-Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian, Basque and Catalan
+Supported languages: English, French, Spanish, Portuguese, Italian, Romanian, German, Dutch, Swedish, Norwegian, Danish,
+Russian, Finnish, Hungarian and Turkish.
 
 Mappers
 =======
@@ -1575,6 +1580,10 @@ Maps a language-aware text value analyzed according to the specified analyzer.
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the IP address to be indexed.
 -  **analyzer** (default = default_analyzer): the name of the `text analyzer <https://lucene.apache.org/core/5_5_1/core/org/apache/lucene/analysis/Analyzer.html>`__ to be used.
+   Additionally to references to those analyzers defined in the `analyzers section <#analyzers>`__ of the schema,
+   there are prebuilt analyzers for Arabic, Bulgarian, Brazilian, Catalan, Sorani, Czech, Danish, German, Greek,
+   English, Spanish, Basque, Persian, Finnish, French, Irish, Galician, Hindi, Hungarian, Armenian, Indonesian, Italian,
+   Latvian, Dutch, Norwegian, Portuguese, Romanian, Russian, Swedish, Thai and Turkish.
 
 **Supported CQL types:**
 
@@ -1597,11 +1606,16 @@ Maps a language-aware text value analyzed according to the specified analyzer.
              }
           },
           fields: {
-             text: {
+             spanish_text: {
                  type: "text",
                  validated: true,
-                 column: "column_name"
+                 column: "message_body",
                  analyzer: "my_custom_analyzer"
+             },
+             english_text: {
+                 type: "text",
+                 column: "message_body",
+                 analyzer: "English"
              }
          }
        }'
