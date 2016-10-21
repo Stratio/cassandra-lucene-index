@@ -21,8 +21,7 @@ import com.google.common.base.MoreObjects
 import com.stratio.cassandra.lucene.IndexException
 import org.apache.commons.lang3.StringUtils
 
-/**
-  * A cell of a CQL3 logic column, which in most cases is different from a storage engine column.
+/** A cell of a CQL3 logic column, which in most cases is different from a storage engine column.
   *
   * @param cellName     the name of the base cell
   * @param udtNames     the UDT fields
@@ -71,7 +70,7 @@ case class Column[A](cellName: String,
   def fieldName(field: String): String =
     field + mapSuffix
 
-  /** Returns true this is a deletion at the specified UNIX timestamp in seconds, false otherwise. */
+  /** Returns if this is a deletion at the specified UNIX timestamp in seconds. */
   def isDeleted(timeInSec: Int): Boolean =
     value.isEmpty || deletionTime <= timeInSec
 
@@ -83,24 +82,25 @@ case class Column[A](cellName: String,
   def +(columns: Columns): Columns =
     Columns(this) + columns
 
+  /** @inheritdoc */
   override def toString: String =
     MoreObjects.toStringHelper(this)
       .add("cell", cellName)
       .add("name", fieldName)
-      .add("value", value.getOrElse("null"))
+      .add("value", value)
       .add("deletionTime", deletionTime)
       .toString
 }
 
 object Column {
 
-  val NO_DELETION_TIME: Int = Int.MaxValue
+  val NO_DELETION_TIME = Int.MaxValue
 
-  private val UDT_SEPARATOR: String = "."
-  private val MAP_SEPARATOR: String = "$"
+  private val UDT_SEPARATOR = "."
+  private val MAP_SEPARATOR = "$"
 
-  private[this] val UDT_PATTERN: String = Pattern.quote(UDT_SEPARATOR)
-  private[this] val MAP_PATTERN: String = Pattern.quote(MAP_SEPARATOR)
+  private[this] val UDT_PATTERN = Pattern.quote(UDT_SEPARATOR)
+  private[this] val MAP_PATTERN = Pattern.quote(MAP_SEPARATOR)
 
   def apply(cellName: String): Column[_] =
     new Column(cellName = cellName)
