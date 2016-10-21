@@ -18,7 +18,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.serializers.SimpleDateSerializer;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.IntField;
+import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
@@ -73,7 +73,7 @@ public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer>
     /** {@inheritDoc} */
     @Override
     public Optional<Field> indexedField(String name, Integer value) {
-        IntField intField = new IntField(name, value, STORE);
+        IntPoint intField = new IntPoint(name, value);
         intField.setBoost(boost);
         return Optional.of(intField);
     }

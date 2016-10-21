@@ -20,11 +20,8 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.search.condition.builder.MatchConditionBuilder;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.junit.Test;
@@ -127,66 +124,38 @@ public class MatchConditionTest extends AbstractConditionTest {
 
     @Test
     public void testInteger() {
-
         Schema schema = schema().mapper("name", integerMapper()).build();
-
         MatchCondition matchCondition = match("name", 42).boost(0.5f).build();
         Query query = matchCondition.doQuery(schema);
-
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", TermQuery.class, query.getClass());
-        Term term = ((TermQuery) query).getTerm();
-        assertEquals("Query value is wrong", "60080000002a", ByteBufferUtils.toHex(term.bytes()));
+        assertEquals("Query value is wrong", "name:[42 TO 42]", query.toString());
     }
 
     @Test
     public void testLong() {
-
         Schema schema = schema().mapper("name", longMapper()).build();
-
         MatchCondition matchCondition = match("name", 42L).build();
         Query query = matchCondition.doQuery(schema);
-
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", TermQuery.class, query.getClass());
-        Term term = ((TermQuery) query).getTerm();
-        assertEquals("Query value is wrong", "200100000000000000002a", ByteBufferUtils.toHex(term.bytes()));
+        assertEquals("Query value is wrong", "name:[42 TO 42]", query.toString());
     }
 
     @Test
     public void testFloat() {
-
         Schema schema = schema().mapper("name", floatMapper()).build();
-
         MatchCondition matchCondition = match("name", 42.42F).build();
         Query query = matchCondition.doQuery(schema);
-
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
-
-        NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
-        assertEquals("Query value is wrong", 42.42F, numericRangeQuery.getMin());
-        assertEquals("Query value is wrong", 42.42F, numericRangeQuery.getMax());
-        assertEquals("Query value is wrong", true, numericRangeQuery.includesMin());
-        assertEquals("Query value is wrong", true, numericRangeQuery.includesMax());
+        assertEquals("Query value is wrong", "name:[42.42 TO 42.42]", query.toString());
     }
 
     @Test
     public void testDouble() {
-
         Schema schema = schema().mapper("name", doubleMapper()).build();
-
         MatchCondition matchCondition = match("name", 42.42D).build();
         Query query = matchCondition.doQuery(schema);
-
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
-
-        NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
-        assertEquals("Query value is wrong", 42.42D, numericRangeQuery.getMin());
-        assertEquals("Query value is wrong", 42.42D, numericRangeQuery.getMax());
-        assertEquals("Query value is wrong", true, numericRangeQuery.includesMin());
-        assertEquals("Query value is wrong", true, numericRangeQuery.includesMax());
+        assertEquals("Query value is wrong", "name:[42.42 TO 42.42]", query.toString());
     }
 
     @Test

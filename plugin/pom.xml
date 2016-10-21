@@ -39,7 +39,7 @@
         <scala.binary.version>2.10</scala.binary.version>
         <scalatest.version>2.2.5</scalatest.version>
         <cassandra.version>3.0.9</cassandra.version>
-        <lucene.version>5.5.1</lucene.version>
+        <lucene.version>7.0.0-SNAPSHOT</lucene.version>
         <jts.version>1.14.0</jts.version>
         <mockito.version>1.10.19</mockito.version>
     </properties>
@@ -83,7 +83,27 @@
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-spatial-extras</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-sandbox</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queries</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-backward-codecs</artifactId>
             <version>${lucene.version}</version>
         </dependency>
         <dependency>
@@ -97,6 +117,11 @@
             <artifactId>mockito-all</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.locationtech.spatial4j</groupId>
+            <artifactId>spatial4j</artifactId>
+            <version>0.6</version>
         </dependency>
     </dependencies>
 
@@ -135,9 +160,20 @@
                             <include>org.apache.lucene:*</include>
                             <include>com.spatial4j:*</include>
                             <include>com.github.rholder:*</include>
+                            <include>org.locationtech.spatial4j:*</include>
                         </includes>
                     </artifactSet>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <filters>
+                                                <filter>
+                                                    <artifact>*:*</artifact>
+                                                    <excludes>
+                                                        <exclude>META-INF/*.SF</exclude>
+                                                        <exclude>META-INF/*.DSA</exclude>
+                                                        <exclude>META-INF/*.RSA</exclude>
+                                                    </excludes>
+                                                </filter>
+                                            </filters>
                 </configuration>
                 <executions>
                     <execution>

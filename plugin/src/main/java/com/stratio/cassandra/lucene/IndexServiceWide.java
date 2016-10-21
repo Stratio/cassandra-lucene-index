@@ -110,7 +110,7 @@ class IndexServiceWide extends IndexService {
     protected List<IndexableField> keyIndexableFields(DecoratedKey key, Row row) {
         Clustering clustering = row.clustering();
         List<IndexableField> fields = new ArrayList<>();
-        fields.add(tokenMapper.indexableField(key));
+        fields.addAll(tokenMapper.indexableFields(key));
         fields.add(partitionMapper.indexableField(key));
         fields.add(keyMapper.indexableField(key, clustering));
         fields.addAll(clusteringMapper.indexableFields(key, clustering));

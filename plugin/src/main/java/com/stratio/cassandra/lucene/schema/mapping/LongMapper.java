@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
@@ -72,7 +72,7 @@ public class LongMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public Optional<Field> indexedField(String name, Long value) {
-        LongField longField = new LongField(name, value, STORE);
+        LongPoint longField = new LongPoint(name, value);
         longField.setBoost(boost);
         return Optional.of(longField);
     }

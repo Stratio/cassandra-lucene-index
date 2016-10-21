@@ -18,15 +18,16 @@ package com.stratio.cassandra.lucene.index;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.Sort;
+import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.*;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -49,6 +50,36 @@ public class DocumentIteratorTest {
         public String toString(String s) {
             return null;
         }
+
+        public int hashCode() {
+            return 0;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj != null && obj instanceof QueryMock;
+        }
+
+        @Override
+        public Weight createWeight(IndexSearcher searcher, boolean needsScores, float boost) throws IOException {
+            return new Weight(this) {
+                @Override
+                public void extractTerms(Set<Term> set) {
+                    return;
+                }
+
+                @Override
+                public Explanation explain(LeafReaderContext leafReaderContext, int i) throws IOException {
+                    return null;
+                }
+
+                @Override
+                public Scorer scorer(LeafReaderContext leafReaderContext) throws IOException {
+                    return null;
+                }
+            };
+        }
+
     }
 
     class DirectoryMock extends Directory {
@@ -79,11 +110,6 @@ public class DocumentIteratorTest {
         }
 
         @Override
-        public void renameFile(String s, String s1) throws IOException {
-
-        }
-
-        @Override
         public IndexInput openInput(String s, IOContext ioContext) throws IOException {
             return null;
         }
@@ -95,6 +121,21 @@ public class DocumentIteratorTest {
 
         @Override
         public void close() throws IOException {
+
+        }
+
+        @Override
+        public IndexOutput createTempOutput(String prefix, String suffix, IOContext context) throws IOException {
+            return null;
+        }
+
+        @Override
+        public void rename(String source, String dest) throws IOException {
+
+        }
+
+        @Override
+        public void syncMetaData() throws IOException {
 
         }
     }
@@ -110,11 +151,11 @@ public class DocumentIteratorTest {
     @Test
     public void testConstructorWithPageEqualsZero() throws IOException {
         IndexWriterConfig iwConfig = new IndexWriterConfig(new AnalyzerMock());
-        SearcherManager searcherManager = new SearcherManager(new IndexWriterMock(new DirectoryMock(), iwConfig),
-                                                              true,
-                                                              null);
+        SearcherManager searcherManager = new SearcherManager(new IndexWriterMock(new DirectoryMock(), iwConfig), null);
         DocumentIterator docIterator = new DocumentIterator(searcherManager,
-                                                            new Sort(), null, new QueryMock(),
+                                                            null,
+                                                            new QueryMock(),
+                                                            new QueryMock(),
                                                             new Sort(),
                                                             0,
                                                             new HashSet<>());
@@ -125,11 +166,11 @@ public class DocumentIteratorTest {
     @Test
     public void testConstructorWithPageEqualsOne() throws IOException {
         IndexWriterConfig iwConfig = new IndexWriterConfig(new AnalyzerMock());
-        SearcherManager searcherManager = new SearcherManager(new IndexWriterMock(new DirectoryMock(), iwConfig),
-                                                              true,
-                                                              null);
+        SearcherManager searcherManager = new SearcherManager(new IndexWriterMock(new DirectoryMock(), iwConfig),null);
         DocumentIterator docIterator = new DocumentIterator(searcherManager,
-                                                            new Sort(), null, new QueryMock(),
+                                                            null,
+                                                            new QueryMock(),
+                                                            new QueryMock(),
                                                             new Sort(),
                                                             1,
                                                             new HashSet<>());
@@ -140,11 +181,11 @@ public class DocumentIteratorTest {
     @Test
     public void testConstructorWithPageEqualsMaxValue() throws IOException {
         IndexWriterConfig iwConfig = new IndexWriterConfig(new AnalyzerMock());
-        SearcherManager searcherManager = new SearcherManager(new IndexWriterMock(new DirectoryMock(), iwConfig),
-                                                              true,
-                                                              null);
+        SearcherManager searcherManager = new SearcherManager(new IndexWriterMock(new DirectoryMock(), iwConfig),null);
         DocumentIterator docIterator = new DocumentIterator(searcherManager,
-                                                            new Sort(), null, new QueryMock(),
+                                                            null,
+                                                            new QueryMock(),
+                                                            new QueryMock(),
                                                             new Sort(),
                                                             DocumentIterator.MAX_PAGE_SIZE,
                                                             new HashSet<>());
@@ -155,11 +196,11 @@ public class DocumentIteratorTest {
     @Test
     public void testConstructorWithPageOverMaxValue() throws IOException {
         IndexWriterConfig iwConfig = new IndexWriterConfig(new AnalyzerMock());
-        SearcherManager searcherManager = new SearcherManager(new IndexWriterMock(new DirectoryMock(), iwConfig),
-                                                              true,
-                                                              null);
+        SearcherManager searcherManager = new SearcherManager(new IndexWriterMock(new DirectoryMock(), iwConfig), null);
         DocumentIterator docIterator = new DocumentIterator(searcherManager,
-                                                            new Sort(), null, new QueryMock(),
+                                                            null,
+                                                            new QueryMock(),
+                                                            new QueryMock(),
                                                             new Sort(),
                                                             10000000,
                                                             new HashSet<>());

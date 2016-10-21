@@ -37,8 +37,10 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.DocValuesCustomSorter;
 
 import java.nio.ByteBuffer;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -52,27 +54,35 @@ public final class PartitionMapper {
     public static final String FIELD_NAME = "_partition";
 
     /** The Lucene field type. */
-    private static final FieldType FIELD_TYPE = new FieldType();
-
-    static {
-        FIELD_TYPE.setOmitNorms(true);
-        FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
-        FIELD_TYPE.setTokenized(false);
-        FIELD_TYPE.setStored(true);
-        FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
-        FIELD_TYPE.freeze();
-    }
+    private final FieldType FIELD_TYPE = new FieldType();
 
     private final CFMetaData metadata;
     private final IPartitioner partitioner;
     private final AbstractType<?> type;
 
+    private void buildFieldType() {
+        FIELD_TYPE.setOmitNorms(true);
+        FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        FIELD_TYPE.setTokenized(false);
+        FIELD_TYPE.setStored(true);
+        FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
+        FIELD_TYPE.setDocValuesComparator(new Comparator<BytesRef>() {
+            @Override
+            public int compare(BytesRef val1, BytesRef val2) {
+                ByteBuffer bb1 = ByteBufferUtils.byteBuffer(val1);
+                ByteBuffer bb2 = ByteBufferUtils.byteBuffer(val2);
+                return PartitionMapper.this.getType().compare(bb1, bb2);
+            }
+        });
+        FIELD_TYPE.freeze();
+    }
     /**
      * Constructor specifying the indexed table {@link CFMetaData}.
      *
      * @param metadata the indexed table metadata
      */
     public PartitionMapper(CFMetaData metadata) {
+        this.buildFieldType();
         this.metadata = metadata;
         partitioner = DatabaseDescriptor.getPartitioner();
         type = metadata.getKeyValidator();

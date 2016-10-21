@@ -103,14 +103,15 @@ public class FSIndex {
             directory = new NRTCachingDirectory(fsDirectory, maxMergeMB, maxCachedMB);
 
             TieredMergePolicy tieredMergePolicy = new TieredMergePolicy();
-            SortingMergePolicy sortingMergePolicy = new SortingMergePolicy(tieredMergePolicy, mergeSort);
+            //SortingMergePolicy sortingMergePolicy = new SortingMergePolicy(tieredMergePolicy, mergeSort);
 
             // Setup index writer
             IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
             indexWriterConfig.setRAMBufferSizeMB(ramBufferMB);
             indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
             indexWriterConfig.setUseCompoundFile(true);
-            indexWriterConfig.setMergePolicy(sortingMergePolicy);
+            indexWriterConfig.setIndexSort(mergeSort);
+            //indexWriterConfig.setMergePolicy(sortingMergePolicy);
             indexWriter = new IndexWriter(directory, indexWriterConfig);
 
             // Setup NRT search
@@ -122,9 +123,8 @@ public class FSIndex {
                     return searcher;
                 }
             };
-            TrackingIndexWriter trackingWriter = new TrackingIndexWriter(indexWriter);
-            searcherManager = new SearcherManager(indexWriter, true, searcherFactory);
-            searcherReopener = new ControlledRealTimeReopenThread<>(trackingWriter, searcherManager, refresh, refresh);
+            searcherManager = new SearcherManager(indexWriter, searcherFactory);
+            searcherReopener = new ControlledRealTimeReopenThread<>(indexWriter, searcherManager, refresh, refresh);
             searcherReopener.start();
 
         } catch (Exception e) {

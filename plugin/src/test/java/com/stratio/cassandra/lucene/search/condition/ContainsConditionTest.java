@@ -112,12 +112,9 @@ public class ContainsConditionTest extends AbstractConditionTest {
         BooleanQuery booleanQuery = (BooleanQuery) query;
         List<BooleanClause> clauses = booleanQuery.clauses();
         assertEquals("Query is wrong", values.length, clauses.size());
-        TermQuery query0 = (TermQuery) clauses.get(0).getQuery();
-        TermQuery query1 = (TermQuery) clauses.get(1).getQuery();
-        TermQuery query2 = (TermQuery) clauses.get(2).getQuery();
-        assertEquals("Query value is wrong", "600800000000", ByteBufferUtils.toHex(query0.getTerm().bytes()));
-        assertEquals("Query value is wrong", "600800000001", ByteBufferUtils.toHex(query1.getTerm().bytes()));
-        assertEquals("Query value is wrong", "600800000002", ByteBufferUtils.toHex(query2.getTerm().bytes()));
+        assertEquals("Query value is wrong", "name:[0 TO 0]", clauses.get(0).getQuery().toString());
+        assertEquals("Query value is wrong", "name:[1 TO 1]", clauses.get(1).getQuery().toString());
+        assertEquals("Query value is wrong", "name:[2 TO 2]", clauses.get(2).getQuery().toString());
     }
 
     @Test

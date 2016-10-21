@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.util;
 
-import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.shape.jts.JtsGeometry;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
+import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;

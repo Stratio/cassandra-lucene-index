@@ -18,7 +18,7 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.PrefixConditionBuilder;
 import com.stratio.cassandra.lucene.search.condition.builder.RangeConditionBuilder;
-import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.search.PointRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
 import org.junit.Test;
@@ -158,154 +158,74 @@ public class RangeConditionTest extends AbstractConditionTest {
 
     @Test
     public void testIntegerClose() {
-
-        Schema schema = schema().mapper("name", integerMapper().boost(1f)).build();
-
+        Schema schema = schema().mapper("name", integerMapper()).build();
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42, 43, false, false, false);
         Query query = rangeCondition.doQuery(schema);
-
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
-
-        NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
-        assertEquals("Query field is wrong", "name", numericRangeQuery.getField());
-        assertEquals("Query lower is wrong", 42, numericRangeQuery.getMin());
-        assertEquals("Query upper is wrong", 43, numericRangeQuery.getMax());
-        assertEquals("Query include lower is wrong", false, numericRangeQuery.includesMin());
-        assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
+        assertEquals("Query value is wrong", "name:[43 TO 42]", query.toString());
     }
 
     @Test
     public void testIntegerOpen() {
-
-        Schema schema = schema().mapper("name", integerMapper().boost(1f)).build();
-
+        Schema schema = schema().mapper("name", integerMapper()).build();
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42, null, true, false, false);
         Query query = rangeCondition.doQuery(schema);
-
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
-
-        NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
-        assertEquals("Query field is wrong", "name", numericRangeQuery.getField());
-        assertEquals("Query lower is wrong", 42, numericRangeQuery.getMin());
-        assertEquals("Query upper is wrong", null, numericRangeQuery.getMax());
-        assertEquals("Query include lower is wrong", true, numericRangeQuery.includesMin());
-        assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
+        assertEquals("Query value is wrong", "name:[42 TO 2147483647]", query.toString());
     }
 
     @Test
     public void testLongClose() {
-
-        Schema schema = schema().mapper("name", longMapper().boost(1f)).build();
-
+        Schema schema = schema().mapper("name", longMapper()).build();
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42L, 43, false, false, false);
         Query query = rangeCondition.doQuery(schema);
-
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
-
-        NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
-        assertEquals("Query field is wrong", "name", numericRangeQuery.getField());
-        assertEquals("Query lower is wrong", 42L, numericRangeQuery.getMin());
-        assertEquals("Query upper is wrong", 43L, numericRangeQuery.getMax());
-        assertEquals("Query include lower is wrong", false, numericRangeQuery.includesMin());
-        assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
+        assertEquals("Query value is wrong", "name:[43 TO 42]", query.toString());
     }
 
     @Test
     public void testLongOpen() {
-
-        Schema schema = schema().mapper("name", longMapper().boost(1f)).build();
-
+        Schema schema = schema().mapper("name", longMapper()).build();
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42f, null, true, false, false);
         Query query = rangeCondition.doQuery(schema);
-
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
-
-        NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
-        assertEquals("Query field is wrong", "name", numericRangeQuery.getField());
-        assertEquals("Query lower is wrong", 42L, numericRangeQuery.getMin());
-        assertEquals("Query upper is wrong", null, numericRangeQuery.getMax());
-        assertEquals("Query include lower is wrong", true, numericRangeQuery.includesMin());
-        assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
+        assertEquals("Query value is wrong", "name:[42 TO 9223372036854775807]", query.toString());
     }
 
     @Test
     public void testFloatClose() {
-
-        Schema schema = schema().mapper("name", floatMapper().boost(1f)).build();
-
+        Schema schema = schema().mapper("name", floatMapper()).build();
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, 43.42F, false, false, false);
         Query query = rangeCondition.doQuery(schema);
-
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
-
-        NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
-        assertEquals("Query field is wrong", "name", numericRangeQuery.getField());
-        assertEquals("Query lower is wrong", 42.42F, numericRangeQuery.getMin());
-        assertEquals("Query upper is wrong", 43.42f, numericRangeQuery.getMax());
-        assertEquals("Query include lower is wrong", false, numericRangeQuery.includesMin());
-        assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
+        assertEquals("Query value is wrong", "name:[42.420002 TO 43.419994]", query.toString());
     }
 
     @Test
     public void testFloatOpen() {
-
-        Schema schema = schema().mapper("name", floatMapper().boost(1f)).build();
-
+        Schema schema = schema().mapper("name", floatMapper()).build();
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42f, null, true, false, false);
         Query query = rangeCondition.doQuery(schema);
-
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
-
-        NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
-        assertEquals("Query field is wrong", "name", numericRangeQuery.getField());
-        assertEquals("Query lower is wrong", 42.42f, numericRangeQuery.getMin());
-        assertEquals("Query upper is wrong", null, numericRangeQuery.getMax());
-        assertEquals("Query include lower is wrong", true, numericRangeQuery.includesMin());
-        assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
+        assertEquals("Query value is wrong", "name:[42.42 TO Infinity]", query.toString());
     }
 
     @Test
     public void testDoubleClose() {
-
-        Schema schema = schema().mapper("name", doubleMapper().boost(1f)).build();
-
+        Schema schema = schema().mapper("name", doubleMapper()).build();
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, 43.42D, false, false, false);
         Query query = rangeCondition.doQuery(schema);
-
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
-
-        NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
-        assertEquals("Query field is wrong", "name", numericRangeQuery.getField());
-        assertEquals("Query lower is wrong", 42.42D, numericRangeQuery.getMin());
-        assertEquals("Query upper is wrong", 43.42D, numericRangeQuery.getMax());
-        assertEquals("Query include lower is wrong", false, numericRangeQuery.includesMin());
-        assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
+        assertEquals("Query value is wrong", "name:[42.42000000000001 TO 43.419999999999995]", query.toString());
     }
 
     @Test
     public void testDoubleOpen() {
-
-        Schema schema = schema().mapper("name", doubleMapper().boost(1f)).build();
-
+        Schema schema = schema().mapper("name", doubleMapper()).build();
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, null, true, false, false);
         Query query = rangeCondition.doQuery(schema);
-
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
-
-        NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
-        assertEquals("Query field is wrong", "name", numericRangeQuery.getField());
-        assertEquals("Query lower is wrong", 42.42D, numericRangeQuery.getMin());
-        assertEquals("Query upper is wrong", null, numericRangeQuery.getMax());
-        assertEquals("Query include lower is wrong", true, numericRangeQuery.includesMin());
-        assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
+        assertEquals("Query value is wrong", "name:[42.42 TO Infinity]", query.toString());
     }
 
     @Test

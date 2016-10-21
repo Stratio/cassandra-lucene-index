@@ -81,7 +81,6 @@ public class LuceneCondition extends Condition {
             Analyzer analyzer = schema.analyzer();
             QueryParser queryParser = new QueryParser(defaultField, analyzer);
             queryParser.setAllowLeadingWildcard(true);
-            queryParser.setLowercaseExpandedTerms(false);
             return queryParser.parse(query);
         } catch (ParseException e) {
             throw new IndexException("Error while parsing lucene syntax query: {}", e.getMessage());

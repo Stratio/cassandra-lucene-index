@@ -157,7 +157,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
         assertEquals("Query is wrong",
                      "IntersectsPrefixTreeQuery(fieldName=name,queryShape=" +
-                     "[2016-03-05T08 TO 2016-04-05T08:00:00.000],detailLevel=9,prefixGridScanLevel=7)",
+                     "[2016-03-05T08 TO 2016-04-05T08:00:00],detailLevel=9,prefixGridScanLevel=7)",
                      query.toString());
     }
 
@@ -170,7 +170,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
         assertEquals("Query is wrong",
                      "IntersectsPrefixTreeQuery(fieldName=name,queryShape=" +
-                     "[-292269054-12-02T16:47:04.192 TO 2016-03-05T08:00:00.000],detailLevel=9,prefixGridScanLevel=7)",
+                     "[-292269054-12-02T16:47:04.192 TO 2016-03-05T08:00:00],detailLevel=9,prefixGridScanLevel=7)",
                      query.toString());
     }
 
@@ -183,7 +183,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
         assertEquals("Query is wrong",
                      "IntersectsPrefixTreeQuery(fieldName=name,queryShape=" +
-                     "[2016-03-05T08 TO 292278994-08-17T07:12:55.807],detailLevel=9,prefixGridScanLevel=7)",
+                     "[2016-03-05T08 TO +292278994-08-17T07:12:55.807],detailLevel=9,prefixGridScanLevel=7)",
                      query.toString());
     }
 

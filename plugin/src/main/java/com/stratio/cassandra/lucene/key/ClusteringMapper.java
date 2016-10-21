@@ -43,12 +43,14 @@ import org.apache.lucene.util.BytesRef;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 import static org.apache.cassandra.db.PartitionPosition.Kind.ROW_KEY;
 import static org.apache.cassandra.utils.ByteBufferUtil.EMPTY_BYTE_BUFFER;
+import static org.apache.cassandra.utils.FastByteOperations.compareUnsigned;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 /**
@@ -64,15 +66,6 @@ public final class ClusteringMapper {
     /** The Lucene field type. */
     private static final FieldType FIELD_TYPE = new FieldType();
 
-    static {
-        FIELD_TYPE.setOmitNorms(true);
-        FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
-        FIELD_TYPE.setTokenized(false);
-        FIELD_TYPE.setStored(false);
-        FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
-        FIELD_TYPE.freeze();
-    }
-
     /** The number of bytes produced by token collation. */
     static int PREFIX_BYTES = 8;
 
@@ -85,12 +78,37 @@ public final class ClusteringMapper {
     /** A composite type composed by the types of the clustering key */
     public final CompositeType type;
 
+    private void buildFieldType() {
+        FIELD_TYPE.setOmitNorms(true);
+        FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        FIELD_TYPE.setTokenized(false);
+        FIELD_TYPE.setStored(true);
+        FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
+        FIELD_TYPE.setDocValuesComparator(new Comparator<BytesRef>() {
+            @Override
+            public int compare(BytesRef val1, BytesRef val2) {
+                int comp = compareUnsigned(val1.bytes, 0, PREFIX_BYTES, val2.bytes, 0, PREFIX_BYTES);
+                if (comp == 0) {
+                    ByteBuffer bb1 = ByteBuffer.wrap(val1.bytes, PREFIX_BYTES, val1.length - PREFIX_BYTES);
+                    ByteBuffer bb2 = ByteBuffer.wrap(val2.bytes, PREFIX_BYTES, val2.length - PREFIX_BYTES);
+                    Clustering clustering1 = ClusteringMapper.this.clustering(bb1);
+                    Clustering clustering2 = ClusteringMapper.this.clustering(bb2);
+                    comp = ClusteringMapper.this.comparator.compare(clustering1, clustering2);
+                }
+                return comp;
+            }
+        });
+        FIELD_TYPE.freeze();
+    }
+
+
     /**
      * Constructor specifying the partition and clustering key mappers.
      *
      * @param metadata the indexed table metadata
      */
     public ClusteringMapper(CFMetaData metadata) {
+        this.buildFieldType();
         this.metadata = metadata;
         comparator = metadata.comparator;
         type = CompositeType.getInstance(comparator.subtypes());
