@@ -197,6 +197,7 @@ public class Search {
      * Validates this {@link Search} against the specified {@link Schema}.
      *
      * @param schema a {@link Schema}
+     * @return this
      */
     public Search validate(Schema schema) {
         filter.forEach(condition -> condition.query(schema));

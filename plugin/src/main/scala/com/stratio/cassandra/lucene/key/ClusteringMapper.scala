@@ -90,7 +90,7 @@ class ClusteringMapper(metadata: CFMetaData) {
     List(indexedField, storedField)
   }
 
-  /** Returns the [[ByteBuffer} representation of the specified [[Clustering]].
+  /** Returns the [[ByteBuffer]] representation of the specified [[Clustering]].
     *
     * @param clustering a clustering key
     * @return a byte buffer representing `clustering`
