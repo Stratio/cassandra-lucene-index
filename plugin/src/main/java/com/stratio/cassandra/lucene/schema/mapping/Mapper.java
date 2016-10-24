@@ -30,7 +30,8 @@ import org.apache.lucene.util.BytesRef;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
@@ -107,10 +108,8 @@ public abstract class Mapper {
         this.docValues = docValues;
         this.validated = validated == null ? DEFAULT_VALIDATED : validated;
         this.analyzer = analyzer;
-        this.mappedColumns = mappedColumns;
-        this.mappedCells = mappedColumns.stream()
-                                        .map(x -> Column.parse(x).cellName())
-                                        .collect(Collectors.toList());
+        this.mappedColumns = mappedColumns.stream().filter(x -> x != null).collect(toList()); // Remove nulls
+        this.mappedCells = this.mappedColumns.stream().map(Column::parse).map(Column::cellName).collect(toList());
         this.supportedTypes = supportedTypes;
     }
 
