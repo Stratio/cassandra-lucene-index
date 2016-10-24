@@ -1748,16 +1748,20 @@ and <sort> is another JSON object:
 When searching by ``filter``, without any ``query`` or ``sort`` defined,
 then the results are returned in the Cassandra’s natural order, which is
 defined by the partitioner and the column name comparator. When searching
-by ``query``, results are returned sorted by descending relevance. Sort option is used
-to specify the order in which the indexed rows will be traversed. When
-simple_sort_field sorting is used, the query scoring is delayed.
+by ``query``, results are returned sorted by descending
+`relevance <https://lucene.apache.org/core/3_6_0/scoring.html>`_. ``sort``
+option is used to specify the order in which the indexed rows will be traversed.
+Field-based sorting has preference over query's relevance sorting.
 
-Geo_distance_sort_field is use to sort Rows by min distance to point
-indicating the GeoPointMapper to use by mapper field
+``geo_distance`` sort field is used to sort the matched rows by ascending distance
+to a certain geographical point, indicating the `geo point field <#geo-point-mapper>`__
+to be used.
 
 Relevance queries must touch all the nodes in the ring in order to find
 the globally best results, so you should prefer filters over queries
-when no relevance nor sorting are needed.
+when no relevance nor sorting are needed. The only exception to this are
+searches directed to a single very wide partition (hundreds of thousands of rows),
+where query's particular pagination technique may sometimes have a better performance.
 
 The ``refresh`` boolean option indicates if the search must commit pending
 writes and refresh the Lucene IndexSearcher before being performed. This
@@ -4377,6 +4381,10 @@ Query searches involve relevance so they should be sent to all nodes in the
 cluster in order to find the globally best results.
 However, filters have a chance to find the results in a subset of the nodes.
 So if you are not interested in relevance sorting then you should prefer filters over queries.
+
+The only exception to this are searches directed to a single very wide partition (hundreds of
+thousands of rows), where query's particular pagination technique may sometimes have a better
+performance.
 
 Try doc values
 ==============
