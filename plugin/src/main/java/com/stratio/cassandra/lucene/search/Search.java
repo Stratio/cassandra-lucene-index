@@ -197,11 +197,13 @@ public class Search {
      * Validates this {@link Search} against the specified {@link Schema}.
      *
      * @param schema a {@link Schema}
+     * @return this
      */
-    public void validate(Schema schema) {
+    public Search validate(Schema schema) {
         filter.forEach(condition -> condition.query(schema));
         query.forEach(condition -> condition.query(schema));
         sort.forEach(field -> field.sortField(schema));
+        return this;
     }
 
     /** {@inheritDoc} */
