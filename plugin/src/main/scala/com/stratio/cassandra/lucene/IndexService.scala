@@ -70,10 +70,10 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   val schema = options.schema
   val tokenMapper = new TokenMapper
   val partitionMapper = new PartitionMapper(metadata)
-  val mapsMultiCells = metadata.allColumns.filter(schema.maps).exists(_.`type`.isMultiCell)
-  val mappedRegularCells = metadata.
-    partitionColumns.regulars.map(_.name.toString)
-    .filter(schema.mappedCells.contains)
+  val regularCells = metadata.partitionColumns.regulars
+  val mappedRegularCells = regularCells.map(_.name.toString).filter(schema.mappedCells.contains)
+  val mapsMultiCells = regularCells
+    .exists(x => x.`type`.isMultiCell && schema.mapsCell(x.name.toString))
 
   // Setup FS index and write queue
   val queue = TaskQueue.build(options.indexingThreads, options.indexingQueuesSize)
@@ -139,7 +139,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @return `true` if the column is mapped, `false` otherwise
     */
   def dependsOn(columnDef: ColumnDefinition): Boolean = {
-    schema.maps(columnDef)
+    schema.mapsCell(columnDef.name.toString)
   }
 
   /** Returns if the specified expression is targeted to this index
@@ -586,32 +586,32 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     update.foreach(row => schema.validate(columns(key, row)))
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def commit() {
     queue.submitSynchronous(lucene.commit)
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def getNumDocs: Int = {
     lucene.getNumDocs
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def getNumDeletedDocs: Int = {
     lucene.getNumDeletedDocs
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def forceMerge(maxNumSegments: Int, doWait: Boolean) {
     queue.submitSynchronous(() => lucene.forceMerge(maxNumSegments, doWait))
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def forceMergeDeletes(doWait: Boolean) {
     queue.submitSynchronous(() => lucene.forceMergeDeletes(doWait))
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def refresh() {
     queue.submitSynchronous(lucene.refresh)
   }
