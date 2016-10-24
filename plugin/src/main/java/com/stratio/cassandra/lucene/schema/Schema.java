@@ -21,7 +21,6 @@ import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.search.Search;
-import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexableField;
 import org.slf4j.Logger;
@@ -84,7 +83,7 @@ public class Schema implements Closeable {
      * @return the default {@link Analyzer}
      */
     public Analyzer defaultAnalyzer() {
-        return analyzer.getDefaultAnalyzer().getAnalyzer();
+        return analyzer.getDefaultAnalyzer().analyzer();
     }
 
     /**
@@ -94,7 +93,7 @@ public class Schema implements Closeable {
      * @return an {@link Analyzer}
      */
     public Analyzer analyzer(String fieldName) {
-        return analyzer.getAnalyzer(fieldName).getAnalyzer();
+        return analyzer.getAnalyzer(fieldName).analyzer();
     }
 
     /**
@@ -170,14 +169,13 @@ public class Schema implements Closeable {
     }
 
     /**
-     * Returns if this has any mapping for the specified column definition.
+     * Returns if this has any mapping for the specified cell.
      *
-     * @param columnDefinition the column definition
-     * @return {@code true} if there is any mapping for the column, {@code false} otherwise
+     * @param cell the cell name
+     * @return {@code true} if there is any mapping for the cell, {@code false} otherwise
      */
-    public boolean maps(ColumnDefinition columnDefinition) {
-        String columnName = columnDefinition.name.toString();
-        return mappers.values().stream().anyMatch(mapper -> mapper.maps(columnName));
+    public boolean mapsCell(String cell) {
+        return mappers.values().stream().anyMatch(mapper -> mapper.mapsCell(cell));
     }
 
     /** {@inheritDoc} */

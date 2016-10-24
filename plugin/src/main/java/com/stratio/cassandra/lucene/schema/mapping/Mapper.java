@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +30,7 @@ import org.apache.lucene.util.BytesRef;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
@@ -76,6 +78,9 @@ public abstract class Mapper {
     /** The names of the columns to be mapped. */
     public final List<String> mappedColumns;
 
+    /** The names of the columns to be mapped. */
+    public final List<String> mappedCells;
+
     /** The supported column value data types. */
     public final List<Class<?>> supportedTypes;
 
@@ -103,6 +108,9 @@ public abstract class Mapper {
         this.validated = validated == null ? DEFAULT_VALIDATED : validated;
         this.analyzer = analyzer;
         this.mappedColumns = mappedColumns;
+        this.mappedCells = mappedColumns.stream()
+                                        .map(x -> Column.parse(x).cellName())
+                                        .collect(Collectors.toList());
         this.supportedTypes = supportedTypes;
     }
 
@@ -135,13 +143,13 @@ public abstract class Mapper {
     public abstract SortField sortField(String name, boolean reverse);
 
     /**
-     * Returns if this maps the specified column.
+     * Returns if this maps the specified cell.
      *
-     * @param column the column name
+     * @param cell the cell name
      * @return {@code true} if this maps the column, {@code false} otherwise
      */
-    public boolean maps(String column) {
-        return mappedColumns.stream().anyMatch(x -> x.equals(column));
+    public boolean mapsCell(String cell) {
+        return mappedCells.stream().anyMatch(x -> x.equals(cell));
     }
 
     void validateTerm(String name, BytesRef term) {
