@@ -159,6 +159,7 @@ Not yet supported:
 -  Indexing ``counter`` columns
 -  Indexing static columns
 -  Other partitioners than Murmur3
+-  Per partition limit
 
 Architecture
 ============
