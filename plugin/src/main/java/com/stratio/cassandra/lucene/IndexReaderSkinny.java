@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.index.DocumentIterator;
+import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.ReadCommand;
@@ -34,6 +35,8 @@ import org.apache.lucene.search.ScoreDoc;
 class IndexReaderSkinny extends IndexReader {
 
     private final IndexServiceSkinny service;
+
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IndexReaderSkinny.class);
 
     /**
      * Constructor taking the Cassandra read data and the Lucene results iterator.
@@ -57,9 +60,13 @@ class IndexReaderSkinny extends IndexReader {
     protected boolean prepareNext() {
         while (next == null && documents.hasNext()) {
             Pair<Document, ScoreDoc> nextDoc = documents.next();
+            logger.debug("IndexReader skinny reading: Doc: {} ScoreDoc: {}",nextDoc.left, nextDoc.right);
             DecoratedKey key = service.decoratedKey(nextDoc.left);
+            logger.debug("IndexReader skinny reading: DecotratedKey: {} ",key);
             ClusteringIndexFilter filter = command.clusteringIndexFilter(key);
+            logger.debug("IndexReader skinny reading: ClusteringIndexFilter: {} ",filter);
             UnfilteredRowIterator data = read(key, filter);
+            logger.debug("IndexReader skinny reading: UnfilteredRowIterator: {} ",data);
             if (data != null) {
                 if (data.isEmpty()) {
                     data.close();

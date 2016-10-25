@@ -29,23 +29,18 @@ import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.dht.Token;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.*;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.index.SortedSetDocValues;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 import static org.apache.cassandra.db.PartitionPosition.Kind.ROW_KEY;
@@ -64,7 +59,7 @@ public final class ClusteringMapper {
     public static final String FIELD_NAME = "_clustering";
 
     /** The Lucene field type. */
-    private static final FieldType FIELD_TYPE = new FieldType();
+    private final FieldType FIELD_TYPE = new FieldType();
 
     /** The number of bytes produced by token collation. */
     static int PREFIX_BYTES = 8;
@@ -149,6 +144,7 @@ public final class ClusteringMapper {
      * @param clustering the clustering key
      * @return a indexable field
      */
+    /*
     public List<IndexableField> indexableFields(DecoratedKey key, Clustering clustering) {
 
         // Build stored field for clustering key retrieval
@@ -165,7 +161,17 @@ public final class ClusteringMapper {
 
         return Arrays.asList(indexedField, storedField);
     }
+*/
+    public List<IndexableField> indexableFields(DecoratedKey key, Clustering clustering) {
+        // Build stored field for clustering key retrieval
+        CompositeType.Builder builder = type.builder();
+        Arrays.stream(clustering.getRawValues()).forEach(builder::add);
+        BytesRef plainClustering = ByteBufferUtils.bytesRef(builder.build());
+        SortedDocValuesField sortedSetDocValuesFields= new SortedDocValuesField(FIELD_NAME, plainClustering);
+        StoredField storedField= new StoredField(FIELD_NAME, plainClustering);
+        return Arrays.asList(sortedSetDocValuesFields,storedField);
 
+    }
     /**
      * Returns the clustering key represented by the specified {@link ByteBuffer}.
      *

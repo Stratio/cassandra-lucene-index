@@ -110,7 +110,7 @@ public class FSIndex {
             indexWriterConfig.setRAMBufferSizeMB(ramBufferMB);
             indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
             indexWriterConfig.setUseCompoundFile(true);
-            indexWriterConfig.setIndexSort(mergeSort);
+            //indexWriterConfig.setIndexSort(mergeSort);
             //indexWriterConfig.setMergePolicy(sortingMergePolicy);
             indexWriter = new IndexWriter(directory, indexWriterConfig);
 

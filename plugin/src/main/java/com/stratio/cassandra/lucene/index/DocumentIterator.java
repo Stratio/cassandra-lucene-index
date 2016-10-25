@@ -98,7 +98,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
     private synchronized void fetch() {
 
         try {
-
+            logger.debug("documentiteratoir fetching:");
             TimeCounter time = TimeCounter.create().start();
 
             TopDocs topDocs;
@@ -109,6 +109,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
                 searcher.search(query, new EarlyTerminatingSortingCollector(collector, sort, hits));
                 topDocs = collector.topDocs();
             } else {
+                logger.debug("documentiteratoir fetching without earlyterminatingSort");
                 topDocs = searcher.searchAfter(after, query, page, sort);
             }
 
@@ -123,7 +124,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
 
             Tracer.trace("Lucene index fetches {} documents", scoreDocs.length);
             logger.debug("Index query page fetched with {} documents in {}", scoreDocs.length, time.stop());
-
+            
         } catch (Exception e) {
             close();
             throw new IndexException(logger, e, "Error searching in with {} and {}", query, sort);

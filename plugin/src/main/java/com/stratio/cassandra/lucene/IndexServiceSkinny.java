@@ -85,7 +85,7 @@ class IndexServiceSkinny extends IndexService {
     protected List<IndexableField> keyIndexableFields(DecoratedKey key, Row row) {
         List<IndexableField> output= new ArrayList<>();
         output.addAll(tokenMapper.indexableFields(key));
-        output.add(partitionMapper.indexableField(key));
+        output.addAll(partitionMapper.indexableFields(key));
         return output;
     }
 

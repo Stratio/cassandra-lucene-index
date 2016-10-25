@@ -76,7 +76,7 @@ public final class TokenMapper {
     public List<IndexableField> indexableFields(DecoratedKey key) {
         Token token = key.getToken();
         Long value = value(token);
-        return Arrays.asList(new LongPoint(FIELD_NAME, value), new SortedDocValuesField(FIELD_NAME, bytesRef(token)));
+        return Arrays.asList(new LongPoint(FIELD_NAME, value), new NumericDocValuesField(FIELD_NAME, value));
     }
 
     /**

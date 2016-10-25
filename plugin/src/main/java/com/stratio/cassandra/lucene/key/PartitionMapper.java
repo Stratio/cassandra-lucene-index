@@ -27,19 +27,21 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.dht.IPartitioner;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.SortedDocValuesField;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.DocValuesTermsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.BytesRef;
-import org.apache.lucene.util.DocValuesCustomSorter;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -50,6 +52,7 @@ import java.util.List;
  */
 public final class PartitionMapper {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PartitionMapper.class);
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_partition";
 
@@ -124,11 +127,21 @@ public final class PartitionMapper {
      * @param partitionKey the partition key to be converted
      * @return a indexable field
      */
+    /*
     public IndexableField indexableField(DecoratedKey partitionKey) {
         ByteBuffer bb = partitionKey.getKey();
         BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
         return new Field(FIELD_NAME, bytesRef, FIELD_TYPE);
     }
+
+    */
+
+    public List<IndexableField> indexableFields(DecoratedKey partitionKey) {
+        ByteBuffer bb = partitionKey.getKey();
+        BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
+        return Arrays.asList(new SortedDocValuesField(FIELD_NAME, bytesRef), new StoredField(FIELD_NAME,bytesRef));
+    }
+
 
     /**
      * Returns the specified raw partition key as a Lucene {@link Term}.
@@ -158,7 +171,7 @@ public final class PartitionMapper {
      * @return the specified raw partition key as a Lucene {@link Query}
      */
     public Query query(DecoratedKey partitionKey) {
-        return new TermQuery(term(partitionKey));
+        return query(partitionKey.getKey());
     }
 
     /**
@@ -168,7 +181,7 @@ public final class PartitionMapper {
      * @return the specified raw partition key as a Lucene {@link Query}
      */
     public Query query(ByteBuffer partitionKey) {
-        return new TermQuery(term(partitionKey));
+        return new DocValuesTermsQuery(FIELD_NAME, Collections.singletonList(ByteBufferUtils.bytesRef(partitionKey)));
     }
 
     /**
@@ -178,8 +191,12 @@ public final class PartitionMapper {
      * @return the {@link DecoratedKey} contained in the specified Lucene {@link Document}
      */
     public DecoratedKey decoratedKey(Document document) {
+        logger.debug("partition mapper building pdecortated key from a document");
         BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
+        logger.debug("partition mapper building pdecortated key, bytesRef: {}",bytesRef);
+
         ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
+        logger.debug("partition mapper building pdecortated key, ByteBuffer: {}",bb);
         return partitioner.decorateKey(bb);
     }
 
