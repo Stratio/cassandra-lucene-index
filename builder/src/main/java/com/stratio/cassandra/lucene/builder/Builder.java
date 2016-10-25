@@ -324,7 +324,7 @@ public abstract class Builder {
      *
      * @param field the name of the field to be matched
      * @param values the values of the field to be matched
-     * @return a new conatins condition
+     * @return a new contains condition
      */
     public static ContainsCondition contains(String field, Object... values) {
         return new ContainsCondition(field, values);
@@ -464,7 +464,7 @@ public abstract class Builder {
      *
      * @param field the name of the field
      * @param shape the shape
-     * @return a new geos hape condition
+     * @return a new geo shape condition
      */
     public static GeoShapeCondition geoShape(String field, GeoShape shape) {
         return new GeoShapeCondition(field, shape);
@@ -475,7 +475,7 @@ public abstract class Builder {
      *
      * @param field the name of the field
      * @param shape the shape in WKT format
-     * @return a new geos hape condition
+     * @return a new geo shape condition
      */
     public static GeoShapeCondition geoShape(String field, String shape) {
         return geoShape(field, wkt(shape));

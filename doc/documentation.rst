@@ -1602,7 +1602,7 @@ Maps a language-aware text value analyzed according to the specified analyzer.
              my_custom_analyzer: {
                  type: "snowball",
                  language: "Spanish",
-                 stopwords: "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
+                 stopwords: "el,la,lo,los,las,a,ante,bajo,cabe,con,contra"
              }
           },
           fields: {
@@ -1680,7 +1680,7 @@ Cassandra shell:
              my_custom_analyzer: {
                 type: "snowball",
                 language: "Spanish",
-                stopwords: "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
+                stopwords: "el,la,lo,los,las,a,ante,bajo,cabe,con,contra"
              }
          },
          default_analyzer: "english",
@@ -2060,7 +2060,7 @@ If its needed to get all the data in the table:
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census ;
 
 
-If you want to know what is the last info about where John resides, you perform a query with tt_from and tt_to setted to now_value:
+If you want to know what is the last info about where John resides, you perform a query with tt_from and tt_to set to now_value:
 
 .. code-block:: sql
 
@@ -2090,7 +2090,7 @@ Using the `Java query builder <#query-builder>`__:
 
 
 
-If you want to know what is the last info about where John resides now, you perform a query with tt_from, tt_to, vt_from, vt_to setted to now_value:
+If you want to know what is the last info about where John resides now, you perform a query with tt_from, tt_to, vt_from, vt_to set to now_value:
 
 .. code-block:: sql
 
