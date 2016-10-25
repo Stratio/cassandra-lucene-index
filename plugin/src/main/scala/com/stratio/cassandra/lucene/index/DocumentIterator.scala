@@ -126,7 +126,7 @@ class DocumentIterator(manager: SearcherManager,
 
   /** Returns if the iteration has more documents.
     *
-    * @return `true` if the iteration has more documentss, `false` otherwise
+    * @return `true` if the iteration has more documents, `false` otherwise
     */
   override def hasNext: Boolean = {
     if (needsFetch) fetch()

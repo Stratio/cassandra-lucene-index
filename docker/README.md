@@ -76,7 +76,7 @@ As stated in jolokia [doc](https://jolokia.org/reference/html/agents.html#agents
 
 
 Example:
-1 cluster with 3 containers with MAX_HEAP 1G and MAX_NEW 64M, this temrinal command starts two nodes, wait for stabilize them and then adds a new node
+1 cluster with 3 containers with MAX_HEAP 1G and MAX_NEW 64M, this terminal command starts two nodes, wait for stabilize them and then adds a new node
 
 ```
 docker run -dit --name node1 --env MAX_HEAP=1G --env MAX_NEW=64M stratio/cassandra-lucene-index &&

@@ -36,7 +36,7 @@ public class SelectPartialExpiredTTLWideRowsAT extends BaseAT {
     @BeforeClass
     public static void before() {
 
-        utils = CassandraUtils.builder("test_ttl_parcial_skiny")
+        utils = CassandraUtils.builder("test_ttl_partial_skinny")
                               .withPartitionKey("a")
                               .withClusteringKey("a2")
                               .withColumn("a", "int")
@@ -50,7 +50,7 @@ public class SelectPartialExpiredTTLWideRowsAT extends BaseAT {
     }
 
     @Test
-    public void testSkinyRowsParcialExpiredRows() throws InterruptedException {
+    public void testSkinnyRowsPartialExpiredRows() throws InterruptedException {
         utils.insert(new String[]{"a", "a2", "b"}, new Object[]{1, 1, "a"}, 5);
         utils.insert(new String[]{"a", "a2", "c"}, new Object[]{1, 1, "b"});
         utils.insert(new String[]{"a", "a2", "c"}, new Object[]{2, 2, "b"}, 10);

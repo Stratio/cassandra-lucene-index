@@ -35,7 +35,7 @@ public class SelectTotalExpiredTTLSkinnyRowsAT extends BaseAT {
 
     @BeforeClass
     public static void before() {
-        utils = CassandraUtils.builder("test_ttl_skiny")
+        utils = CassandraUtils.builder("test_ttl_skinny")
                               .withPartitionKey("a")
                               .withColumn("a", "int")
                               .withColumn("b", "text", stringMapper())
