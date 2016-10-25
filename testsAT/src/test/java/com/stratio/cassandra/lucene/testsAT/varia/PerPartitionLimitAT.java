@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.testsAT.varia;
 
 import com.datastax.driver.core.exceptions.InvalidQueryException;
+import com.datastax.driver.core.exceptions.SyntaxError;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.Test;
@@ -54,6 +55,8 @@ public class PerPartitionLimitAT extends BaseAT {
             assertEquals("PER PARTITION LIMIT exception message is wrong",
                          "Lucene index doesn't support PER PARTITION LIMIT",
                          e.getMessage());
+        } catch (SyntaxError e) {
+            logger.info("Skipping PER PARTITION LIMIT test because this release doesn't support it");
         } finally {
             utils.dropKeyspace();
         }
@@ -80,6 +83,8 @@ public class PerPartitionLimitAT extends BaseAT {
             assertEquals("PER PARTITION LIMIT exception message is wrong",
                          "Lucene index doesn't support PER PARTITION LIMIT",
                          e.getMessage());
+        } catch (SyntaxError e) {
+            logger.info("Skipping PER PARTITION LIMIT test because this release doesn't support it");
         } finally {
             utils.dropKeyspace();
         }
