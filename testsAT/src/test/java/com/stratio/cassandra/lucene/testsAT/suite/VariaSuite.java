@@ -28,6 +28,7 @@ import org.junit.runners.Suite.SuiteClasses;
                InOperatorWithWideRowsAT.class,
                LargeFieldAT.class,
                MultiMappingAT.class,
+               PerPartitionLimitAT.class,
                ReadStaticColumnsAT.class,
                SearchMatchingManyRowsAT.class,
                SearchWithLongSkinnyRowsAT.class,
