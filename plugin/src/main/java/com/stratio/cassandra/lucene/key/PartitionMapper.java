@@ -26,10 +26,7 @@ import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.dht.IPartitioner;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.*;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
@@ -69,14 +66,11 @@ public final class PartitionMapper {
         FIELD_TYPE.setTokenized(false);
         FIELD_TYPE.setStored(true);
         FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
-        FIELD_TYPE.setDocValuesComparator(new Comparator<BytesRef>() {
-            @Override
-            public int compare(BytesRef val1, BytesRef val2) {
-                ByteBuffer bb1 = ByteBufferUtils.byteBuffer(val1);
-                ByteBuffer bb2 = ByteBufferUtils.byteBuffer(val2);
-                return PartitionMapper.this.getType().compare(bb1, bb2);
-            }
-        });
+        /*FIELD_TYPE.setDocValuesComparator((val1, val2) -> {
+            ByteBuffer bb1 = ByteBufferUtils.byteBuffer(val1);
+            ByteBuffer bb2 = ByteBufferUtils.byteBuffer(val2);
+            return PartitionMapper.this.getType().compare(bb1, bb2);
+        });*/
         FIELD_TYPE.freeze();
     }
     /**
@@ -139,7 +133,7 @@ public final class PartitionMapper {
     public List<IndexableField> indexableFields(DecoratedKey partitionKey) {
         ByteBuffer bb = partitionKey.getKey();
         BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
-        return Arrays.asList(new SortedDocValuesField(FIELD_NAME, bytesRef), new StoredField(FIELD_NAME,bytesRef));
+        return Arrays.asList(new SortedDocValuesField(FIELD_NAME, bytesRef), new StoredField(FIELD_NAME,bytesRef), new BinaryPoint(FIELD_NAME,bytesRef));
     }
 
 

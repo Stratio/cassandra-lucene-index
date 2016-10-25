@@ -92,7 +92,7 @@ class IndexServiceSkinny extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Term term(DecoratedKey key, Row row) {
-        return partitionMapper.term(key);
+        return term(key);
     }
 
     /** {@inheritDoc} */

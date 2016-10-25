@@ -29,19 +29,23 @@ import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.dht.Token;
-import org.apache.lucene.document.*;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.SortedDocValuesField;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.index.SortedSetDocValues;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
 
 import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.stream.StreamSupport;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 import static org.apache.cassandra.db.PartitionPosition.Kind.ROW_KEY;
 import static org.apache.cassandra.utils.ByteBufferUtil.EMPTY_BYTE_BUFFER;
@@ -79,7 +83,7 @@ public final class ClusteringMapper {
         FIELD_TYPE.setTokenized(false);
         FIELD_TYPE.setStored(true);
         FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
-        FIELD_TYPE.setDocValuesComparator(new Comparator<BytesRef>() {
+        /*FIELD_TYPE.setDocValuesComparator(new Comparator<BytesRef>() {
             @Override
             public int compare(BytesRef val1, BytesRef val2) {
                 int comp = compareUnsigned(val1.bytes, 0, PREFIX_BYTES, val2.bytes, 0, PREFIX_BYTES);
@@ -92,7 +96,7 @@ public final class ClusteringMapper {
                 }
                 return comp;
             }
-        });
+        });*/
         FIELD_TYPE.freeze();
     }
 

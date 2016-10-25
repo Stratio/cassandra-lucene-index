@@ -43,7 +43,42 @@ public class DocumentIteratorTest {
             return null;
         }
     }
+    class WeightMock extends Weight {
 
+        /**
+         * Sole constructor, typically invoked by sub-classes.
+         *
+         * @param query the parent query
+         */
+        protected WeightMock(Query query) {
+            super(query);
+        }
+
+        @Override
+        public void extractTerms(Set<Term> terms) {
+
+        }
+
+        @Override
+        public Explanation explain(LeafReaderContext context, int doc) throws IOException {
+            return null;
+        }
+
+        @Override
+        public float getValueForNormalization() throws IOException {
+            return 0;
+        }
+
+        @Override
+        public void normalize(float norm, float boost) {
+
+        }
+
+        @Override
+        public Scorer scorer(LeafReaderContext context) throws IOException {
+            return null;
+        }
+    }
     class QueryMock extends Query {
 
         @Override
@@ -61,23 +96,8 @@ public class DocumentIteratorTest {
         }
 
         @Override
-        public Weight createWeight(IndexSearcher searcher, boolean needsScores, float boost) throws IOException {
-            return new Weight(this) {
-                @Override
-                public void extractTerms(Set<Term> set) {
-                    return;
-                }
-
-                @Override
-                public Explanation explain(LeafReaderContext leafReaderContext, int i) throws IOException {
-                    return null;
-                }
-
-                @Override
-                public Scorer scorer(LeafReaderContext leafReaderContext) throws IOException {
-                    return null;
-                }
-            };
+        public Weight createWeight(IndexSearcher searcher, boolean needsScores) throws IOException {
+            return new WeightMock(this);
         }
 
     }
