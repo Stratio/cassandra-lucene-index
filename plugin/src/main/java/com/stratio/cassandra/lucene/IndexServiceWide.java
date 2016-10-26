@@ -111,7 +111,7 @@ class IndexServiceWide extends IndexService {
         Clustering clustering = row.clustering();
         List<IndexableField> fields = new ArrayList<>();
         fields.addAll(tokenMapper.indexableFields(key));
-        fields.addAll(partitionMapper.indexableFields(key));
+        fields.add(partitionMapper.indexableField(key));
         fields.add(keyMapper.indexableField(key, clustering));
         fields.addAll(clusteringMapper.indexableFields(key, clustering));
         return fields;

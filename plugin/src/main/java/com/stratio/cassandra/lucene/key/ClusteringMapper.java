@@ -30,8 +30,8 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
@@ -43,13 +43,11 @@ import org.apache.lucene.util.BytesRef;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 import static org.apache.cassandra.db.PartitionPosition.Kind.ROW_KEY;
 import static org.apache.cassandra.utils.ByteBufferUtil.EMPTY_BYTE_BUFFER;
-import static org.apache.cassandra.utils.FastByteOperations.compareUnsigned;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 /**
@@ -81,7 +79,7 @@ public final class ClusteringMapper {
         FIELD_TYPE.setOmitNorms(true);
         FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
         FIELD_TYPE.setTokenized(false);
-        FIELD_TYPE.setStored(true);
+        FIELD_TYPE.setStored(false);
         FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
         /*FIELD_TYPE.setDocValuesComparator(new Comparator<BytesRef>() {
             @Override
@@ -148,7 +146,6 @@ public final class ClusteringMapper {
      * @param clustering the clustering key
      * @return a indexable field
      */
-    /*
     public List<IndexableField> indexableFields(DecoratedKey key, Clustering clustering) {
 
         // Build stored field for clustering key retrieval
@@ -165,17 +162,7 @@ public final class ClusteringMapper {
 
         return Arrays.asList(indexedField, storedField);
     }
-*/
-    public List<IndexableField> indexableFields(DecoratedKey key, Clustering clustering) {
-        // Build stored field for clustering key retrieval
-        CompositeType.Builder builder = type.builder();
-        Arrays.stream(clustering.getRawValues()).forEach(builder::add);
-        BytesRef plainClustering = ByteBufferUtils.bytesRef(builder.build());
-        SortedDocValuesField sortedSetDocValuesFields= new SortedDocValuesField(FIELD_NAME, plainClustering);
-        StoredField storedField= new StoredField(FIELD_NAME, plainClustering);
-        return Arrays.asList(sortedSetDocValuesFields,storedField);
 
-    }
     /**
      * Returns the clustering key represented by the specified {@link ByteBuffer}.
      *

@@ -55,6 +55,7 @@ public final class TokenMapper {
     static {
         FIELD_TYPE.setTokenized(true);
         FIELD_TYPE.setOmitNorms(true);
+        FIELD_TYPE.setStored(false);
         FIELD_TYPE.setDocValuesType(DocValuesType.NUMERIC);
         FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
         FIELD_TYPE.freeze();

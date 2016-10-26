@@ -26,7 +26,9 @@ import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.dht.IPartitioner;
-import org.apache.lucene.document.*;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
@@ -39,7 +41,6 @@ import org.apache.lucene.util.BytesRef;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -121,21 +122,11 @@ public final class PartitionMapper {
      * @param partitionKey the partition key to be converted
      * @return a indexable field
      */
-    /*
     public IndexableField indexableField(DecoratedKey partitionKey) {
         ByteBuffer bb = partitionKey.getKey();
         BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
         return new Field(FIELD_NAME, bytesRef, FIELD_TYPE);
     }
-
-    */
-
-    public List<IndexableField> indexableFields(DecoratedKey partitionKey) {
-        ByteBuffer bb = partitionKey.getKey();
-        BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
-        return Arrays.asList(new SortedDocValuesField(FIELD_NAME, bytesRef), new StoredField(FIELD_NAME,bytesRef), new BinaryPoint(FIELD_NAME,bytesRef));
-    }
-
 
     /**
      * Returns the specified raw partition key as a Lucene {@link Term}.
@@ -185,12 +176,8 @@ public final class PartitionMapper {
      * @return the {@link DecoratedKey} contained in the specified Lucene {@link Document}
      */
     public DecoratedKey decoratedKey(Document document) {
-        logger.debug("partition mapper building pdecortated key from a document");
         BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
-        logger.debug("partition mapper building pdecortated key, bytesRef: {}",bytesRef);
-
         ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
-        logger.debug("partition mapper building pdecortated key, ByteBuffer: {}",bb);
         return partitioner.decorateKey(bb);
     }
 
