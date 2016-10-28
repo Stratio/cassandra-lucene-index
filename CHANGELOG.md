@@ -3,8 +3,6 @@
 ## 3.9.1 (Upcoming)
 
 * Show error message when unsupported PER PARTITION LIMIT option is used
-
-Merged from 3.0.9.1:
 * Add support for geospatial shapes in bounding box search
 * Add support for geospatial shapes in distance search
 * Improve performance of needs before write calculation
@@ -21,30 +19,22 @@ Merged from 3.0.9.1:
 ## 3.7.3 (October 07, 2016)
 
 * Add support for indexing non-frozen UDTs
-
-Merged from 3.0.8.3:
 * Optimize clustering key index format (breaks backward compatibility)
 
 ## 3.7.2 (September 14, 2016)
 
-Merged from 3.0.8.2:
 * Allow associativity in search-time geospatial transformations
 * Simplify naming of builder static methods for creating geospatial transformations
 * Fix paged index-sorted queries matching more than 65535 rows
 * Fix partition directed queries using dummy column syntax in skinny tables
-
-Merged from 3.0.8.1:
 * Upgrade query builder JSON serializer to Jackson 2.8.0
 * Add geospatial post filtering (ensures accuracy with any tree levels)
 * Set default number of indexing threads to number of processors available to the JVM
 * Fix mapping of timestamps and dates by their underlying numeric value (#177)
-
-Merged from 2.2.7.1:
 * Fix mapper referenced by alias in sortFields
 
 ## 3.7.1 (July 05, 2016)
 
-Merged from 3.0.7:
 * Modernize search syntax keeping backward compatibility
 * Add Lucene-specific CQL tracing
 * Fix parsing of data with CQL "date" type (#158)
@@ -58,8 +48,6 @@ Merged from 3.0.7:
 ## 3.6.0 (June 18, 2016)
 
 * Upgrade to Apache Cassandra 3.6
-
-Merged from 3.0.6:
 * Fix clustering query collisions in Lucene's query cache
 * Fix deletion of columns with frozen type (UDT, tuples and frozen collections)
 * Add support for CQL paging over sorted searches
@@ -68,14 +56,12 @@ Merged from 3.0.6:
 
 ## 3.5.2 (May 27, 2016)
 
-Merged from 3.0.5:
 * Add transformation for getting the bounding box of a geographical shape
 * Fix complex clustering keys building (#143)
 
 
 ## 3.5.1 (May 19, 2016)
 
-Merged from 3.0.5:
 * Upgrade to Apache Lucene 5.5.1
 * Add support for old dummy column syntax (Spark compatibility and score retrieval)
 * Add option to use doc values in match, contains and range searches
@@ -114,7 +100,6 @@ Merged from 3.0.5:
 
 * Fix performance issues with ClusteringIndexNamesFilter
 
-Merged from 2.2.5:
 * Add indexing of WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add search by WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add API for search-time transformation of WKT geographical shapes
@@ -137,7 +122,6 @@ Merged from 2.2.5:
 
 ## 2.2.5.1 (February 19, 2016)
 
-Merged from 2.2.4:
 * Fixed explicit null values insertion (#94)
 
 ## 2.2.5.0 (February 09, 2016)
