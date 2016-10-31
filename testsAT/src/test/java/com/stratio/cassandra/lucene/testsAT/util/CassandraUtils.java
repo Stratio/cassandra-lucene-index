@@ -25,7 +25,7 @@ import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
-import com.stratio.cassandra.lucene.testsAT.BaseAT;
+import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import org.slf4j.Logger;
 
 import java.util.Iterator;
@@ -45,7 +45,7 @@ import static org.junit.Assert.*;
  */
 public class CassandraUtils {
 
-    protected static final Logger logger = BaseAT.logger;
+    protected static final Logger logger = BaseIT.logger;
 
     private final String keyspace;
     private final String table;
