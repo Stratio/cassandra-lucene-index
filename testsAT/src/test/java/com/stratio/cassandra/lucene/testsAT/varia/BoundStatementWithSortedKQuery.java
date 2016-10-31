@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.testsAT.varia;
 
 import com.stratio.cassandra.lucene.builder.Builder;
-import com.stratio.cassandra.lucene.testsAT.search.AbstractSearchAT;
+import com.stratio.cassandra.lucene.testsAT.search.AbstractSearchIT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsSelect;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,61 +28,61 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(JUnit4.class)
-public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
+public class BoundStatementWithSortedKQuery extends AbstractSearchIT {
 
     @Test
-    public void sortIntegerAsc() {
+    public void testSortIntegerAsc() {
         utils.sort(field("integer_1").reverse(false)).checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortIntegerDesc() {
+    public void testSortIntegerDesc() {
         utils.sort(field("integer_1").reverse(true)).checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
-    public void sortIntegerDefault() {
+    public void testSortIntegerDefault() {
         utils.sort(field("integer_1")).checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortDoubleAsc() {
+    public void testSortDoubleAsc() {
         utils.sort(field("double_1").reverse(false)).checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
     }
 
     @Test
-    public void sortDoubleDesc() {
+    public void testSortDoubleDesc() {
         utils.sort(field("double_1").reverse(true)).checkOrderedColumns("double_1", 3D, 3D, 3D, 2D, 1D);
     }
 
     @Test
-    public void sortDoubleDefault() {
+    public void testSortDoubleDefault() {
         utils.sort(field("double_1")).checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
     }
 
     @Test
-    public void sortCombined() {
+    public void testSortCombined() {
         CassandraUtilsSelect select = utils.sort(field("double_1"), field("integer_1"));
         select.checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
         select.checkOrderedColumns("integer_1", -1, -2, -5, -4, -3);
     }
 
     @Test
-    public void sortWithFilter() {
+    public void testSortWithFilter() {
         utils.filter(all())
              .sort(field("integer_1").reverse(false))
              .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortWithQuery() {
+    public void testSortWithQuery() {
         utils.query(all())
              .sort(field("integer_1").reverse(false))
              .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortWithFilterAndQuery() {
+    public void testSortWithFilterAndQuery() {
         utils.filter(all())
              .query(all())
              .sort(field("integer_1").reverse(false))
@@ -90,28 +90,28 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
     }
 
     @Test
-    public void sortWithGeoDistanceFilterNotReversed() {
+    public void testSortWithGeoDistanceFilterNotReversed() {
         utils.filter(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
              .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(false))
              .checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
-    public void sortWithGeoDistanceQueryNotReversed() {
+    public void testSortWithGeoDistanceQueryNotReversed() {
         utils.query(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
              .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(false))
              .checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
-    public void sortWithGeoDistanceFilterReversed() {
+    public void testSortWithGeoDistanceFilterReversed() {
         utils.filter(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
              .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(true))
              .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortWithGeoDistanceQueryReversed() {
+    public void testSortWithGeoDistanceQueryReversed() {
         utils.query(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
              .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(true))
              .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);

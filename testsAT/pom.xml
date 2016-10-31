@@ -116,13 +116,6 @@
                             <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
-                        <configuration>
-                            <parallel>suites</parallel>
-                            <threadCountSuites>4</threadCountSuites>
-                            <includes>
-                                <include>${runSuite}</include>
-                            </includes>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
