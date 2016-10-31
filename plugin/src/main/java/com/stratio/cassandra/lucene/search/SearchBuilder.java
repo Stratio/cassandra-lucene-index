@@ -128,7 +128,7 @@ public class SearchBuilder implements Builder<Search> {
         return new Search(filter.stream().map(ConditionBuilder::build).collect(toList()),
                           query.stream().map(ConditionBuilder::build).collect(toList()),
                           sort.stream().map(SortFieldBuilder::build).collect(toList()),
-                          paging == null ? null : IndexPagingState.build(ByteBufferUtils.byteBuffer(paging)),
+                          paging == null ? null : IndexPagingState.fromByteBuffer(ByteBufferUtils.byteBuffer(paging)),
                           refresh);
     }
 

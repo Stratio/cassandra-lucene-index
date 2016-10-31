@@ -162,7 +162,7 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void testMAtchMAp() {
+    public void testMatchMAp() {
         query(all()).sort(field("string_map$k4").reverse(true)).checkOrderedColumns("integer_1", -4, -5, -2, -3, -1);
     }
 }

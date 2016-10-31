@@ -35,9 +35,9 @@
     <description>Cassandra Lucene Index plugin</description>
 
     <properties>
-        <scala.version>2.10.4</scala.version>
-        <scala.binary.version>2.10</scala.binary.version>
-        <scalatest.version>2.2.5</scalatest.version>
+        <scala.version>2.11.8</scala.version>
+        <scala.binary.version>2.11</scala.binary.version>
+        <scalatest.version>3.0.0</scalatest.version>
         <cassandra.version>3.8</cassandra.version>
         <lucene.version>5.5.1</lucene.version>
         <jts.version>1.14.0</jts.version>
@@ -104,6 +104,11 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -111,6 +116,11 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
+                <configuration>
+                    <args>
+                        <arg>-nowarn</arg>
+                    </args>
+                </configuration>
                 <executions>
                     <execution>
                         <id>scala-compile-first</id>
@@ -165,7 +175,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>1.9.1</version>
+                        <version>1.10</version>
                         <executions>
                             <execution>
                                 <id>parse-version</id>
