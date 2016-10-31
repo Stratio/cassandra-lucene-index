@@ -317,8 +317,9 @@ class ClusteringQuery(
 
   /** @inheritdoc */
   override def toString(field: String): String = {
+    val fieldName = if (field.isEmpty) ClusteringMapper.FIELD_NAME else field
     MoreObjects.toStringHelper(this)
-      .add("field", field)
+      .add("field", fieldName)
       .add("token", token)
       .add("start", mapper.toString(start))
       .add("stop", mapper.toString(stop))
