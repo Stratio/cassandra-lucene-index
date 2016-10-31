@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.testsAT.udt;
 
 import com.datastax.driver.core.exceptions.InvalidQueryException;
-import com.stratio.cassandra.lucene.testsAT.BaseAT;
+import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +30,7 @@ import org.junit.runners.JUnit4;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(JUnit4.class)
-public class CheckNonFrozenUDTAT extends BaseAT {
+public class CheckNonFrozenUDTAT extends BaseIT {
 
     @Test
     public void testNotFrozenUDTList() {

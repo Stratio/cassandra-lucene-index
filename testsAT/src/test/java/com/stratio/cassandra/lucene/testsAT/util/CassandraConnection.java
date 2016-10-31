@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.testsAT.util;
 
 import com.datastax.driver.core.*;
-import com.stratio.cassandra.lucene.testsAT.BaseAT;
+import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import com.stratio.cassandra.lucene.testsAT.util.monitoring.CassandraJMXClient;
 import com.stratio.cassandra.lucene.testsAT.util.monitoring.CassandraJolokiaClient;
 import com.stratio.cassandra.lucene.testsAT.util.monitoring.CassandraMonitoringClient;
@@ -33,7 +33,7 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
  */
 public class CassandraConnection {
 
-    private static final Logger logger = BaseAT.logger;
+    private static final Logger logger = BaseIT.logger;
 
     private static Cluster cluster;
     private static Session session;
