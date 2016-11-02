@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.udt;
 
+import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.Test;
@@ -33,6 +34,7 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
  */
 @RunWith(JUnit4.class)
 public class UDTPartialUpdateIT extends BaseIT {
+
     private static Map<String, String> insertData1 = Collections.unmodifiableMap(
             new HashMap<String, String>() {
                 {
@@ -67,6 +69,7 @@ public class UDTPartialUpdateIT extends BaseIT {
 
     @Test
     public void testNonFrozenPartialUpdate() {
+
         CassandraUtils utils = builder("udt_partial_update")
                 .withTable("partial_updates_table")
                 .withUDT("address_t", "postal_code", "bigint")
@@ -81,13 +84,21 @@ public class UDTPartialUpdateIT extends BaseIT {
                 .withPartitionKey("id")
                 .build()
                 .createKeyspace()
-                .createUDTs()
-                .createTable()
-                .createIndex()
-                .insert(insertData1)
-                .insert(insertData2)
-                .insert(insertData3)
-                .insert(insertData4);
+                .createUDTs();
+        try {
+            utils.createTable();
+        } catch (InvalidQueryException e) {
+            if (e.getMessage().equals("Non-frozen User-Defined types are not supported, please use frozen<>")) {
+                logger.info("Ignoring UDT partial update test because it isn't supported by current Cassandra version");
+                return;
+            }
+        }
+
+        utils.createIndex()
+             .insert(insertData1)
+             .insert(insertData2)
+             .insert(insertData3)
+             .insert(insertData4);
 
         utils.filter(match("address.address", "fifth avenue")).refresh(true).checkUnorderedColumns("id", 1L)
              .filter(match("address.number", 2)).checkUnorderedColumns("id", 1L)
