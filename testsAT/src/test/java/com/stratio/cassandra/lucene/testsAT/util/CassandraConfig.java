@@ -32,17 +32,17 @@ class CassandraConfig {
     static final String HOST = getIP("host", "127.0.0.1");
     static final String JMX_PORT = getString("jmx_port", "7199");
     static final String MONITOR_SERVICE = getString("monitor_service","jmx");// jmx or jolokia
-//    static final String[] MONITOR_SERVICES_URL = getStringArray("monitor_services_url", HOST + ":" + JMX_PORT);
-     static final String[] MONITOR_SERVICES_URL = getStringArray("jmx_services", "127.0.0.1:7100,127.0.0.1:7200,127.0.0.1:7300");
+    static final String[] MONITOR_SERVICES_URL = getStringArray("monitor_services_url", HOST + ":" + JMX_PORT);
+    // static final String[] MONITOR_SERVICES_URL = getStringArray("jmx_services", "127.0.0.1:7100,127.0.0.1:7200,127.0.0.1:7300");
     static final int REPLICATION = getInt("replication", 1);
     static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(getString("consistency", "QUORUM"));
-    static final int FETCH = getInt("fetch", 10);
+    static final int FETCH = getInt("fetch", 100);
     static final int THREADS = getInt("threads", Runtime.getRuntime().availableProcessors());
     static final int REFRESH = getInt("refresh", 1);
     static final String TABLE = getString("table", "test_table");
     static final String INDEX = getString("index", "test_table_idx");
     static final String COLUMN = getString("column", "lucene");
-    static final boolean USE_NEW_QUERY_SYNTAX = getBool("use_new_query_syntax", false);
+    static final boolean USE_NEW_QUERY_SYNTAX = getBool("use_new_query_syntax", true);
     static final int LIMIT = getInt("limit", 10000);
 
     static {
