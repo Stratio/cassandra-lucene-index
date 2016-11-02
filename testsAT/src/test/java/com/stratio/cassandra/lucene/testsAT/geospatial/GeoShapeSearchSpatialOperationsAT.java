@@ -297,10 +297,10 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
              .check(0);
     }
 
-    //Intersection shape1= SHAPE_6 Intersectoion SHAPE_8, intersection is idempotent
+    //Intersection shape1= SHAPE_6 Intersection SHAPE_8, intersection is idempotent
     @Test
     public void testCase1WithIntersection() {
-        // index A, search A must return intersecs and Contains but no is_within
+        // index A, search A must return intersects and Contains but no is_within
         GeoShapeCondition geoShape6_8 = geoShape("shape", intersection(shape_6, shape_8));
         GeoShapeCondition geoShape8_6 = geoShape("shape", intersection(shape_8, shape_6));
         Integer search_case = 1;
@@ -428,7 +428,7 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
 
     @Test
     public void testCase1WithUnion() {
-        // index A, search A must return intersecs and Contains but no is_within
+        // index A, search A must return intersects and Contains but no is_within
         GeoShapeCondition geoShape1_3_8 = geoShape("shape", intersection(union(shape_1, shape_3), wkt(shape_8)));
         GeoShapeCondition geoShape1_7_6 = geoShape("shape", intersection(union(shape_1, shape_7), wkt(shape_6)));
         Integer search_case = 1;

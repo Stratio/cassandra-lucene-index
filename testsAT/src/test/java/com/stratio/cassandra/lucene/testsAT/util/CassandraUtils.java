@@ -20,6 +20,7 @@ import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.stratio.cassandra.lucene.builder.index.Index;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
@@ -53,6 +54,7 @@ public class CassandraUtils {
     private final String qualifiedTable;
     private final Map<String, String> columns;
     private final Map<String, Mapper> mappers;
+    private final Map<String, Analyzer> analyzers;
     private final List<String> partitionKey;
     private final List<String> clusteringKey;
     private final Map<String, Map<String, String>> udts;
@@ -72,6 +74,7 @@ public class CassandraUtils {
                           boolean useNewQuerySyntax,
                           Map<String, String> columns,
                           Map<String, Mapper> mappers,
+                          Map<String, Analyzer> analyzers,
                           List<String> partitionKey,
                           List<String> clusteringKey,
                           Map<String, Map<String, String>> udts,
@@ -85,6 +88,7 @@ public class CassandraUtils {
         this.useNewQuerySyntax = useNewQuerySyntax;
         this.columns = columns;
         this.mappers = mappers;
+        this.analyzers = analyzers;
         this.partitionKey = partitionKey;
         this.clusteringKey = clusteringKey;
         this.udts = udts;
@@ -253,9 +257,8 @@ public class CassandraUtils {
         Index index = index(keyspace, table, indexName).column(indexColumn)
                                                        .refreshSeconds(REFRESH)
                                                        .indexingThreads(THREADS);
-        for (Map.Entry<String, Mapper> entry : mappers.entrySet()) {
-            index.mapper(entry.getKey(), entry.getValue());
-        }
+        mappers.forEach(index::mapper);
+        analyzers.forEach(index::analyzer);
         execute(index.build());
 
         return waitForIndexBuilt();
@@ -301,6 +304,10 @@ public class CassandraUtils {
                                                        String expectedMessage,
                                                        final Map<String, String>... paramss) {
         return check(() -> insert(paramss), expectedClass, expectedMessage);
+    }
+
+    public final CassandraUtils insert(String names, Object... values) {
+        return insert(names.split(","), values);
     }
 
     public CassandraUtils insert(String[] names, Object[] values) {

@@ -159,6 +159,7 @@ Not yet supported:
 -  Indexing ``counter`` columns
 -  Indexing static columns
 -  Other partitioners than Murmur3
+-  Per partition limit
 
 Architecture
 ============
@@ -243,39 +244,41 @@ and create them again with running newer version.
 If you have huge amount of data in your cluster this could be an expensive task. We have tested it and here you have a
 compatibility matrix that states between which versions it is not needed to delete the index:
 
-
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| From\\ To | 3.0.3.0 | 3.0.3.1 | 3.0.4.0 | 3.0.4.1 | 3.0.5.0 |  3.5.0  |  3.5.1  |  3.5.2  |  3.6.0  |  3.7.0  |  3.7.1  |  3.7.2  |  3.7.3  |
-+===========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+
-| 2.x       |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.3.0   |    --   |   YES   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.3.1   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.4.0   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.4.1   |    --   |    --   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.5.0   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.5.0     |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.5.1     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.5.2     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.6.0     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.7.0     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.7.1     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   (1)   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.7.2     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| From\\ To | 3.0.3.0 | 3.0.3.1 | 3.0.4.0 | 3.0.4.1 | 3.0.5.0 |  3.5.0  |  3.5.1  |  3.5.2  |  3.6.0  |  3.7.0  |  3.7.1  |  3.7.2  |  3.7.3  |  3.7.4  |
++===========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+
+| 2.x       |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.3.0   |    --   |   YES   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.3.1   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.4.0   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.4.1   |    --   |    --   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.5.0   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.5.0     |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.5.1     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.5.2     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.6.0     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.7.0     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.7.1     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   (1)   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.7.2     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.7.3     |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   (2)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
 
 **(1):** Compatible only if you are not using geospatial mappers.
+
+**(2):** Compatible only if you are not using snowball analyzers.
 
 Alternative syntaxes
 ====================
@@ -597,6 +600,11 @@ default values are listed in the table below.
 |                 | stopwords   | string       | null            |
 +-----------------+-------------+--------------+-----------------+
 
+The analyzers defined in this section can by referenced by mappers. Additionally, there are prebuilt analyzers for
+Arabic, Bulgarian, Brazilian, Catalan, Sorani, Czech, Danish, German, Greek, English, Spanish, Basque, Persian, Finnish,
+French, Irish, Galician, Hindi, Hungarian, Armenian, Indonesian, Italian, Latvian, Dutch, Norwegian, Portuguese,
+Romanian, Russian, Swedish, Thai and Turkish.
+
 Classpath analyzer
 __________________
 
@@ -640,14 +648,14 @@ Example:
              an_analyzer: {
                 type: "snowball",
                 language: "English",
-                 stopwords: "a,an,the,this,that"
+                stopwords: "a,an,the,this,that"
              }
           }
        }'
     };
 
-Supported languages: English, French, Spanish, Portuguese, Italian, Romanian, German, Dutch, Swedish, Norwegian,
-Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian, Basque and Catalan
+Supported languages: English, French, Spanish, Portuguese, Italian, Romanian, German, Dutch, Swedish, Norwegian, Danish,
+Russian, Finnish, Hungarian and Turkish.
 
 Mappers
 =======
@@ -1567,6 +1575,10 @@ Maps a language-aware text value analyzed according to the specified analyzer.
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the IP address to be indexed.
 -  **analyzer** (default = default_analyzer): the name of the `text analyzer <https://lucene.apache.org/core/5_5_1/core/org/apache/lucene/analysis/Analyzer.html>`__ to be used.
+   Additionally to references to those analyzers defined in the `analyzers section <#analyzers>`__ of the schema,
+   there are prebuilt analyzers for Arabic, Bulgarian, Brazilian, Catalan, Sorani, Czech, Danish, German, Greek,
+   English, Spanish, Basque, Persian, Finnish, French, Irish, Galician, Hindi, Hungarian, Armenian, Indonesian, Italian,
+   Latvian, Dutch, Norwegian, Portuguese, Romanian, Russian, Swedish, Thai and Turkish.
 
 **Supported CQL types:**
 
@@ -1585,15 +1597,20 @@ Maps a language-aware text value analyzed according to the specified analyzer.
              my_custom_analyzer: {
                  type: "snowball",
                  language: "Spanish",
-                 stopwords: "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
+                 stopwords: "el,la,lo,los,las,a,ante,bajo,cabe,con,contra"
              }
           },
           fields: {
-             text: {
+             spanish_text: {
                  type: "text",
                  validated: true,
-                 column: "column_name"
+                 column: "message_body",
                  analyzer: "my_custom_analyzer"
+             },
+             english_text: {
+                 type: "text",
+                 column: "message_body",
+                 analyzer: "English"
              }
          }
        }'
@@ -1658,7 +1675,7 @@ Cassandra shell:
              my_custom_analyzer: {
                 type: "snowball",
                 language: "Spanish",
-                stopwords: "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
+                stopwords: "el,la,lo,los,las,a,ante,bajo,cabe,con,contra"
              }
          },
          default_analyzer: "english",
@@ -2038,7 +2055,7 @@ If its needed to get all the data in the table:
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census ;
 
 
-If you want to know what is the last info about where John resides, you perform a query with tt_from and tt_to setted to now_value:
+If you want to know what is the last info about where John resides, you perform a query with tt_from and tt_to set to now_value:
 
 .. code-block:: sql
 
@@ -2068,7 +2085,7 @@ Using the `Java query builder <#query-builder>`__:
 
 
 
-If you want to know what is the last info about where John resides now, you perform a query with tt_from, tt_to, vt_from, vt_to setted to now_value:
+If you want to know what is the last info about where John resides now, you perform a query with tt_from, tt_to, vt_from, vt_to set to now_value:
 
 .. code-block:: sql
 

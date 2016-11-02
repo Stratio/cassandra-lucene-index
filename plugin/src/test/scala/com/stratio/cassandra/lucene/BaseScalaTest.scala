@@ -17,8 +17,7 @@ package com.stratio.cassandra.lucene
 
 import org.scalatest.{FunSuite, Matchers}
 
-/**
-  * Base test.
+/** Base test.
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */

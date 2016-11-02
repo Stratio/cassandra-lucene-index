@@ -245,8 +245,7 @@ public abstract class Builder {
      * Returns a new {@link SnowballAnalyzer} for the specified language and stopwords.
      *
      * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
-     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
-     * Basque and Catalan.
+     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Hungarian and Turkish.
      * @return a new snowball analyzer
      */
     public static SnowballAnalyzer snowballAnalyzer(String language) {
@@ -325,7 +324,7 @@ public abstract class Builder {
      *
      * @param field the name of the field to be matched
      * @param values the values of the field to be matched
-     * @return a new conatins condition
+     * @return a new contains condition
      */
     public static ContainsCondition contains(String field, Object... values) {
         return new ContainsCondition(field, values);
@@ -465,7 +464,7 @@ public abstract class Builder {
      *
      * @param field the name of the field
      * @param shape the shape
-     * @return a new geos hape condition
+     * @return a new geo shape condition
      */
     public static GeoShapeCondition geoShape(String field, GeoShape shape) {
         return new GeoShapeCondition(field, shape);
@@ -476,7 +475,7 @@ public abstract class Builder {
      *
      * @param field the name of the field
      * @param shape the shape in WKT format
-     * @return a new geos hape condition
+     * @return a new geo shape condition
      */
     public static GeoShapeCondition geoShape(String field, String shape) {
         return geoShape(field, wkt(shape));

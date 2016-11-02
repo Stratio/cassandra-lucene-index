@@ -5,10 +5,13 @@ ATSERVICES:
       volumes:
         - jts:1.14.0
       env:
-        - LOCAL_JMX=no
+        - START_JOLOKIA=true
+        - JOLOKIA_OPTS='port=8000,host=$(hostname --ip)'
 
 ATPARAMETERS: >
     -Dit.host=%%CASSANDRA
+    -Dit.monitor_service=jolokia
+    -Dit.monitor_services_url=%%CASSANDRA:8000
     -DJACOCO_SERVER=%%CASSANDRA
     -Dit-embedded=false
 
