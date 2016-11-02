@@ -24,7 +24,6 @@ import com.stratio.cassandra.lucene.BaseScalaTest
 import com.stratio.cassandra.lucene.column.ColumnsMapper._
 import com.stratio.cassandra.lucene.column.ColumnsMapperTest._
 import org.apache.cassandra.config.ColumnDefinition
-import org.apache.cassandra.cql3.FieldIdentifier
 import org.apache.cassandra.db.marshal.{DecimalType, _}
 import org.apache.cassandra.db.rows.Cell.NO_DELETION_TIME
 import org.apache.cassandra.db.rows.{BufferCell, Cell}
@@ -280,7 +279,7 @@ object ColumnsMapperTest {
     new UserType(
       "ks",
       utf8.decompose("cell"),
-      Lists.newArrayList(names.map(x => new FieldIdentifier(utf8.decompose(x))).asJava),
+      Lists.newArrayList(names.map(x => utf8.decompose(x)).asJava),
       Lists.newArrayList(types.asJava),false)
 
   def reversed[A](base: AbstractType[A]): ReversedType[A] = ReversedType.getInstance(base)
