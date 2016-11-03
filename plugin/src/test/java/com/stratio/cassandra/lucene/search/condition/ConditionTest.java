@@ -44,7 +44,7 @@ public class ConditionTest {
             return new MatchAllDocsQuery();
         }
 
-        public Set<String> involvedFields() {
+        public Set<String> postProcessingFields() {
             return Collections.emptySet();
         }
 

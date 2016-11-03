@@ -15,8 +15,11 @@
  */
 package com.stratio.cassandra.lucene.builder;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stratio.cassandra.lucene.builder.common.GeoShape;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
 import static org.junit.Assert.assertEquals;
@@ -31,7 +34,8 @@ public class BuilderTest {
     @Test
     public void testIndexDefaults() {
         String actual = index("table", "idx").schema(schema()).build();
-        String expected = "CREATE CUSTOM INDEX idx ON table() USING 'com.stratio.cassandra.lucene.Index' " +
+        String expected = "CREATE CUSTOM INDEX idx ON table() " +
+                          "USING 'com.stratio.cassandra.lucene.Index' " +
                           "WITH OPTIONS = {'schema':'{}'}";
         assertEquals("index serialization is wrong", expected, actual);
     }
@@ -56,23 +60,14 @@ public class BuilderTest {
                                                    .build();
         String expected = "CREATE CUSTOM INDEX idx ON keyspace.table(lucene) " +
                           "USING 'com.stratio.cassandra.lucene.Index' " +
-                          "WITH OPTIONS = {" +
-                          "'refresh_seconds':'10.0'," +
-                          "'directory_path':'path'," +
-                          "'ram_buffer_mb':'64'," +
-                          "'max_merge_mb':'16'," +
-                          "'max_cached_mb':'32'," +
-                          "'indexing_threads':'4'," +
-                          "'indexing_queues_size':'100'," +
-                          "'excluded_data_centers':'DC1,DC2'," +
-                          "'schema':'{" +
-                          "\"analyzers\":{" +
+                          "WITH OPTIONS = {'refresh_seconds':'10.0','directory_path':'path','ram_buffer_mb':'64'," +
+                          "'max_merge_mb':'16','max_cached_mb':'32','indexing_threads':'4'," +
+                          "'indexing_queues_size':'100','excluded_data_centers':'DC1,DC2','schema':'{" +
+                          "\"default_analyzer\":\"my_analyzer\",\"analyzers\":{" +
                           "\"my_analyzer\":{\"type\":\"classpath\",\"class\":\"my_class\"}," +
                           "\"snow\":{\"type\":\"snowball\",\"language\":\"tartar\",\"stopwords\":\"a,b,c\"}}," +
-                          "\"default_analyzer\":\"my_analyzer\"," +
                           "\"fields\":{" +
-                          "\"uuid\":{\"type\":\"uuid\",\"validated\":true}," +
-                          "\"string\":{\"type\":\"string\"}}}'}";
+                          "\"uuid\":{\"type\":\"uuid\",\"validated\":true},\"string\":{\"type\":\"string\"}}}'}";
         assertEquals("index serialization is wrong", expected, actual);
     }
 
@@ -86,8 +81,11 @@ public class BuilderTest {
     @Test
     public void testBigDecimalMapperFull() {
         String actual = bigDecimalMapper().validated(true).column("column").integerDigits(2).decimalDigits(1).build();
-        String expected = "{\"type\":\"bigdec\",\"validated\":true,\"column\":\"column\"," +
-                          "\"integer_digits\":2,\"decimal_digits\":1}";
+        String expected = "{\"type\":\"bigdec\"," +
+                          "\"validated\":true," +
+                          "\"column\":\"column\"," +
+                          "\"integer_digits\":2," +
+                          "\"decimal_digits\":1}";
         assertEquals("big decimal mapper serialization is wrong", expected, actual);
     }
 
@@ -119,9 +117,14 @@ public class BuilderTest {
                                                                                 .pattern("yyyyMMdd")
                                                                                 .nowValue("99999999")
                                                                                 .build();
-        String expected = "{\"type\":\"bitemporal\",\"vt_from\":\"vt_from\",\"vt_to\":\"vt_to\"," +
-                          "\"tt_from\":\"tt_from\",\"tt_to\":\"tt_to\",\"validated\":true," +
-                          "\"pattern\":\"yyyyMMdd\",\"now_value\":\"99999999\"}";
+        String expected = "{\"type\":\"bitemporal\"," +
+                          "\"vt_from\":\"vt_from\"," +
+                          "\"vt_to\":\"vt_to\"," +
+                          "\"tt_from\":\"tt_from\"," +
+                          "\"tt_to\":\"tt_to\"," +
+                          "\"validated\":true," +
+                          "\"pattern\":\"yyyyMMdd\"," +
+                          "\"now_value\":\"99999999\"}";
         assertEquals("bitemporal mapper serialization is wrong", expected, actual);
     }
 
@@ -162,8 +165,11 @@ public class BuilderTest {
 
     @Test
     public void testDateMapperFull() {
-        String actual = dateMapper().pattern("yyyyMMdd").validated(true).column("column").build();
-        String expected = "{\"type\":\"date\",\"validated\":true,\"column\":\"column\",\"pattern\":\"yyyyMMdd\"}";
+        String actual = dateMapper().validated(true).column("column").pattern("yyyyMMdd").build();
+        String expected = "{\"type\":\"date\"," +
+                          "\"validated\":true," +
+                          "\"column\":\"column\"," +
+                          "\"pattern\":\"yyyyMMdd\"}";
         assertEquals("date mapper serialization is wrong", expected, actual);
     }
 
@@ -177,7 +183,10 @@ public class BuilderTest {
     @Test
     public void testDateRangeMapperFull() {
         String actual = dateRangeMapper("start", "stop").pattern("yyyyMMdd").build();
-        String expected = "{\"type\":\"date_range\",\"from\":\"start\",\"to\":\"stop\",\"pattern\":\"yyyyMMdd\"}";
+        String expected = "{\"type\":\"date_range\"," +
+                          "\"from\":\"start\"," +
+                          "\"to\":\"stop\"," +
+                          "\"pattern\":\"yyyyMMdd\"}";
         assertEquals("date range mapper serialization is wrong", expected, actual);
     }
 
@@ -234,21 +243,16 @@ public class BuilderTest {
     public void testGeoShapeMapperFull() {
         String actual = geoShapeMapper().column("shape")
                                         .maxLevels(7)
-                                        .transform(centroidGeoTransformation(),
-                                                   convexHullGeoTransformation(),
-                                                   differenceGeoTransformation("my_difference_shape"),
-                                                   intersectionGeoTransformation("my_intersection_shape"),
-                                                   unionGeoTransformation("my_union_shape"),
-                                                   bufferGeoTransformation().maxDistance("10km").minDistance("5km"))
+                                        .transform(centroid(),
+                                                   convexHull(),
+                                                   bbox(),
+                                                   buffer().maxDistance("10km").minDistance("5km"))
                                         .build();
-        String expected = "{\"type\":\"geo_shape\",\"column\":\"shape\",\"transformations\":[" +
-                          "{\"type\":\"centroid\"}," +
+        String expected = "{\"type\":\"geo_shape\",\"column\":\"shape\",\"max_levels\":7,\"transformations\":" +
+                          "[{\"type\":\"centroid\"}," +
                           "{\"type\":\"convex_hull\"}," +
-                          "{\"type\":\"difference\",\"shape\":\"my_difference_shape\"}," +
-                          "{\"type\":\"intersection\",\"shape\":\"my_intersection_shape\"}," +
-                          "{\"type\":\"union\",\"shape\":\"my_union_shape\"}," +
-                          "{\"type\":\"buffer\",\"max_distance\":\"10km\",\"min_distance\":\"5km\"}]," +
-                          "\"max_levels\":7}";
+                          "{\"type\":\"bbox\"}," +
+                          "{\"type\":\"buffer\",\"max_distance\":\"10km\",\"min_distance\":\"5km\"}]}";
         assertEquals("geo shape mapper serialization is wrong", expected, actual);
     }
 
@@ -381,8 +385,13 @@ public class BuilderTest {
     @Test
     public void testBitemporalConditionFull() {
         String actual = bitemporal("field").ttFrom(1).ttTo(2).vtFrom(3).vtTo(4).boost(2).build();
-        String expected = "{\"type\":\"bitemporal\",\"field\":\"field\",\"boost\":2.0,\"vt_from\":3," +
-                          "\"vt_to\":4,\"tt_from\":1,\"tt_to\":2}";
+        String expected = "{\"type\":\"bitemporal\"," +
+                          "\"field\":\"field\"," +
+                          "\"boost\":2.0," +
+                          "\"vt_from\":3," +
+                          "\"vt_to\":4," +
+                          "\"tt_from\":1," +
+                          "\"tt_to\":2}";
         assertEquals("bitemporal condition serialization is wrong", expected, actual);
     }
 
@@ -396,8 +405,12 @@ public class BuilderTest {
     @Test
     public void testDateRangeConditionFull() {
         String actual = dateRange("field").from("2015/01/02").to("2015/01/05").operation("is_within").boost(2).build();
-        String expected = "{\"type\":\"date_range\",\"field\":\"field\",\"boost\":2.0," +
-                          "\"from\":\"2015/01/02\",\"to\":\"2015/01/05\",\"operation\":\"is_within\"}";
+        String expected = "{\"type\":\"date_range\"," +
+                          "\"field\":\"field\"," +
+                          "\"boost\":2.0," +
+                          "\"from\":\"2015/01/02\"," +
+                          "\"to\":\"2015/01/05\"," +
+                          "\"operation\":\"is_within\"}";
         assertEquals("date range condition serialization is wrong", expected, actual);
     }
 
@@ -411,23 +424,39 @@ public class BuilderTest {
     @Test
     public void testContainsConditionFull() {
         String actual = contains("field", "v1", "v2").boost(2).docValues(true).build();
-        String expected = "{\"type\":\"contains\",\"field\":\"field\",\"values\":[\"v1\",\"v2\"]," +
-                          "\"boost\":2.0,\"doc_values\":true}";
+        String expected = "{\"type\":\"contains\"," +
+                          "\"field\":\"field\"," +
+                          "\"values\":[\"v1\",\"v2\"]," +
+                          "\"boost\":2.0," +
+                          "\"doc_values\":true}";
         assertEquals("contains condition serialization is wrong", expected, actual);
     }
 
     @Test
     public void testBooleanConditionDefaults() {
         String actual = bool().build();
-        String expected = "{\"type\":\"boolean\",\"must\":[],\"should\":[],\"not\":[]}";
+        String expected = "{\"type\":\"boolean\"}";
         assertEquals("boolean is wrong", expected, actual);
     }
 
     @Test
     public void testBooleanConditionFull() {
-        String actual = bool().must(all()).should(none()).not().boost(2).build();
+        String actual = bool().must(match("f1", 1), match("f2", 2))
+                              .should(match("f3", 3), match("f4", 4))
+                              .not(match("f5", 5), match("f6", 6))
+                              .boost(2)
+                              .build();
         String expected = "{\"type\":\"boolean\",\"boost\":2.0," +
-                          "\"must\":[{\"type\":\"all\"}],\"should\":[{\"type\":\"none\"}],\"not\":[]}";
+                          "\"must\":[" +
+                          "{\"type\":\"match\",\"field\":\"f1\",\"value\":1}," +
+                          "{\"type\":\"match\",\"field\":\"f2\",\"value\":2}" +
+                          "],\"should\":[" +
+                          "{\"type\":\"match\",\"field\":\"f3\",\"value\":3}," +
+                          "{\"type\":\"match\",\"field\":\"f4\",\"value\":4}" +
+                          "],\"not\":[" +
+                          "{\"type\":\"match\",\"field\":\"f5\",\"value\":5}," +
+                          "{\"type\":\"match\",\"field\":\"f6\",\"value\":6}" +
+                          "]}";
         assertEquals("boolean is wrong", expected, actual);
     }
 
@@ -447,7 +476,7 @@ public class BuilderTest {
                                                .boost(2)
                                                .build();
         String expected = "{\"type\":\"fuzzy\",\"field\":\"field\",\"value\":\"value\",\"boost\":2.0," +
-                          "\"transpositions\":true,\"max_edits\":1,\"prefix_length\":3,\"max_expansions\":2}";
+                          "\"max_edits\":1,\"prefix_length\":3,\"max_expansions\":2,\"transpositions\":true}";
         assertEquals("fuzzy condition serialization is wrong", expected, actual);
     }
 
@@ -460,9 +489,8 @@ public class BuilderTest {
 
     @Test
     public void testLuceneConditionFull() {
-        String actual = lucene("\"field\":value").defaultField("field").boost(2).build();
-        String expected = "{\"type\":\"lucene\",\"query\":\"\\\"field\\\":value\"," +
-                          "\"boost\":2.0,\"default_field\":\"field\"}";
+        String actual = lucene("field:value").defaultField("field").boost(2).build();
+        String expected = "{\"type\":\"lucene\",\"query\":\"field:value\",\"boost\":2.0,\"default_field\":\"field\"}";
         assertEquals("lucene condition serialization is wrong", expected, actual);
     }
 
@@ -476,8 +504,11 @@ public class BuilderTest {
     @Test
     public void testMatchConditionFull() {
         String actual = match("field", "value").docValues(true).boost(2).build();
-        String expected = "{\"type\":\"match\",\"field\":\"field\",\"value\":\"value\"," +
-                          "\"boost\":2.0,\"doc_values\":true}";
+        String expected = "{\"type\":\"match\"," +
+                          "\"field\":\"field\"," +
+                          "\"value\":\"value\"," +
+                          "\"boost\":2.0," +
+                          "\"doc_values\":true}";
         assertEquals("match condition serialization is wrong", expected, actual);
     }
 
@@ -539,8 +570,14 @@ public class BuilderTest {
                                       .docValues(true)
                                       .boost(0.3)
                                       .build();
-        String expected = "{\"type\":\"range\",\"field\":\"field\",\"boost\":0.3,\"lower\":1,\"upper\":2," +
-                          "\"include_lower\":true,\"include_upper\":false,\"doc_values\":true}";
+        String expected = "{\"type\":\"range\"," +
+                          "\"field\":\"field\"," +
+                          "\"boost\":0.3," +
+                          "\"lower\":1," +
+                          "\"upper\":2," +
+                          "\"include_lower\":true," +
+                          "\"include_upper\":false," +
+                          "\"doc_values\":true}";
         assertEquals("range condition serialization is wrong", expected, actual);
     }
 
@@ -575,63 +612,142 @@ public class BuilderTest {
     @Test
     public void testGeoBBoxConditionDefaults() {
         String actual = geoBBox("field", 1, 2, 3, 4).build();
-        String expected = "{\"type\":\"geo_bbox\",\"field\":\"field\",\"min_latitude\":3.0," +
-                          "\"max_latitude\":4.0,\"min_longitude\":1.0,\"max_longitude\":2.0}";
+        String expected = "{\"type\":\"geo_bbox\"," +
+                          "\"field\":\"field\"," +
+                          "\"min_latitude\":1.0," +
+                          "\"max_latitude\":2.0," +
+                          "\"min_longitude\":3.0," +
+                          "\"max_longitude\":4.0}";
         assertEquals("wildcard condition serialization is wrong", expected, actual);
     }
 
     @Test
     public void testGeoBBoConditionFull() {
         String actual = geoBBox("field", 1, 2, 3, 4).boost(1).build();
-        String expected = "{\"type\":\"geo_bbox\",\"field\":\"field\",\"min_latitude\":3.0,\"max_latitude\":4.0," +
-                          "\"min_longitude\":1.0,\"max_longitude\":2.0,\"boost\":1.0}";
+        String expected = "{\"type\":\"geo_bbox\"," +
+                          "\"field\":\"field\"," +
+                          "\"min_latitude\":1.0," +
+                          "\"max_latitude\":2.0," +
+                          "\"min_longitude\":3.0," +
+                          "\"max_longitude\":4.0," +
+                          "\"boost\":1.0}";
         assertEquals("wildcard condition serialization is wrong", expected, actual);
     }
 
     @Test
     public void testGeoDistanceConditionDefaults() {
-        String actual = geoDistance("field", 1, 2, "1km").build();
-        String expected = "{\"type\":\"geo_distance\",\"field\":\"field\",\"latitude\":2.0,\"longitude\":1.0," +
+        String actual = geoDistance("field", 2, 1, "1km").build();
+        String expected = "{\"type\":\"geo_distance\"," +
+                          "\"field\":\"field\"," +
+                          "\"latitude\":2.0," +
+                          "\"longitude\":1.0," +
                           "\"max_distance\":\"1km\"}";
         assertEquals("geo distance condition serialization is wrong", expected, actual);
     }
 
     @Test
     public void testGeoDistanceConditionFull() {
-        String actual = geoDistance("field", 1, 2, "1km").minDistance("500m").boost(0.5).build();
-        String expected = "{\"type\":\"geo_distance\",\"field\":\"field\",\"latitude\":2.0,\"longitude\":1.0," +
-                          "\"max_distance\":\"1km\",\"boost\":0.5,\"min_distance\":\"500m\"}";
+        String actual = geoDistance("field", 2, 1, "1km").minDistance("500m").boost(0.5).build();
+        String expected = "{\"type\":\"geo_distance\"," +
+                          "\"field\":\"field\"," +
+                          "\"latitude\":2.0," +
+                          "\"longitude\":1.0," +
+                          "\"max_distance\":\"1km\"," +
+                          "\"boost\":0.5," +
+                          "\"min_distance\":\"500m\"}";
         assertEquals("geo distance condition serialization is wrong", expected, actual);
     }
 
     @Test
+    public void testGeoShapeBuffer() {
+        String expected = "{\"type\":\"buffer\",\"shape\":{\"type\":\"wkt\",\"value\":\"1\"}," +
+                          "\"max_distance\":\"1\",\"min_distance\":\"2\"}";
+        assertEquals("Shape buffer is wrong", expected, buffer(wkt("1")).maxDistance("1").minDistance("2").build());
+        assertEquals("Shape buffer is wrong", expected, buffer("1").maxDistance("1").minDistance("2").build());
+    }
+
+    @Test
+    public void testGeoShapeBBox() {
+        String expected = "{\"type\":\"bbox\",\"shape\":{\"type\":\"wkt\",\"value\":\"1\"}}";
+        assertEquals("Shape bbox is wrong", expected, bbox(wkt("1")).build());
+        assertEquals("Shape bbox is wrong", expected, bbox("1").build());
+    }
+
+    @Test
+    public void testGeoShapeCentroid() {
+        String expected = "{\"type\":\"centroid\",\"shape\":{\"type\":\"wkt\",\"value\":\"1\"}}";
+        assertEquals("Shape centroid is wrong", expected, centroid(wkt("1")).build());
+        assertEquals("Shape centroid is wrong", expected, centroid("1").build());
+    }
+
+    @Test
+    public void testGeoShapeConvexHull() {
+        String expected = "{\"type\":\"convex_hull\",\"shape\":{\"type\":\"wkt\",\"value\":\"1\"}}";
+        assertEquals("Shape convex hull is wrong", expected, convexHull(wkt("1")).build());
+        assertEquals("Shape convex hull is wrong", expected, convexHull("1").build());
+    }
+
+    @Test
+    public void testGeoShapeIntersection() {
+        String expected = "{\"type\":\"intersection\",\"shapes\":[" +
+                          "{\"type\":\"wkt\",\"value\":\"1\"}," +
+                          "{\"type\":\"wkt\",\"value\":\"2\"}" +
+                          "]}";
+        assertEquals("Shape intersection is wrong", expected, intersection(wkt("1"),wkt("2")).build());
+        assertEquals("Shape intersection is wrong", expected, intersection("1","2").build());
+        assertEquals("Shape intersection is wrong", expected, intersection(Arrays.asList(wkt("1"),wkt("2"))).build());
+        assertEquals("Shape intersection is wrong", expected, intersection().add("1").add(wkt("2")).build());
+    }
+
+    @Test
+    public void testGeoShapeUnion() {
+        String expected = "{\"type\":\"union\",\"shapes\":[" +
+                          "{\"type\":\"wkt\",\"value\":\"1\"}," +
+                          "{\"type\":\"wkt\",\"value\":\"2\"}" +
+                          "]}";
+        assertEquals("Shape union is wrong", expected, union(wkt("1"),wkt("2")).build());
+        assertEquals("Shape union is wrong", expected, union("1","2").build());
+        assertEquals("Shape union is wrong", expected, union(Arrays.asList(wkt("1"),wkt("2"))).build());
+        assertEquals("Shape union is wrong", expected, union().add("1").add(wkt("2")).build());
+    }
+
+    @Test
+    public void testGeoShapeDifference() {
+        String expected = "{\"type\":\"difference\",\"shapes\":[" +
+                          "{\"type\":\"wkt\",\"value\":\"1\"}," +
+                          "{\"type\":\"wkt\",\"value\":\"2\"}" +
+                          "]}";
+        assertEquals("Shape difference is wrong", expected, difference(wkt("1"),wkt("2")).build());
+        assertEquals("Shape difference is wrong", expected, difference("1","2").build());
+        assertEquals("Shape difference is wrong", expected, difference(Arrays.asList(wkt("1"),wkt("2"))).build());
+        assertEquals("Shape difference is wrong", expected, difference().add("1").add(wkt("2")).build());
+    }
+
+    @Test
     public void testGeoShapeConditionDefaults() {
-        String actual = geoShape("field", "shape").build();
-        String expected = "{\"type\":\"geo_shape\",\"field\":\"field\",\"shape\":\"shape\"}";
+        String actual = geoShape("field", wkt("POINT(0 0)")).build();
+        String expected = "{\"type\":\"geo_shape\",\"field\":\"field\"," +
+                          "\"shape\":{\"type\":\"wkt\",\"value\":\"POINT(0 0)\"}}";
         assertEquals("geo shape condition serialization is wrong", expected, actual);
     }
 
     @Test
     public void testGeoShapeConditionFull() {
-        String actual = geoShape("field", "my_shape").operation("intersects")
-                                                     .transform(centroidGeoTransformation(),
-                                                                bboxGeoTransformation(),
-                                                                convexHullGeoTransformation(),
-                                                                differenceGeoTransformation("my_difference_shape"),
-                                                                intersectionGeoTransformation("my_intersection_shape"),
-                                                                unionGeoTransformation("my_union_shape"),
-                                                                bufferGeoTransformation().maxDistance("10km")
-                                                                                         .minDistance("5km"))
-                                                     .build();
-        String expected = "{\"type\":\"geo_shape\",\"field\":\"field\",\"shape\":\"my_shape\"," +
-                          "\"operation\":\"intersects\",\"transformations\":[" +
-                          "{\"type\":\"centroid\"}," +
-                          "{\"type\":\"bbox\"}," +
-                          "{\"type\":\"convex_hull\"}," +
-                          "{\"type\":\"difference\",\"shape\":\"my_difference_shape\"}," +
-                          "{\"type\":\"intersection\",\"shape\":\"my_intersection_shape\"}," +
-                          "{\"type\":\"union\",\"shape\":\"my_union_shape\"}," +
-                          "{\"type\":\"buffer\",\"max_distance\":\"10km\",\"min_distance\":\"5km\"}]}";
+        GeoShape shape = union(difference(intersection(centroid(convexHull(bbox(buffer(wkt("POINT(0 0)"))
+                                                                                        .maxDistance("10km")
+                                                                                        .minDistance("1km")))))));
+        String actual = geoShape("f", shape).operation("intersects").build();
+        String expected = "{\"type\":\"geo_shape\",\"field\":\"f\",\"shape\":" +
+                          "{\"type\":\"union\",\"shapes\":[" +
+                          "{\"type\":\"difference\",\"shapes\":[" +
+                          "{\"type\":\"intersection\",\"shapes\":[" +
+                          "{\"type\":\"centroid\",\"shape\":" +
+                          "{\"type\":\"convex_hull\",\"shape\":" +
+                          "{\"type\":\"bbox\",\"shape\":" +
+                          "{\"type\":\"buffer\",\"shape\":" +
+                          "{\"type\":\"wkt\",\"value\":\"POINT(0 0)\"}," +
+                          "\"max_distance\":\"10km\",\"min_distance\":\"1km\"}}}}]}]}]}," +
+                          "\"operation\":\"intersects\"}";
         assertEquals("geo shape condition serialization is wrong", expected, actual);
     }
 
@@ -651,15 +767,18 @@ public class BuilderTest {
 
     @Test
     public void testGeoDistanceSortFieldDefaults() {
-        String actual = geoDistanceField("field1", 0.0, 0.0).build();
-        String expected = "{\"type\":\"geo_distance\",\"field\":\"field1\",\"longitude\":0.0,\"latitude\":0.0}";
+        String actual = Builder.geoDistance("field1", 1.2, 3.4).build();
+        String expected = "{\"type\":\"geo_distance\",\"field\":\"field1\",\"latitude\":1.2,\"longitude\":3.4}";
         assertEquals("sort field condition serialization is wrong", expected, actual);
     }
 
     @Test
     public void testGeoDistanceSortFieldFull() {
-        String actual = geoDistanceField("field1", 0.0, 0.0).reverse(true).build();
-        String expected = "{\"type\":\"geo_distance\",\"field\":\"field1\",\"longitude\":0.0,\"latitude\":0.0," +
+        String actual = Builder.geoDistance("field1", 1.2, -3.4).reverse(true).build();
+        String expected = "{\"type\":\"geo_distance\"," +
+                          "\"field\":\"field1\"," +
+                          "\"latitude\":1.2," +
+                          "\"longitude\":-3.4," +
                           "\"reverse\":true}";
         assertEquals("sort field condition serialization is wrong", expected, actual);
     }
@@ -667,7 +786,7 @@ public class BuilderTest {
     @Test
     public void testSortDefaults() {
         String actual = search().sort().build();
-        String expected = "{\"sort\":{\"fields\":[]}}";
+        String expected = "{\"sort\":[]}";
         assertEquals("sort condition serialization is wrong", expected, actual);
     }
 
@@ -675,26 +794,13 @@ public class BuilderTest {
     public void testSortFull() {
         String actual = search().sort(field("field1"),
                                       field("field2"),
-                                      geoDistanceField("field1", 0.0, 0.0).reverse(true)).build();
-        String expected = "{\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"field1\"}," +
+                                      Builder.geoDistance("field1", 1.0, -3.2).reverse(true)).build();
+        String expected = "{\"sort\":[{" +
+                          "\"type\":\"simple\",\"field\":\"field1\"}," +
                           "{\"type\":\"simple\",\"field\":\"field2\"}," +
                           "{\"type\":\"geo_distance\",\"field\":\"field1\"," +
-                          "\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}]}}";
+                          "\"latitude\":1.0,\"longitude\":-3.2,\"reverse\":true}]}";
         assertEquals("sort condition serialization is wrong", expected, actual);
-    }
-
-    @Test
-    public void testQuery() {
-        String actual = search().query(all()).build();
-        String expected = "{\"query\":{\"type\":\"all\"}}";
-        assertEquals("query condition serialization is wrong", expected, actual);
-    }
-
-    @Test
-    public void testFilter() {
-        String actual = search().filter(all()).build();
-        String expected = "{\"filter\":{\"type\":\"all\"}}";
-        assertEquals("filter condition serialization is wrong", expected, actual);
     }
 
     @Test
@@ -706,15 +812,47 @@ public class BuilderTest {
 
     @Test
     public void testSearchFull() {
-        String actual = search().query(all()).filter(all()).sort(field("field1")).refresh(true).build();
-        String expected = "{\"query\":{\"type\":\"all\"},\"filter\":{\"type\":\"all\"}," +
-                          "\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"field1\"}]},\"refresh\":true}";
+        String actual = search().filter(match("f1", 1), match("f2", 2)).filter(match("f3", 3))
+                                .query(match("f3", 3), match("f4", 4)).query(match("f5", 5))
+                                .sort(field("f1"), field("f2")).sort(field("f3"))
+                                .refresh(true)
+                                .build();
+        String expected = "{\"filter\":[" +
+                          "{\"type\":\"match\",\"field\":\"f1\",\"value\":1}," +
+                          "{\"type\":\"match\",\"field\":\"f2\",\"value\":2}," +
+                          "{\"type\":\"match\",\"field\":\"f3\",\"value\":3}" +
+                          "],\"query\":[" +
+                          "{\"type\":\"match\",\"field\":\"f3\",\"value\":3}," +
+                          "{\"type\":\"match\",\"field\":\"f4\",\"value\":4}," +
+                          "{\"type\":\"match\",\"field\":\"f5\",\"value\":5}" +
+                          "],\"sort\":[" +
+                          "{\"type\":\"simple\",\"field\":\"f1\"}," +
+                          "{\"type\":\"simple\",\"field\":\"f2\"}," +
+                          "{\"type\":\"simple\",\"field\":\"f3\"}" +
+                          "],\"refresh\":true}";
+        assertEquals("search serialization is wrong", expected, actual);
+    }
+
+    @Test
+    public void testSearchNestedBool() {
+        String actual = search().filter(must(match("f1", 1)).should(match("f2", 2)).not(match("f3", 3)))
+                                .query(must(match("f4", 4)).should(match("f5", 5)).not(match("f6", 6)))
+                                .build();
+        String expected = "{\"filter\":[" +
+                          "{\"type\":\"boolean\"," +
+                          "\"must\":[{\"type\":\"match\",\"field\":\"f1\",\"value\":1}]," +
+                          "\"should\":[{\"type\":\"match\",\"field\":\"f2\",\"value\":2}]," +
+                          "\"not\":[{\"type\":\"match\",\"field\":\"f3\",\"value\":3}]}]," +
+                          "\"query\":[{\"type\":\"boolean\"," +
+                          "\"must\":[{\"type\":\"match\",\"field\":\"f4\",\"value\":4}]," +
+                          "\"should\":[{\"type\":\"match\",\"field\":\"f5\",\"value\":5}]," +
+                          "\"not\":[{\"type\":\"match\",\"field\":\"f6\",\"value\":6}]}]}";
         assertEquals("search serialization is wrong", expected, actual);
     }
 
     @Test
     public void testToString() {
-        String actual = range("field").toString();
+        String actual = range("field").build();
         String expected = range("field").build();
         assertEquals("to string is wrong", expected, actual);
     }
@@ -734,14 +872,11 @@ public class BuilderTest {
                                                      .mapper("message", textMapper().analyzer("danish"))
                                                      .mapper("date", dateMapper().pattern("yyyyMMdd"))
                                                      .build();
-        String expected = "CREATE CUSTOM INDEX my_index ON messages() " +
-                          "USING 'com.stratio.cassandra.lucene.Index' WITH OPTIONS = {" +
-                          "'refresh_seconds':'10'," +
-                          "'schema':'{\"analyzers\":{\"danish\":{\"type\":\"snowball\",\"language\":\"danish\"}}," +
-                          "\"default_analyzer\":\"english\"," +
-                          "\"fields\":{" +
-                          "\"id\":{\"type\":\"uuid\"}," +
-                          "\"user\":{\"type\":\"string\",\"case_sensitive\":false}," +
+        String expected = "CREATE CUSTOM INDEX my_index ON messages() USING 'com.stratio.cassandra.lucene.Index' " +
+                          "WITH OPTIONS = {'refresh_seconds':'10','schema':'{\"default_analyzer\":\"english\"," +
+                          "\"analyzers\":{\"danish\":{\"type\":\"snowball\",\"language\":\"danish\"}},\"fields\":" +
+                          "{\"id\":{\"type\":\"uuid\"},\"user\":" +
+                          "{\"type\":\"string\",\"case_sensitive\":false}," +
                           "\"message\":{\"type\":\"text\",\"analyzer\":\"danish\"}," +
                           "\"date\":{\"type\":\"date\",\"pattern\":\"yyyyMMdd\"}}}'}";
         assertEquals("index serialization is wrong", expected, actual);
@@ -754,10 +889,9 @@ public class BuilderTest {
                                 .sort(field("date").reverse(true))
                                 .refresh(true)
                                 .build();
-        String expected = "{\"query\":{\"type\":\"phrase\",\"field\":\"message\",\"value\":\"cassandra rules\"}," +
-                          "\"filter\":{\"type\":\"match\",\"field\":\"user\",\"value\":\"adelapena\"}," +
-                          "\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"date\",\"reverse\":true}]}," +
-                          "\"refresh\":true}";
+        String expected = "{\"filter\":[{\"type\":\"match\",\"field\":\"user\",\"value\":\"adelapena\"}]," +
+                          "\"query\":[{\"type\":\"phrase\",\"field\":\"message\",\"value\":\"cassandra rules\"}]," +
+                          "\"sort\":[{\"type\":\"simple\",\"field\":\"date\",\"reverse\":true}],\"refresh\":true}";
         assertEquals("search serialization is wrong", expected, actual);
     }
 

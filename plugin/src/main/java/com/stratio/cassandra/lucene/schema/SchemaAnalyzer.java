@@ -80,7 +80,7 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
                 try {
                     analyzer = (new ClasspathAnalyzerBuilder(name)).analyzer();
                 } catch (Exception e) {
-                    throw new IndexException(e, "Not found analyzer '%s'", name);
+                    throw new IndexException(e, "Not found analyzer '{}'", name);
                 }
             }
         }
@@ -107,7 +107,7 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
         if (StringUtils.isBlank(fieldName)) {
             throw new IllegalArgumentException("Not empty analyzer name required");
         }
-        String name = Column.getMapperName(fieldName);
+        String name = Column.parse(fieldName).mapperName();
         TokenLengthAnalyzer analyzer = fieldAnalyzers.get(name);
         if (analyzer != null) {
             return analyzer;

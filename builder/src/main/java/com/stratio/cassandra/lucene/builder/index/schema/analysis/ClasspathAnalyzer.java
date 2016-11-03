@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema.analysis;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * {@link Analyzer} using a Lucene's {@code Analyzer}s in classpath.

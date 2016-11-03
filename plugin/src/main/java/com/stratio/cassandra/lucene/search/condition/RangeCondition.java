@@ -94,7 +94,7 @@ public class RangeCondition extends SingleColumnCondition {
 
         // Check doc values
         if (docValues && !mapper.docValues) {
-            throw new IndexException("Field '%s' does not support doc_values", mapper.field);
+            throw new IndexException("Field '{}' does not support doc_values", mapper.field);
         }
 
         Class<?> clazz = mapper.base;
@@ -120,7 +120,7 @@ public class RangeCondition extends SingleColumnCondition {
             Double stop = (Double) mapper.base(field, upper);
             query = query(start, stop);
         } else {
-            throw new IndexException("Range queries are not supported by mapper '%s'", mapper);
+            throw new IndexException("Range queries are not supported by mapper '{}'", mapper);
         }
         return query;
     }

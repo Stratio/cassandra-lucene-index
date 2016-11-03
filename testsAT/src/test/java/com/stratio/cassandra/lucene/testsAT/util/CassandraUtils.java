@@ -17,13 +17,15 @@ package com.stratio.cassandra.lucene.testsAT.util;
 
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.querybuilder.Batch;
+import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.stratio.cassandra.lucene.builder.index.Index;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
-import com.stratio.cassandra.lucene.testsAT.BaseAT;
+import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import org.slf4j.Logger;
 
 import java.util.Iterator;
@@ -36,13 +38,14 @@ import static com.stratio.cassandra.lucene.builder.Builder.all;
 import static com.stratio.cassandra.lucene.builder.Builder.index;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConnection.*;
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class CassandraUtils {
 
-    protected static final Logger logger = BaseAT.logger;
+    protected static final Logger logger = BaseIT.logger;
 
     private final String keyspace;
     private final String table;
@@ -51,11 +54,14 @@ public class CassandraUtils {
     private final String qualifiedTable;
     private final Map<String, String> columns;
     private final Map<String, Mapper> mappers;
+    private final Map<String, Analyzer> analyzers;
     private final List<String> partitionKey;
     private final List<String> clusteringKey;
     private final Map<String, Map<String, String>> udts;
     private final boolean useNewQuerySyntax;
     private final String indexBean;
+    private final String clusteringOrderColumn;
+    private final boolean clusteringOrderAscending;
 
     public static CassandraUtilsBuilder builder(String name) {
         return new CassandraUtilsBuilder(name);
@@ -68,9 +74,12 @@ public class CassandraUtils {
                           boolean useNewQuerySyntax,
                           Map<String, String> columns,
                           Map<String, Mapper> mappers,
+                          Map<String, Analyzer> analyzers,
                           List<String> partitionKey,
                           List<String> clusteringKey,
-                          Map<String, Map<String, String>> udts) {
+                          Map<String, Map<String, String>> udts,
+                          String clusteringOrderColumn,
+                          boolean clusteringOrderAscending) {
 
         this.keyspace = keyspace;
         this.table = table;
@@ -79,9 +88,13 @@ public class CassandraUtils {
         this.useNewQuerySyntax = useNewQuerySyntax;
         this.columns = columns;
         this.mappers = mappers;
+        this.analyzers = analyzers;
         this.partitionKey = partitionKey;
         this.clusteringKey = clusteringKey;
         this.udts = udts;
+        this.clusteringOrderColumn = clusteringOrderColumn;
+        this.clusteringOrderAscending = clusteringOrderAscending;
+
         qualifiedTable = keyspace + "." + table;
 
         if (indexColumn != null && !columns.containsKey(indexColumn)) {
@@ -139,7 +152,20 @@ public class CassandraUtils {
         return execute(query.toString());
     }
 
-    public CassandraUtils waitForIndexBuilt() {
+    <T extends Exception> CassandraUtils check(Runnable runnable, Class<T> expectedClass, String expectedMessage) {
+        try {
+            runnable.run();
+            fail(String.format("Should have produced %s with message '%s'",
+                               expectedClass.getSimpleName(),
+                               expectedMessage));
+        } catch (Exception e) {
+            assertEquals("Expected exception type is wrong", expectedClass, e.getClass());
+            assertTrue("Expected exception message is wrong, expected: "+expectedMessage+ " produced:"+e.getMessage(), e.getMessage().contains(expectedMessage));
+        }
+        return this;
+    }
+
+    private CassandraUtils waitForIndexBuilt() {
         logger.debug("Waiting for the index to be created...");
         while (!isIndexBuilt()) {
             try {
@@ -186,8 +212,19 @@ public class CassandraUtils {
             sb.append(", ").append(s);
         }
         sb.append("))");
+        if (clusteringOrderColumn != null) {
+            sb.append(" WITH CLUSTERING ORDER BY(");
+            sb.append(clusteringOrderColumn);
+            sb.append(" ");
+            sb.append(this.clusteringOrderAscending ? "ASC" : "DESC");
+            sb.append(")");
+        }
         execute(sb);
         return this;
+    }
+
+    public <T extends Exception> CassandraUtils createTable(Class<T> expectedClass, String expectedMessage) {
+        return check(this::createTable, expectedClass, expectedMessage);
     }
 
     public CassandraUtils createUDTs() {
@@ -220,12 +257,15 @@ public class CassandraUtils {
         Index index = index(keyspace, table, indexName).column(indexColumn)
                                                        .refreshSeconds(REFRESH)
                                                        .indexingThreads(THREADS);
-        for (Map.Entry<String, Mapper> entry : mappers.entrySet()) {
-            index.mapper(entry.getKey(), entry.getValue());
-        }
+        mappers.forEach(index::mapper);
+        analyzers.forEach(index::analyzer);
         execute(index.build());
 
         return waitForIndexBuilt();
+    }
+
+    public <T extends Exception> CassandraUtils createIndex(Class<T> expectedClass, String expectedMessage) {
+        return check(this::createIndex, expectedClass, expectedMessage);
     }
 
     public CassandraUtils dropIndex() {
@@ -233,7 +273,7 @@ public class CassandraUtils {
         return this;
     }
 
-    public CassandraUtilsSelect selectAllFromIndexQueryWithFiltering(int limit, String name, Object value) {
+    public CassandraUtilsSelect searchAllWithFiltering(int limit, String name, Object value) {
         return searchAll().andEq(name, value).limit(limit).allowFiltering(true);
     }
 
@@ -260,14 +300,44 @@ public class CassandraUtils {
         return this;
     }
 
+    public <T extends Exception> CassandraUtils insert(Class<T> expectedClass,
+                                                       String expectedMessage,
+                                                       final Map<String, String>... paramss) {
+        return check(() -> insert(paramss), expectedClass, expectedMessage);
+    }
+
+    public final CassandraUtils insert(String names, Object... values) {
+        return insert(names.split(","), values);
+    }
+
     public CassandraUtils insert(String[] names, Object[] values) {
         execute(QueryBuilder.insertInto(keyspace, table).values(names, values));
         return this;
     }
 
+    public CassandraUtils insert(String[] names, Iterable<Object[]> values) {
+        Batch batch = QueryBuilder.unloggedBatch();
+        for (Object[] vs : values) {
+            batch.add(QueryBuilder.insertInto(keyspace, table).values(names, vs));
+        }
+        execute(batch);
+        return this;
+    }
+
+    public <T extends Exception> CassandraUtils insert(String[] names,
+                                                       Object[] values,
+                                                       Class<T> expectedClass,
+                                                       String expectedMessage) {
+        return check(() -> insert(names, values), expectedClass, expectedMessage);
+    }
+
     public CassandraUtils insert(String[] names, Object[] values, Integer ttl) {
         execute(QueryBuilder.insertInto(keyspace, table).values(names, values).using(QueryBuilder.ttl(ttl)));
         return this;
+    }
+
+    public Insert asInsert(String[] names, Object[] values) {
+        return QueryBuilder.insertInto(keyspace, table).values(names, values);
     }
 
     public CassandraUtilsDelete delete(String... names) {
@@ -282,20 +352,24 @@ public class CassandraUtils {
         return new CassandraUtilsSelect(this);
     }
 
+    public CassandraUtilsSelect search() {
+        return select().search();
+    }
+
     public CassandraUtilsSelect searchAll() {
         return select().search().filter(all());
     }
 
-    public CassandraUtilsSelect query(Condition query) {
-        return select().query(query);
+    public CassandraUtilsSelect filter(Condition... conditions) {
+        return select().filter(conditions);
     }
 
-    public CassandraUtilsSelect filter(Condition filter) {
-        return select().filter(filter);
+    public CassandraUtilsSelect query(Condition... conditions) {
+        return select().query(conditions);
     }
 
-    public CassandraUtilsSelect sort(SortField... sort) {
-        return select().sort(sort);
+    public CassandraUtilsSelect sort(SortField... fields) {
+        return select().sort(fields);
     }
 
     public List<Row> searchWithPreparedStatement(Search search) {
@@ -340,12 +414,8 @@ public class CassandraUtils {
         return this;
     }
 
-    public int getIndexNumDeletedDocs() {
-        return getJMXAttribute(indexBean, "NumDeletedDocs").stream().mapToInt(o -> (int) o).sum() / REPLICATION;
-    }
-
     public int getIndexNumDocs() {
-        return getJMXAttribute(indexBean, "NumDocs").stream().mapToInt(o -> (int) o).sum() / REPLICATION;
+        return getJMXAttribute(indexBean, "NumDocs").stream().mapToInt(o -> ((Number) o).intValue()).sum() / REPLICATION;
     }
 
     @SuppressWarnings("unchecked")

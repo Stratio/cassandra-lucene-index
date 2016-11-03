@@ -55,7 +55,7 @@ public abstract class SortField {
      *
      * @return the names of the involved fields
      */
-    public abstract Set<String> involvedFields();
+    public abstract Set<String> postProcessingFields();
 
     /** {@inheritDoc} */
     @Override

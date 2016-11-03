@@ -19,12 +19,11 @@ import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -38,7 +37,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.*;
  */
 public class BooleanCondition extends Condition {
 
-    private static final Logger logger = LoggerFactory.getLogger(BooleanCondition.class);
+    protected static final Logger logger = LoggerFactory.getLogger(BooleanCondition.class);
 
     /** The mandatory conditions. */
     public final List<Condition> must;
@@ -54,53 +53,45 @@ public class BooleanCondition extends Condition {
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
      * weightings) have their score multiplied by {@code boost}.
-     * @param must the mandatory {@link Condition}s
-     * @param should the optional {@link Condition}s
-     * @param not the mandatory not {@link Condition}s
+     * @param must the mandatory conditions
+     * @param should the optional conditions
+     * @param not the mandatory not conditions
      */
-    public BooleanCondition(Float boost, List<Condition> must, List<Condition> should, List<Condition> not) {
-
+    public BooleanCondition(Float boost,
+                            List<Condition> must,
+                            List<Condition> should,
+                            List<Condition> not) {
         super(boost);
-        this.must = must == null ? new LinkedList<>() : must;
-        this.should = should == null ? new LinkedList<>() : should;
-        this.not = not == null ? new LinkedList<>() : not;
+        this.must = must == null ? Collections.EMPTY_LIST : must;
+        this.should = should == null ? Collections.EMPTY_LIST : should;
+        this.not = not == null ? Collections.EMPTY_LIST : not;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(Schema schema) {
+    public BooleanQuery doQuery(Schema schema) {
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
-        for (Condition condition : must) {
-            builder.add(condition.query(schema), MUST);
-        }
-        for (Condition condition : should) {
-            builder.add(condition.query(schema), SHOULD);
-        }
-        for (Condition condition : not) {
-            builder.add(condition.query(schema), MUST_NOT);
-        }
+        must.forEach(condition -> builder.add(condition.query(schema), MUST));
+        should.forEach(condition -> builder.add(condition.query(schema), SHOULD));
+        not.forEach(condition -> builder.add(condition.query(schema), MUST_NOT));
         if (must.isEmpty() && should.isEmpty() && !not.isEmpty()) {
-            logger.warn("Performing resource-intensive pure negation search");
+            logger.warn("Performing resource-intensive pure negation query {}", this);
             builder.add(new MatchAllDocsQuery(), FILTER);
         }
         return builder.build();
     }
 
     /** {@inheritDoc} */
-    public Set<String> involvedFields() {
+    public Set<String> postProcessingFields() {
         Set<String> fields = new LinkedHashSet<>();
-        must.stream().forEach(condition -> fields.addAll(condition.involvedFields()));
-        should.stream().forEach(condition -> fields.addAll(condition.involvedFields()));
-        not.stream().forEach(condition -> fields.addAll(condition.involvedFields()));
+        must.forEach(condition -> fields.addAll(condition.postProcessingFields()));
+        should.forEach(condition -> fields.addAll(condition.postProcessingFields()));
         return fields;
     }
 
     /** {@inheritDoc} */
     @Override
     public MoreObjects.ToStringHelper toStringHelper() {
-        return toStringHelper(this)
-                .add("must", must)
-                .add("should", should)
-                .add("not", not);
+        return toStringHelper(this).add("must", must).add("should", should).add("not", not);
     }
 }

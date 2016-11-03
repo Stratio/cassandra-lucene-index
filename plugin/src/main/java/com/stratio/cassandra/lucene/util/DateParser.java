@@ -16,57 +16,52 @@
 package com.stratio.cassandra.lucene.util;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.column.Column;
+import org.apache.cassandra.db.marshal.SimpleDateType;
+import org.apache.cassandra.serializers.SimpleDateSerializer;
 import org.apache.cassandra.utils.UUIDGen;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
 /**
- * Unified class for parse a {@link Date}s from {@link Object}s including a {@code String} pattern.
+ * Unified class for parsing {@link Date}s from {@link Object}s.
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class DateParser {
 
-    /** The default date pattern for {@code String}s. */
+    /** The default date pattern for parsing {@code String}s and truncations. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS Z";
 
-    /** The pattern value for timestamps. */
-    public static final String TIMESTAMP_PATTERN_FIELD = "timestamp";
-
-    private static final Long DAYS_TO_MILLIS = 24L * 60L * 60L * 1000L;
-
     /** The {@link SimpleDateFormat} pattern. */
-    private final String pattern;
+    public final String pattern;
 
     /** The thread safe date format. */
-    private final ThreadLocal<DateFormat> concurrentDateFormat;
+    private final ThreadLocal<DateFormat> formatter;
 
     /**
      * Constructor with pattern.
      *
-     * @param pattern the {@link SimpleDateFormat} pattern to use
+     * @param pattern the {@link SimpleDateFormat} pattern
      */
     public DateParser(String pattern) {
-
         this.pattern = pattern == null ? DEFAULT_PATTERN : pattern;
+        formatter = formatter(this.pattern);
+    }
 
-        // Validate pattern if is not "timestamp"
-        if (!this.pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
-            new SimpleDateFormat(this.pattern);
-            this.concurrentDateFormat = new ThreadLocal<DateFormat>() {
-                @Override
-                protected DateFormat initialValue() {
-                    return new SimpleDateFormat(DateParser.this.pattern);
-                }
-            };
-            this.concurrentDateFormat.get().setLenient(false);
-        } else {
-            this.concurrentDateFormat = null;
-        }
+    private static ThreadLocal<DateFormat> formatter(final String pattern) {
+        new SimpleDateFormat(pattern);
+        ThreadLocal<DateFormat> formatter = new ThreadLocal<DateFormat>() {
+            @Override
+            protected DateFormat initialValue() {
+                return new SimpleDateFormat(pattern);
+            }
+        };
+        formatter.get().setLenient(false);
+        return formatter;
     }
 
     /**
@@ -74,83 +69,45 @@ public class DateParser {
      * Object} is {@code null}.
      *
      * @param value the {@link Object} to be parsed
+     * @param <K> the type of the value to be parsed
      * @return the parsed {@link Date}
      */
-    public Date parse(Object value) {
+    public final <K> Date parse(K value) {
+
         if (value == null) {
             return null;
-        } else if (value instanceof Date) {
-            return (Date) value;
-        } else if (value instanceof Integer) {
-            if ((Integer) value < 0) {
-                throw new IndexException("Required positive Integer for dates but found '%s'", value);
-            } else {
-                return new Date(DAYS_TO_MILLIS * (Integer) value);
-            }
-        } else if (value instanceof Long) {
-            if ((Long) value < 0L) {
-                throw new IndexException("Required positive Long for dates but found '%s'", value);
-            } else {
-                return new Date((Long) value);
-            }
-        } else if (value instanceof UUID) {
-            try {
-                return new Date(UUIDGen.unixTimestamp((UUID) value));
-            } catch (UnsupportedOperationException e) {
-                throw new IndexException("Required a version 1 UUID but found '%s'", value);
-            }
-        } else {
-            if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
-                return parseAsTimestamp(value);
-            } else {
-                return parseAsFormattedDate(value);
-            }
         }
-    }
 
-    private Date parseAsTimestamp(Object value) {
-        Long valueLong;
-        if (value instanceof Number) {
-            valueLong = ((Number) value).longValue();
-        } else {
-            try {
-                valueLong = Long.parseLong((value).toString());
-            } catch (NumberFormatException e) {
-                valueLong = null;
-            }
-        }
-        if (valueLong != null) {
-            return new Date(valueLong);
-        } else {
-            throw new IndexException("Valid timestamp required but found '%s'", value);
-        }
-    }
-
-    private Date parseAsFormattedDate(Object value) {
         try {
-            return concurrentDateFormat.get().parse(value.toString());
-        } catch (ParseException e) {
-            throw new IndexException("Required date with pattern '%s' but found '%s'", pattern, value);
+            if (value instanceof Date) {
+                Date date = (Date) value;
+                if (date.getTime() == Long.MAX_VALUE || date.getTime() == Long.MIN_VALUE) {
+                    return date;
+                } else {
+                    String string = formatter.get().format(date);
+                    return formatter.get().parse(string);
+                }
+            } else if (value instanceof UUID) {
+                long timestamp = UUIDGen.unixTimestamp((UUID) value);
+                Date date = new Date(timestamp);
+                return formatter.get().parse(formatter.get().format(date));
+            } else if (Number.class.isAssignableFrom(value.getClass())) {
+                Long number = ((Number) value).longValue();
+                return formatter.get().parse(number.toString());
+            } else {
+                return formatter.get().parse(value.toString());
+            }
+        } catch (Exception e) {
+            throw new IndexException(e, "Error parsing {} with value '{}' using date pattern {}",
+                                     value.getClass().getSimpleName(), value, pattern);
         }
     }
 
-    /** {@inheritDoc} */
-    @Override
+    public String toString(Date date) {
+        return formatter.get().format(date);
+    }
+
     public String toString() {
         return pattern;
-    }
-
-    /**
-     * Returns the {@link String} representation of the specified {@link Date}.
-     *
-     * @param date the date
-     * @return the {@link String} representation of {@code Date}
-     */
-    public String toString(Date date) {
-        if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
-            return ((Long) date.getTime()).toString();
-        } else {
-            return concurrentDateFormat.get().format(date);
-        }
     }
 }

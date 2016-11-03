@@ -20,9 +20,7 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.prefix.NumberRangePrefixTreeStrategy;
@@ -30,8 +28,11 @@ import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * A {@link Mapper} to map 1-dimensional date ranges.
@@ -46,11 +47,8 @@ public class DateRangeMapper extends Mapper {
     /** The name of the column containing the to date. */
     public final String to;
 
-    /** The date format pattern. */
-    public final String pattern;
-
     /** The {@link DateParser}. */
-    private final DateParser dateParser;
+    public final DateParser parser;
 
     private final DateRangePrefixTree tree;
 
@@ -64,21 +62,10 @@ public class DateRangeMapper extends Mapper {
      * @param validated if the field must be validated
      * @param from the name of the column containing the from date
      * @param to the name of the column containing the to date
-     * @param pattern the date format pattern
+     * @param pattern the date pattern
      */
     public DateRangeMapper(String field, Boolean validated, String from, String to, String pattern) {
-        super(field,
-              false,
-              validated,
-              null,
-              Arrays.asList(from, to),
-              AsciiType.instance,
-              UTF8Type.instance,
-              Int32Type.instance,
-              LongType.instance,
-              IntegerType.instance,
-              SimpleDateType.instance,
-              TimestampType.instance, TimeUUIDType.instance);
+        super(field, false, validated, null, Arrays.asList(from, to), DATE_TYPES);
 
         if (StringUtils.isBlank(from)) {
             throw new IndexException("from column name is required");
@@ -90,29 +77,26 @@ public class DateRangeMapper extends Mapper {
 
         this.from = from;
         this.to = to;
-        this.tree = DateRangePrefixTree.INSTANCE;
-        this.strategy = new NumberRangePrefixTreeStrategy(tree, field);
-        this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
-        this.dateParser = new DateParser(this.pattern);
+        this.parser = new DateParser(pattern);
+        tree = DateRangePrefixTree.INSTANCE;
+        strategy = new NumberRangePrefixTreeStrategy(tree, field);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void addFields(Document document, Columns columns) {
+    public List<IndexableField> indexableFields(Columns columns) {
 
         Date fromDate = readFrom(columns);
         Date toDate = readTo(columns);
 
         if (fromDate == null && toDate == null) {
-            return;
+            return Collections.emptyList();
         }
 
         validate(fromDate, toDate);
 
         NRShape shape = makeShape(fromDate, toDate);
-        for (IndexableField indexableField : strategy.createIndexableFields(shape)) {
-            document.add(indexableField);
-        }
+        return Arrays.asList(strategy.createIndexableFields(shape));
     }
 
     private void validate(Date from, Date to) {
@@ -123,14 +107,14 @@ public class DateRangeMapper extends Mapper {
             throw new IndexException("To column required");
         }
         if (from.after(to)) {
-            throw new IndexException("From:'%s' is after To:'%s'", dateParser.toString(to), dateParser.toString(from));
+            throw new IndexException("From:'{}' is after To:'{}'", parser.toString(to), parser.toString(from));
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new IndexException("Date range mapper '%s' does not support sorting", name);
+        throw new IndexException("Date range mapper '{}' does not support sorting", name);
     }
 
     /**
@@ -153,12 +137,12 @@ public class DateRangeMapper extends Mapper {
      * @return the start date
      */
     Date readFrom(Columns columns) {
-        Column<?> column = columns.getColumnsByFullName(from).getFirst();
+        Column<?> column = columns.withFieldName(from).head();
         if (column == null) {
             return null;
         }
-        Date fromDate = base(column.getComposedValue());
-        if (to == null) {
+        Date fromDate = parser.parse(column.value().getOrElse(null));
+        if (fromDate == null) {
             throw new IndexException("From date required");
         }
         return fromDate;
@@ -171,11 +155,11 @@ public class DateRangeMapper extends Mapper {
      * @return the end date
      */
     Date readTo(Columns columns) {
-        Column<?> column = columns.getColumnsByFullName(to).getFirst();
+        Column<?> column = columns.withFieldName(to).head();
         if (column == null) {
             return null;
         }
-        Date toDate = base(column.getComposedValue());
+        Date toDate = parser.parse(column.value().getOrElse(null));
         if (toDate == null) {
             throw new IndexException("To date required");
         }
@@ -190,7 +174,7 @@ public class DateRangeMapper extends Mapper {
      * @return the date represented by the specified object, or {@code null} if there is no one
      */
     public Date base(Object value) {
-        return dateParser.parse(value);
+        return parser.parse(value);
     }
 
     /** {@inheritDoc} */
@@ -201,7 +185,7 @@ public class DateRangeMapper extends Mapper {
                           .add("validated", validated)
                           .add("from", from)
                           .add("to", to)
-                          .add("pattern", pattern)
+                          .add("pattern", parser)
                           .toString();
     }
 }

@@ -58,7 +58,7 @@ public class GeospatialUtilsJTS extends GeospatialUtils {
             }
             return CONTEXT.makeShape(geometry);
         } catch (ParseException | IllegalArgumentException e) {
-            throw new IndexException(e, "Shape '%s' is not parseable", string);
+            throw new IndexException(e, "Shape '{}' is not parseable", string);
         }
     }
 }

@@ -198,7 +198,7 @@ public class TextMapperTest extends AbstractMapperTest {
     @Test
     public void testExtractAnalyzers() {
         TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
-        assertEquals("Method #getAnalyzer is wrong", "org.apache.lucene.analysis.en.EnglishAnalyzer", mapper.analyzer);
+        assertEquals("Method #analyzer is wrong", "org.apache.lucene.analysis.en.EnglishAnalyzer", mapper.analyzer);
     }
 
     @Test
