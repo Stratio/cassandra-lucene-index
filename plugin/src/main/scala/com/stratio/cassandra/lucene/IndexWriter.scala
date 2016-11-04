@@ -15,12 +15,14 @@
  */
 package com.stratio.cassandra.lucene
 
-import org.apache.cassandra.db.rows.Row
-import org.apache.cassandra.db.{DecoratedKey, DeletionTime, RangeTombstone}
+import com.stratio.cassandra.lucene.IndexWriter.logger
+import org.apache.cassandra.db._
+import org.apache.cassandra.db.filter.{ClusteringIndexNamesFilter, ColumnFilter}
+import org.apache.cassandra.db.rows.{Row, UnfilteredRowIterator}
+import org.apache.cassandra.index.Index.Indexer
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
 import org.slf4j.LoggerFactory
-import org.apache.cassandra.index.Index.Indexer
 
 /** [[Indexer]] for Lucene-based index.
   *
@@ -31,13 +33,15 @@ import org.apache.cassandra.index.Index.Indexer
   * @param transactionType what kind of update is being performed on the base data
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-abstract class IndexWriter(service: IndexService,
-                           key: DecoratedKey,
-                           nowInSec: Int,
-                           opGroup: OpOrder.Group,
-                           transactionType: IndexTransaction.Type) extends Indexer {
+abstract class IndexWriter(
+    service: IndexService,
+    key: DecoratedKey,
+    nowInSec: Int,
+    opGroup: OpOrder.Group,
+    transactionType: IndexTransaction.Type) extends Indexer {
 
-  protected val logger = LoggerFactory.getLogger(classOf[IndexWriter])
+  val metadata = service.metadata
+  val table = service.table
 
   /** @inheritdoc */
   override def begin() {
@@ -80,4 +84,46 @@ abstract class IndexWriter(service: IndexService,
     * @param row the row to be indexed.
     */
   protected def index(row: Row)
+
+  /** Retrieves from the local storage all the rows in the specified partition.
+    *
+    * @param key      the partition key
+    * @param nowInSec max allowed time in seconds
+    * @param orderGroup the Cassandra read order group
+    * @return a row iterator
+    */
+  protected def read(
+      key: DecoratedKey,
+      nowInSec: Int,
+      orderGroup: OpOrder.Group): UnfilteredRowIterator = {
+    val clusterings = new java.util.TreeSet[Clustering](metadata.comparator)
+    clusterings.add(Clustering.EMPTY)
+    read(key, clusterings, nowInSec, orderGroup)
+  }
+
+  /** Retrieves from the local storage the rows in the specified partition slice.
+    *
+    * @param key         the partition key
+    * @param clusterings the clustering keys
+    * @param nowInSec    max allowed time in seconds
+    * @param orderGroup the Cassandra read order group
+    * @return a row iterator
+    */
+  protected def read(
+      key: DecoratedKey,
+      clusterings: java.util.NavigableSet[Clustering],
+      nowInSec: Int,
+      orderGroup: OpOrder.Group): UnfilteredRowIterator = {
+    val filter = new ClusteringIndexNamesFilter(clusterings, false)
+    val columnFilter = ColumnFilter.all(metadata)
+    val command = SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter)
+    command.queryMemtableAndDisk(table, orderGroup)
+  }
+
+}
+
+object IndexWriter {
+
+  protected val logger = LoggerFactory.getLogger(classOf[IndexWriter])
+
 }

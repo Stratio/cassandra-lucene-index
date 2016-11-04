@@ -57,7 +57,7 @@ class IndexWriterSkinny(service: IndexServiceSkinny,
       row.map(row => {
         if (transactionType == COMPACTION || service.needsReadBeforeWrite(key, row)) {
           Tracer.trace("Lucene index reading before write")
-          val iterator = service.read(key, nowInSec, opGroup)
+          val iterator = read(key, nowInSec, opGroup)
           if (iterator.hasNext) iterator.next.asInstanceOf[Row] else row
         } else row
       }).foreach(row => {
