@@ -26,8 +26,6 @@ import org.apache.lucene.search.EarlyTerminatingSortingCollector._
 import org.apache.lucene.search._
 import org.slf4j.LoggerFactory
 
-import scala.collection.JavaConversions._
-
 /** [[CloseableIterator]] for retrieving Lucene documents satisfying a query.
   *
   * @param manager   the Lucene index searcher manager
@@ -44,7 +42,7 @@ class DocumentIterator(manager: SearcherManager,
                        querySort: Sort,
                        query: Query,
                        limit: Int,
-                       fields: Set[String])
+                       fields: java.util.Set[String])
   extends Iterator[(Document, ScoreDoc)] with AutoCloseable {
 
   private[this] val pageSize = Math.min(limit, MAX_PAGE_SIZE) + 1

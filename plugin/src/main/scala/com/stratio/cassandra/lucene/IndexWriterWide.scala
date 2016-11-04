@@ -21,7 +21,7 @@ import org.apache.cassandra.db.{Clustering, DecoratedKey}
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 
@@ -75,6 +75,7 @@ class IndexWriterWide(
 
     // Read required rows from storage engine
     read(key, rowsToRead, nowInSec, opGroup)
+      .asScala
       .map(_.asInstanceOf[Row])
       .foreach(row => rows.put(row.clustering(), Some(row)))
 

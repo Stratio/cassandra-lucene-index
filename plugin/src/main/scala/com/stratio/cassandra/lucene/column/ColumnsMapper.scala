@@ -29,7 +29,7 @@ import org.apache.cassandra.transport.Server._
 import org.apache.cassandra.utils.ByteBufferUtil
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /** Maps Cassandra rows to [[Columns]].
   *
@@ -42,7 +42,7 @@ object ColumnsMapper {
     * @param row the Cassandra row to be mapped
     */
   def columns(row: Row): Columns = {
-    row.columns().foldLeft(Columns())(
+    row.columns().asScala.foldLeft(Columns())(
       (cs, columnDefinition) =>
         if (columnDefinition.isComplex)
           cs + columns(row.getComplexColumnData(columnDefinition))
@@ -52,7 +52,7 @@ object ColumnsMapper {
   }
 
   private[column] def columns(complexColumnData: ComplexColumnData): Columns = {
-    complexColumnData.foldLeft(Columns())((cs, cell) => cs + columns(cell))
+    complexColumnData.asScala.foldLeft(Columns())((cs, cell) => cs + columns(cell))
   }
 
   private[column] def columns(cell: Cell): Columns = {
@@ -207,7 +207,7 @@ object ColumnsMapper {
       metadata: CFMetaData,
       column: String,
       field: String,
-      supportedTypes: java.util.List[Class[_]]) {
+      supportedTypes: List[Class[_]]) {
 
     val cellName = Column.parse(column).cellName
     val cellDefinition = metadata.getColumnDefinition(UTF8Type.instance.decompose(cellName))

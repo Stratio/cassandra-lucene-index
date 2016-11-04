@@ -29,7 +29,7 @@ import org.apache.lucene.search.FieldComparator.TermValComparator
 import org.apache.lucene.search._
 import org.apache.lucene.util.BytesRef
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /** Class for several partition key mappings between Cassandra and Lucene.
   *
@@ -40,6 +40,7 @@ class PartitionMapper(metadata: CFMetaData) {
 
   val partitioner = DatabaseDescriptor.getPartitioner
   val validator = metadata.getKeyValidator
+  val partitionKeyColumns = metadata.partitionKeyColumns.asScala
 
   /** Returns the columns contained in the partition key of the specified row.
     *
@@ -53,7 +54,7 @@ class PartitionMapper(metadata: CFMetaData) {
       case _ => Array[ByteBuffer](key.getKey)
     }
 
-    metadata.partitionKeyColumns.foldLeft(new Columns)(
+    partitionKeyColumns.foldLeft(new Columns)(
       (columns, cd) => {
         val name = cd.name.toString
         val value = components(cd.position)

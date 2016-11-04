@@ -28,7 +28,7 @@ import org.apache.cassandra.db.{DecoratedKey, ReadCommand, ReadQuery, SinglePart
 import org.apache.lucene.document.{Document, StoredField}
 import org.slf4j.LoggerFactory
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 /** Post processes in the coordinator node the results of a distributed search. In other words,
@@ -59,7 +59,7 @@ sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
   private def collect(partitions: PartitionIterator): List[(DecoratedKey, SimpleRowIterator)] = {
     val time = TimeCounter.create.start
     val rows = mutable.ListBuffer[(DecoratedKey, SimpleRowIterator)]()
-    for (partition <- partitions) {
+    for (partition <- partitions.asScala) {
       try {
         val key = partition.partitionKey
         while (partition.hasNext) {
@@ -115,7 +115,7 @@ sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
     val doc = new Document
     val cols = service.columns(key, row)
     service.keyIndexableFields(key, row).foreach(doc.add)
-    service.schema.postProcessingIndexableFields(cols, search).foreach(doc.add)
+    service.schema.postProcessingIndexableFields(cols, search).asScala.foreach(doc.add)
     doc
   }
 }

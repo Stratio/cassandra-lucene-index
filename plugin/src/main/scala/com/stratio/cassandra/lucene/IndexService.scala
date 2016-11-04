@@ -37,7 +37,7 @@ import org.apache.lucene.index.{IndexableField, Term}
 import org.apache.lucene.search.{Query, Sort, SortField}
 import org.slf4j.LoggerFactory
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 /** Lucene index service provider.
@@ -63,7 +63,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   val tokenMapper = new TokenMapper
   val partitionMapper = new PartitionMapper(metadata)
   val expressionMapper = ExpressionMapper(metadata, indexMetadata)
-  val regulars = metadata.partitionColumns.regulars.toSet
+  val regulars = metadata.partitionColumns.regulars.asScala.toSet
   val mappedRegulars = regulars.map(_.name.toString).filter(schema.mappedCells.contains)
   val mapsMultiCell = regulars.exists(x => x.`type`.isMultiCell && schema.mapsCell(x.name.toString))
 
@@ -113,7 +113,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     *
     * @return the names of the fields to be loaded
     */
-  def fieldsToLoad: Set[String]
+  def fieldsToLoad: java.util.Set[String]
 
   /** Returns a [[Columns]] representing the specified row.
     *
@@ -169,7 +169,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @return `true` if read-before-write is required, `false` otherwise
     */
   def needsReadBeforeWrite(key: DecoratedKey, row: Row): Boolean = {
-    mapsMultiCell || !mappedRegulars.subsetOf(row.columns.map(_.name.toString).toSet)
+    mapsMultiCell || !mappedRegulars.subsetOf(row.columns.asScala.map(_.name.toString).toSet)
   }
 
   /** Returns the [[DecoratedKey]] contained in the specified Lucene document.
@@ -229,7 +229,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
         } else {
           val doc = new Document()
           keyIndexableFields(key, row).foreach(doc.add)
-          fields.foreach(doc.add)
+          fields.asScala.foreach(doc.add)
           lucene.upsert(t, doc)
         }
       })
@@ -330,7 +330,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   def sort(search: Search): Sort = {
     val sortFields = mutable.ListBuffer[SortField]()
     if (search.usesSorting) {
-      sortFields ++= search.sortFields(schema)
+      sortFields ++= search.sortFields(schema).asScala
     }
     if (search.usesRelevance) {
       sortFields += SortField.FIELD_SCORE
@@ -356,7 +356,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     */
   def validate(update: PartitionUpdate) {
     val key = update.partitionKey
-    update.foreach(row => schema.validate(columns(key, row)))
+    update.asScala.foreach(row => schema.validate(columns(key, row)))
   }
 
   /** @inheritdoc */

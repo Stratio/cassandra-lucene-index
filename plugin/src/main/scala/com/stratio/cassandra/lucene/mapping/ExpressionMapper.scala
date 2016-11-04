@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.lucene.search.ScoreDoc
 import org.apache.cassandra.db.filter.RowFilter.Expression
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import com.stratio.cassandra.lucene.mapping.ExpressionMapper.parse
 
 /** Class for several [[Expression]] mappings between Cassandra and Lucene.
@@ -43,7 +43,7 @@ case class ExpressionMapper(tableMetadata: CFMetaData, indexMetadata: IndexMetad
 
   val name = indexMetadata.name
   val column = Option(indexMetadata.options.get(TARGET_OPTION_NAME)).filterNot(StringUtils.isBlank)
-  val columns = tableMetadata.allColumns.toSet
+  val columns = tableMetadata.allColumns.asScala.toSet
   val columnDefinition = column.flatMap(name => columns.find(_.name.toString == name))
 
   def search(command: ReadCommand): Search = {
@@ -55,7 +55,7 @@ case class ExpressionMapper(tableMetadata: CFMetaData, indexMetadata: IndexMetad
   }
 
   def json(command: ReadCommand): String = {
-    command.rowFilter.getExpressions.collect {
+    command.rowFilter.getExpressions.asScala.collect {
       case e: CustomExpression if name == e.getTargetIndex.name => e.getValue
       case e if supports(e) => e.getIndexValue
     }.map(UTF8Type.instance.compose).head
@@ -96,7 +96,7 @@ case class ExpressionMapper(tableMetadata: CFMetaData, indexMetadata: IndexMetad
     */
   def postIndexQueryFilter(filter: RowFilter): RowFilter = {
     if (column.isEmpty) return filter
-    filter.foldLeft(filter)((f, e) => if (supports(e)) f.without(e) else f)
+    filter.asScala.foldLeft(filter)((f, e) => if (supports(e)) f.without(e) else f)
   }
 
   def decorate(row: Row, score: ScoreDoc, nowInSec: Int): Row = {
@@ -109,7 +109,7 @@ case class ExpressionMapper(tableMetadata: CFMetaData, indexMetadata: IndexMetad
     builder.newRow(row.clustering())
     builder.addRowDeletion(row.deletion)
     builder.addPrimaryKeyLivenessInfo(row.primaryKeyLivenessInfo)
-    row.cells.foreach(builder.addCell)
+    row.cells.asScala.foreach(builder.addCell)
 
     // Add score cell
     val timestamp = row.primaryKeyLivenessInfo.timestamp

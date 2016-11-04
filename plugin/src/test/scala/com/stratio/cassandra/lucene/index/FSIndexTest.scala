@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.index
 
 import java.nio.file.Paths
-import java.util.UUID
+import java.util.{Collections, UUID}
 
 import com.stratio.cassandra.lucene.BaseScalaTest
 import com.stratio.cassandra.lucene.IndexOptions._
@@ -42,7 +42,7 @@ class FSIndexTest extends BaseScalaTest {
     doWithIndex(
       index => {
         val sort = new Sort(new SortedSetSortField("field", false))
-        val fields = Set("field")
+        val fields = Collections.singleton("field")
         index.init(sort, fields)
 
         assertEquals("Index must be empty", 0, index.getNumDocs)
@@ -105,7 +105,7 @@ class FSIndexTest extends BaseScalaTest {
     doWithIndex(
       index => {
         val sort = new Sort(new SortedNumericSortField("field", SortField.Type.INT, false))
-        val fields = Set("field")
+        val fields = Collections.singleton("field")
         index.init(sort, fields)
 
         assertEquals("Index must be empty", 0, index.getNumDocs)

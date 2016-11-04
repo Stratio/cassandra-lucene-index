@@ -38,7 +38,7 @@ import org.apache.lucene.search.FieldComparator.TermValComparator
 import org.apache.lucene.search._
 import org.apache.lucene.util.{AttributeSource, BytesRef}
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /** Class for several clustering key mappings between Cassandra and Lucene.
   *
@@ -53,13 +53,15 @@ class ClusteringMapper(metadata: CFMetaData) {
   /** A composite type composed by the types of the clustering key */
   val clusteringType = CompositeType.getInstance(comparator.subtypes)
 
+  val clusteringColumns = metadata.clusteringColumns.asScala
+
   /** Returns the columns contained in the specified [[Clustering]].
     *
     * @param clustering the clustering key
     * @return the columns
     */
   def columns(clustering: Clustering): Columns = {
-    metadata.clusteringColumns.foldLeft(new Columns)(
+    clusteringColumns.foldLeft(new Columns)(
       (columns, columnDefinition) => {
         val name = columnDefinition.name.toString
         val position = columnDefinition.position
@@ -75,7 +77,7 @@ class ClusteringMapper(metadata: CFMetaData) {
     * @param clustering the clustering key
     * @return a indexable field
     */
-  def indexableFields(key: DecoratedKey, clustering: Clustering): java.util.List[IndexableField] = {
+  def indexableFields(key: DecoratedKey, clustering: Clustering): List[IndexableField] = {
     // TODO: return Seq
 
     // Build stored field for clustering key retrieval
@@ -166,7 +168,7 @@ class ClusteringMapper(metadata: CFMetaData) {
     * @return the Lucene query
     */
   def query(key: DecoratedKey, filter: ClusteringIndexSliceFilter): Query = {
-    filter.requestedSlices.foldLeft(new BooleanQuery.Builder)(
+    filter.requestedSlices.asScala.foldLeft(new BooleanQuery.Builder)(
       (builder, slice) => {
         builder.add(query(key, slice), SHOULD)
       }).build

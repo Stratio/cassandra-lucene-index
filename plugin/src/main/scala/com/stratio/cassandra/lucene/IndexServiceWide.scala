@@ -15,8 +15,7 @@
  */
 package com.stratio.cassandra.lucene
 
-import java.{util => java}
-
+import com.google.common.collect.Sets
 import com.stratio.cassandra.lucene.column.{Columns, ColumnsMapper}
 import com.stratio.cassandra.lucene.index.DocumentIterator
 import com.stratio.cassandra.lucene.mapping.ClusteringMapper._
@@ -33,7 +32,7 @@ import org.apache.lucene.index.{IndexableField, Term}
 import org.apache.lucene.search.BooleanClause.Occur._
 import org.apache.lucene.search.{BooleanQuery, Query, SortField}
 
-import scala.collection.JavaConversions._
+import scala.collection.mutable
 
 /** [[IndexService]] for wide rows.
   *
@@ -50,8 +49,8 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
   init()
 
   /** @inheritdoc */
-  override def fieldsToLoad: Set[String] = {
-    Set(PartitionMapper.FIELD_NAME, ClusteringMapper.FIELD_NAME)
+  override def fieldsToLoad: java.util.Set[String] = {
+    Sets.newHashSet(PartitionMapper.FIELD_NAME, ClusteringMapper.FIELD_NAME)
   }
 
   /** @inheritdoc */
@@ -88,11 +87,11 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
   /** @inheritdoc */
   override def keyIndexableFields(key: DecoratedKey, row: Row): List[IndexableField] = {
     val clustering = row.clustering
-    val fields = new java.LinkedList[IndexableField]()
-    fields.add(tokenMapper.indexableField(key))
-    fields.add(partitionMapper.indexableField(key))
-    fields.add(keyMapper.indexableField(key, clustering))
-    fields.addAll(clusteringMapper.indexableFields(key, clustering))
+    val fields = mutable.ListBuffer.empty[IndexableField]
+    fields += tokenMapper.indexableField(key)
+    fields += partitionMapper.indexableField(key)
+    fields += keyMapper.indexableField(key, clustering)
+    fields ++= clusteringMapper.indexableFields(key, clustering)
     fields.toList
   }
 
@@ -170,7 +169,7 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
 
     // Return query, or empty if there are no restrictions
     val booleanQuery = builder.build
-    if (booleanQuery.clauses.nonEmpty) Some(booleanQuery) else None
+    if (booleanQuery.clauses.isEmpty) None else Some(booleanQuery)
   }
 
   /** @inheritdoc */

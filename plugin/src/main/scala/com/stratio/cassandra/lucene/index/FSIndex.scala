@@ -46,7 +46,7 @@ class FSIndex(name: String,
               maxCachedMB: Int) {
 
   private[this] var mergeSort: Sort = _
-  private[this] var fields: Set[String] = _
+  private[this] var fields: java.util.Set[String] = _
   private[this] var directory: Directory = _
   private[this] var writer: IndexWriter = _
   private[this] var manager: SearcherManager = _
@@ -57,7 +57,7 @@ class FSIndex(name: String,
     * @param mergeSort the sort to be applied to the index during merges
     * @param fields    the names of the document fields to be loaded
     */
-  def init(mergeSort: Sort, fields: Set[String]) {
+  def init(mergeSort: Sort, fields: java.util.Set[String]) {
     this.mergeSort = mergeSort
     this.fields = fields
 

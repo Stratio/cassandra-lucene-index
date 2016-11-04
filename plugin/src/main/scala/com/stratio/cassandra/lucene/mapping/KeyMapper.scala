@@ -29,7 +29,7 @@ import org.apache.lucene.search.BooleanClause.Occur.SHOULD
 import org.apache.lucene.search.{BooleanQuery, Query, TermQuery}
 import org.apache.lucene.util.BytesRef
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /** Class for several primary key mappings between Cassandra and Lucene.
   *
@@ -98,7 +98,7 @@ class KeyMapper(metadata: CFMetaData) {
     * @return the Lucene query
     */
   def query(key: DecoratedKey, filter: ClusteringIndexNamesFilter): Query = {
-    filter.requestedRows.foldLeft(new BooleanQuery.Builder)(
+    filter.requestedRows.asScala.foldLeft(new BooleanQuery.Builder)(
       (b, c) => b.add(query(key, c), SHOULD)).build
   }
 

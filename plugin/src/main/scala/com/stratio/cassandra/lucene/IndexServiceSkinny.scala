@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene
 
+import com.google.common.collect.Sets
 import com.stratio.cassandra.lucene.column.{Columns, ColumnsMapper}
 import com.stratio.cassandra.lucene.index.DocumentIterator
 import com.stratio.cassandra.lucene.mapping.PartitionMapper
@@ -40,8 +41,8 @@ class IndexServiceSkinny(table: ColumnFamilyStore, index: IndexMetadata)
   init()
 
   /** @inheritdoc */
-  override def fieldsToLoad: Set[String] = {
-    Set(PartitionMapper.FIELD_NAME)
+  override def fieldsToLoad: java.util.Set[String] = {
+    Sets.newHashSet(PartitionMapper.FIELD_NAME)
   }
 
   /** @inheritdoc */
