@@ -25,7 +25,7 @@ import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db.Directories
 import org.apache.cassandra.schema.IndexMetadata
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /** Index user-specified configuration options parser.
   *
@@ -35,7 +35,7 @@ import scala.collection.JavaConversions._
   */
 class IndexOptions(tableMetadata: CFMetaData, indexMetadata: IndexMetadata) {
 
-  val options = indexMetadata.options.toMap
+  val options = indexMetadata.options.asScala.toMap
 
   /** The Lucene index searcher refresh frequency, in seconds */
   val refreshSeconds = parseRefresh(options)
@@ -100,7 +100,7 @@ object IndexOptions {
     * @param metadata the indexed table metadata
     */
   def validate(options: java.util.Map[String, String], metadata: CFMetaData) {
-    val o = options.toMap
+    val o = options.asScala.toMap
     parseRefresh(o)
     parseRamBufferMB(o)
     parseMaxMergeMB(o)
@@ -160,8 +160,8 @@ object IndexOptions {
     options.get(SCHEMA_OPTION).map(
       value => try {
         val schema = SchemaBuilder.fromJson(value).build
-        for (mapper <- schema.mappers.values; column <- mapper.mappedColumns) {
-          ColumnsMapper.validate(table, column, mapper.field, mapper.supportedTypes)
+        for (mapper <- schema.mappers.values.asScala; column <- mapper.mappedColumns.asScala) {
+          ColumnsMapper.validate(table, column, mapper.field, mapper.supportedTypes.asScala.toList)
         }
         schema
       } catch {
