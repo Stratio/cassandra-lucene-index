@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene
 
 import com.stratio.cassandra.lucene.column.{Columns, ColumnsMapper}
 import com.stratio.cassandra.lucene.index.DocumentIterator
-import com.stratio.cassandra.lucene.key.PartitionMapper
+import com.stratio.cassandra.lucene.mapping.PartitionMapper
 import org.apache.cassandra.db.PartitionPosition.Kind._
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.ClusteringIndexFilter

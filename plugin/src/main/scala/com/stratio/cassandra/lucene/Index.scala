@@ -193,7 +193,7 @@ class Index(
     */
   override def supportsExpression(column: ColumnDefinition, operator: Operator): Boolean = {
     logger.trace(s"Asking if the index supports the expression $column $operator")
-    service.supportsExpression(column, operator)
+    service.expressionMapper.supports(column, operator)
   }
 
   /** If the index supports custom search expressions using the {{{SELECT * FROM table WHERE
@@ -220,7 +220,7 @@ class Index(
     */
   override def getPostIndexQueryFilter(filter: RowFilter): RowFilter = {
     logger.trace(s"Getting the post index query filter for $filter")
-    service.getPostIndexQueryFilter(filter)
+    service.expressionMapper.postIndexQueryFilter(filter)
   }
 
   /** Return an estimate of the number of results this index is expected to return for any given
@@ -294,13 +294,11 @@ class Index(
     */
   override def postProcessorFor(command: ReadCommand)
   : BiFunction[PartitionIterator, ReadCommand, PartitionIterator] = {
-    (partitions: PartitionIterator, command: ReadCommand) => service.postProcess(
-      partitions,
-      command)
+    new ReadCommandPostProcessor(service)
   }
 
   def postProcessorFor(group: Group): BiFunction[PartitionIterator, Group, PartitionIterator] = {
-    (partitions: PartitionIterator, group: Group) => service.postProcess(partitions, group)
+    new GroupPostProcessor(service)
   }
 
   /** Factory method for query time search helper. Custom index implementations should perform any

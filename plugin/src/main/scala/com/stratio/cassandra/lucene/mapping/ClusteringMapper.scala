@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.key
+package com.stratio.cassandra.lucene.mapping
 
 import java.nio.ByteBuffer
 
 import com.google.common.base.MoreObjects
 import com.google.common.primitives.Longs
 import com.stratio.cassandra.lucene.column.{Column, Columns, ColumnsMapper}
-import com.stratio.cassandra.lucene.key.ClusteringMapper._
+import com.stratio.cassandra.lucene.mapping.ClusteringMapper._
 import com.stratio.cassandra.lucene.util.ByteBufferUtils
 import com.stratio.cassandra.lucene.util.ByteBufferUtils._
 import org.apache.cassandra.config.CFMetaData

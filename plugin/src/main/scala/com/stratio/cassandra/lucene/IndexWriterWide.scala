@@ -22,7 +22,8 @@ import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
 
 import scala.collection.JavaConversions._
-import java.{util => java}
+import scala.collection.mutable
+
 
 /** [[IndexWriter]] for wide rows.
   *
@@ -33,15 +34,16 @@ import java.{util => java}
   * @param transactionType what kind of update is being performed on the base data
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class IndexWriterWide(service: IndexServiceWide,
-                      key: DecoratedKey,
-                      nowInSec: Int,
-                      opGroup: OpOrder.Group,
-                      transactionType: IndexTransaction.Type)
+class IndexWriterWide(
+    service: IndexServiceWide,
+    key: DecoratedKey,
+    nowInSec: Int,
+    opGroup: OpOrder.Group,
+    transactionType: IndexTransaction.Type)
   extends IndexWriter(service, key, nowInSec, opGroup, transactionType) {
 
-  private val rowsToRead = new java.TreeSet[Clustering](service.metadata.comparator)
-  private val rows = new java.LinkedHashMap[Clustering, Option[Row]]
+  private val rowsToRead = new java.util.TreeSet[Clustering](metadata.comparator)
+  private val rows = mutable.LinkedHashMap.empty[Clustering, Option[Row]]
 
   /** @inheritdoc */
   override def delete() {
@@ -72,22 +74,22 @@ class IndexWriterWide(service: IndexServiceWide,
     if (transactionType == IndexTransaction.Type.CLEANUP) return
 
     // Read required rows from storage engine
-    service.read(key, rowsToRead, nowInSec).foreach(unfiltered => {
-      val row = unfiltered.asInstanceOf[Row]
-      rows.put(row.clustering(), Some(row))
-    })
+    read(key, rowsToRead, nowInSec)
+      .map(_.asInstanceOf[Row])
+      .foreach(row => rows.put(row.clustering(), Some(row)))
 
     // Write rows
     for ((clustering, maybeRow) <- rows) {
-      maybeRow.foreach(row => {
-        if (row.hasLiveData(nowInSec)) {
-          Tracer.trace("Lucene index writing document")
-          service.upsert(key, row, nowInSec)
-        } else {
-          Tracer.trace("Lucene index deleting document")
-          service.delete(key, row)
-        }
-      })
+      maybeRow.foreach(
+        row => {
+          if (row.hasLiveData(nowInSec)) {
+            Tracer.trace("Lucene index writing document")
+            service.upsert(key, row, nowInSec)
+          } else {
+            Tracer.trace("Lucene index deleting document")
+            service.delete(key, row)
+          }
+        })
     }
   }
 
