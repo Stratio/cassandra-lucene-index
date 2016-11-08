@@ -113,7 +113,7 @@ class IndexServiceWide extends IndexService {
         fields.addAll(tokenMapper.indexableFields(key));
         fields.add(partitionMapper.indexableField(key));
         fields.add(keyMapper.indexableField(key, clustering));
-        fields.addAll(clusteringMapper.indexableFields(key, clustering));
+        fields.add(clusteringMapper.indexableField(key, clustering));
         return fields;
     }
 

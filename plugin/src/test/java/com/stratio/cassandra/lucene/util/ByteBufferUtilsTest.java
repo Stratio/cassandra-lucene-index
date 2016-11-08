@@ -15,10 +15,7 @@
  */
 package com.stratio.cassandra.lucene.util;
 
-import org.apache.cassandra.db.marshal.BooleanType;
-import org.apache.cassandra.db.marshal.CompositeType;
-import org.apache.cassandra.db.marshal.Int32Type;
-import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.util.BytesRef;
 import org.junit.Test;
@@ -41,6 +38,18 @@ public class ByteBufferUtilsTest {
         BytesRef bytesRef = ByteBufferUtils.bytesRef(in);
         ByteBuffer out = ByteBufferUtils.byteBuffer(bytesRef);
         assertEquals("Failing conversion between ByteBuffer and BytesRef", 0, ByteBufferUtil.compareUnsigned(in, out));
+    }
+
+    @Test
+    public void testByteBuffer() throws Exception {
+        CompositeType type = CompositeType.getInstance(UTF8Type.instance, Int32Type.instance);
+
+
+        BytesRef in = new BytesRef("test");
+        ByteBuffer aux = ByteBufferUtils.byteBuffer(in);
+        BytesRef out =ByteBufferUtils.bytesRef(aux);
+
+        assertEquals("Failing conversion between BytesRef and ByteBuffer", 0,in.compareTo(out));
     }
 
     @Test

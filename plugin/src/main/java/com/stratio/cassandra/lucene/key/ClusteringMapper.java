@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import com.google.common.primitives.Longs;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
@@ -28,11 +27,12 @@ import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
+import org.apache.cassandra.db.marshal.LongType;
 import org.apache.cassandra.dht.Token;
+import org.apache.cassandra.serializers.TypeSerializer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
@@ -40,10 +40,11 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.apache.cassandra.db.PartitionPosition.Kind.ROW_KEY;
@@ -57,47 +58,44 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
  */
 public final class ClusteringMapper {
 
+    private static final Logger logger=LoggerFactory.getLogger(ClusteringMapper.class);
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_clustering";
 
     /** The Lucene field type. */
     private final FieldType FIELD_TYPE = new FieldType();
 
-    /** The number of bytes produced by token collation. */
-    static int PREFIX_BYTES = 8;
-
     /** The indexed table metadata */
     public final CFMetaData metadata;
 
-    /** The clustering key comparator */
-    public final ClusteringComparator comparator;
-
-    /** A composite type composed by the types of the clustering key */
-    public final CompositeType type;
+    /** A composite type composed by a Long representing the token followed by the types of the clustering key */
+    private final CompositeType globalCType;
 
     private void buildFieldType() {
         FIELD_TYPE.setOmitNorms(true);
         FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
         FIELD_TYPE.setTokenized(false);
-        FIELD_TYPE.setStored(false);
+        FIELD_TYPE.setStored(true);
         FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
-        /*FIELD_TYPE.setDocValuesComparator(new Comparator<BytesRef>() {
-            @Override
-            public int compare(BytesRef val1, BytesRef val2) {
-                int comp = compareUnsigned(val1.bytes, 0, PREFIX_BYTES, val2.bytes, 0, PREFIX_BYTES);
-                if (comp == 0) {
-                    ByteBuffer bb1 = ByteBuffer.wrap(val1.bytes, PREFIX_BYTES, val1.length - PREFIX_BYTES);
-                    ByteBuffer bb2 = ByteBuffer.wrap(val2.bytes, PREFIX_BYTES, val2.length - PREFIX_BYTES);
-                    Clustering clustering1 = ClusteringMapper.this.clustering(bb1);
-                    Clustering clustering2 = ClusteringMapper.this.clustering(bb2);
-                    comp = ClusteringMapper.this.comparator.compare(clustering1, clustering2);
-                }
-                return comp;
-            }
-        });*/
+        FIELD_TYPE.setDocValuesComparator((val1, val2) -> {
+            ByteBuffer bb1= ByteBufferUtils.byteBuffer(val1);
+            ByteBuffer bb2= ByteBufferUtils.byteBuffer(val2);
+            return this.compare(bb1,bb2);
+        });
         FIELD_TYPE.freeze();
     }
 
+    /**
+     *
+     * @param val1
+     * @param val2
+     * @return
+     */
+    public int compare(ByteBuffer val1, ByteBuffer val2) {
+        TypeSerializer<ByteBuffer> ser= this.globalCType.getSerializer();
+        logger.debug("Comparign val1: {} string(val1): {} val2: {} string(val2): {}",val1, ser.toCQLLiteral(val1),val2,ser.toCQLLiteral(val2));
+        return this.globalCType.compare(val1, val2);
+    }
 
     /**
      * Constructor specifying the partition and clustering key mappers.
@@ -105,10 +103,15 @@ public final class ClusteringMapper {
      * @param metadata the indexed table metadata
      */
     public ClusteringMapper(CFMetaData metadata) {
-        this.buildFieldType();
         this.metadata = metadata;
-        comparator = metadata.comparator;
-        type = CompositeType.getInstance(comparator.subtypes());
+        int clusteringLength= this.metadata.comparator.subtypes().size();
+        AbstractType[] typesArray = new AbstractType[clusteringLength+1];
+        typesArray[0]=LongType.instance;
+        for(int i=0;i<clusteringLength;i++) {
+            typesArray[i+1]= this.metadata.comparator.subtype(i);
+        }
+        globalCType =CompositeType.getInstance(typesArray);
+        this.buildFieldType();
     }
 
     /**
@@ -146,21 +149,9 @@ public final class ClusteringMapper {
      * @param clustering the clustering key
      * @return a indexable field
      */
-    public List<IndexableField> indexableFields(DecoratedKey key, Clustering clustering) {
-
-        // Build stored field for clustering key retrieval
-        CompositeType.Builder builder = type.builder();
-        Arrays.stream(clustering.getRawValues()).forEach(builder::add);
-        BytesRef plainClustering = ByteBufferUtils.bytesRef(builder.build());
-        Field storedField = new StoredField(FIELD_NAME, plainClustering);
-
-        // Build indexed field prefixed by token value collation
-        ByteBuffer bb = ByteBuffer.allocate(PREFIX_BYTES + plainClustering.length);
-        bb.put(prefix(key.getToken())).put(plainClustering.bytes).flip();
-        BytesRef prefixedClustering = ByteBufferUtils.bytesRef(bb);
-        Field indexedField = new Field(FIELD_NAME, prefixedClustering, FIELD_TYPE);
-
-        return Arrays.asList(indexedField, storedField);
+    public IndexableField indexableField(DecoratedKey key, Clustering clustering) {
+        ByteBuffer bb= byteBuffer(key.getToken(),clustering.clustering());
+        return new Field(FIELD_NAME,ByteBufferUtils.bytesRef(bb), FIELD_TYPE);
     }
 
     /**
@@ -170,7 +161,8 @@ public final class ClusteringMapper {
      * @return a Lucene field binary value
      */
     public Clustering clustering(ByteBuffer clustering) {
-        return new Clustering(type.split(clustering));
+        ByteBuffer[] components= globalCType.split(clustering);
+        return new Clustering(Arrays.copyOfRange(components,1,components.length));
     }
 
     /**
@@ -246,7 +238,6 @@ public final class ClusteringMapper {
                 return Optional.of(clustering);
             }
         }
-
         return Optional.empty();
     }
 
@@ -296,16 +287,37 @@ public final class ClusteringMapper {
     }
 
     /**
-     * Returns a lexicographically sortable representation of the specified token.
+     * Returns a Value composed by token and clustering.
      *
      * @param token a token
-     * @return a lexicographically sortable 8 bytes array
+     * @param clustering a clustering Prefix in Query
+     * @return a CompositeType ByteBuffer composed by the token and clustering values.
      */
-    @SuppressWarnings("NumericOverflow")
-    static byte[] prefix(Token token) {
-        long value = TokenMapper.value(token);
-        long collated = Long.MIN_VALUE * -1 + value;
-        return Longs.toByteArray(collated);
+    ByteBuffer byteBuffer(Token token, ClusteringPrefix clustering) {
+        CompositeType.Builder cBuilder= globalCType.builder();
+        ByteBuffer tokenBB=LongType.instance.decompose((Long)token.getTokenValue());
+        cBuilder.add(tokenBB);
+        for (ByteBuffer component : clustering.getRawValues()) {
+            cBuilder.add(component);
+        }
+        return cBuilder.build();
+    }
+
+    public String toString(ByteBuffer values) {
+        ByteBuffer aux= values.duplicate();
+        byte[] auxB= new byte[aux.flip().remaining()];
+        aux.get(auxB);
+        return toString(auxB);
+    }
+
+    public String toString(byte[] values) {
+        StringBuilder sb= new StringBuilder();
+        for (int i=0;i<values.length;i++) {
+            sb.append(values[i]);
+        }
+        return sb.toString();
+
     }
 
 }
+

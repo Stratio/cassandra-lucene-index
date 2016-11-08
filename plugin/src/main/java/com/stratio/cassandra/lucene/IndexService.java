@@ -450,15 +450,19 @@ abstract class IndexService implements IndexServiceMBean {
      */
     Index.Searcher searcher(ReadCommand command) {
 
+        logger.debug("builidng searcher for command: {} ",command);
         // Parse search
         Tracer.trace("Building Lucene search");
         String expression = expression(command);
         Search search = SearchBuilder.fromJson(expression).build();
+        logger.debug("builidng query for command");
         Query query = search.query(schema, query(command).orElse(null));
+        logger.debug("builidng after for command");
         Query after = after(search.paging(), command);
+        logger.debug("builidng sort for command");
         Sort sort = sort(search);
         int count = command.limits().count();
-
+        logger.debug("builidng refresh for command");
         // Refresh if required
         if (search.refresh()) {
             Tracer.trace("Refreshing Lucene index searcher");
@@ -466,8 +470,11 @@ abstract class IndexService implements IndexServiceMBean {
         }
 
         // Search
+
         Tracer.trace("Lucene index searching for {} rows", count);
+        logger.debug("performing search for command");
         DocumentIterator documents = lucene.search(after, query, sort, count);
+        logger.debug("performed searcher for command");
         return (ReadOrderGroup orderGroup) -> indexReader(documents, command, orderGroup);
     }
 

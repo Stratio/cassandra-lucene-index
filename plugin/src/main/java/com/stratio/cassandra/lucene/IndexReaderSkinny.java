@@ -60,13 +60,9 @@ class IndexReaderSkinny extends IndexReader {
     protected boolean prepareNext() {
         while (next == null && documents.hasNext()) {
             Pair<Document, ScoreDoc> nextDoc = documents.next();
-            logger.debug("IndexReader skinny reading: Doc: {} ScoreDoc: {}",nextDoc.left, nextDoc.right);
             DecoratedKey key = service.decoratedKey(nextDoc.left);
-            logger.debug("IndexReader skinny reading: DecotratedKey: {} ",key);
             ClusteringIndexFilter filter = command.clusteringIndexFilter(key);
-            logger.debug("IndexReader skinny reading: ClusteringIndexFilter: {} ",filter);
             UnfilteredRowIterator data = read(key, filter);
-            logger.debug("IndexReader skinny reading: UnfilteredRowIterator: {} ",data);
             if (data != null) {
                 if (data.isEmpty()) {
                     data.close();

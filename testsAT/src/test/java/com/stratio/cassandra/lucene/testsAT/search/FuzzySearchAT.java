@@ -258,7 +258,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzySetFieldTest2() {
-        filter(fuzzy("set_1", "l1")).check(2);
+            filter(fuzzy("set_1", "l1")).check(2);
     }
 
     @Test

@@ -45,13 +45,4 @@ public class ClusteringMapperTest {
                                                             new LongToken(123L),
                                                             new LongToken(12345L),
                                                             new LongToken(Long.MAX_VALUE));
-
-    @Test
-    public void testToCollated() {
-        List<BytesRef> l1 = TOKENS.stream().map(ClusteringMapper::prefix).map(BytesRef::new).collect(toList());
-        List<BytesRef> l2 = TOKENS.stream().map(ClusteringMapper::prefix).map(BytesRef::new).collect(toList());
-        Collections.reverse(l2); // Modify order
-        Collections.sort(l2); // Lexicographical sort
-        assertArrayEquals("Token collation is wrong", l1.toArray(), l2.toArray());
-    }
 }

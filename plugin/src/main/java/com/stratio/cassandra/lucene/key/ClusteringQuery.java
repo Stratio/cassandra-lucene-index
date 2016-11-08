@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.key;
 
 import com.google.common.base.MoreObjects;
-import org.apache.cassandra.db.Clustering;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.db.ClusteringPrefix;
 import org.apache.cassandra.db.PartitionPosition;
 import org.apache.cassandra.dht.Token;
@@ -26,12 +26,14 @@ import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.MultiTermQuery;
 import org.apache.lucene.util.AttributeSource;
 import org.apache.lucene.util.BytesRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
-import static com.stratio.cassandra.lucene.key.ClusteringMapper.PREFIX_BYTES;
-import static org.apache.cassandra.utils.FastByteOperations.compareUnsigned;
+import static org.apache.cassandra.db.ClusteringPrefix.Kind.*;
 
 /**
  * {@link MultiTermQuery} to get a range of clustering keys.
@@ -40,10 +42,14 @@ import static org.apache.cassandra.utils.FastByteOperations.compareUnsigned;
  */
 public class ClusteringQuery extends MultiTermQuery {
 
+    public static final Logger logger = LoggerFactory.getLogger(ClusteringQuery.class);
     private final ClusteringMapper mapper;
+
     private final Token token;
     private final ClusteringPrefix start, stop;
+    private final ByteBuffer startBB,stopBB;
     private final byte[] seek;
+
 
     /**
      * Returns a new clustering key query for the specified clustering key range using the specified mapper.
@@ -62,9 +68,32 @@ public class ClusteringQuery extends MultiTermQuery {
         this.token = position.getToken();
         this.start = start;
         this.stop = stop;
-        seek = ClusteringMapper.prefix(token);
+
+        this.startBB= isStartBounded()?mapper.byteBuffer(token,start):null;
+        this.stopBB = isEndBounded()?mapper.byteBuffer(token, stop):null;
+        this.seek=isStartBounded()? mapper.byteBuffer(token, start).array():null;
+
+        logger.debug("Building clusteringQuery: {} with position: {}, start: {}, stop: {}",this,position,start,stop);
+        logger.debug("Building clusteringQuery: isStartBounded {},isEndBounded {}  includeStartBound {} includeStopBound {}",
+                     isStartBounded()?"true":"false",isEndBounded()?"true":"false", includeStartBound()?"true":"false", includeEndBound()?"true":"false");
     }
 
+    private boolean isStartBounded() {
+        return (this.start!=null) && (this.start.size()>0);
+    }
+    private boolean isEndBounded() {
+        return (this.stop!=null) && (this.stop.size()>0);
+    }
+
+    private boolean includeStartBound() {
+        if (!isStartBounded()) return false;
+        return (start.kind()==INCL_START_BOUND) || (start.kind()==EXCL_END_INCL_START_BOUNDARY);
+    }
+    private boolean includeEndBound() {
+        if (!isEndBounded()) return false;
+        return (stop.kind()==INCL_END_BOUND) || (stop.kind()==INCL_END_EXCL_START_BOUNDARY);
+
+    }
     /** {@inheritDoc} */
     @Override
     protected TermsEnum getTermsEnum(Terms terms, AttributeSource atts) throws IOException {
@@ -74,6 +103,7 @@ public class ClusteringQuery extends MultiTermQuery {
     /** {@inheritDoc} */
     @Override
     public String toString(String field) {
+        if (field.isEmpty()) field=ClusteringMapper.FIELD_NAME;
         return MoreObjects.toStringHelper(this)
                           .add("field", field)
                           .add("token", token)
@@ -127,34 +157,42 @@ public class ClusteringQuery extends MultiTermQuery {
 
     private class FullKeyDataRangeFilteredTermsEnum extends FilteredTermsEnum {
 
+        private boolean first;
         FullKeyDataRangeFilteredTermsEnum(TermsEnum tenum) {
             super(tenum);
-            setInitialSeekTerm(new BytesRef(seek));
+            setInitialSeekTerm((seek==null)?null:new BytesRef(seek));
+            this.first=true;
+            logger.debug("Builded FullKeyDataRangeFilteredTermsEnum");
         }
 
         /** {@inheritDoc} */
         @Override
         protected AcceptStatus accept(BytesRef term) {
 
-            // Check token range
-            int comp = compareUnsigned(term.bytes, 0, PREFIX_BYTES, seek, 0, PREFIX_BYTES);
-            if (comp < 0) {
-                return AcceptStatus.NO;
-            }
-            if (comp > 0) {
-                return AcceptStatus.END;
+            logger.debug("clusteringquery calling acept with term: {}",term);
+
+            ByteBuffer bb1= ByteBufferUtils.byteBuffer(term);
+            if ((first) && (startBB!=null)) {
+                first=false;
+                logger.debug("isFirst and isStartBounded");
+                int comp= mapper.compare(bb1,startBB);
+                logger.debug("comparing term: {} with startBB: {} resulting {} ",term, startBB, Integer.toString(comp));
+                if ((comp==0) && includeStartBound()) {
+                    return AcceptStatus.YES;
+                }
             }
 
-            // Check clustering range
-            ByteBuffer bb = ByteBuffer.wrap(term.bytes, PREFIX_BYTES, term.length - PREFIX_BYTES);
-            Clustering clustering = mapper.clustering(bb);
-            if (start != null && mapper.comparator.compare(start, clustering) > 0) {
-                return AcceptStatus.NO;
+            if (stopBB!=null) {
+                int comp = mapper.compare(bb1, stopBB);
+                logger.debug("comparing term: {} with stopBB: {} resulting {} ",term, stopBB, Integer.toString(comp));
+                if (comp < 0) {
+                    return AcceptStatus.YES;
+                } else if (comp == 0) {
+                    return includeEndBound() ? AcceptStatus.YES : AcceptStatus.END;
+                } else {
+                    return AcceptStatus.END;
+                }
             }
-            if (stop != null && mapper.comparator.compare(stop, clustering) < 0) {
-                return AcceptStatus.NO;
-            }
-
             return AcceptStatus.YES;
         }
     }

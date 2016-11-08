@@ -48,6 +48,7 @@ public final class ByteBufferUtils {
         return bytes;
     }
 
+
     /**
      * Returns {@code true} if the specified {@link ByteBuffer} is empty, {@code false} otherwise.
      *
@@ -157,10 +158,18 @@ public final class ByteBufferUtils {
      * @param bytesRef the {@link BytesRef}
      * @return the {@link ByteBuffer} representation of {@code bytesRef}
      */
-    public static ByteBuffer byteBuffer(BytesRef bytesRef) {
+    /*public static ByteBuffer byteBuffer(BytesRef bytesRef) {
         byte[] bytes = bytesRef.bytes;
         return ByteBuffer.wrap(bytes, bytesRef.offset, bytesRef.offset + bytesRef.length);
+    }*/
+
+
+    public static ByteBuffer byteBuffer(BytesRef bytesRef) {
+        byte[] bytes = bytesRef.bytes;
+        return ByteBuffer.wrap(bytes, bytesRef.offset, bytesRef.length);
     }
+
+
 
     /**
      * Returns the {@link ByteBuffer} representation of the specified hex {@link String}.

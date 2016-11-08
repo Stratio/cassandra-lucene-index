@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import org.apache.cassandra.db.Clustering;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.lucene.search.FieldComparator;
 import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.SortField;
@@ -24,7 +24,6 @@ import org.apache.lucene.util.BytesRef;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static com.stratio.cassandra.lucene.key.ClusteringMapper.PREFIX_BYTES;
 import static org.apache.cassandra.utils.FastByteOperations.compareUnsigned;
 
 /**
@@ -50,15 +49,9 @@ public class ClusteringSort extends SortField {
                 return new FieldComparator.TermValComparator(hits, field, false) {
                     @Override
                     public int compareValues(BytesRef t1, BytesRef t2) {
-                        int comp = compareUnsigned(t1.bytes, 0, PREFIX_BYTES, t2.bytes, 0, PREFIX_BYTES);
-                        if (comp == 0) {
-                            ByteBuffer bb1 = ByteBuffer.wrap(t1.bytes, PREFIX_BYTES, t1.length - PREFIX_BYTES);
-                            ByteBuffer bb2 = ByteBuffer.wrap(t2.bytes, PREFIX_BYTES, t2.length - PREFIX_BYTES);
-                            Clustering clustering1 = mapper.clustering(bb1);
-                            Clustering clustering2 = mapper.clustering(bb2);
-                            comp = mapper.comparator.compare(clustering1, clustering2);
-                        }
-                        return comp;
+                        ByteBuffer bb1= ByteBufferUtils.byteBuffer(t1);
+                        ByteBuffer bb2= ByteBufferUtils.byteBuffer(t2);
+                        return mapper.compare(bb1, bb2);
                     }
                 };
             }

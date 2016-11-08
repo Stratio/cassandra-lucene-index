@@ -39,7 +39,7 @@
         <scala.binary.version>2.10</scala.binary.version>
         <scalatest.version>2.2.5</scalatest.version>
         <cassandra.version>3.0.9</cassandra.version>
-        <lucene.version>6.2.1</lucene.version>
+        <lucene.version>7.0.0-SNAPSHOT</lucene.version>
         <jts.version>1.14.0</jts.version>
         <mockito.version>1.10.19</mockito.version>
     </properties>
@@ -165,15 +165,15 @@
                     </artifactSet>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <filters>
-                                                <filter>
-                                                    <artifact>*:*</artifact>
-                                                    <excludes>
-                                                        <exclude>META-INF/*.SF</exclude>
-                                                        <exclude>META-INF/*.DSA</exclude>
-                                                        <exclude>META-INF/*.RSA</exclude>
-                                                    </excludes>
-                                                </filter>
-                                            </filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                 </configuration>
                 <executions>
                     <execution>
