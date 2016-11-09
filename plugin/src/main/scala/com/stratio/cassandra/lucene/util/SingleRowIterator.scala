@@ -29,7 +29,7 @@ import org.apache.cassandra.db.{DecoratedKey, PartitionColumns}
   * @param decorator a function to decorate the row
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class SimpleRowIterator(
+class SingleRowIterator(
     iterator: RowIterator,
     headRow: Option[Row] = None,
     decorator: Option[Row => Row] = None)
@@ -48,8 +48,8 @@ class SimpleRowIterator(
     * @param decorator a function to decorate the returned row
     * @return a new iterator with the decorator
     */
-  def decorated(decorator: Row => Row): SimpleRowIterator = {
-    new SimpleRowIterator(iterator, Some(row), Option(decorator))
+  def decorated(decorator: Row => Row): SingleRowIterator = {
+    new SingleRowIterator(iterator, Some(row), Option(decorator))
   }
 
   /** @inheritdoc */

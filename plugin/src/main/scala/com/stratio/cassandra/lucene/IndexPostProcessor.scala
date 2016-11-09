@@ -15,9 +15,10 @@
  */
 package com.stratio.cassandra.lucene
 
+import java.util.Collections
 import java.util.function.BiFunction
 
-import com.stratio.cassandra.lucene.IndexPostProcessor.logger
+import com.stratio.cassandra.lucene.IndexPostProcessor.{logger, _}
 import com.stratio.cassandra.lucene.index.RAMIndex
 import com.stratio.cassandra.lucene.search.Search
 import com.stratio.cassandra.lucene.util._
@@ -40,46 +41,62 @@ import scala.collection.mutable
 sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
   extends BiFunction[PartitionIterator, A, PartitionIterator] {
 
-  protected def postProcess(
-      partitions: PartitionIterator,
-      command: ReadCommand,
-      limit: Int,
-      nowInSec: Int)
+  /** Returns a partition iterator containing the top-k rows of the specified partition iterator
+    * according to the specified search.
+    *
+    * @param partitions a partition iterator
+    * @param search     a search defining the ordering
+    * @param limit      the number of results to be returned
+    * @param now        the operation time in seconds
+    * @return
+    */
+  protected def process(partitions: PartitionIterator, search: Search, limit: Int, now: Int)
   : PartitionIterator = {
-    val search = service.expressionMapper.search(command)
     if (search.requiresFullScan) {
       val rows = collect(partitions)
       if (search.requiresPostProcessing && rows.nonEmpty) {
-        return merge(search, limit, nowInSec, rows)
+        return top(rows, search, limit, now)
       }
     }
     partitions
   }
 
-  private def collect(partitions: PartitionIterator): List[(DecoratedKey, SimpleRowIterator)] = {
-    val time = TimeCounter.create.start
-    val rows = mutable.ListBuffer[(DecoratedKey, SimpleRowIterator)]()
+  /** Collects the rows of the specified partition iterator. The iterator gets traversed after this
+    * operation so it can't be reused.
+    *
+    * @param partitions a partition iterator
+    * @return the rows contained in the partition iterator
+    */
+  private def collect(partitions: PartitionIterator): List[(DecoratedKey, SingleRowIterator)] = {
+    val time = TimeCounter.start
+    val rows = mutable.ListBuffer[(DecoratedKey, SingleRowIterator)]()
     for (partition <- partitions.asScala) {
       try {
         val key = partition.partitionKey
         while (partition.hasNext) {
-          rows += ((key, new SimpleRowIterator(partition)))
+          rows += ((key, new SingleRowIterator(partition)))
         }
       } finally partition.close()
     }
-    logger.debug(s"Collected ${rows.size} rows in ${time.stop}")
+    logger.debug(s"Collected ${rows.size} rows in $time")
     rows.toList
   }
 
-  private def merge(
+  /** Takes the k best rows of the specified rows according to the specified search.
+    *
+    * @param rows   the rows to be sorted
+    * @param search a search defining the ordering
+    * @param limit  the number of results to be returned
+    * @param now    the operation time in seconds
+    * @return
+    */
+  private def top(
+      rows: List[(DecoratedKey, SingleRowIterator)],
       search: Search,
       limit: Int,
-      nowInSec: Int,
-      rows: List[(DecoratedKey, SimpleRowIterator)])
-  : PartitionIterator = {
+      now: Int): PartitionIterator = {
 
-    val time = TimeCounter.create.start
-    val field = "_id"
+    val time = TimeCounter.start
     val index = new RAMIndex(service.schema.analyzer())
     try {
 
@@ -88,29 +105,37 @@ sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
         val (key, rowIterator) = rows(id)
         val row = rowIterator.row
         val doc = document(key, row, search)
-        doc.add(new StoredField(field, id)) // Mark document
+        doc.add(new StoredField(ID_FIELD, id)) // Mark document
         index.add(doc)
       }
 
       // Repeat search to sort partial results
       val query = search.postProcessingQuery(service.schema)
       val sort = service.sort(search)
-      val docs = index.search(query, sort, limit, Set(field))
+      val docs = index.search(query, sort, limit, FIELDS_TO_LOAD)
 
       // Collect and decorate
       val merged = for ((doc, score) <- docs) yield {
-        val id = doc.get(field).toInt
+        val id = doc.get(ID_FIELD).toInt
         val rowIterator = rows(id)._2
-        rowIterator.decorated(row => service.expressionMapper.decorate(row, score, nowInSec))
+        rowIterator.decorated(row => service.expressionMapper.decorate(row, score, now))
       }
 
       Tracer.trace(s"Lucene post-process ${rows.size} collected rows to ${merged.size} rows")
-      logger.debug(s"Post-processed ${rows.size} rows to ${merged.size} rows in ${time.stop}")
+      logger.debug(s"Post-processed ${rows.size} rows to ${merged.size} rows in $time")
       new SimplePartitionIterator(merged)
 
     } finally index.close()
   }
 
+  /** Returns a [[Document]] representing the specified row with only the fields required to satisfy
+    * the specified [[Search]].
+    *
+    * @param key    a partition key
+    * @param row    a row
+    * @param search a search
+    * @return a document with just the fields required to satisfy the search
+    */
   private def document(key: DecoratedKey, row: Row, search: Search): Document = {
     val doc = new Document
     val cols = service.columns(key, row)
@@ -124,6 +149,9 @@ object IndexPostProcessor {
 
   val logger = LoggerFactory.getLogger(classOf[IndexPostProcessor[_]])
 
+  val ID_FIELD = "_id"
+  val FIELDS_TO_LOAD = Collections.singleton(ID_FIELD)
+
 }
 
 /** An [[IndexPostProcessor]] for [[ReadCommand]]s.
@@ -135,16 +163,10 @@ class ReadCommandPostProcessor(service: IndexService)
   extends IndexPostProcessor[ReadCommand](service) {
 
   /** @inheritdoc */
-  override def apply(
-      partitions: PartitionIterator,
-      command: ReadCommand)
-  : PartitionIterator = command match {
-    case c: SinglePartitionReadCommand => partitions
-    case _ => postProcess(
-      partitions,
-      command,
-      command.limits.count,
-      command.nowInSec)
+  override def apply(partitions: PartitionIterator, command: ReadCommand): PartitionIterator = {
+    if (!partitions.hasNext || command.isInstanceOf[SinglePartitionReadCommand]) return partitions
+    val search = service.expressionMapper.search(command)
+    process(partitions, search, command.limits.count, command.nowInSec)
   }
 
 }
@@ -158,8 +180,9 @@ class GroupPostProcessor(service: IndexService) extends IndexPostProcessor[Group
 
   /** @inheritdoc */
   override def apply(partitions: PartitionIterator, group: Group): PartitionIterator = {
-    if (group.commands.size <= 1) return partitions
-    postProcess(partitions, group.commands.get(0), group.limits.count, group.nowInSec)
+    if (!partitions.hasNext || group.commands.size <= 1) return partitions
+    val search = service.expressionMapper.search(group.commands.get(0))
+    process(partitions, search, group.limits.count, group.nowInSec)
   }
 
 }

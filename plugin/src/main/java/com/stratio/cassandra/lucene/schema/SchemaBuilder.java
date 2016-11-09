@@ -21,7 +21,7 @@ import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
+import com.stratio.cassandra.lucene.common.JsonSerializer;
 import org.apache.lucene.analysis.Analyzer;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;

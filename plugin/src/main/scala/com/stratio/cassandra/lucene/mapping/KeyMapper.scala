@@ -47,8 +47,7 @@ class KeyMapper(metadata: CFMetaData) {
   /** The type of the primary key, which is composed by token and clustering key types. */
   val keyType = CompositeType.getInstance(metadata.getKeyValidator, clusteringType)
 
-  /**
-    * Returns a [[ByteBuffer]] representing the specified clustering key
+  /** Returns a [[ByteBuffer]] representing the specified clustering key
     *
     * @param clustering the clustering key
     * @return the byte buffer representing `clustering`

@@ -27,8 +27,8 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.CONTEXT;
-import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
+import static com.stratio.cassandra.lucene.common.GeospatialUtilsJTS.CONTEXT;
+import static com.stratio.cassandra.lucene.common.GeospatialUtilsJTS.geometry;
 
 /**
  * Class representing the transformation of a JTS geographical shape into a new shape.

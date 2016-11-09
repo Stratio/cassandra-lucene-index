@@ -20,7 +20,7 @@ import com.stratio.cassandra.lucene.IndexPagingState;
 import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
+import com.stratio.cassandra.lucene.common.JsonSerializer;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.io.IOException;

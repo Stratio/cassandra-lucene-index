@@ -19,7 +19,7 @@ import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
-import com.stratio.cassandra.lucene.util.DateParser;
+import com.stratio.cassandra.lucene.common.DateParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.IndexableField;

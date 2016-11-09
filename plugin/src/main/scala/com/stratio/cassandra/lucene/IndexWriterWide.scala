@@ -19,6 +19,7 @@ import com.stratio.cassandra.lucene.util.Tracer
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.db.{Clustering, DecoratedKey}
 import org.apache.cassandra.index.transactions.IndexTransaction
+import org.apache.cassandra.index.transactions.IndexTransaction.Type._
 import org.apache.cassandra.utils.concurrent.OpOrder
 
 import scala.collection.JavaConverters._
@@ -71,7 +72,7 @@ class IndexWriterWide(
   override def finish() {
 
     // Skip on cleanups
-    if (transactionType == IndexTransaction.Type.CLEANUP) return
+    if (transactionType == CLEANUP) return
 
     // Read required rows from storage engine
     read(key, rowsToRead, nowInSec)
