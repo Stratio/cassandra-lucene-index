@@ -31,11 +31,12 @@ import org.apache.cassandra.utils.concurrent.OpOrder
   * @param transactionType what kind of update is being performed on the base data
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class IndexWriterSkinny(service: IndexServiceSkinny,
-                        key: DecoratedKey,
-                        nowInSec: Int,
-                        opGroup: OpOrder.Group,
-                        transactionType: IndexTransaction.Type)
+class IndexWriterSkinny(
+    service: IndexServiceSkinny,
+    key: DecoratedKey,
+    nowInSec: Int,
+    opGroup: OpOrder.Group,
+    transactionType: IndexTransaction.Type)
   extends IndexWriter(service, key, nowInSec, opGroup, transactionType) {
 
   private var row: Option[Row] = None
@@ -53,14 +54,19 @@ class IndexWriterSkinny(service: IndexServiceSkinny,
 
   /** @inheritdoc */
   override def finish() {
-    if (transactionType != CLEANUP) {
-      row.map(row => {
+
+    // Skip on cleanups
+    if (transactionType == CLEANUP) return
+
+    row.map(
+      row => {
         if (transactionType == COMPACTION || service.needsReadBeforeWrite(key, row)) {
           Tracer.trace("Lucene index reading before write")
           val iterator = read(key, nowInSec, opGroup)
           if (iterator.hasNext) iterator.next.asInstanceOf[Row] else row
         } else row
-      }).foreach(row => {
+      }).foreach(
+      row => {
         if (row.hasLiveData(nowInSec)) {
           Tracer.trace("Lucene index writing document")
           service.upsert(key, row, nowInSec)
@@ -69,6 +75,5 @@ class IndexWriterSkinny(service: IndexServiceSkinny,
           service.delete(key)
         }
       })
-    }
   }
 }

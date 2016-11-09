@@ -20,7 +20,7 @@ import java.nio.ByteBuffer
 import com.google.common.base.MoreObjects
 import com.stratio.cassandra.lucene.IndexPagingState._
 import com.stratio.cassandra.lucene.search.SearchBuilder
-import com.stratio.cassandra.lucene.util.{ByteBufferUtils, SimplePartitionIterator, SimpleRowIterator}
+import com.stratio.cassandra.lucene.util.{ByteBufferUtils, SimplePartitionIterator, SingleRowIterator}
 import org.apache.cassandra.config.DatabaseDescriptor
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.RowFilter
@@ -116,12 +116,12 @@ class IndexPagingState(var remaining: Int) {
   private def update(
       group: SinglePartitionReadCommand.Group,
       partitions: PartitionIterator): PartitionIterator = {
-    val rowIterators = mutable.ListBuffer.empty[SimpleRowIterator]
+    val rowIterators = mutable.ListBuffer.empty[SingleRowIterator]
     var count = 0
     for (partition <- partitions.asScala) {
       val key = partition.partitionKey
       while (partition.hasNext) {
-        val newRowIterator = new SimpleRowIterator(partition)
+        val newRowIterator = new SingleRowIterator(partition)
         rowIterators += newRowIterator
         entries.put(key, newRowIterator.row.clustering)
         if (remaining > 0) remaining -= 1
@@ -143,7 +143,7 @@ class IndexPagingState(var remaining: Int) {
     val rangeMerger = LuceneStorageProxy.rangeMerger(command, consistency)
     val bounds = rangeMerger.asScala.map(_.range).toList
 
-    val rowIterators = mutable.ListBuffer.empty[SimpleRowIterator]
+    val rowIterators = mutable.ListBuffer.empty[SingleRowIterator]
 
     var count = 0
     for (partition <- partitions.asScala) {
@@ -152,7 +152,7 @@ class IndexPagingState(var remaining: Int) {
       val bound = bounds.find(_ contains key)
       while (partition.hasNext) {
         bound.foreach(bound => entries.keys.filter(bound.contains).foreach(entries.remove))
-        val newRowIterator = new SimpleRowIterator(partition)
+        val newRowIterator = new SingleRowIterator(partition)
         rowIterators += newRowIterator
         val clustering = newRowIterator.row.clustering
         entries.put(key, clustering)

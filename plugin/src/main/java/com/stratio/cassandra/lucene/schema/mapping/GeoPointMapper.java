@@ -20,7 +20,7 @@ import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
+import com.stratio.cassandra.lucene.common.GeospatialUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
@@ -35,7 +35,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
+import static com.stratio.cassandra.lucene.common.GeospatialUtils.CONTEXT;
 
 /**
  * A {@link Mapper} to map geographical points.

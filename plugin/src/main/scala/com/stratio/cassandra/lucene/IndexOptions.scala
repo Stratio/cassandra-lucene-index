@@ -93,8 +93,7 @@ object IndexOptions {
 
   val SCHEMA_OPTION = "schema"
 
-  /**
-    * Validates the specified index options.
+  /** Validates the specified index options.
     *
     * @param options  the options to be validated
     * @param metadata the indexed table metadata

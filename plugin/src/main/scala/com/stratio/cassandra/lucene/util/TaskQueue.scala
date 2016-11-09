@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.util
 
 import java.io.Closeable
+import java.util.concurrent._
 import java.util.concurrent.TimeUnit.DAYS
 import java.util.concurrent.locks.ReentrantReadWriteLock
 
@@ -45,8 +46,7 @@ sealed trait TaskQueue extends Closeable {
     */
   def submitAsynchronous[A](id: AnyRef, task: () => A): Unit
 
-  /**
-    * Submits a non value-returning task for synchronous execution. It waits for all synchronous
+  /** Submits a non value-returning task for synchronous execution. It waits for all synchronous
     * tasks to be completed.
     *
     * @param task a task to be executed synchronously
@@ -76,15 +76,19 @@ private class TaskQueueSync extends TaskQueue {
   */
 private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue {
 
-  private val pools = (1 to numThreads).map(i => new BlockingExecutor(1, queuesSize, 1, DAYS))
   private val lock = new ReentrantReadWriteLock(true)
+  private val pools = (1 to numThreads)
+    .map(index => new ArrayBlockingQueue[Runnable](queuesSize, true))
+    .map(queue => new ThreadPoolExecutor(1, 1, 1, DAYS, queue, new RejectedExecutionHandler() {
+      override def rejectedExecution(task: Runnable, executor: ThreadPoolExecutor) =
+        if (!executor.isShutdown) executor.getQueue.put(task)
+    }))
 
   /** @inheritdoc */
   override def submitAsynchronous[A](id: AnyRef, task: () => A): Unit = {
     lock.readLock.lock()
     try {
-      val pool = pools(Math.abs(id.hashCode % numThreads)) // Choose pool
-      pool.submit(task)
+      pools(Math.abs(id.hashCode % numThreads)).submit(task)
     } catch {
       case e: Exception =>
         logger.error("Task queue asynchronous submission failed", e)

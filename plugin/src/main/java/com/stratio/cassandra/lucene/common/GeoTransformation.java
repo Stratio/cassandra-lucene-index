@@ -24,7 +24,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
-import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.CONTEXT;
+import static com.stratio.cassandra.lucene.common.GeospatialUtilsJTS.CONTEXT;
 
 /**
  * Class representing the transformation of a JTS geographical shape into a new shape.

@@ -82,8 +82,7 @@ case class IndexException(
   def this(message: String, a1: AnyRef, a2: AnyRef, a3: AnyRef, a4: AnyRef) =
   this(formatN(message, a1, a2, a3, a4), null)
 
-  /**
-    * Constructs a new index exception with the specified formatted detail message.
+  /** Constructs a new index exception with the specified formatted detail message.
     *
     * @param cause   the cause
     * @param message the detail message

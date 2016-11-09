@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.search.sort.builder;
 
 import com.stratio.cassandra.lucene.search.sort.SortField;
-import com.stratio.cassandra.lucene.util.Builder;
+import com.stratio.cassandra.lucene.common.Builder;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;

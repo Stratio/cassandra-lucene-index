@@ -113,13 +113,13 @@ class IndexQueryHandler extends QueryHandler {
       case select: SelectStatement =>
         val expressions = luceneExpressions(select, options)
         if (expressions.nonEmpty) {
-          val time = TimeCounter.create.start
+          val time = TimeCounter.start
           try {
             return executeLuceneQuery(select, state, options, expressions)
           } catch {
             case e: ReflectiveOperationException => throw new IndexException(e)
           } finally {
-            logger.debug(s"Lucene search total time: ${time.stop}\n")
+            logger.debug(s"Lucene search total time: $time\n")
           }
         }
       case _ =>

@@ -18,7 +18,7 @@ package com.stratio.cassandra.lucene.search.sort.builder;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.search.sort.GeoDistanceSortField;
 import com.stratio.cassandra.lucene.search.sort.SortField;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
+import com.stratio.cassandra.lucene.common.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;

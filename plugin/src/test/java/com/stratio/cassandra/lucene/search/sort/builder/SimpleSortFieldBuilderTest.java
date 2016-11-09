@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.search.sort.builder;
 
 import com.stratio.cassandra.lucene.search.sort.SimpleSortField;
 import com.stratio.cassandra.lucene.search.sort.SortField;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
+import com.stratio.cassandra.lucene.common.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;
