@@ -64,7 +64,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test
     public void testJsonSerialization() {
         GeoShapeMapperBuilder builder = geoShapeMapper().column("column").maxLevels(10).transformations(new Centroid());
-        testJson(builder, "{type:\"geo_shape\",column:\"column\",transformations:[{type:\"centroid\"}],max_levels:10}");
+        testJson(builder, "{type:\"geo_shape\",column:\"column\",max_levels:10,transformations:[{type:\"centroid\"}]}");
     }
 
     @Test
