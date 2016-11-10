@@ -138,7 +138,7 @@ class FSIndex(name: String,
     * associated resources.
     */
   def close() {
-    reopener.interrupt()
+    reopener.close()
     manager.close()
     writer.close()
     directory.close()
