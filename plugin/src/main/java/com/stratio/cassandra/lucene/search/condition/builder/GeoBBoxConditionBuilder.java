@@ -15,9 +15,9 @@
  */
 package com.stratio.cassandra.lucene.search.condition.builder;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.search.condition.GeoBBoxCondition;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link GeoBBoxCondition}.

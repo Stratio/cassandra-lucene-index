@@ -41,6 +41,7 @@
         <cassandra.version>3.9</cassandra.version>
         <lucene.version>5.5.1</lucene.version>
         <jts.version>1.14.0</jts.version>
+        <jackson.version>2.8.4</jackson.version>
         <mockito.version>1.10.19</mockito.version>
     </properties>
 
@@ -91,6 +92,16 @@
             <artifactId>jts-core</artifactId>
             <version>${jts.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -151,6 +162,7 @@
                             <include>org.apache.lucene:*</include>
                             <include>com.spatial4j:*</include>
                             <include>com.github.rholder:*</include>
+                            <include>com.fasterxml.jackson.core:*</include>
                         </includes>
                     </artifactSet>
                     <createDependencyReducedPom>false</createDependencyReducedPom>

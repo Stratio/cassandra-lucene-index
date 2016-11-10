@@ -7,6 +7,7 @@
 * Add support for geospatial shapes in distance search
 * Improve performance of needs before write calculation
 * Fix conflict between Lucene and SASI Snowball stemmer version (#216)
+* Upgrade all JSON serializers to FasterXML Jackson 2.8.6
 
 ## 3.9.0 (October 13, 2016)
 
