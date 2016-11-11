@@ -15,13 +15,13 @@
  */
 package com.stratio.cassandra.lucene.search;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.IndexPagingState;
+import com.stratio.cassandra.lucene.common.JsonSerializer;
 import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import com.stratio.cassandra.lucene.common.JsonSerializer;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.io.IOException;
 

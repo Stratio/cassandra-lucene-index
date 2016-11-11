@@ -16,9 +16,6 @@
 package com.stratio.cassandra.lucene.common;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
-import org.apache.cassandra.db.marshal.SimpleDateType;
-import org.apache.cassandra.serializers.SimpleDateSerializer;
 import org.apache.cassandra.utils.UUIDGen;
 
 import java.text.DateFormat;

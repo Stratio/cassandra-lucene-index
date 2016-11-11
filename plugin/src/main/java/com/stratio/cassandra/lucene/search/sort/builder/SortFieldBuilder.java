@@ -15,11 +15,11 @@
  */
 package com.stratio.cassandra.lucene.search.sort.builder;
 
-import com.stratio.cassandra.lucene.search.sort.SortField;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.stratio.cassandra.lucene.common.Builder;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import com.stratio.cassandra.lucene.search.sort.SortField;
 
 /**
  * {@link Builder} for building a new {@link SortField}.

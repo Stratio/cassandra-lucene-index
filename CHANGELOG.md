@@ -6,6 +6,7 @@
 * Add support for geospatial shapes in bounding box search
 * Add support for geospatial shapes in distance search
 * Improve performance of needs before write calculation
+* Upgrade all JSON serializers to FasterXML Jackson 2.8.6
 
 ## 3.9.1 (October 17, 2016)
 
