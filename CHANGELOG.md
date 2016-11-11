@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.9.2 (Upcoming)
+## 3.9.2 (November 11, 2016)
 
 * Add support for geospatial shapes in bounding box search
 * Add support for geospatial shapes in distance search
