@@ -163,6 +163,10 @@ class IndexQueryHandler extends QueryHandler {
         "Lucene index only supports one search expression per query.")
     }
 
+    if (select.getPerPartitionLimit(options) < Integer.MAX_VALUE) {
+      throw new InvalidRequestException("Lucene index doesn't support PER PARTITION LIMIT")
+    }
+
     // Validate expression
     val expression = expressions.keys.head
     val index = expressions.get(expression)

@@ -2,6 +2,8 @@
 
 ## 3.9.2 (Upcoming)
 
+* Show error message when unsupported PER PARTITION LIMIT option is used
+
 Merged from 3.0.9.1:
 * Add support for geospatial shapes in bounding box search
 * Add support for geospatial shapes in distance search
