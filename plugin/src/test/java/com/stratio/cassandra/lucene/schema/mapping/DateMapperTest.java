@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.dateMapper;
-import static com.stratio.cassandra.lucene.util.DateParser.DEFAULT_PATTERN;
+import static com.stratio.cassandra.lucene.common.DateParser.DEFAULT_PATTERN;
 import static org.junit.Assert.*;
 
 public class DateMapperTest extends AbstractMapperTest {

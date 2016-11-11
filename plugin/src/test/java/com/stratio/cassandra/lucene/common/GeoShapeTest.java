@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.common;
 
-import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;

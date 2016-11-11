@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.util;
+package com.stratio.cassandra.lucene.common;
 
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParser;

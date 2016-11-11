@@ -15,24 +15,24 @@
  */
 package com.stratio.cassandra.lucene.util
 
-import org.apache.cassandra.db.partitions.PartitionIterator
-import org.apache.cassandra.db.rows.RowIterator
+import org.slf4j.LoggerFactory
+import org.apache.cassandra.tracing.Tracing
 
-/** [[PartitionIterator]] composed by a list of [[SingleRowIterator]]s.
+/** Wrapper for [[Tracing]] avoiding test environment failures.
   *
-  * @param rows the rows to be iterated
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class SimplePartitionIterator(rows: Seq[SingleRowIterator]) extends PartitionIterator {
+object Tracer {
 
-  private[this] val iterator = rows.iterator
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
-  /** @inheritdoc */
-  def hasNext: Boolean = iterator.hasNext
-
-  /** @inheritdoc */
-  def next(): RowIterator = iterator.next
-
-  /** @inheritdoc */
-  def close() = iterator.foreach(_.close())
+  /** Traces the specified string message.
+    *
+    * @param message the message to be traced
+    */
+  def trace(message: String) {
+    try Tracing.trace(message) catch {
+      case e: Error => logger.warn(s"Unable to trace: ${e.getMessage}", e)
+    }
+  }
 }

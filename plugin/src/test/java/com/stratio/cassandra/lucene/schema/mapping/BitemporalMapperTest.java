@@ -28,7 +28,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,7 +35,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.bitemporalMapper;
-import static com.stratio.cassandra.lucene.util.DateParser.DEFAULT_PATTERN;
+import static com.stratio.cassandra.lucene.common.DateParser.DEFAULT_PATTERN;
 import static org.junit.Assert.*;
 
 /**

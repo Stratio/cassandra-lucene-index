@@ -65,14 +65,14 @@ class DocumentIterator(manager: SearcherManager,
   /** The start after position. */
   private[this] var after = try {
     afterTerm.map(term => {
-      val time = TimeCounter.create.start
+      val time = TimeCounter.start
       val builder = new BooleanQuery.Builder
       builder.add(new TermQuery(term), FILTER)
       builder.add(query, MUST)
       val scores = searcher.search(builder.build, 1, sort).scoreDocs
       if (scores.nonEmpty) {
         Tracer.trace("Lucene index seeks last index position")
-        logger.debug(s"Start position found in ${time.stop}")
+        logger.debug(s"Start position found in $time")
         scores.head
       } else throw new IndexException("Last page position not found")
     })
@@ -84,7 +84,7 @@ class DocumentIterator(manager: SearcherManager,
 
   private[this] def fetch() = {
     try {
-      val time = TimeCounter.create.start
+      val time = TimeCounter.start
 
       val topDocs = if (afterTerm.isEmpty && canEarlyTerminate(sort, indexSort)) {
         val fieldDoc = after.map(_.asInstanceOf[FieldDoc]).orNull
@@ -106,7 +106,7 @@ class DocumentIterator(manager: SearcherManager,
       }
 
       Tracer.trace(s"Lucene index fetches $numFetched documents")
-      logger.debug(s"Page fetched with $numFetched documents in ${time.stop}")
+      logger.debug(s"Page fetched with $numFetched documents in $time")
 
     } catch {
       case e: Exception =>

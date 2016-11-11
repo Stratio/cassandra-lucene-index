@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.dateRangeMapper;
-import static com.stratio.cassandra.lucene.util.DateParser.DEFAULT_PATTERN;
+import static com.stratio.cassandra.lucene.common.DateParser.DEFAULT_PATTERN;
 import static org.junit.Assert.*;
 
 public class DateRangeMapperTest extends AbstractMapperTest {
