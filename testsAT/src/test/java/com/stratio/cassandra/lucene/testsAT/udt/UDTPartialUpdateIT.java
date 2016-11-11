@@ -90,6 +90,7 @@ public class UDTPartialUpdateIT extends BaseIT {
         } catch (InvalidQueryException e) {
             if (e.getMessage().equals("Non-frozen User-Defined types are not supported, please use frozen<>")) {
                 logger.info("Ignoring UDT partial update test because it isn't supported by current Cassandra version");
+                utils.dropKeyspace();
                 return;
             }
         }
