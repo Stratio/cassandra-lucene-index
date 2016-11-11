@@ -35,7 +35,7 @@ The following benchmark result can give you an idea about the expected performan
 Spark. We do successive queries requesting from the 1% to 100% of the stored data. We can see a high performance for the
 index for the queries requesting strongly filtered data. However, the performance decays in less restrictive queries.
 As the number of records returned by the query increases, we reach a point where the index becomes slower than the full
-scan. So, the decision to use indexes in your Spark jobs depends on the query selectivity. The tradeoff between both
+scan. So, the decision to use indexes in your Spark jobs depends on the query selectivity. The trade-off between both
 approaches depends on the particular use case. Generally, combining Lucene indexes with Spark is recommended for jobs
 retrieving no more than the 25% of the stored data.
 

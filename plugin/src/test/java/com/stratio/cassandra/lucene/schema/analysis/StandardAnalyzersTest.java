@@ -148,7 +148,7 @@ public class StandardAnalyzersTest {
     }
 
     @Test
-    public void testGetCaatalanPreBuiltAnalyzer() {
+    public void testGetCatalanPreBuiltAnalyzer() {
         Analyzer analyzer = StandardAnalyzers.CATALAN.get();
         assertEquals("Expected another type of analyzer", CatalanAnalyzer.class, analyzer.getClass());
         analyzer.close();
@@ -358,8 +358,8 @@ public class StandardAnalyzersTest {
     }
 
     @Test
-    public void testStandardAnalyzerUnexistent() {
-        Analyzer analyzer = StandardAnalyzers.get("unexistent");
+    public void testStandardAnalyzerNonExistent() {
+        Analyzer analyzer = StandardAnalyzers.get("non-existent");
         assertNull("Expected null analyzer", analyzer);
     }
 

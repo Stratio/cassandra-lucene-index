@@ -78,7 +78,7 @@ public class SchemaAnalyzerTest {
     @Test(expected = IndexException.class)
     public void testStaticGetAnalyzerNotExistent() {
         Map<String, Analyzer> analyzers = new HashMap<>();
-        SchemaAnalyzer.getAnalyzer(analyzers, "unexistent");
+        SchemaAnalyzer.getAnalyzer(analyzers, "non-existent");
     }
 
     @Test
