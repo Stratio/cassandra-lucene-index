@@ -2,15 +2,14 @@
 
 ## 3.9.2 (Upcoming)
 
-* Show error message when unsupported PER PARTITION LIMIT option is used
 * Add support for geospatial shapes in bounding box search
 * Add support for geospatial shapes in distance search
 * Improve performance of needs before write calculation
+* Show error message when unsupported PER PARTITION LIMIT option is used
 * Upgrade all JSON serializers to FasterXML Jackson 2.8.6
 
 ## 3.9.1 (October 17, 2016)
 
-Merged from 3.8.1:
 * Fix conflict between Lucene and SASI Snowball stemmer version (#216)
 
 ## 3.9.0 (October 13, 2016)
