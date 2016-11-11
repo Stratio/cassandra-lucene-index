@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.key
+package com.stratio.cassandra.lucene.mapping
 
 import java.nio.ByteBuffer
 
-import com.stratio.cassandra.lucene.key.KeyMapper.FIELD_NAME
+import com.stratio.cassandra.lucene.mapping.KeyMapper.FIELD_NAME
 import com.stratio.cassandra.lucene.util.ByteBufferUtils
 import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter

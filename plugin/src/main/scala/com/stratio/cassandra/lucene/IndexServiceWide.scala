@@ -19,8 +19,8 @@ import java.{util => java}
 
 import com.stratio.cassandra.lucene.column.{Columns, ColumnsMapper}
 import com.stratio.cassandra.lucene.index.DocumentIterator
-import com.stratio.cassandra.lucene.key.ClusteringMapper._
-import com.stratio.cassandra.lucene.key.{ClusteringMapper, KeyMapper, PartitionMapper}
+import com.stratio.cassandra.lucene.mapping.ClusteringMapper._
+import com.stratio.cassandra.lucene.mapping.{ClusteringMapper, KeyMapper, PartitionMapper}
 import org.apache.cassandra.db.PartitionPosition.Kind._
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter._

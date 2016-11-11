@@ -35,7 +35,7 @@ import scala.collection.JavaConversions._
   */
 class IndexOptions(tableMetadata: CFMetaData, indexMetadata: IndexMetadata) {
 
-  val options: Map[String, String] = indexMetadata.options.toMap
+  val options = indexMetadata.options.toMap
 
   /** The Lucene index searcher refresh frequency, in seconds */
   val refreshSeconds = parseRefresh(options)
