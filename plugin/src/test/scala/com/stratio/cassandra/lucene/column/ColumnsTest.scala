@@ -19,8 +19,7 @@ import com.stratio.cassandra.lucene.BaseScalaTest
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
-/**
-  * Tests [[Column]].
+/** Tests for [[Column]].
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
@@ -134,6 +133,6 @@ class ColumnsTest extends BaseScalaTest {
     val columns = Columns(
       Column("c1").withDeletionTime(10),
       Column("c2").withUDTName("u1").withMapName("m1").withValue(7))
-    columns.toString shouldBe "Columns{c1=null, c2.u1$m1=7}"
+    columns.toString shouldBe "Columns{c1=None, c2.u1$m1=Some(7)}"
   }
 }

@@ -85,7 +85,7 @@ class SearchBuilderLegacy {
      */
     @JsonProperty("paging")
     void paging(String paging) {
-        builder.paging(IndexPagingState.build(ByteBufferUtils.byteBuffer(paging)));
+        builder.paging(IndexPagingState.fromByteBuffer(ByteBufferUtils.byteBuffer(paging)));
     }
 
     /**

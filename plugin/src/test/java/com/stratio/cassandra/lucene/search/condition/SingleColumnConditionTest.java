@@ -80,7 +80,6 @@ public class SingleColumnConditionTest {
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", MatchAllDocsQuery.class, query.getClass());
-
     }
 
     @Test(expected = IndexException.class)

@@ -13,13 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene
+package com.stratio.cassandra.lucene.util
 
-import org.scalatest.{FunSuite, Matchers}
+import org.apache.cassandra.db.partitions.PartitionIterator
+import org.apache.cassandra.db.rows.RowIterator
 
-/** Base test.
+/** [[PartitionIterator]] composed by a list of [[SimpleRowIterator]]s.
   *
+  * @param rows the rows to be iterated
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class BaseScalaTest extends FunSuite with Matchers {
+class SimplePartitionIterator(rows: Seq[SimpleRowIterator]) extends PartitionIterator {
+
+  private[this] val iterator = rows.iterator
+
+  /** @inheritdoc */
+  def hasNext: Boolean = iterator.hasNext
+
+  /** @inheritdoc */
+  def next(): RowIterator = iterator.next
+
+  /** @inheritdoc */
+  def close() = iterator.foreach(_.close())
 }

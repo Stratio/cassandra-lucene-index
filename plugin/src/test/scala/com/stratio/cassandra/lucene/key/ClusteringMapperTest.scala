@@ -13,13 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene
+package com.stratio.cassandra.lucene.key
 
-import org.scalatest.{FunSuite, Matchers}
+import com.stratio.cassandra.lucene.BaseScalaTest
+import org.apache.cassandra.dht.Murmur3Partitioner
+import org.apache.lucene.util.BytesRef
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
-/** Base test.
+/** Tests for [[ClusteringMapper]].
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class BaseScalaTest extends FunSuite with Matchers {
+@RunWith(classOf[JUnitRunner])
+class ClusteringMapperTest extends BaseScalaTest {
+
+  test("collate prefix") {
+    val values = List(Long.MinValue, -10L, -2L, -1L, 0L, 1L, 2L, 10L, Long.MaxValue)
+    val tokens = values.map(new Murmur3Partitioner.LongToken(_))
+    val bytes = tokens.map(ClusteringMapper.prefix(_)).map(new BytesRef(_))
+    bytes shouldBe bytes.reverse.sorted
+  }
 }

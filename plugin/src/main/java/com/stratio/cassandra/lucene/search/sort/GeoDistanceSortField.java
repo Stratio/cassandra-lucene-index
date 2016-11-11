@@ -25,9 +25,7 @@ import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queries.function.ValueSource;
-import org.apache.lucene.search.Sort;
 import org.apache.lucene.spatial.SpatialStrategy;
-import org.apache.lucene.spatial.composite.CompositeSpatialStrategy;
 
 import java.util.Collections;
 import java.util.Set;
