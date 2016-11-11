@@ -34,7 +34,8 @@ import org.apache.cassandra.transport.messages.ResultMessage.{Prepared, Rows}
 import org.apache.cassandra.utils.{FBUtilities, MD5Digest}
 import org.slf4j.LoggerFactory
 
-import scala.collection.JavaConversions._
+import scala.collection.mutable
+import scala.collection.JavaConverters._
 
 
 /** [[QueryHandler]] to be used with Lucene searches.
@@ -111,7 +112,7 @@ class IndexQueryHandler extends QueryHandler {
     statement match {
       case select: SelectStatement =>
         val expressions = luceneExpressions(select, options)
-        if (!expressions.isEmpty) {
+        if (expressions.nonEmpty) {
           val time = TimeCounter.create.start
           try {
             return executeLuceneQuery(select, state, options, expressions)
@@ -128,22 +129,22 @@ class IndexQueryHandler extends QueryHandler {
 
   def luceneExpressions(
       select: SelectStatement,
-      options: QueryOptions): java.Map[Expression, Index] = {
-    val map = new java.LinkedHashMap[Expression, Index]
+      options: QueryOptions): Map[Expression, Index] = {
+    val map = mutable.LinkedHashMap.empty[Expression, Index]
     val expressions = select.getRowFilter(options).getExpressions
     val cfs = Keyspace.open(select.keyspace).getColumnFamilyStore(select.columnFamily)
-    val indexes = cfs.indexManager.listIndexes.collect { case index: Index => index }
-    expressions.foreach {
+    val indexes = cfs.indexManager.listIndexes.asScala.collect { case index: Index => index }
+    expressions.asScala.foreach {
       case expression: CustomExpression =>
         val clazz = expression.getTargetIndex.options.get(IndexTarget.CUSTOM_INDEX_OPTION_NAME)
         if (clazz == classOf[Index].getCanonicalName) {
           val index = cfs.indexManager.getIndex(expression.getTargetIndex).asInstanceOf[Index]
-          map.put(expression, index)
+          map += expression -> index
         }
       case expr =>
         indexes.filter(_.supportsExpression(expr.column, expr.operator)).foreach(map.put(expr, _))
     }
-    map
+    map.toMap
   }
 
   def execute(statement: CQLStatement, state: QueryState, options: QueryOptions): ResultMessage = {
@@ -156,7 +157,7 @@ class IndexQueryHandler extends QueryHandler {
       select: SelectStatement,
       state: QueryState,
       options: QueryOptions,
-      expressions: java.Map[Expression, Index]): ResultMessage = {
+      expressions: Map[Expression, Index]): ResultMessage = {
 
     if (expressions.size > 1) {
       throw new InvalidRequestException(
@@ -168,8 +169,7 @@ class IndexQueryHandler extends QueryHandler {
     }
 
     // Validate expression
-    val expression = expressions.keys.head
-    val index = expressions.get(expression)
+    val (expression, index) = expressions.head
     val search = index.validate(expression)
 
     // Get paging info

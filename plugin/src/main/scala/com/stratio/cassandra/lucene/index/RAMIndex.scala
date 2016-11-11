@@ -21,7 +21,7 @@ import org.apache.lucene.index.{DirectoryReader, IndexWriter, IndexWriterConfig}
 import org.apache.lucene.search.{IndexSearcher, Query, ScoreDoc, Sort}
 import org.apache.lucene.store.RAMDirectory
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /** Class wrapping a Lucene RAM directory and its readers, writers and searchers for NRT.
   *
@@ -69,7 +69,7 @@ class RAMIndex(analyzer: Analyzer) {
     try {
       val newSort = sort.rewrite(searcher)
       val topDocs = searcher.search(query, count, newSort, true, true)
-      topDocs.scoreDocs.map(score => (searcher.doc(score.doc, fields), score))
+      topDocs.scoreDocs.map(score => (searcher.doc(score.doc, fields.asJava), score))
     } finally searcher.getIndexReader.close()
   }
 
