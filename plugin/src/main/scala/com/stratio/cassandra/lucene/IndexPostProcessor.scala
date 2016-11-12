@@ -18,7 +18,7 @@ package com.stratio.cassandra.lucene
 import java.util.Collections
 import java.util.function.BiFunction
 
-import com.stratio.cassandra.lucene.IndexPostProcessor.{logger, _}
+import com.stratio.cassandra.lucene.IndexPostProcessor._
 import com.stratio.cassandra.lucene.index.RAMIndex
 import com.stratio.cassandra.lucene.search.Search
 import com.stratio.cassandra.lucene.util._
@@ -27,7 +27,6 @@ import org.apache.cassandra.db.partitions.PartitionIterator
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.db.{DecoratedKey, ReadCommand, ReadQuery, SinglePartitionReadCommand}
 import org.apache.lucene.document.{Document, StoredField}
-import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -39,7 +38,7 @@ import scala.collection.mutable
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
-  extends BiFunction[PartitionIterator, A, PartitionIterator] {
+  extends BiFunction[PartitionIterator, A, PartitionIterator] with Logging {
 
   /** Returns a partition iterator containing the top-k rows of the specified partition iterator
     * according to the specified search.
@@ -146,8 +145,6 @@ sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
 }
 
 object IndexPostProcessor {
-
-  val logger = LoggerFactory.getLogger(classOf[IndexPostProcessor[_]])
 
   val ID_FIELD = "_id"
   val FIELDS_TO_LOAD = Collections.singleton(ID_FIELD)

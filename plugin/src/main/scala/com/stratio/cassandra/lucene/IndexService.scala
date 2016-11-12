@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene
 import java.lang.management.ManagementFactory
 import javax.management.{JMException, ObjectName}
 
-import com.stratio.cassandra.lucene.IndexService._
 import com.stratio.cassandra.lucene.column.Columns
 import com.stratio.cassandra.lucene.index.{DocumentIterator, FSIndex}
 import com.stratio.cassandra.lucene.mapping.{ExpressionMapper, PartitionMapper, TokenMapper}
@@ -35,7 +34,6 @@ import org.apache.cassandra.utils.concurrent.OpOrder
 import org.apache.lucene.document.Document
 import org.apache.lucene.index.{IndexableField, Term}
 import org.apache.lucene.search.{Query, Sort, SortField}
-import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -47,7 +45,7 @@ import scala.collection.mutable
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: IndexMetadata)
-  extends IndexServiceMBean {
+  extends IndexServiceMBean with Logging {
 
   val metadata = table.metadata
   val ksName = metadata.ksName
@@ -392,8 +390,6 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
 }
 
 object IndexService {
-
-  val logger = LoggerFactory.getLogger(classOf[IndexService])
 
   /** Returns a new index service for the specified indexed table and index metadata.
     *

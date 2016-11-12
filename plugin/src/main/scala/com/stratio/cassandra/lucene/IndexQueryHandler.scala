@@ -19,7 +19,7 @@ import java.nio.ByteBuffer
 import java.{util => java}
 
 import com.stratio.cassandra.lucene.IndexQueryHandler._
-import com.stratio.cassandra.lucene.util.TimeCounter
+import com.stratio.cassandra.lucene.util.{Logging, TimeCounter}
 import org.apache.cassandra.cql3._
 import org.apache.cassandra.cql3.statements.RequestValidations.checkNotNull
 import org.apache.cassandra.cql3.statements.{BatchStatement, IndexTarget, ParsedStatement, SelectStatement}
@@ -32,7 +32,6 @@ import org.apache.cassandra.service.{LuceneStorageProxy, QueryState}
 import org.apache.cassandra.transport.messages.ResultMessage
 import org.apache.cassandra.transport.messages.ResultMessage.{Prepared, Rows}
 import org.apache.cassandra.utils.{FBUtilities, MD5Digest}
-import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
 import scala.collection.JavaConverters._
@@ -42,7 +41,7 @@ import scala.collection.JavaConverters._
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class IndexQueryHandler extends QueryHandler {
+class IndexQueryHandler extends QueryHandler with Logging {
 
   type Payload = java.Map[String, ByteBuffer]
 
@@ -224,8 +223,6 @@ class IndexQueryHandler extends QueryHandler {
 }
 
 object IndexQueryHandler {
-
-  val logger = LoggerFactory.getLogger(classOf[IndexQueryHandler])
 
   val getPageSize = classOf[SelectStatement].getDeclaredMethod("getPageSize", classOf[QueryOptions])
   getPageSize.setAccessible(true)
