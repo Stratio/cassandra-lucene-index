@@ -17,14 +17,13 @@ package com.stratio.cassandra.lucene.index
 
 import java.nio.file.Path
 
-import com.stratio.cassandra.lucene.index.FSIndex._
+import com.stratio.cassandra.lucene.util.Logging
 import org.apache.cassandra.io.util.FileUtils
 import org.apache.lucene.analysis.Analyzer
 import org.apache.lucene.document.Document
 import org.apache.lucene.index._
 import org.apache.lucene.search._
 import org.apache.lucene.store.{Directory, FSDirectory, NRTCachingDirectory}
-import org.slf4j.LoggerFactory
 
 /** Class wrapping a Lucene file system-based directory and its readers, writers and searchers.
   *
@@ -37,13 +36,15 @@ import org.slf4j.LoggerFactory
   * @param maxCachedMB    the directory max cache size in MB
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class FSIndex(name: String,
-              path: Path,
-              analyzer: Analyzer,
-              refreshSeconds: Double,
-              ramBufferMB: Int,
-              maxMergeMB: Int,
-              maxCachedMB: Int) {
+class FSIndex(
+    name: String,
+    path: Path,
+    analyzer: Analyzer,
+    refreshSeconds: Double,
+    ramBufferMB: Int,
+    maxMergeMB: Int,
+    maxCachedMB: Int)
+  extends Logging {
 
   private[this] var mergeSort: Sort = _
   private[this] var fields: java.util.Set[String] = _
@@ -221,8 +222,6 @@ class FSIndex(name: String,
 }
 
 object FSIndex {
-
-  private val logger = LoggerFactory.getLogger(classOf[FSIndex])
 
   // Disable max boolean query clauses limit
   BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE)

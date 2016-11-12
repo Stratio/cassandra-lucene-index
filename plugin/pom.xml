@@ -37,6 +37,7 @@
     <properties>
         <scala.version>2.11.8</scala.version>
         <scala.binary.version>2.11</scala.binary.version>
+        <scala.logging.version>3.5.0</scala.logging.version>
         <scalatest.version>3.0.0</scalatest.version>
         <cassandra.version>3.9</cassandra.version>
         <lucene.version>5.5.1</lucene.version>
@@ -50,6 +51,11 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging_${scala.binary.version}</artifactId>
+            <version>${scala.logging.version}</version>
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
@@ -159,6 +165,7 @@
                     <artifactSet>
                         <includes>
                             <include>org.scala-lang:*</include>
+                            <include>com.typesafe.scala-logging:*</include>
                             <include>org.apache.lucene:*</include>
                             <include>com.spatial4j:*</include>
                             <include>com.github.rholder:*</include>

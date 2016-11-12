@@ -13,23 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.cassandra.lucene.util
 
-import org.apache.cassandra.tracing.Tracing
+import com.typesafe.scalalogging.{Logger, StrictLogging}
 
-/** Wrapper for [[Tracing]] avoiding test environment failures.
+/** Trait including a [[Logger]] instance named `logger`.
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-object Tracer extends Logging {
-
-  /** Traces the specified string message.
-    *
-    * @param message the message to be traced
-    */
-  def trace(message: String) {
-    try Tracing.trace(message) catch {
-      case e: Error => logger.warn(s"Unable to trace: ${e.getMessage}", e)
-    }
-  }
-}
+trait Logging extends StrictLogging {}

@@ -22,8 +22,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.stratio.cassandra.lucene.IndexException
 import com.stratio.cassandra.lucene.util.JavaConversions.asJavaCallable
-import com.stratio.cassandra.lucene.util.TaskQueue._
-import org.slf4j.LoggerFactory
 
 import scala.concurrent.ExecutionException
 
@@ -33,7 +31,7 @@ import scala.concurrent.ExecutionException
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-sealed trait TaskQueue extends Closeable {
+sealed trait TaskQueue extends Closeable with Logging {
 
   /** Submits a non value-returning task for asynchronous execution.
     *
@@ -125,8 +123,6 @@ private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue
 }
 
 object TaskQueue {
-
-  val logger = LoggerFactory.getLogger(classOf[TaskQueue])
 
   /** Returns a new [[TaskQueue]].
     *

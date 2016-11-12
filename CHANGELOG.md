@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.9.2 (Upcoming)
+
+* Avoid not required string interpolations in logging
+
 ## 3.9.2 (November 11, 2016)
 
 * Add support for geospatial shapes in bounding box search

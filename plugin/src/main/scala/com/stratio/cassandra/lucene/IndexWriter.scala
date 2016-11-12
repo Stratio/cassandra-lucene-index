@@ -15,14 +15,13 @@
  */
 package com.stratio.cassandra.lucene
 
-import com.stratio.cassandra.lucene.IndexWriter.logger
+import com.stratio.cassandra.lucene.util.Logging
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.{ClusteringIndexNamesFilter, ColumnFilter}
 import org.apache.cassandra.db.rows.{Row, UnfilteredRowIterator}
 import org.apache.cassandra.index.Index.Indexer
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
-import org.slf4j.LoggerFactory
 
 /** [[Indexer]] for Lucene-based index.
   *
@@ -38,7 +37,7 @@ abstract class IndexWriter(
     key: DecoratedKey,
     nowInSec: Int,
     opGroup: OpOrder.Group,
-    transactionType: IndexTransaction.Type) extends Indexer {
+    transactionType: IndexTransaction.Type) extends Indexer with Logging {
 
   val metadata = service.metadata
   val table = service.table
@@ -114,11 +113,5 @@ abstract class IndexWriter(
     val controller = command.executionController()
     try command.queryMemtableAndDisk(table, controller) finally controller.close()
   }
-
-}
-
-object IndexWriter {
-
-  protected val logger = LoggerFactory.getLogger(classOf[IndexWriter])
 
 }
