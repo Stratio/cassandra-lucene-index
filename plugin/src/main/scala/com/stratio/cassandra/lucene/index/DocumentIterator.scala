@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.index
 
 import com.stratio.cassandra.lucene.IndexException
 import com.stratio.cassandra.lucene.index.DocumentIterator._
-import com.stratio.cassandra.lucene.util.{Logging, TimeCounter, Tracer}
+import com.stratio.cassandra.lucene.util.{Logging, TimeCounter, Tracer, Tracing}
 import org.apache.cassandra.utils.CloseableIterator
 import org.apache.lucene.document.Document
 import org.apache.lucene.index.Term
@@ -43,7 +43,7 @@ class DocumentIterator(
     query: Query,
     limit: Int,
     fields: java.util.Set[String])
-  extends Iterator[(Document, ScoreDoc)] with AutoCloseable with Logging {
+  extends Iterator[(Document, ScoreDoc)] with AutoCloseable with Logging with Tracing {
 
   private[this] val pageSize = Math.min(limit, MAX_PAGE_SIZE) + 1
   private[this] val documents = new java.util.LinkedList[(Document, ScoreDoc)]
@@ -72,7 +72,7 @@ class DocumentIterator(
         builder.add(query, MUST)
         val scores = searcher.search(builder.build, 1, sort).scoreDocs
         if (scores.nonEmpty) {
-          Tracer.trace("Lucene index seeks last index position")
+          tracer.trace("Lucene index seeks last index position")
           logger.debug(s"Start position found in $time")
           scores.head
         } else throw new IndexException("Last page position not found")
@@ -106,7 +106,7 @@ class DocumentIterator(
         documents.add((document, scoreDoc))
       }
 
-      Tracer.trace(s"Lucene index fetches $numFetched documents")
+      tracer.trace(s"Lucene index fetches $numFetched documents")
       logger.debug(s"Page fetched with $numFetched documents in $time")
 
     } catch {

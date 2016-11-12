@@ -38,7 +38,7 @@ import scala.collection.mutable
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
-  extends BiFunction[PartitionIterator, A, PartitionIterator] with Logging {
+  extends BiFunction[PartitionIterator, A, PartitionIterator] with Logging with Tracing{
 
   /** Returns a partition iterator containing the top-k rows of the specified partition iterator
     * according to the specified search.
@@ -120,7 +120,7 @@ sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
         rowIterator.decorated(row => service.expressionMapper.decorate(row, score, now))
       }
 
-      Tracer.trace(s"Lucene post-process ${rows.size} collected rows to ${merged.size} rows")
+      tracer.trace(s"Lucene post-process ${rows.size} collected rows to ${merged.size} rows")
       logger.debug(s"Post-processed ${rows.size} rows to ${merged.size} rows in $time")
       new SimplePartitionIterator(merged)
 

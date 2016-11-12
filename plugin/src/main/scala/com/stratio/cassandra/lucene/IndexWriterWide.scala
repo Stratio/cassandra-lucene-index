@@ -58,11 +58,11 @@ class IndexWriterWide(
     if (!row.isStatic) {
       val clustering = row.clustering
       if (service.needsReadBeforeWrite(key, row)) {
-        Tracer.trace("Lucene index doing read before write")
+        tracer.trace("Lucene index doing read before write")
         rowsToRead.add(clustering)
         rows.put(clustering, None)
       } else {
-        Tracer.trace("Lucene index skipping read before write")
+        tracer.trace("Lucene index skipping read before write")
         rows.put(clustering, Some(row))
       }
     }
@@ -85,10 +85,10 @@ class IndexWriterWide(
       maybeRow.foreach(
         row => {
           if (row.hasLiveData(nowInSec)) {
-            Tracer.trace("Lucene index writing document")
+            tracer.trace("Lucene index writing document")
             service.upsert(key, row, nowInSec)
           } else {
-            Tracer.trace("Lucene index deleting document")
+            tracer.trace("Lucene index deleting document")
             service.delete(key, row)
           }
         })

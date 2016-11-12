@@ -45,7 +45,7 @@ import scala.collection.mutable
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: IndexMetadata)
-  extends IndexServiceMBean with Logging {
+  extends IndexServiceMBean with Logging with Tracing {
 
   val metadata = table.metadata
   val ksName = metadata.ksName
@@ -258,7 +258,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   def search(command: ReadCommand, orderGroup: ReadOrderGroup): UnfilteredPartitionIterator = {
 
     // Parse search
-    Tracer.trace("Building Lucene search")
+    tracer.trace("Building Lucene search")
     val search = expressionMapper.search(command)
     val q = search.query(schema, query(command).orNull)
     val a = after(search.paging, command)
@@ -267,12 +267,12 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
 
     // Refresh if required
     if (search.refresh) {
-      Tracer.trace("Refreshing Lucene index searcher")
+      tracer.trace("Refreshing Lucene index searcher")
       refresh()
     }
 
     // Search
-    Tracer.trace(s"Lucene index searching for $n rows")
+    tracer.trace(s"Lucene index searching for $n rows")
     val documents = lucene.search(a, q, s, n)
     reader(documents, command, orderGroup)
   }
