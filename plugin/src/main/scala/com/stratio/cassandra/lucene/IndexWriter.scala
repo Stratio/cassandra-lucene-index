@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene
 
-import com.stratio.cassandra.lucene.util.Logging
+import com.stratio.cassandra.lucene.util.{Logging, Tracing}
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.{ClusteringIndexNamesFilter, ColumnFilter}
 import org.apache.cassandra.db.rows.{Row, UnfilteredRowIterator}
@@ -37,7 +37,7 @@ abstract class IndexWriter(
     key: DecoratedKey,
     nowInSec: Int,
     opGroup: OpOrder.Group,
-    transactionType: IndexTransaction.Type) extends Indexer with Logging {
+    transactionType: IndexTransaction.Type) extends Indexer with Logging with Tracing {
 
   val metadata = service.metadata
   val table = service.table

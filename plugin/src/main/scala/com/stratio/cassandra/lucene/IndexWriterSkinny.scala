@@ -61,17 +61,17 @@ class IndexWriterSkinny(
     row.map(
       row => {
         if (transactionType == COMPACTION || service.needsReadBeforeWrite(key, row)) {
-          Tracer.trace("Lucene index reading before write")
+          tracer.trace("Lucene index reading before write")
           val iterator = read(key, nowInSec)
           if (iterator.hasNext) iterator.next.asInstanceOf[Row] else row
         } else row
       }).foreach(
       row => {
         if (row.hasLiveData(nowInSec)) {
-          Tracer.trace("Lucene index writing document")
+          tracer.trace("Lucene index writing document")
           service.upsert(key, row, nowInSec)
         } else {
-          Tracer.trace("Lucene index deleting document")
+          tracer.trace("Lucene index deleting document")
           service.delete(key)
         }
       })

@@ -3,6 +3,7 @@
 ## 3.9.2 (Upcoming)
 
 * Avoid not required string interpolations in logging
+* Avoid not required string interpolations in tracing
 
 ## 3.9.2 (November 11, 2016)
 
