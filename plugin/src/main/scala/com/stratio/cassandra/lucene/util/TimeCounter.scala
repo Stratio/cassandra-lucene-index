@@ -70,6 +70,7 @@ class StoppedTimeCounter(runTime: Long) extends TimeCounter {
 
 }
 
+/** Companion object for [[TimeCounter]]. */
 object TimeCounter {
 
   /** Returns a new [[StoppedTimeCounter]].

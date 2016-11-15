@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene
 
-import com.stratio.cassandra.lucene.util.Tracer
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.db.{Clustering, DecoratedKey}
 import org.apache.cassandra.index.transactions.IndexTransaction
@@ -78,7 +77,7 @@ class IndexWriterWide(
     read(key, rowsToRead, nowInSec, opGroup)
       .asScala
       .map(_.asInstanceOf[Row])
-      .foreach(row => rows.put(row.clustering(), Some(row)))
+      .foreach(row => rows.put(row.clustering, Some(row)))
 
     // Write rows
     for ((clustering, maybeRow) <- rows) {

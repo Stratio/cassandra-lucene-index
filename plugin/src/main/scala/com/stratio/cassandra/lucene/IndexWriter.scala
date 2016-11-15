@@ -116,7 +116,8 @@ abstract class IndexWriter(
     val filter = new ClusteringIndexNamesFilter(clusterings, false)
     val columnFilter = ColumnFilter.all(metadata)
     val command = SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter)
-    command.queryMemtableAndDisk(table, orderGroup)
+    val controller = command.executionController
+    try command.queryMemtableAndDisk(table, controller) finally controller.close()
   }
 
 }

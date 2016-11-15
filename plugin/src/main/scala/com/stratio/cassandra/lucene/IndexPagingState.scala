@@ -29,8 +29,8 @@ import org.apache.cassandra.db.partitions.PartitionIterator
 import org.apache.cassandra.service.LuceneStorageProxy
 import org.apache.cassandra.service.pager.PagingState
 
-import scala.collection.mutable
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /** The paging state of a CQL query using Lucene. It tracks the primary keys of the last seen rows
   * for each internal read command of a CQL query. It also keeps the count of the remaining rows.
@@ -201,6 +201,7 @@ class IndexPagingState(var remaining: Int) {
 
 }
 
+/** Companion object for [[IndexPagingState]]. */
 object IndexPagingState {
 
   private lazy val expressionValueField = classOf[RowFilter.Expression].getDeclaredField("value")

@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene
 
-import com.stratio.cassandra.lucene.util.Tracer
 import org.apache.cassandra.db.DecoratedKey
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.index.transactions.IndexTransaction

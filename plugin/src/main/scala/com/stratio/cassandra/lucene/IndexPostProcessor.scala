@@ -38,7 +38,7 @@ import scala.collection.mutable
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
-  extends BiFunction[PartitionIterator, A, PartitionIterator] with Logging with Tracing{
+  extends BiFunction[PartitionIterator, A, PartitionIterator] with Logging with Tracing {
 
   /** Returns a partition iterator containing the top-k rows of the specified partition iterator
     * according to the specified search.
@@ -96,7 +96,7 @@ sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
       now: Int): PartitionIterator = {
 
     val time = TimeCounter.start
-    val index = new RAMIndex(service.schema.analyzer())
+    val index = new RAMIndex(service.schema.analyzer)
     try {
 
       // Index collected rows in memory
@@ -144,6 +144,7 @@ sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
   }
 }
 
+/** Companion object for [[IndexPostProcessor]]. */
 object IndexPostProcessor {
 
   val ID_FIELD = "_id"

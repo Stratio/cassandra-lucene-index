@@ -133,6 +133,7 @@ case class IndexException(
 
 }
 
+/** Companion object for [[IndexException]]. */
 object IndexException {
 
   private def format1(message: String, arg: AnyRef): String = {

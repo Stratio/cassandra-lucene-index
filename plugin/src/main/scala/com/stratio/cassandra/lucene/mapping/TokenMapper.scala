@@ -56,8 +56,8 @@ class TokenMapper {
 
   /** Returns a query to find the documents containing a token inside the specified token range.
     *
-    * @param lower the lower token
-    * @param upper the upper token
+    * @param lower        the lower token
+    * @param upper        the upper token
     * @param includeLower if the lower token should be included
     * @param includeUpper if the upper token should be included
     * @return the query to find the documents containing a token inside the range
@@ -94,6 +94,7 @@ class TokenMapper {
 
 }
 
+/** Companion object for [[TokenMapper]]. */
 object TokenMapper {
 
   /** The Lucene field name */

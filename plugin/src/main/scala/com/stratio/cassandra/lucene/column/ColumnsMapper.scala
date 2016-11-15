@@ -42,17 +42,17 @@ object ColumnsMapper {
     * @param row the Cassandra row to be mapped
     */
   def columns(row: Row): Columns = {
-    row.columns().asScala.foldLeft(Columns())(
-      (cs, columnDefinition) =>
-        if (columnDefinition.isComplex)
-          cs + columns(row.getComplexColumnData(columnDefinition))
-        else
-          cs + columns(row.getCell(columnDefinition))
+    (Columns() /: row.columns().asScala) ((columns, columnDefinition) =>
+      if (columnDefinition.isComplex) {
+        columns + this.columns(row.getComplexColumnData(columnDefinition))
+      } else {
+        columns + this.columns(row.getCell(columnDefinition))
+      }
     )
   }
 
   private[column] def columns(complexColumnData: ComplexColumnData): Columns = {
-    complexColumnData.asScala.foldLeft(Columns())((cs, cell) => cs + columns(cell))
+    (Columns() /: complexColumnData.asScala) ((columns, cell) => columns + this.columns(cell))
   }
 
   private[column] def columns(cell: Cell): Columns = {
@@ -108,11 +108,10 @@ object ColumnsMapper {
     if (isTombstone) return Columns(column)
     val nameType = set.nameComparator
     val bb = ByteBufferUtil.clone(value) // CollectionSerializer read functions are impure
-    (0 until frozenCollectionSize(bb)).foldLeft(Columns())(
-      (cs, n) => {
-        val itemValue = frozenCollectionValue(bb)
-        cs + columns(isTombstone, column, nameType, itemValue)
-      })
+    (Columns() /: (0 until frozenCollectionSize(bb))) ((columns, n) => {
+      val itemValue = frozenCollectionValue(bb)
+      columns + this.columns(isTombstone, column, nameType, itemValue)
+    })
   }
 
   private[this] def columns(
@@ -123,11 +122,10 @@ object ColumnsMapper {
     if (isTombstone) return Columns(column)
     val valueType = list.valueComparator
     val bb = ByteBufferUtil.clone(value) // CollectionSerializer read functions are impure
-    (0 until frozenCollectionSize(bb)).foldLeft(Columns())(
-      (cs, n) => {
-        val itemValue = frozenCollectionValue(bb)
-        cs + columns(isTombstone, column, valueType, itemValue)
-      })
+    (Columns() /: (0 until frozenCollectionSize(bb))) ((columns, n) => {
+      val itemValue = frozenCollectionValue(bb)
+      columns + this.columns(isTombstone, column, valueType, itemValue)
+    })
   }
 
   private[this] def columns(
@@ -139,13 +137,12 @@ object ColumnsMapper {
     val itemKeysType = map.nameComparator
     val itemValuesType = map.valueComparator
     val bb = ByteBufferUtil.clone(value) // CollectionSerializer read functions are impure
-    (0 until frozenCollectionSize(bb)).foldLeft(Columns())(
-      (cs, n) => {
-        val itemKey = frozenCollectionValue(bb)
-        val itemValue = frozenCollectionValue(bb)
-        val itemName = itemKeysType.compose(itemKey).toString
-        cs + columns(isTombstone, column.withMapName(itemName), itemValuesType, itemValue)
-      })
+    (Columns() /: (0 until frozenCollectionSize(bb))) ((columns, i) => {
+      val itemKey = frozenCollectionValue(bb)
+      val itemValue = frozenCollectionValue(bb)
+      val itemName = itemKeysType.compose(itemKey).toString
+      columns + this.columns(isTombstone, column.withMapName(itemName), itemValuesType, itemValue)
+    })
   }
 
   private[this] def columns(
@@ -155,17 +152,16 @@ object ColumnsMapper {
       value: ByteBuffer): Columns = {
     if (isTombstone) return Columns(column)
     val itemValues = udt.split(value)
-    (0 until udt.fieldNames.size).foldLeft(Columns())(
-      (cs, i) => {
-        val itemName = udt.fieldNameAsString(i)
-        val itemType = udt.fieldType(i)
-        val itemValue = itemValues(i)
-        if (isTombstone || itemValue == null) {
-          cs + column.withUDTName(itemName)
-        } else {
-          cs + columns(isTombstone, column.withUDTName(itemName), itemType, itemValue)
-        }
-      })
+    (Columns() /: (0 until udt.fieldNames.size)) ((columns, i) => {
+      val itemName = udt.fieldNameAsString(i)
+      val itemType = udt.fieldType(i)
+      val itemValue = itemValues(i)
+      if (isTombstone || itemValue == null) {
+        columns + column.withUDTName(itemName)
+      } else {
+        columns + this.columns(isTombstone, column.withUDTName(itemName), itemType, itemValue)
+      }
+    })
   }
 
   private[this] def columns(
@@ -175,17 +171,16 @@ object ColumnsMapper {
       value: ByteBuffer): Columns = {
     if (isTombstone) return Columns(column)
     val itemValues = tuple.split(value)
-    (0 until tuple.size).foldLeft(Columns())(
-      (cs, i) => {
-        val itemName = i.toString
-        val itemType = tuple.`type`(i)
-        val itemValue = itemValues(i)
-        if (isTombstone || itemValue == null) {
-          cs + column.withUDTName(itemName)
-        } else {
-          cs + columns(isTombstone, column.withUDTName(itemName), itemType, itemValue)
-        }
-      })
+    (Columns() /: (0 until tuple.size)) ((columns, i) => {
+      val itemName = i.toString
+      val itemType = tuple.`type`(i)
+      val itemValue = itemValues(i)
+      if (isTombstone || itemValue == null) {
+        columns + column.withUDTName(itemName)
+      } else {
+        columns + this.columns(isTombstone, column.withUDTName(itemName), itemType, itemValue)
+      }
+    })
   }
 
   private[this] def frozenCollectionSize(bb: ByteBuffer): Int =
@@ -229,11 +224,11 @@ object ColumnsMapper {
     if (udtNames.isEmpty) {
       checkSupported(cellType, cellName)
     } else {
-      var col = Column.apply(cellName)
+      var column = Column.apply(cellName)
       var currentType = cellType
       for (i <- udtNames.indices) {
-        col = col.withUDTName(udtNames(i))
-        val mapperName = col.mapperName
+        column = column.withUDTName(udtNames(i))
+        val mapperName = column.mapperName
         ColumnsMapper.childType(currentType, udtNames(i)) match {
           case None =>
             throw new IndexException(s"No column definition '$mapperName' for mapper '$field'")

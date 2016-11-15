@@ -111,7 +111,7 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
 
   /** @inheritdoc */
   override def query(key: DecoratedKey, filter: ClusteringIndexFilter): Query = filter match {
-    case f if f.selectsAllPartition() => partitionMapper.query(key)
+    case f if f.selectsAllPartition => partitionMapper.query(key)
     case f: ClusteringIndexNamesFilter => keyMapper.query(key, f)
     case f: ClusteringIndexSliceFilter => clusteringMapper.query(key, f)
     case _ => throw new IndexException(s"Unknown filter type $filter")

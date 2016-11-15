@@ -89,10 +89,8 @@ class ColumnsTest extends BaseScalaTest {
       Column("c2").withUDTName("u1") +
       Column("c2").withMapName("m1") +
       Column("c2").withUDTName("u1").withMapName("m12")
-    columns.withFieldName("c1") shouldBe Columns(
-      Column("c1"))
-    columns.withFieldName("c1.u1") shouldBe Columns(
-      Column("c1").withUDTName("u1"))
+    columns.withFieldName("c1") shouldBe Columns(Column("c1"))
+    columns.withFieldName("c1.u1") shouldBe Columns(Column("c1").withUDTName("u1"))
     columns.withFieldName("c1.u1$m1") shouldBe Columns(
       Column("c1").withUDTName("u1").withMapName("m1"))
   }

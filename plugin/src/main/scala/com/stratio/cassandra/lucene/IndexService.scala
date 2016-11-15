@@ -225,7 +225,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
         if (fields.isEmpty) {
           lucene.delete(t)
         } else {
-          val doc = new Document()
+          val doc = new Document
           keyIndexableFields(key, row).foreach(doc.add)
           fields.asScala.foreach(doc.add)
           lucene.upsert(t, doc)
@@ -389,6 +389,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
 
 }
 
+/** Companion object for [[IndexService]]. */
 object IndexService {
 
   /** Returns a new index service for the specified indexed table and index metadata.
