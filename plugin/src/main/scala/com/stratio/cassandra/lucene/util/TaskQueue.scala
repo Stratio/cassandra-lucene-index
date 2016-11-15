@@ -16,8 +16,8 @@
 package com.stratio.cassandra.lucene.util
 
 import java.io.Closeable
-import java.util.concurrent._
 import java.util.concurrent.TimeUnit.DAYS
+import java.util.concurrent._
 import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.stratio.cassandra.lucene.IndexException
@@ -96,9 +96,9 @@ private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue
 
   /** @inheritdoc */
   override def submitSynchronous[A](task: () => A): A = {
-    lock.writeLock().lock()
+    lock.writeLock.lock()
     try {
-      pools.map(_.submit(() => {})).foreach(_.get()) // Wait for queued tasks completion
+      pools.map(_.submit(() => {})).foreach(_.get) // Wait for queued tasks completion
       task.apply // Run synchronous task
     } catch {
       case e: InterruptedException =>
@@ -122,6 +122,7 @@ private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue
 
 }
 
+/** Companion object for [[TaskQueue]]. */
 object TaskQueue {
 
   /** Returns a new [[TaskQueue]].
@@ -131,7 +132,7 @@ object TaskQueue {
     * @return a new task queue
     */
   def build(numThreads: Int, queuesSize: Int): TaskQueue = {
-    if (numThreads > 0) new TaskQueueAsync(numThreads, queuesSize) else new TaskQueueSync()
+    if (numThreads > 0) new TaskQueueAsync(numThreads, queuesSize) else new TaskQueueSync
   }
 
 }

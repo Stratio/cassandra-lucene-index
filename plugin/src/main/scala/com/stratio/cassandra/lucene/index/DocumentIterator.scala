@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.index
 
 import com.stratio.cassandra.lucene.IndexException
 import com.stratio.cassandra.lucene.index.DocumentIterator._
-import com.stratio.cassandra.lucene.util.{Logging, TimeCounter, Tracer, Tracing}
+import com.stratio.cassandra.lucene.util.{Logging, TimeCounter, Tracing}
 import org.apache.cassandra.utils.CloseableIterator
 import org.apache.lucene.document.Document
 import org.apache.lucene.index.Term
@@ -148,8 +148,9 @@ class DocumentIterator(
 
 }
 
+/** Companion object for [[DocumentIterator]]. */
 object DocumentIterator {
 
   /** The max number of rows to be read per iteration. */
-  private val MAX_PAGE_SIZE = 10000
+  val MAX_PAGE_SIZE = 10000
 }

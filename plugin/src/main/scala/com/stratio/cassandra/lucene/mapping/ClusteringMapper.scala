@@ -61,13 +61,13 @@ class ClusteringMapper(metadata: CFMetaData) {
     * @return the columns
     */
   def columns(clustering: Clustering): Columns = {
-    clusteringColumns.foldLeft(new Columns)(
+    (Columns() /: clusteringColumns) (
       (columns, columnDefinition) => {
         val name = columnDefinition.name.toString
         val position = columnDefinition.position
         val value = clustering.get(position)
         val valueType = columnDefinition.cellValueType
-        columns.add(Column.apply(name).withValue(ColumnsMapper.compose(value, valueType)))
+        columns.add(Column(name).withValue(ColumnsMapper.compose(value, valueType)))
       })
   }
 
@@ -78,7 +78,6 @@ class ClusteringMapper(metadata: CFMetaData) {
     * @return a indexable field
     */
   def indexableFields(key: DecoratedKey, clustering: Clustering): List[IndexableField] = {
-    // TODO: return Seq
 
     // Build stored field for clustering key retrieval
     val plainClustering = bytesRef(byteBuffer(clustering))
@@ -98,7 +97,7 @@ class ClusteringMapper(metadata: CFMetaData) {
     * @return a byte buffer representing `clustering`
     */
   def byteBuffer(clustering: Clustering): ByteBuffer = {
-    clustering.getRawValues.foldLeft(clusteringType.builder)(_ add _).build()
+    (clusteringType.builder /: clustering.getRawValues) (_ add _) build
   }
 
   /** Returns the [[String]] human-readable representation of the specified [[ClusteringPrefix]].
@@ -168,14 +167,13 @@ class ClusteringMapper(metadata: CFMetaData) {
     * @return the Lucene query
     */
   def query(key: DecoratedKey, filter: ClusteringIndexSliceFilter): Query = {
-    filter.requestedSlices.asScala.foldLeft(new BooleanQuery.Builder)(
-      (builder, slice) => {
-        builder.add(query(key, slice), SHOULD)
-      }).build
+    (new BooleanQuery.Builder /: filter.requestedSlices.asScala) (
+      (builder, slice) => builder.add(query(key, slice), SHOULD)) build
   }
 
 }
 
+/** Companion object for [[ClusteringMapper]]. */
 object ClusteringMapper {
 
   /** The Lucene field name. */

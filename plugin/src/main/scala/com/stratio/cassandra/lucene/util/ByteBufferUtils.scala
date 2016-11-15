@@ -18,9 +18,9 @@ package com.stratio.cassandra.lucene.util
 import java.nio.ByteBuffer
 
 import org.apache.cassandra.db.marshal.{AbstractType, CompositeType}
+import org.apache.cassandra.utils.ByteBufferUtil.{readShortLength, writeShortLength}
 import org.apache.cassandra.utils.{ByteBufferUtil, Hex}
 import org.apache.lucene.util.BytesRef
-import org.apache.cassandra.utils.ByteBufferUtil.{readShortLength, writeShortLength}
 
 import scala.annotation.varargs
 
@@ -37,9 +37,9 @@ object ByteBufferUtils {
     * @return the byte array representation of `bb`
     */
   def asArray(bb: ByteBuffer): Array[Byte] = {
-    val dup = bb.duplicate()
-    val bytes = new Array[Byte](dup.remaining)
-    dup.get(bytes)
+    val duplicate = bb.duplicate
+    val bytes = new Array[Byte](duplicate.remaining)
+    duplicate.get(bytes)
     bytes
   }
 
@@ -131,7 +131,7 @@ object ByteBufferUtils {
     */
   @varargs
   def compose(bbs: ByteBuffer*): ByteBuffer = {
-    val totalLength = bbs.map(_.remaining).foldLeft(2)(_ + _ + 2)
+    val totalLength = (2 /: bbs.map(_ remaining)) (_ + _ + 2)
     val out = ByteBuffer.allocate(totalLength)
     writeShortLength(out, bbs.length)
     for (bb <- bbs) {
@@ -148,11 +148,12 @@ object ByteBufferUtils {
     * @return the components of `bb`
     */
   def decompose(bb: ByteBuffer): Array[ByteBuffer] = {
-    val dup = bb.duplicate()
-    val numComponents = readShortLength(dup)
-    (1 to numComponents).map(i => {
-      val componentLength = readShortLength(dup)
-      ByteBufferUtil.readBytes(dup, componentLength)
-    }).toArray
+    val duplicate = bb.duplicate
+    val numComponents = readShortLength(duplicate)
+    (1 to numComponents).map(
+      i => {
+        val componentLength = readShortLength(duplicate)
+        ByteBufferUtil.readBytes(duplicate, componentLength)
+      }).toArray
   }
 }

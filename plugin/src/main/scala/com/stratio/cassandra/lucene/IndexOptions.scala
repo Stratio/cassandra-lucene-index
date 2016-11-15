@@ -65,6 +65,7 @@ class IndexOptions(tableMetadata: CFMetaData, indexMetadata: IndexMetadata) {
   val path = parsePath(options, tableMetadata, Some(indexMetadata))
 }
 
+/** Companion object for [[IndexOptions]]. */
 object IndexOptions {
 
   val REFRESH_SECONDS_OPTION = "refresh_seconds"

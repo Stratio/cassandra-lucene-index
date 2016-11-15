@@ -74,7 +74,7 @@ class FSIndex(
     writer = new IndexWriter(directory, indexWriterConfig)
 
     // Setup NRT search
-    val searcherFactory: SearcherFactory = new SearcherFactory() {
+    val searcherFactory: SearcherFactory = new SearcherFactory {
       override def newSearcher(reader: IndexReader, previousReader: IndexReader): IndexSearcher = {
         val searcher = new IndexSearcher(reader)
         searcher.setSimilarity(new NoIDFSimilarity)
@@ -221,6 +221,7 @@ class FSIndex(
   }
 }
 
+/** Companion object for [[FSIndex]]. */
 object FSIndex {
 
   // Disable max boolean query clauses limit

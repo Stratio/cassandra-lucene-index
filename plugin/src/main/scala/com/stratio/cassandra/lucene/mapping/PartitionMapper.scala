@@ -54,11 +54,11 @@ class PartitionMapper(metadata: CFMetaData) {
       case _ => Array[ByteBuffer](key.getKey)
     }
 
-    partitionKeyColumns.foldLeft(new Columns)(
-      (columns, cd) => {
-        val name = cd.name.toString
-        val value = components(cd.position)
-        val valueType = cd.cellValueType
+    (Columns() /: partitionKeyColumns) (
+      (columns, definition) => {
+        val name = definition.name.toString
+        val value = components(definition.position)
+        val valueType = definition.cellValueType
         columns.add(Column(name).withValue(ColumnsMapper.compose(value, valueType)))
       })
   }
@@ -132,6 +132,7 @@ class PartitionMapper(metadata: CFMetaData) {
 
 }
 
+/** Companion object for [[PartitionMapper]]. */
 object PartitionMapper {
 
   /** The Lucene field name. */

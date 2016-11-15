@@ -49,9 +49,9 @@ class RAMIndex(analyzer: Analyzer) {
 
   /** Finds the top count hits for a query and a sort.
     *
-    * @param query the query to search for
-    * @param sort the sort to be applied
-    * @param count the max number of results to be collected
+    * @param query  the query to search for
+    * @param sort   the sort to be applied
+    * @param count  the max number of results to be collected
     * @param fields the names of the fields to be loaded
     * @return the found documents
     */

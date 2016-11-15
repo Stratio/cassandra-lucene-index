@@ -33,8 +33,8 @@ import org.apache.cassandra.transport.messages.ResultMessage
 import org.apache.cassandra.transport.messages.ResultMessage.{Prepared, Rows}
 import org.apache.cassandra.utils.{FBUtilities, MD5Digest}
 
-import scala.collection.mutable
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 
 /** [[QueryHandler]] to be used with Lucene searches.
@@ -228,6 +228,7 @@ class IndexQueryHandler extends QueryHandler with Logging {
   }
 }
 
+/** Companion object for [[IndexQueryHandler]]. */
 object IndexQueryHandler {
 
   val getPageSize = classOf[SelectStatement].getDeclaredMethod("getPageSize", classOf[QueryOptions])

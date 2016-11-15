@@ -15,7 +15,11 @@
  */
 package com.stratio.cassandra.lucene.column
 
-import com.google.common.base.MoreObjects
+import java.lang.Iterable
+
+import com.google.common.base.MoreObjects.toStringHelper
+
+import scala.collection.JavaConversions._
 
 /** A sorted list of CQL3 logic [[Column]]s.
   *
@@ -23,33 +27,29 @@ import com.google.common.base.MoreObjects
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 @scala.annotation.varargs
-case class Columns(columns: Column[_]*)
-  extends Traversable[Column[_]]
-    with java.lang.Iterable[Column[_]] {
+case class Columns(columns: Column[_]*) extends Traversable[Column[_]] with Iterable[Column[_]] {
 
-  /** @constructor create a new columns with a list of columns. */
+  /** @constructor create a new columns with a list of columns.
+    * @param columns the [[Column]]s composing this
+    */
   def this(columns: Traversable[Column[_]]) = this(columns.toArray: _*)
 
   /** @constructor create a new empty columns. */
   def this() = this(Array[Column[_]]())
 
+  /** @inheritdoc */
   override def foreach[U](f: Column[_] => U) = columns.foreach(f)
 
-  override def iterator: java.util.Iterator[Column[_]] = {
-    import collection.JavaConversions._
-    columns.iterator
-  }
+  /** @inheritdoc */
+  override def iterator: java.util.Iterator[Column[_]] = columns.iterator
 
   /** Returns a copy of this with the specified column appended. */
-  def +(column: Column[_]): Columns =
-  new Columns(columns :+ column)
+  def +(column: Column[_]): Columns = new Columns(columns :+ column)
 
   /** Returns a copy of this with the specified columns appended. */
-  def +(columns: Columns): Columns =
-  new Columns(this.columns ++ columns)
+  def +(columns: Columns): Columns = new Columns(this.columns ++ columns)
 
-  override def head: Column[_] =
-    if (columns.isEmpty) null else columns.head
+  override def head: Column[_] = if (columns.isEmpty) null else columns.head
 
   /** Returns copy of this with only the columns with the specified full name. */
   def withFieldName(name: String): Columns =
@@ -57,13 +57,13 @@ case class Columns(columns: Column[_]*)
 
   /** Returns copy of this with only the columns with the specified cell name. */
   def withCellName(name: String): Columns = {
-    lazy val cellName = Column.parse(name).cellName
+    val cellName = Column.parse(name).cellName
     new Columns(filter(_.cellName == cellName))
   }
 
   /** Returns copy of this with only the columns with the specified mapper name. */
   def withMapperName(name: String): Columns = {
-    lazy val mapperName = Column.parse(name).mapperName
+    val mapperName = Column.parse(name).mapperName
     new Columns(filter(_.mapperName == mapperName))
   }
 
@@ -71,23 +71,22 @@ case class Columns(columns: Column[_]*)
     *
     * @param timeInSec the max allowed UNIX time in seconds
     */
-  def withoutDeleted(timeInSec: Int): Columns =
-  new Columns(filterNot(_.isDeleted(timeInSec)))
+  def withoutDeleted(timeInSec: Int): Columns = new Columns(filterNot(_.isDeleted(timeInSec)))
 
-  def add[A](column: Column[A]) =
-    this + column
+  /** Returns a copy of this with the specified columns appended. */
+  def add[A](columns: Columns) = this + columns
 
-  def add[A](columns: Columns) =
-    this + columns
+  /** Returns a copy of this with the specified column appended. */
+  def add[A](column: Column[A]) = this + column
 
-  def add[A](cellName: String) =
-    this + Column(cellName)
+  /** Returns a copy of this with the specified column appended. */
+  def add[A](cellName: String) = this + Column(cellName)
 
-  def add[A](cellName: String, value: A) =
-    this + Column(cellName, value = Option(value))
+  /** Returns a copy of this with the specified column appended. */
+  def add[A](cellName: String, value: A) = this + Column(cellName, value = Option(value))
 
-  override def toString: String =
-    columns.foldLeft(MoreObjects.toStringHelper(this))(
-      (helper, column) => helper.add(column.fieldName, column.value)).toString
+  /** @inheritdoc */
+  override def toString: String = (toStringHelper(this) /: columns) (
+    (helper, column) => helper.add(column.fieldName, column.value)) toString
 
 }
