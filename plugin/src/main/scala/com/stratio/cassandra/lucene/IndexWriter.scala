@@ -86,33 +86,23 @@ abstract class IndexWriter(
 
   /** Retrieves from the local storage all the rows in the specified partition.
     *
-    * @param key      the partition key
-    * @param nowInSec max allowed time in seconds
-    * @param orderGroup the Cassandra read order group
+    * @param key the partition key
     * @return a row iterator
     */
-  protected def read(
-      key: DecoratedKey,
-      nowInSec: Int,
-      orderGroup: OpOrder.Group): UnfilteredRowIterator = {
+  protected def read(key: DecoratedKey): UnfilteredRowIterator = {
     val clusterings = new java.util.TreeSet[Clustering](metadata.comparator)
     clusterings.add(Clustering.EMPTY)
-    read(key, clusterings, nowInSec, orderGroup)
+    read(key, clusterings)
   }
 
   /** Retrieves from the local storage the rows in the specified partition slice.
     *
     * @param key         the partition key
     * @param clusterings the clustering keys
-    * @param nowInSec    max allowed time in seconds
-    * @param orderGroup the Cassandra read order group
     * @return a row iterator
     */
-  protected def read(
-      key: DecoratedKey,
-      clusterings: java.util.NavigableSet[Clustering],
-      nowInSec: Int,
-      orderGroup: OpOrder.Group): UnfilteredRowIterator = {
+  protected def read(key: DecoratedKey, clusterings: java.util.NavigableSet[Clustering])
+  : UnfilteredRowIterator = {
     val filter = new ClusteringIndexNamesFilter(clusterings, false)
     val columnFilter = ColumnFilter.all(metadata)
     val command = SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter)

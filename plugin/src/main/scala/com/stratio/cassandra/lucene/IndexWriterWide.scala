@@ -22,7 +22,6 @@ import org.apache.cassandra.index.transactions.IndexTransaction.Type._
 import org.apache.cassandra.utils.concurrent.OpOrder
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 
 /** [[IndexWriter]] for wide rows.
@@ -42,13 +41,16 @@ class IndexWriterWide(
     transactionType: IndexTransaction.Type)
   extends IndexWriter(service, key, nowInSec, opGroup, transactionType) {
 
-  private val rowsToRead = new java.util.TreeSet[Clustering](metadata.comparator)
-  private val rows = mutable.LinkedHashMap.empty[Clustering, Option[Row]]
+  /** The clustering keys of the rows needing read before write. */
+  private val clusterings = new java.util.TreeSet[Clustering](metadata.comparator)
+
+  /** The rows ready to be written. */
+  private val rows = new java.util.TreeMap[Clustering, Row](metadata.comparator)
 
   /** @inheritdoc */
   override def delete() {
     service.delete(key)
-    rowsToRead.clear()
+    clusterings.clear()
     rows.clear()
   }
 
@@ -58,11 +60,10 @@ class IndexWriterWide(
       val clustering = row.clustering
       if (service.needsReadBeforeWrite(key, row)) {
         tracer.trace("Lucene index doing read before write")
-        rowsToRead.add(clustering)
-        rows.put(clustering, None)
+        clusterings.add(clustering)
       } else {
         tracer.trace("Lucene index skipping read before write")
-        rows.put(clustering, Some(row))
+        rows.put(clustering, row)
       }
     }
   }
@@ -74,23 +75,24 @@ class IndexWriterWide(
     if (transactionType == CLEANUP) return
 
     // Read required rows from storage engine
+<<<<<<< HEAD
     read(key, rowsToRead, nowInSec, opGroup)
+=======
+    read(key, clusterings)
+>>>>>>> 44628d8... Refactor index writers
       .asScala
       .map(_.asInstanceOf[Row])
-      .foreach(row => rows.put(row.clustering, Some(row)))
+      .foreach(row => rows.put(row.clustering, row))
 
     // Write rows
-    for ((clustering, maybeRow) <- rows) {
-      maybeRow.foreach(
-        row => {
-          if (row.hasLiveData(nowInSec)) {
-            tracer.trace("Lucene index writing document")
-            service.upsert(key, row, nowInSec)
-          } else {
-            tracer.trace("Lucene index deleting document")
-            service.delete(key, row)
-          }
-        })
+    for ((clustering, row) <- rows.asScala) {
+      if (row.hasLiveData(nowInSec)) {
+        tracer.trace("Lucene index writing document")
+        service.upsert(key, row, nowInSec)
+      } else {
+        tracer.trace("Lucene index deleting document")
+        service.delete(key, row)
+      }
     }
   }
 
