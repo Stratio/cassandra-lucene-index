@@ -391,6 +391,7 @@ public class BitemporalAT extends BaseAT {
         assertEquals("Expected 3 results!", 3, select.count());
         assertTrue("Unexpected results!! Expected: {1,2,3}, got: " + fromInteger(select.intColumn("integer_1")),
                    isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1, 2, 3}));
+        tearDown(cu);
     }
 
     //querying without limits to vt
@@ -408,6 +409,7 @@ public class BitemporalAT extends BaseAT {
         assertEquals("Expected 3 results!", 3, select.count());
         assertTrue("Unexpected results!! Expected: {1,2,3}, got: " + fromInteger(select.intColumn("integer_1")),
                    isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1, 2, 3}));
+        tearDown(cu);
     }
 
     //querying without limits to tt
@@ -425,6 +427,7 @@ public class BitemporalAT extends BaseAT {
         assertEquals("Expected 3 results!", 3, select.count());
         assertTrue("Unexpected results!! Expected: {1,2,3}, got: " + fromInteger(select.intColumn("integer_1")),
                    isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1, 2, 3}));
+        tearDown(cu);
     }
 
     @Test
@@ -490,6 +493,7 @@ public class BitemporalAT extends BaseAT {
                    row.getLong("tt_from") == 20150102l);
         assertTrue("Unexpected results!! Expected result : {tt_to=0}, got: " + row.getLong("tt_to"),
                    row.getLong("tt_to") == 9223372036854775807l);
+        tearDown(cu);
 
     }
 }
