@@ -1,7 +1,8 @@
 # Changelog
 
-## 3.9.2 (Upcoming)
+## 3.9.3 (Upcoming)
 
+* Upgrade to Scala 2.12.0
 * Avoid not required string interpolations in logging
 * Avoid not required string interpolations in tracing
 

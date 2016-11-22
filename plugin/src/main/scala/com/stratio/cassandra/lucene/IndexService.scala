@@ -70,7 +70,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   val lucene = new FSIndex(
     idxName,
     options.path,
-    options.schema.analyzer(),
+    options.schema.analyzer,
     options.refreshSeconds,
     options.ramBufferMB,
     options.maxMergeMB,
@@ -227,7 +227,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
         } else {
           val doc = new Document
           keyIndexableFields(key, row).foreach(doc.add)
-          fields.asScala.foreach(doc.add)
+          fields.forEach(doc add _)
           lucene.upsert(t, doc)
         }
       })
@@ -358,7 +358,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     */
   def validate(update: PartitionUpdate) {
     val key = update.partitionKey
-    update.asScala.foreach(row => schema.validate(columns(key, row)))
+    update.forEach(row => schema.validate(columns(key, row)))
   }
 
   /** @inheritdoc */

@@ -139,7 +139,7 @@ sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
     val doc = new Document
     val cols = service.columns(key, row)
     service.keyIndexableFields(key, row).foreach(doc.add)
-    service.schema.postProcessingIndexableFields(cols, search).asScala.foreach(doc.add)
+    service.schema.postProcessingIndexableFields(cols, search).forEach(doc add _)
     doc
   }
 }

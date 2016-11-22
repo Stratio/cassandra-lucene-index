@@ -154,19 +154,11 @@ object PartitionMapper {
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 class PartitionSort(mapper: PartitionMapper) extends SortField(
-  FIELD_NAME, new FieldComparatorSource {
-    override def newComparator(
-        field: String,
-        hits: Int,
-        sortPos: Int,
-        reversed: Boolean): FieldComparator[_] = {
-      new TermValComparator(hits, field, false) {
-        override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
-          val bb1 = ByteBufferUtils.byteBuffer(t1)
-          val bb2 = ByteBufferUtils.byteBuffer(t2)
-          mapper.validator.compare(bb1, bb2)
-        }
-      }
+  FIELD_NAME, (field, hits, sortPos, reversed) => new TermValComparator(hits, field, false) {
+    override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
+      val bb1 = ByteBufferUtils.byteBuffer(t1)
+      val bb2 = ByteBufferUtils.byteBuffer(t2)
+      mapper.validator.compare(bb1, bb2)
     }
   }) {
 
