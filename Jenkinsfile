@@ -23,7 +23,7 @@ hose {
                  'jts:1.14.0'],
            'env': [
                  'MAX_HEAP=256M',
-                  'START_JOLOKIA=true'
+                  'START_JOLOKIA=true',
                   'JOLOKIA_OPTS="port=8000,host=$(hostname --ip)"'],
            'sleep': 10]],
         ]
