@@ -97,7 +97,7 @@ class ClusteringMapper(metadata: CFMetaData) {
     * @return a byte buffer representing `clustering`
     */
   def byteBuffer(clustering: Clustering): ByteBuffer = {
-    (clusteringType.builder /: clustering.getRawValues) (_ add _) build
+    (clusteringType.builder /: clustering.getRawValues) (_ add _) build()
   }
 
   /** Returns the [[String]] human-readable representation of the specified [[ClusteringPrefix]].
@@ -168,7 +168,7 @@ class ClusteringMapper(metadata: CFMetaData) {
     */
   def query(key: DecoratedKey, filter: ClusteringIndexSliceFilter): Query = {
     (new BooleanQuery.Builder /: filter.requestedSlices.asScala) (
-      (builder, slice) => builder.add(query(key, slice), SHOULD)) build
+      (builder, slice) => builder.add(query(key, slice), SHOULD)).build()
   }
 
 }
@@ -247,23 +247,15 @@ object ClusteringMapper {
   * @param mapper the primary key mapper to be used
   */
 class ClusteringSort(mapper: ClusteringMapper) extends SortField(
-  FIELD_NAME, new FieldComparatorSource {
-    override def newComparator(
-        field: String,
-        hits: Int,
-        sortPos: Int,
-        reversed: Boolean): FieldComparator[_] = {
-      new TermValComparator(hits, field, false) {
-        override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
-          val comp = compareUnsigned(t1.bytes, 0, PREFIX_SIZE, t2.bytes, 0, PREFIX_SIZE)
-          if (comp != 0) return comp
-          val bb1 = ByteBuffer.wrap(t1.bytes, PREFIX_SIZE, t1.length - PREFIX_SIZE)
-          val bb2 = ByteBuffer.wrap(t2.bytes, PREFIX_SIZE, t2.length - PREFIX_SIZE)
-          val clustering1 = mapper.clustering(bb1)
-          val clustering2 = mapper.clustering(bb2)
-          mapper.comparator.compare(clustering1, clustering2)
-        }
-      }
+  FIELD_NAME, (field, hits, sortPos, reversed) => new TermValComparator(hits, field, false) {
+    override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
+      val comp = compareUnsigned(t1.bytes, 0, PREFIX_SIZE, t2.bytes, 0, PREFIX_SIZE)
+      if (comp != 0) return comp
+      val bb1 = ByteBuffer.wrap(t1.bytes, PREFIX_SIZE, t1.length - PREFIX_SIZE)
+      val bb2 = ByteBuffer.wrap(t2.bytes, PREFIX_SIZE, t2.length - PREFIX_SIZE)
+      val clustering1 = mapper.clustering(bb1)
+      val clustering2 = mapper.clustering(bb2)
+      mapper.comparator.compare(clustering1, clustering2)
     }
   }) {
 

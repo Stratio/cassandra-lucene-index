@@ -46,7 +46,10 @@ public class Schema implements Closeable {
     public final Map<String, Mapper> mappers;
 
     /** The wrapping all-in-one {@link Analyzer}. */
-    private final SchemaAnalyzer analyzer;
+    public final SchemaAnalyzer analyzer;
+
+    /** The default {@link Analyzer}. */
+    public final Analyzer defaultAnalyzer;
 
     /** The names of the mapped cells. */
     private final Set<String> mappedCells;
@@ -60,30 +63,13 @@ public class Schema implements Closeable {
      */
     public Schema(Analyzer defaultAnalyzer, Map<String, Mapper> mappers, Map<String, Analyzer> analyzers) {
         this.mappers = mappers;
+        this.defaultAnalyzer = defaultAnalyzer;
         this.analyzer = new SchemaAnalyzer(defaultAnalyzer, analyzers, mappers);
         mappedCells = mappers.values()
                              .stream()
                              .flatMap(x -> x.mappedColumns.stream())
                              .map(x -> Column.parse(x).cellName())
                              .collect(Collectors.toSet());
-    }
-
-    /**
-     * Returns the used {@link Analyzer}.
-     *
-     * @return the used {@link Analyzer}
-     */
-    public Analyzer analyzer() {
-        return analyzer;
-    }
-
-    /**
-     * Returns the default {@link Analyzer}.
-     *
-     * @return the default {@link Analyzer}
-     */
-    public Analyzer defaultAnalyzer() {
-        return analyzer.getDefaultAnalyzer().analyzer();
     }
 
     /**

@@ -138,7 +138,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
 
         /** {@inheritDoc} */
         @Override
-        protected TokenStreamComponents createComponents(String fieldName) {
+        protected Analyzer.TokenStreamComponents createComponents(String fieldName) {
             final Tokenizer source = new StandardTokenizer();
             TokenStream result = new StandardFilter(source);
             result = new LowerCaseFilter(result);

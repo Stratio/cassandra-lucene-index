@@ -40,7 +40,7 @@ public class SchemaTest {
         Map<String, Mapper> mappers = new HashMap<>();
         Map<String, Analyzer> analyzers = new HashMap<>();
         Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
-        Analyzer analyzer = schema.defaultAnalyzer();
+        Analyzer analyzer = schema.defaultAnalyzer;
         assertEquals("Expected english analyzer", EnglishAnalyzer.class, analyzer.getClass());
         schema.close();
     }
@@ -50,7 +50,7 @@ public class SchemaTest {
         Map<String, Mapper> mappers = new HashMap<>();
         Map<String, Analyzer> analyzers = new HashMap<>();
         Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
-        Analyzer analyzer = schema.defaultAnalyzer();
+        Analyzer analyzer = schema.defaultAnalyzer;
         assertEquals("Expected default analyzer", EnglishAnalyzer.class, analyzer.getClass());
         schema.close();
     }

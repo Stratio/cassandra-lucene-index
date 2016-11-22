@@ -133,10 +133,10 @@ case class ExpressionMapper(tableMetadata: CFMetaData, indexMetadata: IndexMetad
 
     // Copy row
     val builder = BTreeRow.unsortedBuilder(nowInSec)
-    builder.newRow(row.clustering)
+    builder.newRow(row.clustering())
     builder.addRowDeletion(row.deletion)
     builder.addPrimaryKeyLivenessInfo(row.primaryKeyLivenessInfo)
-    row.cells.asScala.foreach(builder.addCell)
+    row.cells.forEach(builder addCell _)
 
     // Add score cell
     val timestamp = row.primaryKeyLivenessInfo.timestamp

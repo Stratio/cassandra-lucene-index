@@ -21,7 +21,8 @@ import java.util.concurrent._
 import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.stratio.cassandra.lucene.IndexException
-import com.stratio.cassandra.lucene.util.JavaConversions.asJavaCallable
+
+//import com.stratio.cassandra.lucene.util.JavaConversions.asJavaCallable
 
 import scala.concurrent.ExecutionException
 
@@ -77,16 +78,14 @@ private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue
   private val lock = new ReentrantReadWriteLock(true)
   private val pools = (1 to numThreads)
     .map(index => new ArrayBlockingQueue[Runnable](queuesSize, true))
-    .map(queue => new ThreadPoolExecutor(1, 1, 1, DAYS, queue, new RejectedExecutionHandler() {
-      override def rejectedExecution(task: Runnable, executor: ThreadPoolExecutor) =
-        if (!executor.isShutdown) executor.getQueue.put(task)
-    }))
+    .map(queue => new ThreadPoolExecutor(1, 1, 1, DAYS, queue,
+      (task, executor) => if (!executor.isShutdown) executor.getQueue.put(task)))
 
   /** @inheritdoc */
   override def submitAsynchronous[A](id: AnyRef, task: () => A): Unit = {
     lock.readLock.lock()
     try {
-      pools(Math.abs(id.hashCode % numThreads)).submit(task)
+      pools(Math.abs(id.hashCode % numThreads)).submit(() => task.apply())
     } catch {
       case e: Exception =>
         logger.error("Task queue asynchronous submission failed", e)
@@ -98,7 +97,7 @@ private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue
   override def submitSynchronous[A](task: () => A): A = {
     lock.writeLock.lock()
     try {
-      pools.map(_.submit(() => {})).foreach(_.get) // Wait for queued tasks completion
+      pools.map(_.submit(() => None)).map(_.get()) // Wait for queued tasks completion
       task.apply // Run synchronous task
     } catch {
       case e: InterruptedException =>

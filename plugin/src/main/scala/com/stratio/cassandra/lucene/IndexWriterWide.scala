@@ -78,10 +78,10 @@ class IndexWriterWide(
     read(key, clusterings)
       .asScala
       .map(_.asInstanceOf[Row])
-      .foreach(row => rows.put(row.clustering, row))
+      .foreach(row => rows.put(row.clustering(), row))
 
     // Write rows
-    for ((clustering, row) <- rows.asScala) {
+    rows.forEach((clustering, row) => {
       if (row.hasLiveData(nowInSec)) {
         tracer.trace("Lucene index writing document")
         service.upsert(key, row, nowInSec)
@@ -89,7 +89,7 @@ class IndexWriterWide(
         tracer.trace("Lucene index deleting document")
         service.delete(key, row)
       }
-    }
+    })
   }
 
 }
