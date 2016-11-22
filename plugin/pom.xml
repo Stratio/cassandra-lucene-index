@@ -35,10 +35,10 @@
     <description>Cassandra Lucene Index plugin</description>
 
     <properties>
-        <scala.version>2.11.8</scala.version>
-        <scala.binary.version>2.11</scala.binary.version>
+        <scala.version>2.12.0</scala.version>
+        <scala.binary.version>2.12</scala.binary.version>
         <scala.logging.version>3.5.0</scala.logging.version>
-        <scalatest.version>3.0.0</scalatest.version>
+        <scalatest.version>3.0.1</scalatest.version>
         <cassandra.version>3.0.9</cassandra.version>
         <lucene.version>5.5.1</lucene.version>
         <jts.version>1.14.0</jts.version>

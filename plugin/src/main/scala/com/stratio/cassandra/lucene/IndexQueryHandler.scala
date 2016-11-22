@@ -133,14 +133,14 @@ class IndexQueryHandler extends QueryHandler with Logging {
     val expressions = select.getRowFilter(options).getExpressions
     val cfs = Keyspace.open(select.keyspace).getColumnFamilyStore(select.columnFamily)
     val indexes = cfs.indexManager.listIndexes.asScala.collect { case index: Index => index }
-    expressions.asScala.foreach {
+    expressions.forEach {
       case expression: CustomExpression =>
         val clazz = expression.getTargetIndex.options.get(IndexTarget.CUSTOM_INDEX_OPTION_NAME)
         if (clazz == classOf[Index].getCanonicalName) {
           val index = cfs.indexManager.getIndex(expression.getTargetIndex).asInstanceOf[Index]
           map += expression -> index
         }
-      case expr =>
+      case expr: Expression =>
         indexes.filter(_.supportsExpression(expr.column, expr.operator)).foreach(map.put(expr, _))
     }
     map.toMap

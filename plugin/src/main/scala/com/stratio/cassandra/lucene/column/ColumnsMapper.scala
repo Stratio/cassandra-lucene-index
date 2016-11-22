@@ -208,7 +208,7 @@ object ColumnsMapper {
     val cellDefinition = metadata.getColumnDefinition(UTF8Type.instance.decompose(cellName))
 
     if (cellDefinition == null) {
-      throw new IndexException(s"No column definition '$cellName' for mapper '$field'")
+      throw new IndexException(s"No column definition '$cellName' for field '$field'")
     }
     if (cellDefinition.isStatic) {
       throw new IndexException(s"Lucene indexes are not allowed on static columns as '$column'")
@@ -231,7 +231,7 @@ object ColumnsMapper {
         val mapperName = column.mapperName
         ColumnsMapper.childType(currentType, udtNames(i)) match {
           case None =>
-            throw new IndexException(s"No column definition '$mapperName' for mapper '$field'")
+            throw new IndexException(s"No column definition '$mapperName' for field '$field'")
           case Some(n) if i == udtNames.indices.last => checkSupported(n, mapperName)
           case Some(n) => currentType = n
         }

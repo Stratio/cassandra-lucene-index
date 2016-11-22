@@ -22,7 +22,6 @@ import java.util.{Collections, Optional}
 import java.{util => java}
 
 import com.stratio.cassandra.lucene.search.Search
-import com.stratio.cassandra.lucene.util.JavaConversions._
 import com.stratio.cassandra.lucene.util.Logging
 import org.apache.cassandra.config.{CFMetaData, ColumnDefinition}
 import org.apache.cassandra.cql3.Operator
@@ -117,7 +116,7 @@ class Index(table: ColumnFamilyStore, indexMetadata: IndexMetadata)
     *
     * @return the Index's backing storage table
     */
-  override def getBackingTable: Optional[ColumnFamilyStore] = None
+  override def getBackingTable: Optional[ColumnFamilyStore] = Optional.empty()
 
   /** Return a task which performs a blocking flush of the index's data to persistent storage.
     *
@@ -310,10 +309,7 @@ class Index(table: ColumnFamilyStore, indexMetadata: IndexMetadata)
   override def searcherFor(command: ReadCommand): Searcher = {
     logger.trace(s"Getting searcher for $command")
     try {
-      new Searcher {
-        override def search(orderGroup: ReadOrderGroup): UnfilteredPartitionIterator =
-          service.search(command, orderGroup)
-      }
+      controller => service.search(command, controller)
     } catch {
       case e: Exception =>
         logger.error(s"Error getting searcher for command: $command", e)

@@ -75,17 +75,13 @@ class IndexWriterWide(
     if (transactionType == CLEANUP) return
 
     // Read required rows from storage engine
-<<<<<<< HEAD
-    read(key, rowsToRead, nowInSec, opGroup)
-=======
     read(key, clusterings)
->>>>>>> 44628d8... Refactor index writers
       .asScala
       .map(_.asInstanceOf[Row])
-      .foreach(row => rows.put(row.clustering, row))
+      .foreach(row => rows.put(row.clustering(), row))
 
     // Write rows
-    for ((clustering, row) <- rows.asScala) {
+    rows.forEach((clustering, row) => {
       if (row.hasLiveData(nowInSec)) {
         tracer.trace("Lucene index writing document")
         service.upsert(key, row, nowInSec)
@@ -93,7 +89,7 @@ class IndexWriterWide(
         tracer.trace("Lucene index deleting document")
         service.delete(key, row)
       }
-    }
+    })
   }
 
 }
