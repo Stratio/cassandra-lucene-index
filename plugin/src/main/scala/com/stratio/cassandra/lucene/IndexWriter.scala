@@ -15,14 +15,13 @@
  */
 package com.stratio.cassandra.lucene
 
-import com.stratio.cassandra.lucene.IndexWriter.logger
+import com.stratio.cassandra.lucene.util.{Logging, Tracing}
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.{ClusteringIndexNamesFilter, ColumnFilter}
 import org.apache.cassandra.db.rows.{Row, UnfilteredRowIterator}
 import org.apache.cassandra.index.Index.Indexer
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
-import org.slf4j.LoggerFactory
 
 /** [[Indexer]] for Lucene-based index.
   *
@@ -38,7 +37,7 @@ abstract class IndexWriter(
     key: DecoratedKey,
     nowInSec: Int,
     opGroup: OpOrder.Group,
-    transactionType: IndexTransaction.Type) extends Indexer {
+    transactionType: IndexTransaction.Type) extends Indexer with Logging with Tracing {
 
   val metadata = service.metadata
   val table = service.table
@@ -87,43 +86,27 @@ abstract class IndexWriter(
 
   /** Retrieves from the local storage all the rows in the specified partition.
     *
-    * @param key      the partition key
-    * @param nowInSec max allowed time in seconds
-    * @param orderGroup the Cassandra read order group
+    * @param key the partition key
     * @return a row iterator
     */
-  protected def read(
-      key: DecoratedKey,
-      nowInSec: Int,
-      orderGroup: OpOrder.Group): UnfilteredRowIterator = {
+  protected def read(key: DecoratedKey): UnfilteredRowIterator = {
     val clusterings = new java.util.TreeSet[Clustering](metadata.comparator)
     clusterings.add(Clustering.EMPTY)
-    read(key, clusterings, nowInSec, orderGroup)
+    read(key, clusterings)
   }
 
   /** Retrieves from the local storage the rows in the specified partition slice.
     *
     * @param key         the partition key
     * @param clusterings the clustering keys
-    * @param nowInSec    max allowed time in seconds
-    * @param orderGroup the Cassandra read order group
     * @return a row iterator
     */
-  protected def read(
-      key: DecoratedKey,
-      clusterings: java.util.NavigableSet[Clustering],
-      nowInSec: Int,
-      orderGroup: OpOrder.Group): UnfilteredRowIterator = {
+  protected def read(key: DecoratedKey, clusterings: java.util.NavigableSet[Clustering])
+  : UnfilteredRowIterator = {
     val filter = new ClusteringIndexNamesFilter(clusterings, false)
     val columnFilter = ColumnFilter.all(metadata)
     val command = SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter)
-    command.queryMemtableAndDisk(table, orderGroup)
+    command.queryMemtableAndDisk(table, opGroup)
   }
-
-}
-
-object IndexWriter {
-
-  protected val logger = LoggerFactory.getLogger(classOf[IndexWriter])
 
 }

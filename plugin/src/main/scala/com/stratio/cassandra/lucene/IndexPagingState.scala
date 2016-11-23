@@ -29,8 +29,8 @@ import org.apache.cassandra.db.partitions.PartitionIterator
 import org.apache.cassandra.service.LuceneStorageProxy
 import org.apache.cassandra.service.pager.PagingState
 
-import scala.collection.mutable
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /** The paging state of a CQL query using Lucene. It tracks the primary keys of the last seen rows
   * for each internal read command of a CQL query. It also keeps the count of the remaining rows.
@@ -70,9 +70,8 @@ class IndexPagingState(var remaining: Int) {
     val cfs = Keyspace.open(command.metadata.ksName).getColumnFamilyStore(command.metadata.cfName)
     for (expr <- command.rowFilter.getExpressions.asScala) {
       for (index <- cfs.indexManager.listIndexes.asScala) {
-        if (index.isInstanceOf[Index] && index.supportsExpression(
-          expr.column,
-          expr.operator)) return expr
+        if (index.isInstanceOf[Index] && index.supportsExpression(expr.column, expr.operator))
+          return expr
       }
     }
     throw new IndexException("Not found expression")
@@ -86,7 +85,7 @@ class IndexPagingState(var remaining: Int) {
   @throws[ReflectiveOperationException]
   def rewrite(query: ReadQuery): Unit = query match {
     case group: SinglePartitionReadCommand.Group =>
-      group.commands.asScala.foreach(rewrite)
+      group.commands.forEach(rewrite)
     case read: ReadCommand =>
       val expression = indexExpression(read)
       val oldValue = expressionValueField.get(expression).asInstanceOf[ByteBuffer]
@@ -123,7 +122,7 @@ class IndexPagingState(var remaining: Int) {
       while (partition.hasNext) {
         val newRowIterator = new SingleRowIterator(partition)
         rowIterators += newRowIterator
-        entries.put(key, newRowIterator.row.clustering)
+        entries.put(key, newRowIterator.row.clustering())
         if (remaining > 0) remaining -= 1
         count += 1
       }
@@ -175,7 +174,7 @@ class IndexPagingState(var remaining: Int) {
     if (hasMorePages) new PagingState(toByteBuffer, null, remaining, remaining) else null
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def toString: String = {
     MoreObjects.toStringHelper(this).add("remaining", remaining).add("entries", entries).toString
   }
@@ -201,6 +200,7 @@ class IndexPagingState(var remaining: Int) {
 
 }
 
+/** Companion object for [[IndexPagingState]]. */
 object IndexPagingState {
 
   private lazy val expressionValueField = classOf[RowFilter.Expression].getDeclaredField("value")

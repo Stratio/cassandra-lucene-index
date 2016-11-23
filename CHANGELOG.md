@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.9.2 (Upcoming)
+
+* Upgrade to Scala 2.12.0
+* Avoid not required string interpolations in logging
+* Avoid not required string interpolations in tracing
+
 ## 3.0.9.1 (November 10, 2016)
 
 * Add support for geospatial shapes in bounding box search

@@ -54,11 +54,11 @@ class PartitionMapper(metadata: CFMetaData) {
       case _ => Array[ByteBuffer](key.getKey)
     }
 
-    partitionKeyColumns.foldLeft(new Columns)(
-      (columns, cd) => {
-        val name = cd.name.toString
-        val value = components(cd.position)
-        val valueType = cd.cellValueType
+    (Columns() /: partitionKeyColumns) (
+      (columns, definition) => {
+        val name = definition.name.toString
+        val value = components(definition.position)
+        val valueType = definition.cellValueType
         columns.add(Column(name).withValue(ColumnsMapper.compose(value, valueType)))
       })
   }
@@ -132,6 +132,7 @@ class PartitionMapper(metadata: CFMetaData) {
 
 }
 
+/** Companion object for [[PartitionMapper]]. */
 object PartitionMapper {
 
   /** The Lucene field name. */
@@ -153,19 +154,11 @@ object PartitionMapper {
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 class PartitionSort(mapper: PartitionMapper) extends SortField(
-  FIELD_NAME, new FieldComparatorSource {
-    override def newComparator(
-        field: String,
-        hits: Int,
-        sortPos: Int,
-        reversed: Boolean): FieldComparator[_] = {
-      new TermValComparator(hits, field, false) {
-        override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
-          val bb1 = ByteBufferUtils.byteBuffer(t1)
-          val bb2 = ByteBufferUtils.byteBuffer(t2)
-          mapper.validator.compare(bb1, bb2)
-        }
-      }
+  FIELD_NAME, (field, hits, sortPos, reversed) => new TermValComparator(hits, field, false) {
+    override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
+      val bb1 = ByteBufferUtils.byteBuffer(t1)
+      val bb2 = ByteBufferUtils.byteBuffer(t2)
+      mapper.validator.compare(bb1, bb2)
     }
   }) {
 

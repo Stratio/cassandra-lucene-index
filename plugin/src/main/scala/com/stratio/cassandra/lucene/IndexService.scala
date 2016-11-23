@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene
 import java.lang.management.ManagementFactory
 import javax.management.{JMException, ObjectName}
 
-import com.stratio.cassandra.lucene.IndexService._
 import com.stratio.cassandra.lucene.column.Columns
 import com.stratio.cassandra.lucene.index.{DocumentIterator, FSIndex}
 import com.stratio.cassandra.lucene.mapping.{ExpressionMapper, PartitionMapper, TokenMapper}
@@ -35,7 +34,6 @@ import org.apache.cassandra.utils.concurrent.OpOrder
 import org.apache.lucene.document.Document
 import org.apache.lucene.index.{IndexableField, Term}
 import org.apache.lucene.search.{Query, Sort, SortField}
-import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -47,7 +45,7 @@ import scala.collection.mutable
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: IndexMetadata)
-  extends IndexServiceMBean {
+  extends IndexServiceMBean with Logging with Tracing {
 
   val metadata = table.metadata
   val ksName = metadata.ksName
@@ -72,7 +70,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   val lucene = new FSIndex(
     idxName,
     options.path,
-    options.schema.analyzer(),
+    options.schema.analyzer,
     options.refreshSeconds,
     options.ramBufferMB,
     options.maxMergeMB,
@@ -227,9 +225,9 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
         if (fields.isEmpty) {
           lucene.delete(t)
         } else {
-          val doc = new Document()
+          val doc = new Document
           keyIndexableFields(key, row).foreach(doc.add)
-          fields.asScala.foreach(doc.add)
+          fields.forEach(doc add _)
           lucene.upsert(t, doc)
         }
       })
@@ -260,7 +258,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   def search(command: ReadCommand, orderGroup: ReadOrderGroup): UnfilteredPartitionIterator = {
 
     // Parse search
-    Tracer.trace("Building Lucene search")
+    tracer.trace("Building Lucene search")
     val search = expressionMapper.search(command)
     val q = search.query(schema, query(command).orNull)
     val a = after(search.paging, command)
@@ -269,12 +267,12 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
 
     // Refresh if required
     if (search.refresh) {
-      Tracer.trace("Refreshing Lucene index searcher")
+      tracer.trace("Refreshing Lucene index searcher")
       refresh()
     }
 
     // Search
-    Tracer.trace(s"Lucene index searching for $n rows")
+    tracer.trace(s"Lucene index searching for $n rows")
     val documents = lucene.search(a, q, s, n)
     reader(documents, command, orderGroup)
   }
@@ -356,7 +354,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     */
   def validate(update: PartitionUpdate) {
     val key = update.partitionKey
-    update.asScala.foreach(row => schema.validate(columns(key, row)))
+    update.forEach(row => schema.validate(columns(key, row)))
   }
 
   /** @inheritdoc */
@@ -391,9 +389,8 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
 
 }
 
+/** Companion object for [[IndexService]]. */
 object IndexService {
-
-  val logger = LoggerFactory.getLogger(classOf[IndexService])
 
   /** Returns a new index service for the specified indexed table and index metadata.
     *

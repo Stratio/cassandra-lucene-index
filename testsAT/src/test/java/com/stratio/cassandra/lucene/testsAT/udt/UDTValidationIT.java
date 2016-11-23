@@ -87,7 +87,7 @@ public class UDTValidationIT extends BaseIT {
                 .createTable()
                 .createIndex(InvalidConfigurationInQueryException.class,
                              "'schema' is invalid : No column definition 'address.non-existent' " +
-                             "for mapper 'address.non-existent.latitude'")
+                             "for field 'address.non-existent.latitude'")
                 .dropTable()
                 .dropKeyspace();
     }
@@ -117,7 +117,7 @@ public class UDTValidationIT extends BaseIT {
                 .createTable()
                 .createIndex(InvalidConfigurationInQueryException.class,
                              "'schema' is invalid : No column definition 'address.non-existent' " +
-                             "for mapper 'address.non-existent'")
+                             "for field 'address.non-existent'")
                 .dropTable()
                 .dropKeyspace();
     }
@@ -189,7 +189,7 @@ public class UDTValidationIT extends BaseIT {
                 .createTable()
                 .createIndex(InvalidConfigurationInQueryException.class,
                              "'schema' is invalid : No column definition " +
-                             "'address.point.longitude.non-existent' for mapper 'address.point.longitude.non-existent'")
+                             "'address.point.longitude.non-existent' for field 'address.point.longitude.non-existent'")
                 .dropTable()
                 .dropKeyspace();
     }

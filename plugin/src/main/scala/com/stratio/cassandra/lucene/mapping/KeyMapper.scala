@@ -53,7 +53,7 @@ class KeyMapper(metadata: CFMetaData) {
     * @return the byte buffer representing `clustering`
     */
   private def byteBuffer(clustering: Clustering): ByteBuffer = {
-    clustering.getRawValues.foldLeft(clusteringType.builder)(_ add _).build
+    (clusteringType.builder /: clustering.getRawValues) (_ add _) build()
   }
 
   /** Returns the Lucene [[IndexableField]] representing the specified primary key.
@@ -97,12 +97,13 @@ class KeyMapper(metadata: CFMetaData) {
     * @return the Lucene query
     */
   def query(key: DecoratedKey, filter: ClusteringIndexNamesFilter): Query = {
-    filter.requestedRows.asScala.foldLeft(new BooleanQuery.Builder)(
-      (b, c) => b.add(query(key, c), SHOULD)).build
+    (new BooleanQuery.Builder /: filter.requestedRows.asScala) (
+      (builder, clustering) => builder.add(query(key, clustering), SHOULD)) build()
   }
 
 }
 
+/** Companion object for [[KeyMapper]]. */
 object KeyMapper {
 
   /** The Lucene field name. */

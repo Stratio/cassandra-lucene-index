@@ -36,7 +36,7 @@ import org.apache.lucene.search.{Query, SortField, TermQuery}
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 class IndexServiceSkinny(table: ColumnFamilyStore, index: IndexMetadata)
-    extends IndexService(table, index) {
+  extends IndexService(table, index) {
 
   init()
 

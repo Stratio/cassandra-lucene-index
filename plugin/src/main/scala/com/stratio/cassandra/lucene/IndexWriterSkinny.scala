@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene
 
-import com.stratio.cassandra.lucene.util.Tracer
 import org.apache.cassandra.db.DecoratedKey
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.index.transactions.IndexTransaction
@@ -61,17 +60,17 @@ class IndexWriterSkinny(
     row.map(
       row => {
         if (transactionType == COMPACTION || service.needsReadBeforeWrite(key, row)) {
-          Tracer.trace("Lucene index reading before write")
-          val iterator = read(key, nowInSec, opGroup)
+          tracer.trace("Lucene index reading before write")
+          val iterator = read(key)
           if (iterator.hasNext) iterator.next.asInstanceOf[Row] else row
         } else row
       }).foreach(
       row => {
         if (row.hasLiveData(nowInSec)) {
-          Tracer.trace("Lucene index writing document")
+          tracer.trace("Lucene index writing document")
           service.upsert(key, row, nowInSec)
         } else {
-          Tracer.trace("Lucene index deleting document")
+          tracer.trace("Lucene index deleting document")
           service.delete(key)
         }
       })
