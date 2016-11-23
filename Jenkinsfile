@@ -19,8 +19,7 @@ hose {
     ATSERVICES =  [
         ['CASSANDRA': [
            'image': 'stratio/cassandra-lucene-index:%%VERSION',
-           'volumes':[
-                 'jts:1.14.0'],
+           'volumes':['jts:1.14.0'],
            'env': ['MAX_HEAP=256M'],
            'sleep': 10]],
         ]
