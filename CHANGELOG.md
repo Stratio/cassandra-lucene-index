@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.10.0 (Upcoming)
+
+* Upgrade to Apache Cassandra 3.0.10
+
 ## 3.0.9.2 (November 24, 2016)
 
 * Upgrade to Scala 2.12.0
