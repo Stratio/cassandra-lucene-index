@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.9.3 (Upcoming)
+## 3.9.3 (November 24, 2016)
 
 * Upgrade to Scala 2.12.0
 * Avoid not required string interpolations in logging
