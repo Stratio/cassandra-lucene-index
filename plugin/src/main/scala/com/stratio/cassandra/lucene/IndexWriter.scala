@@ -42,34 +42,34 @@ abstract class IndexWriter(
   val metadata = service.metadata
   val table = service.table
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def begin() {
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def partitionDelete(deletionTime: DeletionTime) {
     logger.trace(s"Delete partition during $transactionType: $deletionTime")
     delete()
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def rangeTombstone(tombstone: RangeTombstone) {
     logger.trace(s"Range tombstone during $transactionType: $tombstone")
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def insertRow(row: Row): Unit = {
     logger.trace(s"Insert rows during $transactionType: $row")
     index(row)
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def updateRow(oldRowData: Row, newRowData: Row): Unit = {
     logger.trace(s"Update row during $transactionType: $oldRowData TO $newRowData")
     index(newRowData)
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def removeRow(row: Row): Unit = {
     logger.trace(s"Remove row during $transactionType: $row")
     index(row)
@@ -90,9 +90,7 @@ abstract class IndexWriter(
     * @return a row iterator
     */
   protected def read(key: DecoratedKey): UnfilteredRowIterator = {
-    val clusterings = new java.util.TreeSet[Clustering](metadata.comparator)
-    clusterings.add(Clustering.EMPTY)
-    read(key, clusterings)
+    read(SinglePartitionReadCommand.fullPartitionRead(metadata, nowInSec, key))
   }
 
   /** Retrieves from the local storage the rows in the specified partition slice.
@@ -105,7 +103,15 @@ abstract class IndexWriter(
   : UnfilteredRowIterator = {
     val filter = new ClusteringIndexNamesFilter(clusterings, false)
     val columnFilter = ColumnFilter.all(metadata)
-    val command = SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter)
+    read(SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter))
+  }
+
+  /** Retrieves from the local storage the rows satisfying the specified read command.
+    *
+    * @param command a single partition read command
+    * @return a row iterator
+    */
+  protected def read(command: SinglePartitionReadCommand): UnfilteredRowIterator = {
     val controller = command.executionController
     try command.queryMemtableAndDisk(table, controller) finally controller.close()
   }

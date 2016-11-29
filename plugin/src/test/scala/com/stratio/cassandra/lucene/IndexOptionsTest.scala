@@ -249,4 +249,5 @@ class IndexOptionsTest extends BaseScalaTest {
     val options = Map(EXCLUDED_DATA_CENTERS_OPTION -> " dc1 , dc2 ")
     parseExcludedDataCenters(options) shouldBe List("dc1", "dc2")
   }
+
 }

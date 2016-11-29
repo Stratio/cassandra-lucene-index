@@ -22,8 +22,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.stratio.cassandra.lucene.IndexException
 
-//import com.stratio.cassandra.lucene.util.JavaConversions.asJavaCallable
-
 import scala.concurrent.ExecutionException
 
 /** A queue that executes each submitted task using one of possibly several pooled threads.
@@ -64,7 +62,7 @@ private class TaskQueueSync extends TaskQueue {
   override def submitSynchronous[A](task: () => A): A = task.apply
 
   /** @inheritdoc */
-  override def close() = {}
+  override def close(): Unit = {}
 
 }
 
@@ -113,7 +111,7 @@ private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue
   }
 
   /** @inheritdoc */
-  override def close() = {
+  override def close(): Unit = {
     lock.writeLock.lock()
     try pools.foreach(_.shutdown())
     finally lock.writeLock.unlock()

@@ -111,25 +111,13 @@ class ColumnsTest extends BaseScalaTest {
     Columns(Column("c1")).add("c2", 1) shouldBe Columns(Column("c1"), Column("c2").withValue(1))
   }
 
-  test("clean deleted") {
-    val columns = Columns(
-      Column("c1"),
-      Column("c2").withValue(1),
-      Column("c3").withValue(1).withDeletionTime(1),
-      Column("c4").withValue(1).withDeletionTime(2),
-      Column("c5").withValue(1).withDeletionTime(3))
-    columns.withoutDeleted(2) shouldBe Columns(
-      Column("c2").withValue(1),
-      Column("c5").withValue(1).withDeletionTime(3))
-  }
-
   test("toString empty") {
     Columns().toString shouldBe "Columns{}"
   }
 
   test("toString with columns") {
     val columns = Columns(
-      Column("c1").withDeletionTime(10),
+      Column("c1"),
       Column("c2").withUDTName("u1").withMapName("m1").withValue(7))
     columns.toString shouldBe "Columns{c1=None, c2.u1$m1=Some(7)}"
   }

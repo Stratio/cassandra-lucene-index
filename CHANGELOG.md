@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.9.4 (Upcoming)
+
+* Optimize columns mapping (improves indexing performance)
+
 ## 3.9.3 (November 24, 2016)
 
 * Upgrade to Scala 2.12.0

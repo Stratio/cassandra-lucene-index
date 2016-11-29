@@ -16,13 +16,11 @@
 package com.stratio.cassandra.lucene
 
 import com.google.common.collect.Sets
-import com.stratio.cassandra.lucene.column.{Columns, ColumnsMapper}
 import com.stratio.cassandra.lucene.index.DocumentIterator
 import com.stratio.cassandra.lucene.mapping.PartitionMapper
 import org.apache.cassandra.db.PartitionPosition.Kind._
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.ClusteringIndexFilter
-import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.schema.IndexMetadata
 import org.apache.cassandra.utils.concurrent.OpOrder
@@ -60,17 +58,13 @@ class IndexServiceSkinny(table: ColumnFamilyStore, index: IndexMetadata)
   }
 
   /** @inheritdoc */
-  override def columns(key: DecoratedKey, row: Row): Columns = {
-    Columns() + partitionMapper.columns(key) + ColumnsMapper.columns(row)
-  }
-
-  /** @inheritdoc */
-  override def keyIndexableFields(key: DecoratedKey, row: Row): List[IndexableField] = {
+  override def keyIndexableFields(key: DecoratedKey, clustering: Clustering)
+  : List[IndexableField] = {
     List(tokenMapper.indexableField(key), partitionMapper.indexableField(key))
   }
 
   /** @inheritdoc */
-  override def term(key: DecoratedKey, row: Row): Term = {
+  override def term(key: DecoratedKey, clustering: Clustering): Term = {
     partitionMapper.term(key)
   }
 
