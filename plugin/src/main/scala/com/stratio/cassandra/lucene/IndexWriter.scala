@@ -90,9 +90,7 @@ abstract class IndexWriter(
     * @return a row iterator
     */
   protected def read(key: DecoratedKey): UnfilteredRowIterator = {
-    val clusterings = new java.util.TreeSet[Clustering](metadata.comparator)
-    clusterings.add(Clustering.EMPTY)
-    read(key, clusterings)
+    read(SinglePartitionReadCommand.fullPartitionRead(metadata, nowInSec, key))
   }
 
   /** Retrieves from the local storage the rows in the specified partition slice.
@@ -105,8 +103,16 @@ abstract class IndexWriter(
   : UnfilteredRowIterator = {
     val filter = new ClusteringIndexNamesFilter(clusterings, false)
     val columnFilter = ColumnFilter.all(metadata)
-    val command = SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter)
-    command.queryMemtableAndDisk(table, opGroup)
+    read(SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter))
+  }
+
+  /** Retrieves from the local storage the rows satisfying the specified read command.
+    *
+    * @param command a single partition read command
+    * @return a row iterator
+    */
+  protected def read(command: SinglePartitionReadCommand): UnfilteredRowIterator = {
+    try command.queryMemtableAndDisk(table, opGroup)
   }
 
 }

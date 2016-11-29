@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.10.1 (Upcoming)
+
+* Optimize columns mapping (improves indexing performance)
+
 ## 3.0.10.0 (January 09, 2017)
 
 * Upgrade to Apache Cassandra 3.0.10

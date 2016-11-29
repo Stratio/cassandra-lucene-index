@@ -127,6 +127,7 @@ class FSIndexTest extends BaseScalaTest {
         assertCount(index.search(Some(new Term("field_s", "49")), query, sort, 1000), 50)
       })
   }
+
 }
 
 object FSIndexTest {

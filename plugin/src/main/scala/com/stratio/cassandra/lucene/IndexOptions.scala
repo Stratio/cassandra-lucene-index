@@ -19,8 +19,8 @@ import java.io.File
 import java.nio.file.{Path, Paths}
 
 import com.stratio.cassandra.lucene.IndexOptions._
-import com.stratio.cassandra.lucene.column.ColumnsMapper
 import com.stratio.cassandra.lucene.schema.{Schema, SchemaBuilder}
+import com.stratio.cassandra.lucene.util.SchemaValidator
 import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db.Directories
 import org.apache.cassandra.schema.IndexMetadata
@@ -160,9 +160,7 @@ object IndexOptions {
     options.get(SCHEMA_OPTION).map(
       value => try {
         val schema = SchemaBuilder.fromJson(value).build
-        for (mapper <- schema.mappers.values.asScala; column <- mapper.mappedColumns.asScala) {
-          ColumnsMapper.validate(table, column, mapper.field, mapper.supportedTypes.asScala.toList)
-        }
+        SchemaValidator.validate(schema, table)
         schema
       } catch {
         case e: Exception => throw new IndexException(
@@ -208,4 +206,6 @@ object IndexOptions {
         throw new IndexException(s"'$name' must be strictly positive, found: $double")
       }).getOrElse(default)
   }
+
+
 }

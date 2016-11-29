@@ -19,7 +19,6 @@ import java.nio.ByteBuffer
 
 import com.google.common.base.MoreObjects
 import com.google.common.primitives.Longs
-import com.stratio.cassandra.lucene.column.{Column, Columns, ColumnsMapper}
 import com.stratio.cassandra.lucene.mapping.ClusteringMapper._
 import com.stratio.cassandra.lucene.util.ByteBufferUtils
 import com.stratio.cassandra.lucene.util.ByteBufferUtils._
@@ -54,22 +53,6 @@ class ClusteringMapper(metadata: CFMetaData) {
   val clusteringType = CompositeType.getInstance(comparator.subtypes)
 
   val clusteringColumns = metadata.clusteringColumns.asScala
-
-  /** Returns the columns contained in the specified [[Clustering]].
-    *
-    * @param clustering the clustering key
-    * @return the columns
-    */
-  def columns(clustering: Clustering): Columns = {
-    (Columns() /: clusteringColumns) (
-      (columns, columnDefinition) => {
-        val name = columnDefinition.name.toString
-        val position = columnDefinition.position
-        val value = clustering.get(position)
-        val valueType = columnDefinition.cellValueType
-        columns.add(Column(name).withValue(ColumnsMapper.compose(value, valueType)))
-      })
-  }
 
   /** Returns a list of Lucene [[IndexableField]]s representing the specified primary key.
     *

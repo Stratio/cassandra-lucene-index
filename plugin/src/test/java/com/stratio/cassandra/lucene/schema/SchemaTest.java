@@ -86,7 +86,7 @@ public class SchemaTest {
     @Test
     public void testValidateColumns() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
-        Columns columns = new Columns().add("field1", "value");
+        Columns columns = Columns.empty().add("field1", "value");
         schema.validate(columns);
         schema.close();
     }
@@ -94,7 +94,7 @@ public class SchemaTest {
     @Test(expected = IndexException.class)
     public void testValidateColumnsFailing() {
         Schema schema = SchemaBuilders.schema().mapper("field1", integerMapper().validated(true)).build();
-        Columns columns = new Columns().add("field1", "value");
+        Columns columns = Columns.empty().add("field1", "value");
         schema.validate(columns);
         schema.close();
     }
@@ -102,7 +102,7 @@ public class SchemaTest {
     @Test
     public void testAddFields() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
-        Columns columns = new Columns().add("field1", "value");
+        Columns columns = Columns.empty().add("field1", "value");
         List<IndexableField> fields = schema.indexableFields(columns);
         assertFalse("Expected true", fields.isEmpty());
         schema.close();
@@ -111,7 +111,7 @@ public class SchemaTest {
     @Test
     public void testAddFieldsFailing() {
         Schema schema = SchemaBuilders.schema().mapper("field1", integerMapper()).build();
-        Columns columns = new Columns().add("field1", "value");
+        Columns columns = Columns.empty().add("field1", "value");
         List<IndexableField> fields = schema.indexableFields(columns);
         assertTrue("Expected true", fields.isEmpty());
         schema.close();

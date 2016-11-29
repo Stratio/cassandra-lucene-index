@@ -103,7 +103,7 @@ sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
       for (id <- rows.indices) {
         val (key, rowIterator) = rows(id)
         val row = rowIterator.row
-        val doc = document(key, row, search)
+        val doc = document(key, row, search, now)
         doc.add(new StoredField(ID_FIELD, id)) // Mark document
         index.add(doc)
       }
@@ -135,12 +135,13 @@ sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
     * @param search a search
     * @return a document with just the fields required to satisfy the search
     */
-  private def document(key: DecoratedKey, row: Row, search: Search): Document = {
-    val doc = new Document
-    val cols = service.columns(key, row)
-    service.keyIndexableFields(key, row).foreach(doc.add)
-    service.schema.postProcessingIndexableFields(cols, search).forEach(doc add _)
-    doc
+  private def document(key: DecoratedKey, row: Row, search: Search, now: Int): Document = {
+    val document = new Document
+    val clustering = row.clustering()
+    val columns = service.columnsMapper.columns(key, row, now)
+    service.keyIndexableFields(key, clustering).foreach(document.add)
+    service.schema.postProcessingIndexableFields(columns, search).forEach(document add _)
+    document
   }
 }
 
@@ -148,7 +149,7 @@ sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
 object IndexPostProcessor {
 
   val ID_FIELD = "_id"
-  val FIELDS_TO_LOAD = Collections.singleton(ID_FIELD)
+  val FIELDS_TO_LOAD: java.util.Set[String] = Collections.singleton(ID_FIELD)
 
 }
 

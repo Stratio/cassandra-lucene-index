@@ -16,14 +16,12 @@
 package com.stratio.cassandra.lucene
 
 import com.google.common.collect.Sets
-import com.stratio.cassandra.lucene.column.{Columns, ColumnsMapper}
 import com.stratio.cassandra.lucene.index.DocumentIterator
 import com.stratio.cassandra.lucene.mapping.ClusteringMapper._
 import com.stratio.cassandra.lucene.mapping.{ClusteringMapper, KeyMapper, PartitionMapper}
 import org.apache.cassandra.db.PartitionPosition.Kind._
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter._
-import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.schema.IndexMetadata
 import org.apache.cassandra.utils.concurrent.OpOrder
@@ -77,16 +75,8 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
   }
 
   /** @inheritdoc */
-  override def columns(key: DecoratedKey, row: Row): Columns = {
-    Columns()
-      .add(partitionMapper.columns(key))
-      .add(clusteringMapper.columns(row.clustering))
-      .add(ColumnsMapper.columns(row))
-  }
-
-  /** @inheritdoc */
-  override def keyIndexableFields(key: DecoratedKey, row: Row): List[IndexableField] = {
-    val clustering = row.clustering
+  override def keyIndexableFields(key: DecoratedKey, clustering: Clustering)
+  : List[IndexableField] = {
     val fields = mutable.ListBuffer.empty[IndexableField]
     fields += tokenMapper.indexableField(key)
     fields += partitionMapper.indexableField(key)
@@ -96,15 +86,6 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
   }
 
   /** @inheritdoc */
-  override def term(key: DecoratedKey, row: Row): Term = term(key, row.clustering)
-
-  /** Returns a Lucene term identifying the document representing the row identified by the
-    * specified partition and clustering keys.
-    *
-    * @param key        the partition key
-    * @param clustering the clustering key
-    * @return the term identifying the document
-    */
   def term(key: DecoratedKey, clustering: Clustering): Term = {
     keyMapper.term(key, clustering)
   }

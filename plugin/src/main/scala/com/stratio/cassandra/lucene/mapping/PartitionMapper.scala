@@ -17,12 +17,10 @@ package com.stratio.cassandra.lucene.mapping
 
 import java.nio.ByteBuffer
 
-import com.stratio.cassandra.lucene.column.{Column, Columns, ColumnsMapper}
 import com.stratio.cassandra.lucene.mapping.PartitionMapper._
 import com.stratio.cassandra.lucene.util.ByteBufferUtils
 import org.apache.cassandra.config.{CFMetaData, DatabaseDescriptor}
 import org.apache.cassandra.db.DecoratedKey
-import org.apache.cassandra.db.marshal.CompositeType
 import org.apache.lucene.document.{Document, Field, FieldType}
 import org.apache.lucene.index.{DocValuesType, IndexOptions, IndexableField, Term}
 import org.apache.lucene.search.FieldComparator.TermValComparator
@@ -41,27 +39,6 @@ class PartitionMapper(metadata: CFMetaData) {
   val partitioner = DatabaseDescriptor.getPartitioner
   val validator = metadata.getKeyValidator
   val partitionKeyColumns = metadata.partitionKeyColumns.asScala
-
-  /** Returns the columns contained in the partition key of the specified row.
-    *
-    * @param key the partition key
-    * @return the columns
-    */
-  def columns(key: DecoratedKey): Columns = {
-
-    val components = validator match {
-      case c: CompositeType => c.split(key.getKey)
-      case _ => Array[ByteBuffer](key.getKey)
-    }
-
-    (Columns() /: partitionKeyColumns) (
-      (columns, definition) => {
-        val name = definition.name.toString
-        val value = components(definition.position)
-        val valueType = definition.cellValueType
-        columns.add(Column(name).withValue(ColumnsMapper.compose(value, valueType)))
-      })
-  }
 
   /** Returns the Lucene indexable field representing to the specified partition key.
     *

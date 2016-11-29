@@ -87,7 +87,7 @@ class IndexWriterWide(
         service.upsert(key, row, nowInSec)
       } else {
         tracer.trace("Lucene index deleting document")
-        service.delete(key, row)
+        service.delete(key, clustering)
       }
     })
   }
