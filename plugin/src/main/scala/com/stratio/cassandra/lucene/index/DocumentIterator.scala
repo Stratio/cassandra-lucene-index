@@ -103,6 +103,7 @@ class DocumentIterator(
       for (scoreDoc <- scoreDocs) {
         after = Some(scoreDoc)
         val document = searcher.doc(scoreDoc.doc, fields)
+        logger.debug("Page fetched document: "+document)
         documents.add((document, scoreDoc))
       }
 

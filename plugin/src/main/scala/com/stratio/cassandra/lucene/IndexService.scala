@@ -257,12 +257,17 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     */
   def search(command: ReadCommand, orderGroup: ReadOrderGroup): UnfilteredPartitionIterator = {
 
+    logger.debug("IndexSerice buolding search")
     // Parse search
     tracer.trace("Building Lucene search")
     val search = expressionMapper.search(command)
+    logger.debug("search builded: "+search.toString)
     val q = search.query(schema, query(command).orNull)
+    logger.debug("query builded: "+q.toString)
     val a = after(search.paging, command)
+    logger.debug("after builded: "+a.toString)
     val s = sort(search)
+    logger.debug("sort built: "+s.toString)
     val n = command.limits.count
 
     // Refresh if required
@@ -283,11 +288,15 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @return the key range query
     */
   def query(command: ReadCommand): Option[Query] = command match {
+
     case command: SinglePartitionReadCommand =>
+      logger.debug("ReadCommand is a SinglePartitionReadCommand ")
       val key = command.partitionKey
       val filter = command.clusteringIndexFilter(key)
       Some(query(key, filter))
-    case command: PartitionRangeReadCommand => query(command.dataRange)
+    case command: PartitionRangeReadCommand =>
+      logger.debug("ReadCommand is a PartitionRangeReadCommand : "+command.toString)
+      query(command.dataRange)
     case _ => throw new IndexException(s"Unsupported read command ${command.getClass}")
   }
 

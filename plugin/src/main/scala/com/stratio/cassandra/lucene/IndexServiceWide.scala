@@ -50,7 +50,7 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
 
   /** @inheritdoc */
   override def fieldsToLoad: java.util.Set[String] = {
-    Sets.newHashSet(PartitionMapper.FIELD_NAME, ClusteringMapper.FIELD_NAME)
+    Sets.newHashSet(PartitionMapper.FIELD_NAME, clusteringMapper.FIELD_NAME)
   }
 
   /** @inheritdoc */
@@ -91,7 +91,7 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
     fields += tokenMapper.indexableField(key)
     fields += partitionMapper.indexableField(key)
     fields += keyMapper.indexableField(key, clustering)
-    fields ++= clusteringMapper.indexableFields(key, clustering)
+    fields += clusteringMapper.indexableField(key, clustering)
     fields.toList
   }
 
@@ -113,7 +113,9 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
   override def query(key: DecoratedKey, filter: ClusteringIndexFilter): Query = filter match {
     case f if f.selectsAllPartition => partitionMapper.query(key)
     case f: ClusteringIndexNamesFilter => keyMapper.query(key, f)
-    case f: ClusteringIndexSliceFilter => clusteringMapper.query(key, f)
+    case f: ClusteringIndexSliceFilter =>
+      logger.debug("building clusteringQuery from ISW: key: "+key.toString+ " filter: "+filter)
+      clusteringMapper.query(key, f)
     case _ => throw new IndexException(s"Unknown filter type $filter")
   }
 
@@ -126,16 +128,21 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
       position: PartitionPosition,
       start: Option[ClusteringPrefix],
       stop: Option[ClusteringPrefix]): Query = {
-    if (start.isEmpty && stop.isEmpty) return query(position)
-    new BooleanQuery.Builder()
-      .add(query(position), FILTER)
-      .add(clusteringMapper.query(position, start, stop), FILTER)
-      .build
+        logger.debug("query with PArtitionPosition  ana d rabnges!!!: "+position.toString+" start: "+start.toString+ " end: "+stop.toString)
+        if (start.isEmpty && stop.isEmpty) {
+          query(position)
+        } else {
+          logger.debug("building clustering Query with start: "+start.toString+" and stop: "+stop.toString)
+          new BooleanQuery.Builder()
+            .add(clusteringMapper.query(position, start, stop), FILTER)
+            .build()
+        }
   }
 
   /** @inheritdoc */
   override def query(dataRange: DataRange): Option[Query] = {
 
+    logger.debug("building a query with dataRange ")
     // Check trivia
     if (dataRange.isUnrestricted) return None
 
@@ -147,6 +154,8 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
     val startClustering = startClusteringPrefix(dataRange).filter(_.size > 0)
     val stopClustering = stopClusteringPrefix(dataRange).filter(_.size > 0)
 
+
+    logger.debug("building a query with dataRange ")
     // Try single partition
     if (startToken.compareTo(stopToken) == 0) {
       if (startClustering.isEmpty && stopClustering.isEmpty) return Some(query(startPosition))
@@ -163,12 +172,15 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
       .query(startToken, stopToken, includeStartToken, includeStopToken)
       .foreach(builder.add(_, SHOULD))
 
+
+    logger.debug("buildign query1: "+builder.build())
     // Add first and last partition filters
     if (startClustering.isDefined) builder.add(query(startPosition, startClustering, None), SHOULD)
     if (stopClustering.isDefined) builder.add(query(stopPosition, None, stopClustering), SHOULD)
 
     // Return query, or empty if there are no restrictions
     val booleanQuery = builder.build
+    logger.debug("buildign query2: "+booleanQuery)
     if (booleanQuery.clauses.isEmpty) None else Some(booleanQuery)
   }
 

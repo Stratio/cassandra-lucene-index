@@ -112,7 +112,7 @@ object ByteBufferUtils {
     * @return the [[ByteBuffer]] representation of `bytesRef`
     */
   def byteBuffer(bytesRef: BytesRef): ByteBuffer = {
-    ByteBuffer.wrap(bytesRef.bytes, bytesRef.offset, bytesRef.offset + bytesRef.length)
+    ByteBuffer.wrap(bytesRef.bytes, bytesRef.offset, bytesRef.length)
   }
 
   /** Returns the [[ByteBuffer]] representation of the specified hex [[String]].
