@@ -52,7 +52,7 @@ object SchemaValidator {
       field: String,
       supportedTypes: List[Class[_]]) {
 
-    val cellName = Column.parse(column).cellName
+    val cellName = Column.parseCellName(column)
     val cellDefinition = metadata.getColumnDefinition(UTF8Type.instance.decompose(cellName))
 
     if (cellDefinition == null) {
@@ -73,7 +73,7 @@ object SchemaValidator {
     }
 
     val cellType = cellDefinition.`type`
-    val udtNames = Column.parse(column).udtNames
+    val udtNames = Column.parseUdtNames(column)
     if (udtNames.isEmpty) {
       checkSupported(cellType, cellName)
     } else {
@@ -83,8 +83,8 @@ object SchemaValidator {
         column = column.withUDTName(udtNames(i))
         childType(currentType, udtNames(i)) match {
           case None => throw new IndexException(
-            s"No column definition '${column.mapperName}' for field '$field'")
-          case Some(n) if i == udtNames.indices.last => checkSupported(n, column.mapperName)
+            s"No column definition '${column.mapper}' for field '$field'")
+          case Some(n) if i == udtNames.indices.last => checkSupported(n, column.mapper)
           case Some(n) => currentType = n
         }
       }

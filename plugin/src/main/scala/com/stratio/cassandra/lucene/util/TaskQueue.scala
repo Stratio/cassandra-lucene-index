@@ -21,6 +21,7 @@ import java.util.concurrent._
 import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.stratio.cassandra.lucene.IndexException
+import org.apache.commons.lang3.concurrent.BasicThreadFactory
 
 import scala.concurrent.ExecutionException
 
@@ -77,6 +78,7 @@ private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue
   private val pools = (1 to numThreads)
     .map(index => new ArrayBlockingQueue[Runnable](queuesSize, true))
     .map(queue => new ThreadPoolExecutor(1, 1, 1, DAYS, queue,
+      new BasicThreadFactory.Builder().namingPattern("lucene-indexer-%d").build(),
       (task, executor) => if (!executor.isShutdown) executor.getQueue.put(task)))
 
   /** @inheritdoc */

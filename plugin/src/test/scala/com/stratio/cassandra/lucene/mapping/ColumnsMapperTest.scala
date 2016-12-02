@@ -64,14 +64,14 @@ class ColumnsMapperTest extends BaseScalaTest {
     val column = Column("cell")
     val `type` = set(utf8, false)
     val bb = `type`.decompose(Set("a", "b").asJava)
-    columns(column, `type`, bb) shouldBe Columns(column.withValue("a"), column.withValue("b"))
+    columns(column, `type`, bb) shouldBe Columns(column.withValue("b"), column.withValue("a"))
   }
 
   test("columns from frozen list") {
     val column = Column("cell")
     val `type` = list(utf8, false)
     val bb = `type`.decompose(List("a", "b").asJava)
-    columns(column, `type`, bb) shouldBe Columns(column.withValue("a"), column.withValue("b"))
+    columns(column, `type`, bb) shouldBe Columns(column.withValue("b"), column.withValue("a"))
   }
 
   test("columns from frozen map") {
@@ -79,7 +79,7 @@ class ColumnsMapperTest extends BaseScalaTest {
     val `type` = map(utf8, utf8, true)
     val bb = `type`.decompose(Map("k1" -> "v1", "k2" -> "v2").asJava)
     columns(column, `type`, bb) shouldBe
-      Columns(column.withMapName("k1").withValue("v1"), column.withMapName("k2").withValue("v2"))
+      Columns(column.withMapName("k2").withValue("v2"), column.withMapName("k1").withValue("v1"))
   }
 
   test("columns from tuple") {

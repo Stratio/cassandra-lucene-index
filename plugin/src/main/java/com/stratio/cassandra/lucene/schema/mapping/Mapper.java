@@ -109,7 +109,7 @@ public abstract class Mapper {
         this.validated = validated == null ? DEFAULT_VALIDATED : validated;
         this.analyzer = analyzer;
         this.mappedColumns = mappedColumns.stream().filter(x -> x != null).collect(toList()); // Remove nulls
-        this.mappedCells = this.mappedColumns.stream().map(Column::parse).map(Column::cellName).collect(toList());
+        this.mappedCells = this.mappedColumns.stream().map(Column::parseCellName).collect(toList());
         this.supportedTypes = supportedTypes;
     }
 

@@ -24,68 +24,61 @@ import com.stratio.cassandra.lucene.IndexException
 import com.stratio.cassandra.lucene.column.Column._
 import org.apache.cassandra.db.marshal.{AbstractType, SimpleDateType}
 import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.StringUtils.EMPTY
 
 /** A cell of a CQL3 logic column, which in most cases is different from a storage engine column.
   *
-  * @param cellName the name of the base cell
-  * @param udtNames the UDT fields
-  * @param mapNames the map keys
+  * @param cell the name of the base cell
+  * @param udt the UDT suffix
+  * @param map the map suffix
   * @param value    the optional value
-  * @tparam A the value type
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-case class Column[A](
-    cellName: String,
-    udtNames: List[String] = Nil,
-    mapNames: List[String] = Nil,
-    value: Option[A] = None) {
+case class Column(cell: String,
+    udt: String = EMPTY,
+    map: String = EMPTY,
+    value: Option[_] = None) {
 
-  if (StringUtils.isBlank(cellName)) throw new IndexException("Cell name shouldn't be blank")
-
-  private[this] lazy val udtSuffix = ("" /: udtNames) (_ + UDT_SEPARATOR + _)
-  private[this] lazy val mapSuffix = ("" /: mapNames) (_ + MAP_SEPARATOR + _)
-
-  /** The columns field name, composed by cell name, UDT names and map names. */
-  lazy val fieldName: String = cellName + udtSuffix + mapSuffix
+  if (StringUtils.isBlank(cell)) throw new IndexException("Cell name shouldn't be blank")
 
   /** The columns mapper name, composed by cell name and UDT names, without map names. */
-  lazy val mapperName: String = cellName + udtSuffix
+  lazy val mapper: String = cell.concat(udt)
 
-  lazy val mapperNames: List[String] = cellName :: udtNames
+  /** The columns field name, composed by cell name, UDT names and map names. */
+  lazy val field: String = mapper.concat(map)
 
+  /** Returns `true` if the value is not defined, `false` otherwise. */
   def isEmpty: Boolean = value.isEmpty
 
+  /** Returns the value, or null if it is not defined. */
+  def valueOrNull: Any = value.orNull
+
   /** Returns a copy of this with the specified name appended to the list of UDT names. */
-  def withUDTName(name: String): Column[_] = copy(udtNames = udtNames :+ name)
+  def withUDTName(name: String): Column = copy(udt = udt + UDT_SEPARATOR + name)
 
   /** Returns a copy of this with the specified name appended to the list of map names. */
-  def withMapName(name: String): Column[_] = copy(mapNames = mapNames :+ name)
+  def withMapName(name: String): Column = copy(map = map + MAP_SEPARATOR + name)
 
   /** Returns a copy of this with the specified value. */
-  def withValue[B](value: B): Column[B] =
-    if (value == null && isEmpty || this.value.exists(_ equals value)) {
-      this.asInstanceOf[Column[B]]
-    } else {
-      copy(value = Option(value))
-    }
+  def withValue[B](value: B): Column = copy(value = Option(value))
 
   /** Returns a copy of this with the specified decomposed value. */
-  def withValue[B](bb: ByteBuffer, t: AbstractType[_]): Column[_] = withValue(compose(bb, t))
+  def withValue(bb: ByteBuffer, t: AbstractType[_]): Column = withValue(compose(bb, t))
 
   /** Returns the name for fields. */
-  def fieldName(field: String): String = field + mapSuffix
+  def fieldName(field: String): String = field.concat(map)
 
   /** Returns a [[Columns]] composed by this and the specified column. */
-  def +(column: Column[_]): Columns = Columns(this, column)
+  def +(column: Column): Columns = Columns(this, column)
 
   /** Returns a [[Columns]] composed by this and the specified columns. */
-  def +(columns: Columns): Columns = Columns(this) + columns
+  def +(columns: Columns): Columns = this :: columns
 
   /** @inheritdoc */
   override def toString: String =
     MoreObjects.toStringHelper(this)
-      .add("cell", cellName)
-      .add("name", fieldName)
+      .add("cell", cell)
+      .add("field", field)
       .add("value", value)
       .toString
 }
@@ -97,17 +90,33 @@ object Column {
   private val MAP_SEPARATOR = "$"
 
   private[this] val UDT_PATTERN = Pattern.quote(UDT_SEPARATOR)
-  private[this] val MAP_PATTERN = Pattern.quote(MAP_SEPARATOR)
 
-  def apply(cellName: String): Column[_] = new Column(cellName = cellName)
+  def apply(cell: String): Column = new Column(cell = cell)
 
-  def parse(name: String): Column[_] = {
-    val x = name.split(MAP_PATTERN)
-    val mapNames = x.drop(1).toList
-    val y = x.head.split(UDT_PATTERN)
-    val cellName = y.head
-    val udtNames = y.drop(1).toList
-    new Column(cellName, udtNames, mapNames)
+  def parseCellName(name: String): String = {
+    val udtSuffixStart = name.indexOf(UDT_SEPARATOR)
+    if (udtSuffixStart < 0) {
+      val mapSuffixStart = name.indexOf(MAP_SEPARATOR)
+      if (mapSuffixStart < 0) name else name.substring(0, mapSuffixStart)
+    } else name.substring(0, udtSuffixStart)
+  }
+
+  def parseMapperName(name: String): String = {
+    val mapSuffixStart = name.indexOf(MAP_SEPARATOR)
+    if (mapSuffixStart < 0) name else name.substring(0, mapSuffixStart)
+  }
+
+  def parseUdtNames(name: String): List[String] = {
+    val udtSuffixStart = name.indexOf(UDT_SEPARATOR)
+    if (udtSuffixStart < 0) Nil else {
+      val mapSuffixStart = name.indexOf(MAP_SEPARATOR)
+      val udtSuffix = if (mapSuffixStart < 0) {
+        name.substring(udtSuffixStart + 1)
+      } else {
+        name.substring(udtSuffixStart + 1, mapSuffixStart)
+      }
+      udtSuffix.split(UDT_PATTERN).toList
+    }
   }
 
   def compose(bb: ByteBuffer, t: AbstractType[_]): Any = t match {

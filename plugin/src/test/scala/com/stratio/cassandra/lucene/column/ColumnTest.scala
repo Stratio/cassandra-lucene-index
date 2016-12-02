@@ -33,10 +33,9 @@ class ColumnTest extends BaseScalaTest {
 
   test("set default attributes") {
     val column = Column("cell")
-    column.cellName shouldBe "cell"
-    column.mapperName shouldBe "cell"
-    column.mapperNames shouldBe List("cell")
-    column.fieldName shouldBe "cell"
+    column.cell shouldBe "cell"
+    column.mapper shouldBe "cell"
+    column.field shouldBe "cell"
     column.value shouldBe None
   }
 
@@ -47,10 +46,9 @@ class ColumnTest extends BaseScalaTest {
       .withMapName("m1")
       .withMapName("m2")
       .withValue(5)
-    column.cellName shouldBe "cell"
-    column.mapperName shouldBe "cell.u1.u2"
-    column.mapperNames shouldBe List("cell", "u1", "u2")
-    column.fieldName shouldBe "cell.u1.u2$m1$m2"
+    column.cell shouldBe "cell"
+    column.mapper shouldBe "cell.u1.u2"
+    column.field shouldBe "cell.u1.u2$m1$m2"
     column.value shouldBe Some(5)
   }
 
@@ -61,16 +59,28 @@ class ColumnTest extends BaseScalaTest {
     Column("c").withUDTName("u").withMapName("m").fieldName("f") shouldBe "f$m"
   }
 
-  test("parse") {
-    Column.parse("c") shouldBe Column("c")
-    Column.parse("c.u") shouldBe Column("c").withUDTName("u")
-    Column.parse("c$m") shouldBe Column("c").withMapName("m")
-    Column.parse("c.u$m") shouldBe Column("c").withUDTName("u").withMapName("m")
-    Column.parse("c.u1.u2$m1$m2") shouldBe Column("c")
-      .withUDTName("u1")
-      .withUDTName("u2")
-      .withMapName("m1")
-      .withMapName("m2")
+  test("parse cell name") {
+    Column.parseCellName("c") shouldBe "c"
+    Column.parseCellName("c.u") shouldBe "c"
+    Column.parseCellName("c$m") shouldBe "c"
+    Column.parseCellName("c.u$m") shouldBe "c"
+    Column.parseCellName("c.u1.u2$m1$m2") shouldBe "c"
+  }
+
+  test("parse mapper name") {
+    Column.parseMapperName("c") shouldBe "c"
+    Column.parseMapperName("c.u") shouldBe "c.u"
+    Column.parseMapperName("c$m") shouldBe "c"
+    Column.parseMapperName("c.u$m") shouldBe "c.u"
+    Column.parseMapperName("c.u1.u2$m1$m2") shouldBe "c.u1.u2"
+  }
+
+  test("parse udt names") {
+    Column.parseUdtNames("c") shouldBe Nil
+    Column.parseUdtNames("c.u") shouldBe List("u")
+    Column.parseUdtNames("c$m") shouldBe Nil
+    Column.parseUdtNames("c.u$m") shouldBe List("u")
+    Column.parseUdtNames("c.u1.u2$m1$m2") shouldBe List("u1", "u2")
   }
 
   test("add column") {
@@ -85,7 +95,7 @@ class ColumnTest extends BaseScalaTest {
 
   test("toString with default attributes") {
     Column("cell").toString shouldBe
-      s"Column{cell=cell, name=cell, value=None}"
+      s"Column{cell=cell, field=cell, value=None}"
   }
 
   test("toString with all attributes") {
@@ -96,7 +106,7 @@ class ColumnTest extends BaseScalaTest {
       .withMapName("m2")
       .withValue(5)
       .toString shouldBe
-      "Column{cell=cell, name=cell.u1.u2$m1$m2, value=Some(5)}"
+      "Column{cell=cell, field=cell.u1.u2$m1$m2, value=Some(5)}"
   }
 
   test("compose with basic types") {
