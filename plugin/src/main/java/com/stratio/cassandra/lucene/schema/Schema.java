@@ -68,7 +68,7 @@ public class Schema implements Closeable {
         mappedCells = mappers.values()
                              .stream()
                              .flatMap(x -> x.mappedColumns.stream())
-                             .map(x -> Column.parse(x).cellName())
+                             .map(Column::parseCellName)
                              .collect(Collectors.toSet());
     }
 
@@ -89,7 +89,7 @@ public class Schema implements Closeable {
      * @return the mapper, or {@code null} if not found.
      */
     public Mapper mapper(String field) {
-        String mapperName = Column.parse(field).mapperName();
+        String mapperName = Column.parseMapperName(field);
         return mappers.get(mapperName);
     }
 
