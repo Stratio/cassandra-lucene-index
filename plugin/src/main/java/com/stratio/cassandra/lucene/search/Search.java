@@ -137,13 +137,13 @@ public class Search {
     public Query query(Schema schema, Query range) {
 
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
+
+        logger.debug("buildign query range: "+range);
+        filter.forEach(condition -> builder.add(condition.query(schema), FILTER));
+        query.forEach(condition -> builder.add(condition.query(schema), MUST));
         if (range != null) {
             builder.add(range, FILTER);
         }
-
-        filter.forEach(condition -> builder.add(condition.query(schema), FILTER));
-        query.forEach(condition -> builder.add(condition.query(schema), MUST));
-
         BooleanQuery booleanQuery = builder.build();
         return booleanQuery.clauses().isEmpty() ? new MatchAllDocsQuery() : booleanQuery;
     }

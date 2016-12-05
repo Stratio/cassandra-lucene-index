@@ -43,7 +43,7 @@ import scala.collection.mutable
 class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
   extends IndexService(table, index) {
 
-  val clusteringMapper = new ClusteringMapper(metadata)
+  val clusteringMapper =ClusteringMapper.getClusteringMapper(metadata)
   val keyMapper = new KeyMapper(metadata)
 
   init()
@@ -55,7 +55,7 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
 
   /** @inheritdoc */
   override def keySortFields: List[SortField] = {
-    List(tokenMapper.sortField, partitionMapper.sortField, clusteringMapper.sortField)
+    List( clusteringMapper.sortField, tokenMapper.sortField, partitionMapper.sortField)
   }
 
   /** Returns the clustering key contained in the specified document.
@@ -135,6 +135,7 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
           logger.debug("building clustering Query with start: "+start.toString+" and stop: "+stop.toString)
           new BooleanQuery.Builder()
             .add(clusteringMapper.query(position, start, stop), FILTER)
+            //.add(query(position), FILTER)
             .build()
         }
   }

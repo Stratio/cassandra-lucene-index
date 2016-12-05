@@ -17,13 +17,14 @@ package com.stratio.cassandra.lucene.index
 
 import java.nio.file.Path
 
-import com.stratio.cassandra.lucene.util.Logging
+import com.stratio.cassandra.lucene.util.{Logging, LuceneInfoStream}
 import org.apache.cassandra.io.util.FileUtils
 import org.apache.lucene.analysis.Analyzer
 import org.apache.lucene.document.Document
 import org.apache.lucene.index._
 import org.apache.lucene.search._
 import org.apache.lucene.store.{Directory, FSDirectory, NRTCachingDirectory}
+import org.apache.lucene.util.InfoStream
 
 /** Class wrapping a Lucene file system-based directory and its readers, writers and searchers.
   *
@@ -62,15 +63,17 @@ class FSIndex(
     this.mergeSort = mergeSort
     this.fields = fields
 
+    val infoStream:InfoStream= new LuceneInfoStream
     // Open or create directory
     directory = new NRTCachingDirectory(FSDirectory.open(path), maxMergeMB, maxCachedMB)
-
+    InfoStream.setDefault(infoStream)
     // Setup index writer
     val indexWriterConfig = new IndexWriterConfig(analyzer)
     indexWriterConfig.setRAMBufferSizeMB(ramBufferMB)
     indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND)
     indexWriterConfig.setUseCompoundFile(true)
     indexWriterConfig.setMergePolicy(new SortingMergePolicy(new TieredMergePolicy, mergeSort))
+    indexWriterConfig.setInfoStream(infoStream)
     writer = new IndexWriter(directory, indexWriterConfig)
 
     // Setup NRT search
@@ -218,6 +221,12 @@ class FSIndex(
   def refresh() {
     manager.maybeRefreshBlocking()
     logger.debug(s"Refreshed $name readers")
+  }
+
+  def flush(): Unit = {
+    logger.info("Flushing IndexWriter")
+    writer.flush()
+    logger.info("Flushed IndexWriter")
   }
 }
 

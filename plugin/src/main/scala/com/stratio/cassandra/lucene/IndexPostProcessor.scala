@@ -111,6 +111,12 @@ sealed abstract class IndexPostProcessor[A <: ReadQuery](service: IndexService)
       // Repeat search to sort partial results
       val query = search.postProcessingQuery(service.schema)
       val sort = service.sort(search)
+      logger.debug(
+        s"""Searching in IndexProstProcessor
+            | query: $query
+            | limit: $limit
+            | sort :  $sort
+       """.stripMargin)
       val docs = index.search(query, sort, limit, FIELDS_TO_LOAD)
 
       // Collect and decorate

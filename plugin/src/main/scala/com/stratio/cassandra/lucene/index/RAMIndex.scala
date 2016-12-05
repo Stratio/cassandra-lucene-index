@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.index
 
+import com.stratio.cassandra.lucene.util.LuceneInfoStream
 import org.apache.lucene.analysis.Analyzer
 import org.apache.lucene.document.Document
 import org.apache.lucene.index.{DirectoryReader, IndexWriter, IndexWriterConfig}
@@ -29,7 +30,7 @@ import org.apache.lucene.store.RAMDirectory
 class RAMIndex(analyzer: Analyzer) {
 
   private val directory = new RAMDirectory
-  private val indexWriter = new IndexWriter(directory, new IndexWriterConfig(analyzer))
+  private val indexWriter = new IndexWriter(directory, new IndexWriterConfig(analyzer).setInfoStream(new LuceneInfoStream()))
 
   /** Adds the specified document.
     *

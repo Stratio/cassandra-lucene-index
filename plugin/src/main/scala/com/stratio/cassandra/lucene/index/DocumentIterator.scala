@@ -87,14 +87,17 @@ class DocumentIterator(
     try {
       val time = TimeCounter.start
 
-      val topDocs = if (afterTerm.isEmpty && canEarlyTerminate(sort, indexSort)) {
+
+
+      logger.debug("Document iterator: fetching documents with: [after: "+after+" query: "+query+" pageSize: "+pageSize+" sort: "+sort+" ]")
+      val topDocs = /*if (afterTerm.isEmpty && canEarlyTerminate(sort, indexSort)) {
         val fieldDoc = after.map(_.asInstanceOf[FieldDoc]).orNull
         val collector = TopFieldCollector.create(sort, pageSize, fieldDoc, true, false, false)
         val hits = afterOffset + pageSize
         val earlyCollector = new EarlyTerminatingSortingCollector(collector, sort, hits, indexSort)
         searcher.search(query, earlyCollector)
         collector.topDocs
-      } else searcher.searchAfter(after.orNull, query, pageSize, sort)
+      } else*/ searcher.searchAfter(after.orNull, query, pageSize, sort)
 
       val scoreDocs = topDocs.scoreDocs
       val numFetched = scoreDocs.length
@@ -103,12 +106,13 @@ class DocumentIterator(
       for (scoreDoc <- scoreDocs) {
         after = Some(scoreDoc)
         val document = searcher.doc(scoreDoc.doc, fields)
-        logger.debug("Page fetched document: "+document)
+        logger.debug("Page fetched docId: "+scoreDoc.doc+" document: "+document)
         documents.add((document, scoreDoc))
       }
 
       tracer.trace(s"Lucene index fetches $numFetched documents")
       logger.debug(s"Page fetched with $numFetched documents in $time")
+
 
     } catch {
       case e: Exception =>
