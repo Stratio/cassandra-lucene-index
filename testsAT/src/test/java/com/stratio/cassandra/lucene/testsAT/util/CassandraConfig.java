@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.testsAT.util;
 
 import com.datastax.driver.core.ConsistencyLevel;
+import com.stratio.cassandra.lucene.builder.index.Partitioner;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -44,6 +45,7 @@ class CassandraConfig {
     static final String COLUMN = getString("column", "lucene");
     static final boolean USE_NEW_QUERY_SYNTAX = getBool("use_new_query_syntax", true);
     static final int LIMIT = getInt("limit", 10000);
+    static final Partitioner PARTITIONER = new Partitioner.None();
 
     static {
         assert COLUMN != null || USE_NEW_QUERY_SYNTAX;

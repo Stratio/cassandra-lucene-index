@@ -27,16 +27,18 @@ import org.apache.lucene.search._
 
 /** [[CloseableIterator]] for retrieving Lucene documents satisfying a query.
   *
-  * @param manager   the Lucene index searcher manager
-  * @param indexSort the sort of the index
-  * @param querySort the sort in which the documents are going to be retrieved
-  * @param query     the query to be satisfied by the documents
-  * @param limit     the iteration page size
-  * @param fields    the names of the document fields to be loaded
+  * @param searcher        the Lucene index searcher
+  * @param releaseSearcher a function for releasing the searcher
+  * @param indexSort       the sort of the index
+  * @param querySort       the sort in which the documents are going to be retrieved
+  * @param query           the query to be satisfied by the documents
+  * @param limit           the iteration page size
+  * @param fields          the names of the document fields to be loaded
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 class DocumentIterator(
-    manager: SearcherManager,
+    searcher: IndexSearcher,
+    releaseSearcher: () => Unit,
     afterTerm: Option[Term],
     indexSort: Sort,
     querySort: Sort,
@@ -47,7 +49,6 @@ class DocumentIterator(
 
   private[this] val pageSize = Math.min(limit, MAX_PAGE_SIZE) + 1
   private[this] val documents = new java.util.LinkedList[(Document, ScoreDoc)]
-  private[this] val searcher = manager.acquire
 
   private[this] var afterOffset = 0
   private[this] var finished = false
@@ -58,7 +59,7 @@ class DocumentIterator(
     querySort.rewrite(searcher)
   } catch {
     case e: Exception =>
-      manager.release(searcher)
+      releaseSearcher()
       throw new IndexException(e, s"Error rewriting sort $indexSort")
   }
 
@@ -79,7 +80,7 @@ class DocumentIterator(
       })
   } catch {
     case e: Exception =>
-      manager.release(searcher)
+      releaseSearcher()
       throw new IndexException(e, "Error while searching for the last page position")
   }
 
@@ -143,7 +144,7 @@ class DocumentIterator(
 
   /** Closes the [[IndexSearcher]] and any other resources */
   override def close() = {
-    if (!closed) try manager.release(searcher) finally closed = true
+    if (!closed) try releaseSearcher() finally closed = true
   }
 
 }

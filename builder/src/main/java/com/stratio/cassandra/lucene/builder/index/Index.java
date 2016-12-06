@@ -40,6 +40,7 @@ public class Index extends JSONBuilder {
     private Integer indexingThreads;
     private Integer indexingQueuesSize;
     private String excludedDataCenters;
+    private Partitioner partitioner;
 
     /**
      * Builds a new {@link Index} creation statement for the specified table and column.
@@ -209,6 +210,17 @@ public class Index extends JSONBuilder {
         return this;
     }
 
+    /**
+     * Sets the {@link Partitioner}.
+     *
+     * @param partitioner the {@link Partitioner}
+     * @return this with the specified partitioner
+     */
+    public Index partitioner(Partitioner partitioner) {
+        this.partitioner = partitioner;
+        return this;
+    }
+
     /** {@inheritDoc} */
     @Override
     public String build() {
@@ -226,6 +238,7 @@ public class Index extends JSONBuilder {
         option(sb, "indexing_threads", indexingThreads);
         option(sb, "indexing_queues_size", indexingQueuesSize);
         option(sb, "excluded_data_centers", excludedDataCenters);
+        option(sb, "partitioner", partitioner);
         sb.append(String.format("'schema':'%s'}", schema));
         return sb.toString();
     }
