@@ -34,23 +34,23 @@ case class PartitionerOnToken(@JsonProperty("partitions") partitions: Int) exten
     s"The number of partitions should be strictly positive but found $partitions")
 
   /** @inheritdoc */
-  override def numPartitions: Int = partitions
+  private[this] def partition(token: Token): Int =
+    (Math.abs(token.getTokenValue.asInstanceOf[Long]) % partitions).toInt
 
   /** @inheritdoc */
-  def partition(token: Token): Int =
-    (Math.abs(token.getTokenValue.asInstanceOf[Long]) % partitions).toInt
+  override def numPartitions: Int = partitions
 
   /** @inheritdoc */
   override def partition(key: DecoratedKey): Int = partition(key.getToken)
 
   /** @inheritdoc */
-  override def partition(command: ReadCommand): Option[Int] = command match {
-    case c: SinglePartitionReadCommand => Some(partition(c.partitionKey))
+  override def partitions(command: ReadCommand): List[Int] = command match {
+    case c: SinglePartitionReadCommand => List(partition(c.partitionKey))
     case c: PartitionRangeReadCommand =>
       val range = c.dataRange()
       val start = range.startKey().getToken
       val stop = range.stopKey().getToken
-      if (start.equals(stop) && !start.isMinimum) Some(partition(start)) else None
+      if (start.equals(stop) && !start.isMinimum) List(partition(start)) else allPartitions
     case _ => throw new IndexException(s"Unsupported read command type: ${command.getClass}")
   }
 

@@ -283,8 +283,8 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
 
     // Search
     tracer.trace(s"Lucene index searching for $count rows")
-    val partition = partitioner.partition(command)
-    val documents = lucene.search(partition, after, query, sort, count)
+    val partitions = partitioner.partitions(command)
+    val documents = lucene.search(partitions, after, query, sort, count)
     reader(documents, command, controller)
   }
 

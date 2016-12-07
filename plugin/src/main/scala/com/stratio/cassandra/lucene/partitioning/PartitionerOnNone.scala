@@ -30,6 +30,6 @@ case class PartitionerOnNone() extends Partitioner {
   override def partition(key: DecoratedKey): Int = 0
 
   /** @inheritdoc */
-  override def partition(command: ReadCommand): Option[Int] = Some(0)
+  override def partitions(command: ReadCommand): List[Int] = allPartitions
 
 }

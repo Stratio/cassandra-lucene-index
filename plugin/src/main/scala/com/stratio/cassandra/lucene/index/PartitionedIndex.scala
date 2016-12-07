@@ -184,30 +184,31 @@ class PartitionedIndex(
 
   /** Finds the top hits for a query and sort, starting from an optional position.
     *
-    * @param partition the index partitions where the operation will be done
-    * @param after     the starting term
-    * @param query     the query to search for
-    * @param sort      the sort to be applied
-    * @param count     the max number of results to be collected
+    * @param partitions the index partitions where the operation will be done
+    * @param after      the starting term
+    * @param query      the query to search for
+    * @param sort       the sort to be applied
+    * @param count      the max number of results to be collected
     * @return the found documents, sorted according to the supplied [[Sort]] instance
     */
-  def search(partition: Option[Int], after: Option[Term], query: Query, sort: Sort, count: Int)
+  def search(partitions: List[Int], after: Option[Term], query: Query, sort: Sort, count: Int)
   : DocumentIterator = {
     logger.debug(
-      s"""Searching in $name
-         | shard: $partition
+      s"""Searching in $name (${partitions.mkString(", ")})
          | after: $after
          | query: $query
          | count: $count
          | sort : $sort
        """.stripMargin)
-    partition.map(partition => indexes(partition).search(after, query, sort, count)).getOrElse {
-      val searchers = indexes.map(_.searcher)
-      val readers = searchers.map(_._1.getIndexReader).toArray
-      val reader = new MultiReader(readers: _*)
-      val searcher = new IndexSearcher(reader)
-      val release = () => searchers.foreach(_._2.apply())
-      new DocumentIterator(searcher, release, after, mergeSort, sort, query, count, fields)
+    partitions match {
+      case partition :: Nil => indexes(partition).search(after, query, sort, count)
+      case _ =>
+        val searchers = partitions.map(indexes(_).searcher)
+        val readers = searchers.map(_._1.getIndexReader)
+        val reader = new MultiReader(readers.toArray: _*)
+        val searcher = new IndexSearcher(reader)
+        val release = () => searchers.foreach(_._2.apply())
+        new DocumentIterator(searcher, release, after, mergeSort, sort, query, count, fields)
     }
   }
 

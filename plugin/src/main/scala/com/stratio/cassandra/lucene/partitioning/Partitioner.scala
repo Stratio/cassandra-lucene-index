@@ -41,6 +41,9 @@ trait Partitioner {
   /** Returns the number of partitions. */
   def numPartitions: Int
 
+  /** Returns all the partitions. */
+  def allPartitions: List[Int] = (0 until numPartitions).toList
+
   /** Returns the partition for the specified key.
     *
     * @param key a partition key to be routed to a partition
@@ -48,14 +51,12 @@ trait Partitioner {
     */
   def partition(key: DecoratedKey): Int
 
-  /** Returns the optional partition for the specified read command, or [[None]] if all partitions
-    * should be fetched.
+  /** Returns the involved partitions for the specified read command.
     *
-    * @param command a read command to be routed to either one or all partitions
-    * @return the partition containing the all data required to satisfy `command`,
-    *         or [[None]] if all partitions should be fetched
+    * @param command a read command to be routed to some partitions
+    * @return the partitions containing the all data required to satisfy `command`
     */
-  def partition(command: ReadCommand): Option[Int]
+  def partitions(command: ReadCommand): List[Int]
 
 }
 
