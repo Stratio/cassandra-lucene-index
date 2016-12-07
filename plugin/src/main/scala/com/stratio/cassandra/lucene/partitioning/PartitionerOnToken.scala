@@ -23,7 +23,7 @@ import org.apache.cassandra.dht.Token
 /** [[Partitioner]] based on the partition key token.
   *
   * Partitioning on token guarantees a good load balancing between partitions while speeding up
-  * partition-directed searches to the detriment of any other searches.
+  * partition-directed searches to the detriment of token range searches.
   *
   * @param partitions the number of partitions
   * @author Andres de la Pena `adelapena@stratio.com`

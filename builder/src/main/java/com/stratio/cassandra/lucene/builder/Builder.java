@@ -760,7 +760,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link Partitioner.None} to not partitioning the index.
      *
-     * Index partitioning is useful to speedup some queries to the detriment of others, depending on the implementation.
+     * Index partitioning is useful to speed up some queries to the detriment of others, depending on the implementation.
      * It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
      *
      * @return a new no-action partitioning, equivalent to just don't partitioning the index
@@ -772,11 +772,11 @@ public abstract class Builder {
     /**
      * Returns a new {@link Partitioner.OnToken} to split the index in {@code numPartitions} based on the row token.
      *
-     * Index partitioning is useful to speedup some queries to the detriment of others, depending on the implementation.
+     * Index partitioning is useful to speed up some queries to the detriment of others, depending on the implementation.
      * It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
      *
      * Partitioning on token guarantees a good load balancing between partitions while speeding up partition-directed
-     * searches to the detriment of any other searches.
+     * searches to the detriment of token range searches.
      *
      * @param numPartitions the number of partitions
      * @return a new partitioner based on Cassandra's partitioning token

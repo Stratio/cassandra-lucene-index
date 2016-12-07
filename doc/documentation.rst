@@ -11,6 +11,9 @@ Stratio's Cassandra Lucene Index
     - `Example <#example>`__
     - `Alternative syntaxes <#alternative-syntaxes>`__
 - `Indexing <#indexing>`__
+    - `Partitioners <#partitioners>`__
+        - `None partitioner <#none-partitioner>`__
+        - `Token partitioner <#token-partitioner>`__
     - `Analyzers <#analyzers>`__
         - `Classpath analyzer <#classpath-analyzer>`__
         - `Snowball analyzer <#snowball-analyzer>`__
@@ -32,9 +35,6 @@ Stratio's Cassandra Lucene Index
         - `String mapper <#string-mapper>`__
         - `Text mapper <#text-mapper>`__
         - `UUID mapper <#uuid-mapper>`__
-    - `Partitioners <#partitioners>`__
-        - `None partitioner <#none-partitioner>`__
-        - `Token partitioner <#token-partitioner>`__
     - `Example <#example>`__
 - `Searching <#searching>`__
     - `All search <#all-search>`__
@@ -569,9 +569,9 @@ All options take a value enclosed in single quotes:
 -  **excluded\_data\_centers**: The comma-separated list of the data centers
    to be excluded. The index will be created on this data centers but all the
    write operations will be silently ignored.
--  **partitioner**: The optional index partitioner. Index partitioning is useful to speedup some
-   searches to the detriment of others, depending on the implementation. It is also useful to
-   overcome the Lucene's hard limit of 2147483519 documents per index.
+-  **partitioner**: The optional index `partitioner <#partitioners>`__. Index partitioning is useful
+   to speed up some searches to the detriment of others, depending on the implementation. It is also
+   useful to overcome the Lucene's hard limit of 2147483519 documents per index.
 -  **schema**: see below
 
 .. code-block:: sql
@@ -595,6 +595,52 @@ Where default\_analyzer defaults to ‘org.apache.lucene.analysis.standard.Stand
     <mapper_definition>:= <mapper_name>: {
        type: "<mapper_type>" (, <option>: "<value>")*
     }
+
+Partitioners
+============
+
+Lucene indexes can be partitioned on a per-node basis. This means that the local index in each node
+can be split in multiple smaller fragments. Index partitioning is useful to speed up some searches
+to the detriment of others, depending on the implementation. It is also useful to overcome the
+Lucene's hard limit of 2147483519 documents per local index.
+
+Partitioning is disabled by default, and it can be activated specifying a partitioner implementation
+in the index creation statement.
+
+Please note that the index creation statement specifies the values of several Lucene memory-related
+attributes, such as *max_merge_mb* or *ram_buffer_mb*. These attributes are applied to each local
+Lucene index or partition, so the amount of memory should be multiplied by the number of partitions.
+
+None partitioner
+________________
+
+A partitioner with no action, equivalent to not defining a partitioner. This is the default
+implementation.
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX test_idx ON test()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'schema': '{...}',
+       'partitioner': '{type: "none"}',
+    };
+
+Token partitioner
+_________________
+
+A partitioner based on the partition key token. Partitioning on token guarantees a good load
+balancing between partitions while speeding up partition-directed searches to the detriment of any
+other searches. The number of partitions per node should be specified.
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX test_idx ON test()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'schema': '{...}',
+       'partitioner': '{type: "token", partitions: 4}',
+    };
 
 Analyzers
 =========
@@ -1662,52 +1708,6 @@ Maps an UUID value.
        }'
     };
 
-Partitioners
-============
-
-Lucene indexes can be partitioned in a per-node basis, meaning that the local index in each node can
-be split in multiple smaller fragments. Index partitioning is useful to speedup some searches to the
-detriment of others, depending on the implementation. It is also useful to overcome the Lucene's
-hard limit of 2147483519 documents per local index.
-
-Partitioning is disabled by default, and it can be activated specifying a partitioner implementation
-in the index creation statement.
-
-Please note than the index creation specifies the values of several Lucene memory-related attributes,
-such as *max_merge_mb* or *ram_buffer_mb*. This attributes are applied to each local Lucene index or
-partition, so the amount of memory should be multiplied by the number of partitions.
-
-None partitioner
-________________
-
-A partitioner with no action, equivalent to not defining a partitioner. This is the default
-implementation.
-
-.. code-block:: sql
-
-    CREATE CUSTOM INDEX test_idx ON test()
-    USING 'com.stratio.cassandra.lucene.Index'
-    WITH OPTIONS = {
-       'schema': '{...}',
-       'partitioner': '{type: "none"}',
-    };
-
-Token partitioner
-_________________
-
-A partitioner based on the partition key token. Partitioning on token guarantees a good load
-balancing between partitions while speeding up partition-directed searches to the detriment of any
-other searches. The number of partitions per node should be specified.
-
-.. code-block:: sql
-
-    CREATE CUSTOM INDEX test_idx ON test()
-    USING 'com.stratio.cassandra.lucene.Index'
-    WITH OPTIONS = {
-       'schema': '{...}',
-       'partitioner': '{type: "token", partitions: 4}',
-    };
-
 Example
 =======
 
@@ -1727,6 +1727,7 @@ Cassandra shell:
        'max_merge_mb': '5',
        'max_cached_mb': '30',
        'excluded_data_centers': 'dc2,dc3',
+       'partitioner': '{type: "token", partitions: 4}',
        'schema': '{
           analyzers: {
              my_custom_analyzer: {

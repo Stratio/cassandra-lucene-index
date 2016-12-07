@@ -213,6 +213,9 @@ public class Index extends JSONBuilder {
     /**
      * Sets the {@link Partitioner}.
      *
+     * Index partitioning is useful to speed up some queries to the detriment of others, depending on the implementation.
+     * It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
+     *
      * @param partitioner the {@link Partitioner}
      * @return this with the specified partitioner
      */

@@ -21,14 +21,15 @@ import org.apache.cassandra.db.{DecoratedKey, ReadCommand}
 
 /** Class defining an index partitioning strategy.
   *
-  * Index partitioning is useful to speedup some searches to the detriment of others, depending on
+  * Index partitioning is useful to speed up some searches to the detriment of others, depending on
   * the implementation.
   *
   * It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+@JsonTypeInfo(
+  use = JsonTypeInfo.Id.NAME,
   include = JsonTypeInfo.As.PROPERTY,
   property = "type",
   defaultImpl = classOf[PartitionerOnNone])
@@ -40,11 +41,20 @@ trait Partitioner {
   /** Returns the number of partitions. */
   def numPartitions: Int
 
-  /** Returns the partition for the specified key. */
+  /** Returns the partition for the specified key.
+    *
+    * @param key a partition key to be routed to a partition
+    * @return the partition owning `key`
+    */
   def partition(key: DecoratedKey): Int
 
-  /** Returns the optional partition for the specified read command.
-    * [[None]] means that all partitions should be fetched. */
+  /** Returns the optional partition for the specified read command, or [[None]] if all partitions
+    * should be fetched.
+    *
+    * @param command a read command to be routed to either one or all partitions
+    * @return the partition containing the all data required to satisfy `command`,
+    *         or [[None]] if all partitions should be fetched
+    */
   def partition(command: ReadCommand): Option[Int]
 
 }
@@ -52,6 +62,11 @@ trait Partitioner {
 /** Companion object for [[Partitioner]]. */
 object Partitioner {
 
+  /** The [[Partitioner]] represented by the specified JSON string.
+    *
+    * @param json a JSON string representing a [[Partitioner]]
+    * @return the partitioner represented by `json`
+    */
   def fromJson(json: String): Partitioner =
     JsonSerializer.fromString(json, classOf[Partitioner])
 

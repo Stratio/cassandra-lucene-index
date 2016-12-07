@@ -24,7 +24,7 @@ import com.stratio.cassandra.lucene.builder.index.Partitioner.*;
 /**
  * An index partitioner to split the index in multiple partitions.
  *
- * Index partitioning is useful to speedup some searches to the detriment of others, depending on the implementation.
+ * Index partitioning is useful to speed up some searches to the detriment of others, depending on the implementation.
  * It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -35,7 +35,7 @@ import com.stratio.cassandra.lucene.builder.index.Partitioner.*;
 public abstract class Partitioner extends JSONBuilder {
 
     /**
-     * {@link Partitioner} with no action.
+     * {@link Partitioner} with no action, equivalent to not defining a partitioner.
      */
     public static class None extends Partitioner {
     }
@@ -44,7 +44,7 @@ public abstract class Partitioner extends JSONBuilder {
      * {@link Partitioner} based on the Cassandra's partitioning token.
      *
      * Partitioning on token guarantees a good load balancing between partitions while speeding up partition-directed
-     * searches to the detriment of any other searches.
+     * searches to the detriment of token range searches.
      */
     public static class OnToken extends Partitioner {
 
