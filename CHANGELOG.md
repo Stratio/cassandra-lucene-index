@@ -2,7 +2,8 @@
 
 ## 3.9.4 (Upcoming)
 
-* Add support for token-based index partitioning
+* Add generic support for index partitioning
+* Add token-based index partitioner
 * Optimize columns mapping (improves indexing performance)
 
 ## 3.9.3 (November 24, 2016)
