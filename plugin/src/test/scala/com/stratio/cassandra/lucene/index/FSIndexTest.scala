@@ -20,7 +20,6 @@ import java.util.{Collections, UUID}
 
 import com.stratio.cassandra.lucene.BaseScalaTest
 import com.stratio.cassandra.lucene.IndexOptions._
-import com.stratio.cassandra.lucene.index.FSIndexTest._
 import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.document._
 import org.apache.lucene.index.Term
@@ -37,6 +36,32 @@ import org.scalatest.junit.JUnitRunner
   */
 @RunWith(classOf[JUnitRunner])
 class FSIndexTest extends BaseScalaTest {
+
+  val REFRESH_SECONDS: Double = 0.1D
+  val REFRESH_MILLISECONDS: Int = (REFRESH_SECONDS * 1000).toInt
+  val WAIT_MILLISECONDS: Int = REFRESH_MILLISECONDS * 2
+
+  def assertCount(docs: DocumentIterator, expected: Int) {
+    var count = 0
+    docs.foreach(_ => count += 1)
+    assertEquals("Expected " + expected + " documents", expected, count)
+  }
+
+  def doWithIndex(f: FSIndex => Unit): Unit = {
+    val temporaryFolder = new TemporaryFolder
+    temporaryFolder.create()
+    try {
+      val index = new FSIndex(
+        "test_index",
+        Paths.get(temporaryFolder.newFolder("directory" + UUID.randomUUID).getPath),
+        new StandardAnalyzer,
+        REFRESH_SECONDS,
+        DEFAULT_RAM_BUFFER_MB,
+        DEFAULT_MAX_MERGE_MB,
+        DEFAULT_MAX_CACHED_MB)
+      f.apply(index)
+    } finally temporaryFolder.delete()
+  }
 
   test("CRUD operations") {
     doWithIndex(
@@ -126,36 +151,6 @@ class FSIndexTest extends BaseScalaTest {
         assertCount(index.search(None, query, sort, 1000), 100)
         assertCount(index.search(Some(new Term("field_s", "49")), query, sort, 1000), 50)
       })
-  }
-
-}
-
-object FSIndexTest {
-
-  val REFRESH_SECONDS: Double = 0.1D
-  val REFRESH_MILLISECONDS: Int = (REFRESH_SECONDS * 1000).toInt
-  val WAIT_MILLISECONDS: Int = REFRESH_MILLISECONDS * 2
-
-  def assertCount(docs: DocumentIterator, expected: Int) {
-    var count = 0
-    docs.foreach(_ => count += 1)
-    assertEquals("Expected " + expected + " documents", expected, count)
-  }
-
-  def doWithIndex(f: FSIndex => Unit): Unit = {
-    val temporaryFolder = new TemporaryFolder
-    temporaryFolder.create()
-    try {
-      val index = new FSIndex(
-        "test_index",
-        Paths.get(temporaryFolder.newFolder("directory" + UUID.randomUUID).getPath),
-        new StandardAnalyzer,
-        REFRESH_SECONDS,
-        DEFAULT_RAM_BUFFER_MB,
-        DEFAULT_MAX_MERGE_MB,
-        DEFAULT_MAX_CACHED_MB)
-      f.apply(index)
-    } finally temporaryFolder.delete()
   }
 
 }

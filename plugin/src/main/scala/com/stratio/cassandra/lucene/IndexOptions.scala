@@ -19,6 +19,7 @@ import java.io.File
 import java.nio.file.{Path, Paths}
 
 import com.stratio.cassandra.lucene.IndexOptions._
+import com.stratio.cassandra.lucene.partitioning.{PartitionerOnNone, Partitioner}
 import com.stratio.cassandra.lucene.schema.{Schema, SchemaBuilder}
 import com.stratio.cassandra.lucene.util.SchemaValidator
 import org.apache.cassandra.config.CFMetaData
@@ -61,6 +62,9 @@ class IndexOptions(tableMetadata: CFMetaData, indexMetadata: IndexMetadata) {
   /** The mapping schema */
   val schema = parseSchema(options, tableMetadata)
 
+  /** The index partitioner */
+  val partitioner = parsePartitioner(options, tableMetadata)
+
   /** The path of the directory where the index files will be stored */
   val path = parsePath(options, tableMetadata, Some(indexMetadata))
 }
@@ -94,6 +98,9 @@ object IndexOptions {
 
   val SCHEMA_OPTION = "schema"
 
+  val PARTITIONER_OPTION = "partitioner"
+  val DEFAULT_PARTITIONER = PartitionerOnNone()
+
   /** Validates the specified index options.
     *
     * @param options  the options to be validated
@@ -110,6 +117,7 @@ object IndexOptions {
     parseExcludedDataCenters(o)
     parseSchema(o, metadata)
     parsePath(o, metadata, None)
+    parsePartitioner(o, metadata)
   }
 
   def parseRefresh(options: Map[String, String]): Double = {
@@ -163,10 +171,19 @@ object IndexOptions {
         SchemaValidator.validate(schema, table)
         schema
       } catch {
-        case e: Exception => throw new IndexException(
-          e,
+        case e: Exception => throw new IndexException(e,
           s"'$SCHEMA_OPTION' is invalid : ${e.getMessage}")
       }).getOrElse(throw new IndexException(s"'$SCHEMA_OPTION' is required"))
+  }
+
+  def parsePartitioner(options: Map[String, String], table: CFMetaData): Partitioner = {
+    options.get(PARTITIONER_OPTION).map(
+      value => try {
+        Partitioner.fromJson(value)
+      } catch {
+        case e: Exception => throw new IndexException(e,
+          s"'$PARTITIONER_OPTION' is invalid : ${e.getMessage}")
+      }).getOrElse(DEFAULT_PARTITIONER)
   }
 
   private def parseInt(options: Map[String, String], name: String, default: Int): Int = {
