@@ -30,7 +30,7 @@ import org.junit.runners.JUnit4;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(JUnit4.class)
-public class CheckNonFrozenUDTAT extends BaseIT {
+public class CheckNonFrozenUDTIT extends BaseIT {
 
     @Test
     public void testNotFrozenUDTList() {

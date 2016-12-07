@@ -56,7 +56,7 @@ public abstract class SingleColumnCondition extends SingleFieldCondition {
                                      SingleColumnMapper.class.getSimpleName(),
                                      mapper);
         }
-        return doQuery((SingleColumnMapper<?>) mapper, schema.analyzer());
+        return doQuery((SingleColumnMapper<?>) mapper, schema.analyzer);
     }
 
     /**

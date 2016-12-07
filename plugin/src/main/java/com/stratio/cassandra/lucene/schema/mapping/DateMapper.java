@@ -15,8 +15,7 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.stratio.cassandra.lucene.column.Column;
-import com.stratio.cassandra.lucene.util.DateParser;
+import com.stratio.cassandra.lucene.common.DateParser;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.SortedNumericDocValuesField;

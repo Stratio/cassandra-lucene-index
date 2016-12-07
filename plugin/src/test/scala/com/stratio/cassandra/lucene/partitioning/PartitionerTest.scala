@@ -13,25 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.key
+package com.stratio.cassandra.lucene.partitioning
 
 import com.stratio.cassandra.lucene.BaseScalaTest
+import com.stratio.cassandra.lucene.BaseScalaTest.int32
+import org.apache.cassandra.db.DecoratedKey
 import org.apache.cassandra.dht.Murmur3Partitioner
-import org.apache.lucene.util.BytesRef
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 
-/** Tests for [[ClusteringMapper]].
+/** Tests for [[Partitioner]].
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-@RunWith(classOf[JUnitRunner])
-class ClusteringMapperTest extends BaseScalaTest {
+class PartitionerTest extends BaseScalaTest {
 
-  test("collate prefix") {
-    val values = List(Long.MinValue, -10L, -2L, -1L, 0L, 1L, 2L, 10L, Long.MaxValue)
-    val tokens = values.map(new Murmur3Partitioner.LongToken(_))
-    val bytes = tokens.map(ClusteringMapper.prefix(_)).map(new BytesRef(_))
-    bytes shouldBe bytes.reverse.sorted
+  test("parse default") {
+    Partitioner.fromJson("{}") shouldBe PartitionerOnNone()
   }
+
+  test("num partitions wiht none partitioner") {
+    PartitionerOnNone().allPartitions shouldBe List(0)
+  }
+
+  test("num partitions with token partitioner") {
+    PartitionerOnToken(4).allPartitions shouldBe List(0, 1, 2, 3)
+  }
+
+  def key(n: Int): DecoratedKey = Murmur3Partitioner.instance.decorateKey(int32.decompose(n))
+
 }

@@ -15,16 +15,13 @@
  */
 package com.stratio.cassandra.lucene
 
-import java.{util => java}
-
-import com.stratio.cassandra.lucene.column.{Columns, ColumnsMapper}
+import com.google.common.collect.Sets
 import com.stratio.cassandra.lucene.index.DocumentIterator
-import com.stratio.cassandra.lucene.key.ClusteringMapper._
-import com.stratio.cassandra.lucene.key.{ClusteringMapper, KeyMapper, PartitionMapper}
+import com.stratio.cassandra.lucene.mapping.ClusteringMapper._
+import com.stratio.cassandra.lucene.mapping.{ClusteringMapper, KeyMapper, PartitionMapper}
 import org.apache.cassandra.db.PartitionPosition.Kind._
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter._
-import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.schema.IndexMetadata
 import org.apache.cassandra.utils.concurrent.OpOrder
@@ -33,7 +30,7 @@ import org.apache.lucene.index.{IndexableField, Term}
 import org.apache.lucene.search.BooleanClause.Occur._
 import org.apache.lucene.search.{BooleanQuery, Query, SortField}
 
-import scala.collection.JavaConversions._
+import scala.collection.mutable
 
 /** [[IndexService]] for wide rows.
   *
@@ -50,8 +47,8 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
   init()
 
   /** @inheritdoc */
-  override def fieldsToLoad: Set[String] = {
-    Set(PartitionMapper.FIELD_NAME, ClusteringMapper.FIELD_NAME)
+  override def fieldsToLoad: java.util.Set[String] = {
+    Sets.newHashSet(PartitionMapper.FIELD_NAME, ClusteringMapper.FIELD_NAME)
   }
 
   /** @inheritdoc */
@@ -78,41 +75,24 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
   }
 
   /** @inheritdoc */
-  override def columns(key: DecoratedKey, row: Row): Columns = {
-    Columns()
-      .add(partitionMapper.columns(key))
-      .add(clusteringMapper.columns(row.clustering))
-      .add(ColumnsMapper.columns(row))
-  }
-
-  /** @inheritdoc */
-  override def keyIndexableFields(key: DecoratedKey, row: Row): List[IndexableField] = {
-    val clustering = row.clustering
-    val fields = new java.LinkedList[IndexableField]()
-    fields.add(tokenMapper.indexableField(key))
-    fields.add(partitionMapper.indexableField(key))
-    fields.add(keyMapper.indexableField(key, clustering))
-    fields.addAll(clusteringMapper.indexableFields(key, clustering))
+  override def keyIndexableFields(key: DecoratedKey, clustering: Clustering)
+  : List[IndexableField] = {
+    val fields = mutable.ListBuffer.empty[IndexableField]
+    fields += tokenMapper.indexableField(key)
+    fields += partitionMapper.indexableField(key)
+    fields += keyMapper.indexableField(key, clustering)
+    fields ++= clusteringMapper.indexableFields(key, clustering)
     fields.toList
   }
 
   /** @inheritdoc */
-  override def term(key: DecoratedKey, row: Row): Term = term(key, row.clustering)
-
-  /** Returns a Lucene term identifying the document representing the row identified by the
-    * specified partition and clustering keys.
-    *
-    * @param key        the partition key
-    * @param clustering the clustering key
-    * @return the term identifying the document
-    */
   def term(key: DecoratedKey, clustering: Clustering): Term = {
     keyMapper.term(key, clustering)
   }
 
   /** @inheritdoc */
   override def query(key: DecoratedKey, filter: ClusteringIndexFilter): Query = filter match {
-    case f if f.selectsAllPartition() => partitionMapper.query(key)
+    case f if f.selectsAllPartition => partitionMapper.query(key)
     case f: ClusteringIndexNamesFilter => keyMapper.query(key, f)
     case f: ClusteringIndexSliceFilter => clusteringMapper.query(key, f)
     case _ => throw new IndexException(s"Unknown filter type $filter")
@@ -170,7 +150,7 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
 
     // Return query, or empty if there are no restrictions
     val booleanQuery = builder.build
-    if (booleanQuery.clauses.nonEmpty) Some(booleanQuery) else None
+    if (booleanQuery.clauses.isEmpty) None else Some(booleanQuery)
   }
 
   /** @inheritdoc */

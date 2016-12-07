@@ -21,8 +21,6 @@ import org.apache.lucene.index.{DirectoryReader, IndexWriter, IndexWriterConfig}
 import org.apache.lucene.search.{IndexSearcher, Query, ScoreDoc, Sort}
 import org.apache.lucene.store.RAMDirectory
 
-import scala.collection.JavaConversions._
-
 /** Class wrapping a Lucene RAM directory and its readers, writers and searchers for NRT.
   *
   * @param analyzer the index writer analyzer
@@ -41,8 +39,7 @@ class RAMIndex(analyzer: Analyzer) {
     indexWriter.addDocument(document)
   }
 
-  /**
-    * Commits all changes to the index, waits for pending merges to complete, and closes all
+  /** Commits all pending changes to the index, waits for pending merges to complete, and closes all
     * associated resources.
     */
   def close() {
@@ -52,9 +49,9 @@ class RAMIndex(analyzer: Analyzer) {
 
   /** Finds the top count hits for a query and a sort.
     *
-    * @param query the query to search for
-    * @param sort the sort to be applied
-    * @param count the max number of results to be collected
+    * @param query  the query to search for
+    * @param sort   the sort to be applied
+    * @param count  the max number of results to be collected
     * @param fields the names of the fields to be loaded
     * @return the found documents
     */
@@ -62,7 +59,7 @@ class RAMIndex(analyzer: Analyzer) {
       query: Query,
       sort: Sort,
       count: Integer,
-      fields: Set[String]): Seq[(Document, ScoreDoc)] = {
+      fields: java.util.Set[String]): Seq[(Document, ScoreDoc)] = {
     indexWriter.commit()
     val reader = DirectoryReader.open(directory)
     val searcher = new IndexSearcher(reader)

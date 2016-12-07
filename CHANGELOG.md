@@ -2,10 +2,17 @@
 
 ## 3.8.2 (Upcoming)
 
-* Show error message when unsupported PER PARTITION LIMIT option is used
+* Optimize columns mapping (improves indexing performance)
+* Add generic support for index partitioning
+* Add token-based index partitioner
+* Upgrade to Scala 2.12.0
+* Avoid not required string interpolations in logging
+* Avoid not required string interpolations in tracing
 * Add support for geospatial shapes in bounding box search
 * Add support for geospatial shapes in distance search
-* Improve performance of needs read before write calculation
+* Improve performance of needs before write calculation
+* Show error message when unsupported PER PARTITION LIMIT option is used
+* Upgrade all JSON serializers to FasterXML Jackson 2.8.6
 
 ## 3.8.1 (October 17, 2016)
 
@@ -97,6 +104,10 @@
 ## 3.0.3.1 (March 04, 2016)
 
 * Fix performance issues with ClusteringIndexNamesFilter
+<<<<<<< HEAD
+=======
+
+>>>>>>> branch-3.9
 * Add indexing of WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add search by WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add API for search-time transformation of WKT geographical shapes

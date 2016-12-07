@@ -15,20 +15,20 @@
  */
 package com.stratio.cassandra.lucene.common;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.MoreObjects;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Geometry;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.CONTEXT;
-import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
+import static com.stratio.cassandra.lucene.common.GeospatialUtilsJTS.CONTEXT;
+import static com.stratio.cassandra.lucene.common.GeospatialUtilsJTS.geometry;
 
 /**
  * Class representing the transformation of a JTS geographical shape into a new shape.

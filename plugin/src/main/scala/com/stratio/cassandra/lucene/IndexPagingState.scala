@@ -16,12 +16,11 @@
 package com.stratio.cassandra.lucene
 
 import java.nio.ByteBuffer
-import java.{util => java}
 
 import com.google.common.base.MoreObjects
 import com.stratio.cassandra.lucene.IndexPagingState._
 import com.stratio.cassandra.lucene.search.SearchBuilder
-import com.stratio.cassandra.lucene.util.{ByteBufferUtils, SimplePartitionIterator, SimpleRowIterator}
+import com.stratio.cassandra.lucene.util.{ByteBufferUtils, SimplePartitionIterator, SingleRowIterator}
 import org.apache.cassandra.config.DatabaseDescriptor
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.RowFilter
@@ -30,7 +29,8 @@ import org.apache.cassandra.db.partitions.PartitionIterator
 import org.apache.cassandra.service.LuceneStorageProxy
 import org.apache.cassandra.service.pager.PagingState
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /** The paging state of a CQL query using Lucene. It tracks the primary keys of the last seen rows
   * for each internal read command of a CQL query. It also keeps the count of the remaining rows.
@@ -45,7 +45,7 @@ class IndexPagingState(var remaining: Int) {
   private var hasMorePages: Boolean = true
 
   /** The last row positions */
-  private val entries = new java.HashMap[DecoratedKey, Clustering]
+  private val entries = mutable.LinkedHashMap.empty[DecoratedKey, Clustering]
 
   /** Returns the primary key of the last seen row for the specified read command.
     *
@@ -64,15 +64,14 @@ class IndexPagingState(var remaining: Int) {
   private def indexExpression(command: ReadCommand): RowFilter.Expression = {
 
     // Try with custom expressions
-    command.rowFilter.getExpressions.find(_.isCustom).foreach(return _)
+    command.rowFilter.getExpressions.asScala.find(_.isCustom).foreach(return _)
 
     // Try with dummy column
     val cfs = Keyspace.open(command.metadata.ksName).getColumnFamilyStore(command.metadata.cfName)
-    for (expr <- command.rowFilter.getExpressions) {
-      for (index <- cfs.indexManager.listIndexes) {
-        if (index.isInstanceOf[Index] && index.supportsExpression(
-          expr.column,
-          expr.operator)) return expr
+    for (expr <- command.rowFilter.getExpressions.asScala) {
+      for (index <- cfs.indexManager.listIndexes.asScala) {
+        if (index.isInstanceOf[Index] && index.supportsExpression(expr.column, expr.operator))
+          return expr
       }
     }
     throw new IndexException("Not found expression")
@@ -86,7 +85,7 @@ class IndexPagingState(var remaining: Int) {
   @throws[ReflectiveOperationException]
   def rewrite(query: ReadQuery): Unit = query match {
     case group: SinglePartitionReadCommand.Group =>
-      group.commands.foreach(rewrite)
+      group.commands.forEach(rewrite)
     case read: ReadCommand =>
       val expression = indexExpression(read)
       val oldValue = expressionValueField.get(expression).asInstanceOf[ByteBuffer]
@@ -116,14 +115,14 @@ class IndexPagingState(var remaining: Int) {
   private def update(
       group: SinglePartitionReadCommand.Group,
       partitions: PartitionIterator): PartitionIterator = {
-    val rowIterators = new java.LinkedList[SimpleRowIterator]
+    val rowIterators = mutable.ListBuffer.empty[SingleRowIterator]
     var count = 0
-    for (partition <- partitions) {
+    for (partition <- partitions.asScala) {
       val key = partition.partitionKey
       while (partition.hasNext) {
-        val newRowIterator = new SimpleRowIterator(partition)
-        rowIterators.add(newRowIterator)
-        entries.put(key, newRowIterator.row.clustering)
+        val newRowIterator = new SingleRowIterator(partition)
+        rowIterators += newRowIterator
+        entries.put(key, newRowIterator.row.clustering())
         if (remaining > 0) remaining -= 1
         count += 1
       }
@@ -141,19 +140,19 @@ class IndexPagingState(var remaining: Int) {
 
     // Collect query bounds
     val rangeMerger = LuceneStorageProxy.rangeMerger(command, consistency)
-    val bounds = rangeMerger.map(_.range).toList
+    val bounds = rangeMerger.asScala.map(_.range).toList
 
-    val rowIterators = new java.LinkedList[SimpleRowIterator]
+    val rowIterators = mutable.ListBuffer.empty[SingleRowIterator]
 
     var count = 0
-    for (partition <- partitions) {
+    for (partition <- partitions.asScala) {
 
       val key = partition.partitionKey
       val bound = bounds.find(_ contains key)
       while (partition.hasNext) {
         bound.foreach(bound => entries.keys.filter(bound.contains).foreach(entries.remove))
-        val newRowIterator = new SimpleRowIterator(partition)
-        rowIterators.add(newRowIterator)
+        val newRowIterator = new SingleRowIterator(partition)
+        rowIterators += newRowIterator
         val clustering = newRowIterator.row.clustering
         entries.put(key, clustering)
         if (remaining > 0) remaining -= 1
@@ -175,7 +174,7 @@ class IndexPagingState(var remaining: Int) {
     if (hasMorePages) new PagingState(toByteBuffer, null, remaining, remaining) else null
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def toString: String = {
     MoreObjects.toStringHelper(this).add("remaining", remaining).add("entries", entries).toString
   }
@@ -201,6 +200,7 @@ class IndexPagingState(var remaining: Int) {
 
 }
 
+/** Companion object for [[IndexPagingState]]. */
 object IndexPagingState {
 
   private lazy val expressionValueField = classOf[RowFilter.Expression].getDeclaredField("value")

@@ -21,9 +21,8 @@ import java.util.function.BiFunction
 import java.util.{Collections, Optional}
 import java.{util => java}
 
-import com.stratio.cassandra.lucene.Index.logger
 import com.stratio.cassandra.lucene.search.Search
-import com.stratio.cassandra.lucene.util.JavaConversions._
+import com.stratio.cassandra.lucene.util.Logging
 import org.apache.cassandra.config.{CFMetaData, ColumnDefinition}
 import org.apache.cassandra.cql3.Operator
 import org.apache.cassandra.db.SinglePartitionReadCommand.Group
@@ -33,25 +32,22 @@ import org.apache.cassandra.db.marshal.{AbstractType, UTF8Type}
 import org.apache.cassandra.db.partitions._
 import org.apache.cassandra.exceptions.{ConfigurationException, InvalidRequestException}
 import org.apache.cassandra.index.Index.{Indexer, Searcher}
-import org.apache.cassandra.index.IndexRegistry
 import org.apache.cassandra.index.transactions.IndexTransaction
+import org.apache.cassandra.index.{IndexRegistry, Index => CassandraIndex}
 import org.apache.cassandra.schema.IndexMetadata
 import org.apache.cassandra.service.ClientState
 import org.apache.cassandra.utils.concurrent.OpOrder
-import org.slf4j.LoggerFactory
 
 
-/** [[org.apache.cassandra.index.Index]] that uses Apache Lucene as backend. It allows, among
+/** [[CassandraIndex]] that uses Apache Lucene as backend. It allows, among
   * others, multi-column and full-text search.
   *
   * @param table         the indexed table
   * @param indexMetadata the index's metadata
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class Index(
-    table: ColumnFamilyStore,
-    indexMetadata: IndexMetadata)
-  extends org.apache.cassandra.index.Index {
+class Index(table: ColumnFamilyStore, indexMetadata: IndexMetadata)
+  extends CassandraIndex with Logging {
 
   logger.debug(s"Building Lucene index ${table.metadata} $indexMetadata")
 
@@ -120,7 +116,7 @@ class Index(
     *
     * @return the Index's backing storage table
     */
-  override def getBackingTable: Optional[ColumnFamilyStore] = None
+  override def getBackingTable: Optional[ColumnFamilyStore] = Optional.empty()
 
   /** Return a task which performs a blocking flush of the index's data to persistent storage.
     *
@@ -193,7 +189,7 @@ class Index(
     */
   override def supportsExpression(column: ColumnDefinition, operator: Operator): Boolean = {
     logger.trace(s"Asking if the index supports the expression $column $operator")
-    service.supportsExpression(column, operator)
+    service.expressionMapper.supports(column, operator)
   }
 
   /** If the index supports custom search expressions using the {{{SELECT * FROM table WHERE
@@ -220,7 +216,7 @@ class Index(
     */
   override def getPostIndexQueryFilter(filter: RowFilter): RowFilter = {
     logger.trace(s"Getting the post index query filter for $filter")
-    service.getPostIndexQueryFilter(filter)
+    service.expressionMapper.postIndexQueryFilter(filter)
   }
 
   /** Return an estimate of the number of results this index is expected to return for any given
@@ -294,13 +290,11 @@ class Index(
     */
   override def postProcessorFor(command: ReadCommand)
   : BiFunction[PartitionIterator, ReadCommand, PartitionIterator] = {
-    (partitions: PartitionIterator, command: ReadCommand) => service.postProcess(
-      partitions,
-      command)
+    new ReadCommandPostProcessor(service)
   }
 
   def postProcessorFor(group: Group): BiFunction[PartitionIterator, Group, PartitionIterator] = {
-    (partitions: PartitionIterator, group: Group) => service.postProcess(partitions, group)
+    new GroupPostProcessor(service)
   }
 
   /** Factory method for query time search helper. Custom index implementations should perform any
@@ -315,10 +309,7 @@ class Index(
   override def searcherFor(command: ReadCommand): Searcher = {
     logger.trace(s"Getting searcher for $command")
     try {
-      new Searcher {
-        override def search(controller: ReadExecutionController): UnfilteredPartitionIterator =
-          service.search(command, controller)
-      }
+      controller => service.search(command, controller)
     } catch {
       case e: Exception =>
         logger.error(s"Error getting searcher for command: $command", e)
@@ -344,9 +335,8 @@ class Index(
 
 }
 
-object Index {
-
-  private val logger = LoggerFactory.getLogger(classOf[Index])
+/** Companion object for [[Index]]. */
+object Index extends Logging {
 
   // Setup CQL query handler
   try {
@@ -355,7 +345,7 @@ object Index {
     val modifiersField = classOf[Field].getDeclaredField("modifiers")
     modifiersField.setAccessible(true)
     modifiersField.setInt(field, field.getModifiers & ~Modifier.FINAL)
-    field.set(null, new IndexQueryHandler());
+    field.set(null, new IndexQueryHandler);
   } catch {
     case e: Exception => logger.error("Unable to set Lucene CQL query handler", e)
   }
