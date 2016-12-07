@@ -17,39 +17,38 @@ package com.stratio.cassandra.lucene.index
 
 import com.stratio.cassandra.lucene.IndexException
 import com.stratio.cassandra.lucene.index.DocumentIterator._
-import com.stratio.cassandra.lucene.util.{TimeCounter, Tracer}
+import com.stratio.cassandra.lucene.util.{Logging, TimeCounter, Tracing}
 import org.apache.cassandra.utils.CloseableIterator
 import org.apache.lucene.document.Document
 import org.apache.lucene.index.Term
 import org.apache.lucene.search.BooleanClause.Occur._
 import org.apache.lucene.search.EarlyTerminatingSortingCollector._
 import org.apache.lucene.search._
-import org.slf4j.LoggerFactory
-
-import scala.collection.JavaConversions._
 
 /** [[CloseableIterator]] for retrieving Lucene documents satisfying a query.
   *
-  * @param manager   the Lucene index searcher manager
-  * @param indexSort the sort of the index
-  * @param querySort the sort in which the documents are going to be retrieved
-  * @param query     the query to be satisfied by the documents
-  * @param limit     the iteration page size
-  * @param fields    the names of the document fields to be loaded
+  * @param searcher        the Lucene index searcher
+  * @param releaseSearcher a function for releasing the searcher
+  * @param indexSort       the sort of the index
+  * @param querySort       the sort in which the documents are going to be retrieved
+  * @param query           the query to be satisfied by the documents
+  * @param limit           the iteration page size
+  * @param fields          the names of the document fields to be loaded
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class DocumentIterator(manager: SearcherManager,
-                       afterTerm: Option[Term],
-                       indexSort: Sort,
-                       querySort: Sort,
-                       query: Query,
-                       limit: Int,
-                       fields: Set[String])
-  extends Iterator[(Document, ScoreDoc)] with AutoCloseable {
+class DocumentIterator(
+    searcher: IndexSearcher,
+    releaseSearcher: () => Unit,
+    afterTerm: Option[Term],
+    indexSort: Sort,
+    querySort: Sort,
+    query: Query,
+    limit: Int,
+    fields: java.util.Set[String])
+  extends Iterator[(Document, ScoreDoc)] with AutoCloseable with Logging with Tracing {
 
   private[this] val pageSize = Math.min(limit, MAX_PAGE_SIZE) + 1
   private[this] val documents = new java.util.LinkedList[(Document, ScoreDoc)]
-  private[this] val searcher = manager.acquire
 
   private[this] var afterOffset = 0
   private[this] var finished = false
@@ -60,33 +59,34 @@ class DocumentIterator(manager: SearcherManager,
     querySort.rewrite(searcher)
   } catch {
     case e: Exception =>
-      manager.release(searcher)
+      releaseSearcher()
       throw new IndexException(e, s"Error rewriting sort $indexSort")
   }
 
   /** The start after position. */
   private[this] var after = try {
-    afterTerm.map(term => {
-      val time = TimeCounter.create.start
-      val builder = new BooleanQuery.Builder
-      builder.add(new TermQuery(term), FILTER)
-      builder.add(query, MUST)
-      val scores = searcher.search(builder.build, 1, sort).scoreDocs
-      if (scores.nonEmpty) {
-        Tracer.trace("Lucene index seeks last index position")
-        logger.debug(s"Start position found in ${time.stop}")
-        scores.head
-      } else throw new IndexException("Last page position not found")
-    })
+    afterTerm.map(
+      term => {
+        val time = TimeCounter.start
+        val builder = new BooleanQuery.Builder
+        builder.add(new TermQuery(term), FILTER)
+        builder.add(query, MUST)
+        val scores = searcher.search(builder.build, 1, sort).scoreDocs
+        if (scores.nonEmpty) {
+          tracer.trace("Lucene index seeks last index position")
+          logger.debug(s"Start position found in $time")
+          scores.head
+        } else throw new IndexException("Last page position not found")
+      })
   } catch {
     case e: Exception =>
-      manager.release(searcher)
+      releaseSearcher()
       throw new IndexException(e, "Error while searching for the last page position")
   }
 
   private[this] def fetch() = {
     try {
-      val time = TimeCounter.create.start
+      val time = TimeCounter.start
 
       val topDocs = if (afterTerm.isEmpty && canEarlyTerminate(sort, indexSort)) {
         val fieldDoc = after.map(_.asInstanceOf[FieldDoc]).orNull
@@ -107,13 +107,13 @@ class DocumentIterator(manager: SearcherManager,
         documents.add((document, scoreDoc))
       }
 
-      Tracer.trace(s"Lucene index fetches $numFetched documents")
-      logger.debug(s"Page fetched with $numFetched documents in ${time.stop}")
+      tracer.trace(s"Lucene index fetches $numFetched documents")
+      logger.debug(s"Page fetched with $numFetched documents in $time")
 
     } catch {
       case e: Exception =>
         close()
-        throw new IndexException(logger, e, s"Error searching with $query and $sort")
+        throw new IndexException(e, s"Error searching with $query and $sort")
     }
     if (finished) close()
   }
@@ -144,15 +144,14 @@ class DocumentIterator(manager: SearcherManager,
 
   /** Closes the [[IndexSearcher]] and any other resources */
   override def close() = {
-    if (!closed) try manager.release(searcher) finally closed = true
+    if (!closed) try releaseSearcher() finally closed = true
   }
 
 }
 
+/** Companion object for [[DocumentIterator]]. */
 object DocumentIterator {
 
-  private val logger = LoggerFactory.getLogger(classOf[DocumentIterator])
-
   /** The max number of rows to be read per iteration. */
-  private val MAX_PAGE_SIZE = 10000
+  val MAX_PAGE_SIZE = 10000
 }

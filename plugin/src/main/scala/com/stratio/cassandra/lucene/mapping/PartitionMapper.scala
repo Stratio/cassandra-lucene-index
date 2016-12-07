@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.key
+package com.stratio.cassandra.lucene.mapping
 
 import java.nio.ByteBuffer
 
-import com.stratio.cassandra.lucene.column.{Column, Columns, ColumnsMapper}
-import com.stratio.cassandra.lucene.key.PartitionMapper._
+import com.stratio.cassandra.lucene.mapping.PartitionMapper._
 import com.stratio.cassandra.lucene.util.ByteBufferUtils
 import org.apache.cassandra.config.{CFMetaData, DatabaseDescriptor}
 import org.apache.cassandra.db.DecoratedKey
-import org.apache.cassandra.db.marshal.CompositeType
 import org.apache.lucene.document.{Document, Field, FieldType}
 import org.apache.lucene.index.{DocValuesType, IndexOptions, IndexableField, Term}
 import org.apache.lucene.search.FieldComparator.TermValComparator
 import org.apache.lucene.search._
 import org.apache.lucene.util.BytesRef
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /** Class for several partition key mappings between Cassandra and Lucene.
   *
@@ -40,27 +38,7 @@ class PartitionMapper(metadata: CFMetaData) {
 
   val partitioner = DatabaseDescriptor.getPartitioner
   val validator = metadata.getKeyValidator
-
-  /** Returns the columns contained in the partition key of the specified row.
-    *
-    * @param key the partition key
-    * @return the columns
-    */
-  def columns(key: DecoratedKey): Columns = {
-
-    val components = validator match {
-      case c: CompositeType => c.split(key.getKey)
-      case _ => Array[ByteBuffer](key.getKey)
-    }
-
-    metadata.partitionKeyColumns.foldLeft(new Columns)(
-      (columns, cd) => {
-        val name = cd.name.toString
-        val value = components(cd.position)
-        val valueType = cd.cellValueType
-        columns.add(Column(name).withValue(ColumnsMapper.compose(value, valueType)))
-      })
-  }
+  val partitionKeyColumns = metadata.partitionKeyColumns.asScala
 
   /** Returns the Lucene indexable field representing to the specified partition key.
     *
@@ -131,6 +109,7 @@ class PartitionMapper(metadata: CFMetaData) {
 
 }
 
+/** Companion object for [[PartitionMapper]]. */
 object PartitionMapper {
 
   /** The Lucene field name. */
@@ -152,19 +131,11 @@ object PartitionMapper {
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 class PartitionSort(mapper: PartitionMapper) extends SortField(
-  FIELD_NAME, new FieldComparatorSource {
-    override def newComparator(
-        field: String,
-        hits: Int,
-        sortPos: Int,
-        reversed: Boolean): FieldComparator[_] = {
-      new TermValComparator(hits, field, false) {
-        override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
-          val bb1 = ByteBufferUtils.byteBuffer(t1)
-          val bb2 = ByteBufferUtils.byteBuffer(t2)
-          mapper.validator.compare(bb1, bb2)
-        }
-      }
+  FIELD_NAME, (field, hits, sortPos, reversed) => new TermValComparator(hits, field, false) {
+    override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
+      val bb1 = ByteBufferUtils.byteBuffer(t1)
+      val bb2 = ByteBufferUtils.byteBuffer(t2)
+      mapper.validator.compare(bb1, bb2)
     }
   }) {
 

@@ -19,13 +19,14 @@ import java.io.File
 import java.nio.file.{Path, Paths}
 
 import com.stratio.cassandra.lucene.IndexOptions._
-import com.stratio.cassandra.lucene.column.ColumnsMapper
+import com.stratio.cassandra.lucene.partitioning.{PartitionerOnNone, Partitioner}
 import com.stratio.cassandra.lucene.schema.{Schema, SchemaBuilder}
+import com.stratio.cassandra.lucene.util.SchemaValidator
 import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db.Directories
 import org.apache.cassandra.schema.IndexMetadata
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /** Index user-specified configuration options parser.
   *
@@ -35,7 +36,7 @@ import scala.collection.JavaConversions._
   */
 class IndexOptions(tableMetadata: CFMetaData, indexMetadata: IndexMetadata) {
 
-  val options: Map[String, String] = indexMetadata.options.toMap
+  val options = indexMetadata.options.asScala.toMap
 
   /** The Lucene index searcher refresh frequency, in seconds */
   val refreshSeconds = parseRefresh(options)
@@ -61,10 +62,14 @@ class IndexOptions(tableMetadata: CFMetaData, indexMetadata: IndexMetadata) {
   /** The mapping schema */
   val schema = parseSchema(options, tableMetadata)
 
+  /** The index partitioner */
+  val partitioner = parsePartitioner(options, tableMetadata)
+
   /** The path of the directory where the index files will be stored */
   val path = parsePath(options, tableMetadata, Some(indexMetadata))
 }
 
+/** Companion object for [[IndexOptions]]. */
 object IndexOptions {
 
   val REFRESH_SECONDS_OPTION = "refresh_seconds"
@@ -93,14 +98,16 @@ object IndexOptions {
 
   val SCHEMA_OPTION = "schema"
 
-  /**
-    * Validates the specified index options.
+  val PARTITIONER_OPTION = "partitioner"
+  val DEFAULT_PARTITIONER = PartitionerOnNone()
+
+  /** Validates the specified index options.
     *
     * @param options  the options to be validated
     * @param metadata the indexed table metadata
     */
   def validate(options: java.util.Map[String, String], metadata: CFMetaData) {
-    val o = options.toMap
+    val o = options.asScala.toMap
     parseRefresh(o)
     parseRamBufferMB(o)
     parseMaxMergeMB(o)
@@ -110,6 +117,7 @@ object IndexOptions {
     parseExcludedDataCenters(o)
     parseSchema(o, metadata)
     parsePath(o, metadata, None)
+    parsePartitioner(o, metadata)
   }
 
   def parseRefresh(options: Map[String, String]): Double = {
@@ -160,15 +168,22 @@ object IndexOptions {
     options.get(SCHEMA_OPTION).map(
       value => try {
         val schema = SchemaBuilder.fromJson(value).build
-        for (mapper <- schema.mappers.values; column <- mapper.mappedColumns) {
-          ColumnsMapper.validate(table, column, mapper.field, mapper.supportedTypes)
-        }
+        SchemaValidator.validate(schema, table)
         schema
       } catch {
-        case e: Exception => throw new IndexException(
-          e,
+        case e: Exception => throw new IndexException(e,
           s"'$SCHEMA_OPTION' is invalid : ${e.getMessage}")
       }).getOrElse(throw new IndexException(s"'$SCHEMA_OPTION' is required"))
+  }
+
+  def parsePartitioner(options: Map[String, String], table: CFMetaData): Partitioner = {
+    options.get(PARTITIONER_OPTION).map(
+      value => try {
+        Partitioner.fromJson(value)
+      } catch {
+        case e: Exception => throw new IndexException(e,
+          s"'$PARTITIONER_OPTION' is invalid : ${e.getMessage}")
+      }).getOrElse(DEFAULT_PARTITIONER)
   }
 
   private def parseInt(options: Map[String, String], name: String, default: Int): Int = {
@@ -208,4 +223,6 @@ object IndexOptions {
         throw new IndexException(s"'$name' must be strictly positive, found: $double")
       }).getOrElse(default)
   }
+
+
 }

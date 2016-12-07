@@ -15,15 +15,15 @@
  */
 package com.stratio.cassandra.lucene.schema.analysis;
 
-import java.io.IOException;
-import java.util.Arrays;
-
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.KeywordAttribute;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.KeywordAttribute;
 import org.tartarus.snowball.SnowballStemmer;
+
+import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Version of {@link org.apache.lucene.analysis.snowball.SnowballFilter} modified to be compatible with
@@ -46,8 +46,8 @@ public final class SnowballFilter extends TokenFilter {
      *
      * @param stream the input tokens stream to be stemmed
      * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
-     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Hungarian and Turkish.
-     * Basque and Catalan.
+     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Hungarian and Turkish. Basque and
+     * Catalan.
      */
     public SnowballFilter(TokenStream stream, String language) {
         super(stream);

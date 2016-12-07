@@ -2,10 +2,17 @@
 
 ## 3.7.4 (Upcoming)
 
-* Show error message when unsupported PER PARTITION LIMIT option is used
+* Optimize columns mapping (improves indexing performance)
+* Add generic support for index partitioning
+* Add token-based index partitioner
+* Upgrade to Scala 2.12.0
+* Avoid not required string interpolations in logging
+* Avoid not required string interpolations in tracing
 * Add support for geospatial shapes in bounding box search
 * Add support for geospatial shapes in distance search
 * Improve performance of needs before write calculation
+* Show error message when unsupported PER PARTITION LIMIT option is used
+* Upgrade all JSON serializers to FasterXML Jackson 2.8.6
 * Fix conflict between Lucene and SASI Snowball stemmer version (#216)
 
 ## 3.7.3 (October 07, 2016)

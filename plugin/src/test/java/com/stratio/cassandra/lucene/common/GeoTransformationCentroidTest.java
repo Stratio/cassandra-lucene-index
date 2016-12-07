@@ -16,13 +16,12 @@
 package com.stratio.cassandra.lucene.common;
 
 import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.stratio.cassandra.lucene.common.GeoTransformation.Centroid;
-import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
+import static com.stratio.cassandra.lucene.common.GeospatialUtilsJTS.geometry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 

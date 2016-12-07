@@ -216,7 +216,7 @@ public final class SchemaBuilders {
      * Returns a new {@link SnowballAnalyzerBuilder} for the specified language and stopwords.
      *
      * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
-     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Hungarian and Turkish.
+     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
      * Basque and Catalan.
      * @param stopwords the comma separated stopwords {@code String} list
      * @return a new snowball analyzer builder

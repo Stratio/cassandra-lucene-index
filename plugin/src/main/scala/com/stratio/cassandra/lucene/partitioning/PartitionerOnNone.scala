@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.util;
+package com.stratio.cassandra.lucene.partitioning
 
-/**
- * Class for building complex objects.
- *
- * @param <T> The type of the object to be built.
- * @author Andres de la Pena {@literal <adelapena@stratio.com>}
- */
-public interface Builder<T> {
+import org.apache.cassandra.db.{DecoratedKey, ReadCommand}
 
-    /**
-     * Returns the object represented by this builder.
-     *
-     * @return the built object
-     */
-    T build();
+/** [[Partitioner]] with no action, equivalent to just don't partitioning the index.
+  *
+  * @author Andres de la Pena `adelapena@stratio.com`
+  */
+case class PartitionerOnNone() extends Partitioner {
+
+  /** @inheritdoc */
+  override def numPartitions: Int = 1
+
+  /** @inheritdoc */
+  override def partition(key: DecoratedKey): Int = 0
+
+  /** @inheritdoc */
+  override def partitions(command: ReadCommand): List[Int] = allPartitions
+
 }

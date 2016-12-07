@@ -15,13 +15,13 @@
  */
 package com.stratio.cassandra.lucene.search.condition.builder;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.common.GeoOperation;
 import com.stratio.cassandra.lucene.common.GeoShape;
 import com.stratio.cassandra.lucene.common.JTSNotFoundException;
 import com.stratio.cassandra.lucene.search.condition.GeoBBoxCondition;
 import com.stratio.cassandra.lucene.search.condition.GeoShapeCondition;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link GeoShapeCondition}.

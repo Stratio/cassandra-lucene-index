@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.key
+package com.stratio.cassandra.lucene.mapping
 
 import java.nio.ByteBuffer
 
-import com.stratio.cassandra.lucene.key.KeyMapper.FIELD_NAME
+import com.stratio.cassandra.lucene.mapping.KeyMapper.FIELD_NAME
 import com.stratio.cassandra.lucene.util.ByteBufferUtils
 import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter
@@ -29,7 +29,7 @@ import org.apache.lucene.search.BooleanClause.Occur.SHOULD
 import org.apache.lucene.search.{BooleanQuery, Query, TermQuery}
 import org.apache.lucene.util.BytesRef
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /** Class for several primary key mappings between Cassandra and Lucene.
   *
@@ -47,14 +47,13 @@ class KeyMapper(metadata: CFMetaData) {
   /** The type of the primary key, which is composed by token and clustering key types. */
   val keyType = CompositeType.getInstance(metadata.getKeyValidator, clusteringType)
 
-  /**
-    * Returns a [[ByteBuffer]] representing the specified clustering key
+  /** Returns a [[ByteBuffer]] representing the specified clustering key
     *
     * @param clustering the clustering key
     * @return the byte buffer representing `clustering`
     */
   private def byteBuffer(clustering: Clustering): ByteBuffer = {
-    clustering.getRawValues.foldLeft(clusteringType.builder)(_ add _).build
+    (clusteringType.builder /: clustering.getRawValues) (_ add _) build()
   }
 
   /** Returns the Lucene [[IndexableField]] representing the specified primary key.
@@ -98,12 +97,13 @@ class KeyMapper(metadata: CFMetaData) {
     * @return the Lucene query
     */
   def query(key: DecoratedKey, filter: ClusteringIndexNamesFilter): Query = {
-    filter.requestedRows.foldLeft(new BooleanQuery.Builder)(
-      (b, c) => b.add(query(key, c), SHOULD)).build
+    (new BooleanQuery.Builder /: filter.requestedRows.asScala) (
+      (builder, clustering) => builder.add(query(key, clustering), SHOULD)) build()
   }
 
 }
 
+/** Companion object for [[KeyMapper]]. */
 object KeyMapper {
 
   /** The Lucene field name. */

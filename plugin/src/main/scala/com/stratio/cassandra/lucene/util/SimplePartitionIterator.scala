@@ -18,12 +18,12 @@ package com.stratio.cassandra.lucene.util
 import org.apache.cassandra.db.partitions.PartitionIterator
 import org.apache.cassandra.db.rows.RowIterator
 
-/** [[PartitionIterator]] composed by a list of [[SimpleRowIterator]]s.
+/** [[PartitionIterator]] composed by a list of [[SingleRowIterator]]s.
   *
   * @param rows the rows to be iterated
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class SimplePartitionIterator(rows: Seq[SimpleRowIterator]) extends PartitionIterator {
+class SimplePartitionIterator(rows: Seq[SingleRowIterator]) extends PartitionIterator {
 
   private[this] val iterator = rows.iterator
 

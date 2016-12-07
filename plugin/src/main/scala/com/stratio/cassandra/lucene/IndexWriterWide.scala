@@ -15,14 +15,14 @@
  */
 package com.stratio.cassandra.lucene
 
-import com.stratio.cassandra.lucene.util.Tracer
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.db.{Clustering, DecoratedKey}
 import org.apache.cassandra.index.transactions.IndexTransaction
+import org.apache.cassandra.index.transactions.IndexTransaction.Type._
 import org.apache.cassandra.utils.concurrent.OpOrder
 
-import scala.collection.JavaConversions._
-import java.{util => java}
+import scala.collection.JavaConverters._
+
 
 /** [[IndexWriter]] for wide rows.
   *
@@ -33,20 +33,24 @@ import java.{util => java}
   * @param transactionType what kind of update is being performed on the base data
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class IndexWriterWide(service: IndexServiceWide,
-                      key: DecoratedKey,
-                      nowInSec: Int,
-                      opGroup: OpOrder.Group,
-                      transactionType: IndexTransaction.Type)
+class IndexWriterWide(
+    service: IndexServiceWide,
+    key: DecoratedKey,
+    nowInSec: Int,
+    opGroup: OpOrder.Group,
+    transactionType: IndexTransaction.Type)
   extends IndexWriter(service, key, nowInSec, opGroup, transactionType) {
 
-  private val rowsToRead = new java.TreeSet[Clustering](service.metadata.comparator)
-  private val rows = new java.LinkedHashMap[Clustering, Option[Row]]
+  /** The clustering keys of the rows needing read before write. */
+  private val clusterings = new java.util.TreeSet[Clustering](metadata.comparator)
+
+  /** The rows ready to be written. */
+  private val rows = new java.util.TreeMap[Clustering, Row](metadata.comparator)
 
   /** @inheritdoc */
   override def delete() {
     service.delete(key)
-    rowsToRead.clear()
+    clusterings.clear()
     rows.clear()
   }
 
@@ -55,12 +59,11 @@ class IndexWriterWide(service: IndexServiceWide,
     if (!row.isStatic) {
       val clustering = row.clustering
       if (service.needsReadBeforeWrite(key, row)) {
-        Tracer.trace("Lucene index doing read before write")
-        rowsToRead.add(clustering)
-        rows.put(clustering, None)
+        tracer.trace("Lucene index doing read before write")
+        clusterings.add(clustering)
       } else {
-        Tracer.trace("Lucene index skipping read before write")
-        rows.put(clustering, Some(row))
+        tracer.trace("Lucene index skipping read before write")
+        rows.put(clustering, row)
       }
     }
   }
@@ -69,26 +72,24 @@ class IndexWriterWide(service: IndexServiceWide,
   override def finish() {
 
     // Skip on cleanups
-    if (transactionType == IndexTransaction.Type.CLEANUP) return
+    if (transactionType == CLEANUP) return
 
     // Read required rows from storage engine
-    service.read(key, rowsToRead, nowInSec).foreach(unfiltered => {
-      val row = unfiltered.asInstanceOf[Row]
-      rows.put(row.clustering(), Some(row))
-    })
+    read(key, clusterings)
+      .asScala
+      .map(_.asInstanceOf[Row])
+      .foreach(row => rows.put(row.clustering(), row))
 
     // Write rows
-    for ((clustering, maybeRow) <- rows) {
-      maybeRow.foreach(row => {
-        if (row.hasLiveData(nowInSec)) {
-          Tracer.trace("Lucene index writing document")
-          service.upsert(key, row, nowInSec)
-        } else {
-          Tracer.trace("Lucene index deleting document")
-          service.delete(key, row)
-        }
-      })
-    }
+    rows.forEach((clustering, row) => {
+      if (row.hasLiveData(nowInSec)) {
+        tracer.trace("Lucene index writing document")
+        service.upsert(key, row, nowInSec)
+      } else {
+        tracer.trace("Lucene index deleting document")
+        service.delete(key, clustering)
+      }
+    })
   }
 
 }

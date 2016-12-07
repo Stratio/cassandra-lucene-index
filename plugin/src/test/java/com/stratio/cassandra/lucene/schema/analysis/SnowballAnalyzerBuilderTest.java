@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.schema.analysis;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
+import com.stratio.cassandra.lucene.common.JsonSerializer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;

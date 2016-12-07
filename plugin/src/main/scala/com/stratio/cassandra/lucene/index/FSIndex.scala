@@ -17,14 +17,12 @@ package com.stratio.cassandra.lucene.index
 
 import java.nio.file.Path
 
-import com.stratio.cassandra.lucene.index.FSIndex._
 import org.apache.cassandra.io.util.FileUtils
 import org.apache.lucene.analysis.Analyzer
 import org.apache.lucene.document.Document
 import org.apache.lucene.index._
 import org.apache.lucene.search._
 import org.apache.lucene.store.{Directory, FSDirectory, NRTCachingDirectory}
-import org.slf4j.LoggerFactory
 
 /** Class wrapping a Lucene file system-based directory and its readers, writers and searchers.
   *
@@ -37,16 +35,17 @@ import org.slf4j.LoggerFactory
   * @param maxCachedMB    the directory max cache size in MB
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class FSIndex(name: String,
-              path: Path,
-              analyzer: Analyzer,
-              refreshSeconds: Double,
-              ramBufferMB: Int,
-              maxMergeMB: Int,
-              maxCachedMB: Int) {
+class FSIndex(
+    name: String,
+    path: Path,
+    analyzer: Analyzer,
+    refreshSeconds: Double,
+    ramBufferMB: Int,
+    maxMergeMB: Int,
+    maxCachedMB: Int) {
 
   private[this] var mergeSort: Sort = _
-  private[this] var fields: Set[String] = _
+  private[this] var fields: java.util.Set[String] = _
   private[this] var directory: Directory = _
   private[this] var writer: IndexWriter = _
   private[this] var manager: SearcherManager = _
@@ -57,7 +56,7 @@ class FSIndex(name: String,
     * @param mergeSort the sort to be applied to the index during merges
     * @param fields    the names of the document fields to be loaded
     */
-  def init(mergeSort: Sort, fields: Set[String]) {
+  def init(mergeSort: Sort, fields: java.util.Set[String]) {
     this.mergeSort = mergeSort
     this.fields = fields
 
@@ -73,7 +72,7 @@ class FSIndex(name: String,
     writer = new IndexWriter(directory, indexWriterConfig)
 
     // Setup NRT search
-    val searcherFactory: SearcherFactory = new SearcherFactory() {
+    val searcherFactory: SearcherFactory = new SearcherFactory {
       override def newSearcher(reader: IndexReader, previousReader: IndexReader): IndexSearcher = {
         val searcher = new IndexSearcher(reader)
         searcher.setSimilarity(new NoIDFSimilarity)
@@ -99,7 +98,6 @@ class FSIndex(name: String,
     * @param document the document to be added
     */
   def upsert(term: Term, document: Document) {
-    logger.debug(s"Indexing $document with term $term in $name")
     writer.updateDocument(term, document)
   }
 
@@ -108,7 +106,6 @@ class FSIndex(name: String,
     * @param term the term identifying the documents to be deleted
     */
   def delete(term: Term) {
-    logger.debug(s"Deleting $term from $name")
     writer.deleteDocuments(term)
   }
 
@@ -117,7 +114,6 @@ class FSIndex(name: String,
     * @param query the query identifying the documents to be deleted
     */
   def delete(query: Query) {
-    logger.debug(s"Deleting $query from $name")
     writer.deleteDocuments(query)
   }
 
@@ -125,30 +121,26 @@ class FSIndex(name: String,
   def truncate() {
     writer.deleteAll()
     writer.commit()
-    logger.info(s"Truncated $name")
   }
 
   /** Commits the pending changes. */
   def commit() {
     writer.commit()
-    logger.debug(s"Committed $name")
   }
 
   /** Commits all changes to the index, waits for pending merges to complete, and closes all
     * associated resources.
     */
   def close() {
-    reopener.interrupt()
+    reopener.close()
     manager.close()
     writer.close()
     directory.close()
-    logger.info(s"Closed $name")
   }
 
   /** Closes the index and removes all its files. */
   def delete() {
     try close() finally FileUtils.deleteRecursive(path.toFile)
-    logger.info(s"Deleted $name")
   }
 
   /** Finds the top hits for a query and sort, starting from an optional position.
@@ -160,14 +152,15 @@ class FSIndex(name: String,
     * @return the found documents, sorted according to the supplied [[Sort]] instance
     */
   def search(after: Option[Term], query: Query, sort: Sort, count: Int): DocumentIterator = {
-    logger.debug(
-      s"""Searching in $name
-          | after: $after
-          | query: $query
-          | count: $count
-          | sort :  $sort
-       """.stripMargin)
-    new DocumentIterator(manager, after, mergeSort, sort, query, count, fields)
+    val searcher = manager.acquire()
+    val releaseSearcher = () => manager.release(searcher)
+    new DocumentIterator(searcher, releaseSearcher, after, mergeSort, sort, query, count, fields)
+  }
+
+  def searcher: (IndexSearcher, () => Unit) = {
+    val searcher = manager.acquire()
+    val releaseSearcher = () => manager.release(searcher)
+    (searcher, releaseSearcher)
   }
 
   /** Returns the total number of documents in this index.
@@ -175,7 +168,6 @@ class FSIndex(name: String,
     * @return the number of documents
     */
   def getNumDocs: Int = {
-    logger.debug(s"Getting $name num docs")
     doWithSearcher(searcher => searcher.getIndexReader.numDocs)
   }
 
@@ -184,7 +176,6 @@ class FSIndex(name: String,
     * @return the number of deleted documents
     */
   def getNumDeletedDocs: Int = {
-    logger.debug(s"Getting $name num deleted docs")
     doWithSearcher(searcher => searcher.getIndexReader.numDeletedDocs)
   }
 
@@ -195,10 +186,8 @@ class FSIndex(name: String,
     * @param doWait         `true` if the call should block until the operation completes
     */
   def forceMerge(maxNumSegments: Int, doWait: Boolean) {
-    logger.info(s"Merging $name segments to $maxNumSegments")
     writer.forceMerge(maxNumSegments, doWait)
     writer.commit()
-    logger.info(s"Merged $name segments to $maxNumSegments")
   }
 
   /** Optimizes the index forcing merge of all segments that have deleted documents.
@@ -207,22 +196,18 @@ class FSIndex(name: String,
     * @param doWait `true` if the call should block until the operation completes
     */
   def forceMergeDeletes(doWait: Boolean) {
-    logger.info(s"Merging $name segments with deletions")
     writer.forceMergeDeletes(doWait)
     writer.commit()
-    logger.info(s"Merged $name segments with deletions")
   }
 
   /** Refreshes the index readers. */
   def refresh() {
     manager.maybeRefreshBlocking()
-    logger.debug(s"Refreshed $name readers")
   }
 }
 
+/** Companion object for [[FSIndex]]. */
 object FSIndex {
-
-  private val logger = LoggerFactory.getLogger(classOf[FSIndex])
 
   // Disable max boolean query clauses limit
   BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE)

@@ -52,6 +52,7 @@ public class BuilderTest {
                                                    .indexingThreads(4)
                                                    .indexingQueuesSize(100)
                                                    .excludedDataCenters("DC1,DC2")
+                                                   .partitioner(partitionerOnToken(8))
                                                    .defaultAnalyzer("my_analyzer")
                                                    .analyzer("my_analyzer", classpathAnalyzer("my_class"))
                                                    .analyzer("snow", snowballAnalyzer("tartar").stopwords("a,b,c"))
@@ -60,15 +61,37 @@ public class BuilderTest {
                                                    .build();
         String expected = "CREATE CUSTOM INDEX idx ON keyspace.table(lucene) " +
                           "USING 'com.stratio.cassandra.lucene.Index' " +
-                          "WITH OPTIONS = {'refresh_seconds':'10.0','directory_path':'path','ram_buffer_mb':'64'," +
-                          "'max_merge_mb':'16','max_cached_mb':'32','indexing_threads':'4'," +
-                          "'indexing_queues_size':'100','excluded_data_centers':'DC1,DC2','schema':'{" +
+                          "WITH OPTIONS = {" +
+                          "'refresh_seconds':'10.0'," +
+                          "'directory_path':'path'," +
+                          "'ram_buffer_mb':'64'," +
+                          "'max_merge_mb':'16'," +
+                          "'max_cached_mb':'32'," +
+                          "'indexing_threads':'4'," +
+                          "'indexing_queues_size':'100'," +
+                          "'excluded_data_centers':'DC1,DC2'," +
+                          "'partitioner':'{\"type\":\"token\",\"partitions\":8}'," +
+                          "'schema':'{" +
                           "\"default_analyzer\":\"my_analyzer\",\"analyzers\":{" +
                           "\"my_analyzer\":{\"type\":\"classpath\",\"class\":\"my_class\"}," +
                           "\"snow\":{\"type\":\"snowball\",\"language\":\"tartar\",\"stopwords\":\"a,b,c\"}}," +
                           "\"fields\":{" +
                           "\"uuid\":{\"type\":\"uuid\",\"validated\":true},\"string\":{\"type\":\"string\"}}}'}";
         assertEquals("index serialization is wrong", expected, actual);
+    }
+
+    @Test
+    public void testNonePartitioner() {
+        String actual = nonePartitioner().build();
+        String expected = "{\"type\":\"none\"}";
+        assertEquals("none partitioner serialization is wrong", expected, actual);
+    }
+
+    @Test
+    public void testTokenPartitioner() {
+        String actual = partitionerOnToken(6).build();
+        String expected = "{\"type\":\"token\",\"partitions\":6}";
+        assertEquals("token partitioner serialization is wrong", expected, actual);
     }
 
     @Test

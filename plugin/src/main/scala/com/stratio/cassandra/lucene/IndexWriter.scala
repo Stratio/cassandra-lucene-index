@@ -15,12 +15,13 @@
  */
 package com.stratio.cassandra.lucene
 
-import org.apache.cassandra.db.rows.Row
-import org.apache.cassandra.db.{DecoratedKey, DeletionTime, RangeTombstone}
+import com.stratio.cassandra.lucene.util.{Logging, Tracing}
+import org.apache.cassandra.db._
+import org.apache.cassandra.db.filter.{ClusteringIndexNamesFilter, ColumnFilter}
+import org.apache.cassandra.db.rows.{Row, UnfilteredRowIterator}
+import org.apache.cassandra.index.Index.Indexer
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
-import org.slf4j.LoggerFactory
-import org.apache.cassandra.index.Index.Indexer
 
 /** [[Indexer]] for Lucene-based index.
   *
@@ -31,42 +32,44 @@ import org.apache.cassandra.index.Index.Indexer
   * @param transactionType what kind of update is being performed on the base data
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-abstract class IndexWriter(service: IndexService,
-                           key: DecoratedKey,
-                           nowInSec: Int,
-                           opGroup: OpOrder.Group,
-                           transactionType: IndexTransaction.Type) extends Indexer {
+abstract class IndexWriter(
+    service: IndexService,
+    key: DecoratedKey,
+    nowInSec: Int,
+    opGroup: OpOrder.Group,
+    transactionType: IndexTransaction.Type) extends Indexer with Logging with Tracing {
 
-  protected val logger = LoggerFactory.getLogger(classOf[IndexWriter])
+  val metadata = service.metadata
+  val table = service.table
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def begin() {
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def partitionDelete(deletionTime: DeletionTime) {
     logger.trace(s"Delete partition during $transactionType: $deletionTime")
     delete()
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def rangeTombstone(tombstone: RangeTombstone) {
     logger.trace(s"Range tombstone during $transactionType: $tombstone")
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def insertRow(row: Row): Unit = {
     logger.trace(s"Insert rows during $transactionType: $row")
     index(row)
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def updateRow(oldRowData: Row, newRowData: Row): Unit = {
     logger.trace(s"Update row during $transactionType: $oldRowData TO $newRowData")
     index(newRowData)
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def removeRow(row: Row): Unit = {
     logger.trace(s"Remove row during $transactionType: $row")
     index(row)
@@ -80,4 +83,37 @@ abstract class IndexWriter(service: IndexService,
     * @param row the row to be indexed.
     */
   protected def index(row: Row)
+
+  /** Retrieves from the local storage all the rows in the specified partition.
+    *
+    * @param key the partition key
+    * @return a row iterator
+    */
+  protected def read(key: DecoratedKey): UnfilteredRowIterator = {
+    read(SinglePartitionReadCommand.fullPartitionRead(metadata, nowInSec, key))
+  }
+
+  /** Retrieves from the local storage the rows in the specified partition slice.
+    *
+    * @param key         the partition key
+    * @param clusterings the clustering keys
+    * @return a row iterator
+    */
+  protected def read(key: DecoratedKey, clusterings: java.util.NavigableSet[Clustering])
+  : UnfilteredRowIterator = {
+    val filter = new ClusteringIndexNamesFilter(clusterings, false)
+    val columnFilter = ColumnFilter.all(metadata)
+    read(SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter))
+  }
+
+  /** Retrieves from the local storage the rows satisfying the specified read command.
+    *
+    * @param command a single partition read command
+    * @return a row iterator
+    */
+  protected def read(command: SinglePartitionReadCommand): UnfilteredRowIterator = {
+    val controller = command.executionController
+    try command.queryMemtableAndDisk(table, controller) finally controller.close()
+  }
+
 }
