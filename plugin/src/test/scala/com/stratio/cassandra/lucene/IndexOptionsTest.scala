@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene
 
 import com.stratio.cassandra.lucene.IndexOptions._
+import com.stratio.cassandra.lucene.partitioning.{PartitionerOnNone, PartitionerOnToken}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -248,6 +249,22 @@ class IndexOptionsTest extends BaseScalaTest {
   test("parse excluded data centers option with multiple list and spaces") {
     val options = Map(EXCLUDED_DATA_CENTERS_OPTION -> " dc1 , dc2 ")
     parseExcludedDataCenters(options) shouldBe List("dc1", "dc2")
+  }
+
+  // Partitioner option tests
+
+  test("parse partitioner option with default") {
+    parsePartitioner(Map(), null) shouldBe DEFAULT_PARTITIONER
+  }
+
+  test("parse partitioner with none partitioner") {
+    val json = "{type:\"none\"}"
+    parsePartitioner(Map(PARTITIONER_OPTION -> json), null) shouldBe PartitionerOnNone()
+  }
+
+  test("parse partitioner with token partitioner") {
+    val json = "{type:\"token\", partitions: 10}"
+    parsePartitioner(Map(PARTITIONER_OPTION -> json), null) shouldBe PartitionerOnToken(10)
   }
 
 }

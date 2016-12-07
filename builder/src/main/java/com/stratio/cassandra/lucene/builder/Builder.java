@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.builder;
 import com.stratio.cassandra.lucene.builder.common.GeoShape;
 import com.stratio.cassandra.lucene.builder.common.GeoTransformation;
 import com.stratio.cassandra.lucene.builder.index.Index;
+import com.stratio.cassandra.lucene.builder.index.Partitioner;
 import com.stratio.cassandra.lucene.builder.index.schema.Schema;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.ClasspathAnalyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.SnowballAnalyzer;
@@ -754,5 +755,33 @@ public abstract class Builder {
      */
     public static GeoShape.Union union(String... shapes) {
         return union(Stream.of(shapes).map(Builder::wkt).collect(Collectors.toList()));
+    }
+
+    /**
+     * Returns a new {@link Partitioner.None} to not partitioning the index.
+     *
+     * Index partitioning is useful to speed up some queries to the detriment of others, depending on the implementation.
+     * It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
+     *
+     * @return a new no-action partitioning, equivalent to just don't partitioning the index
+     */
+    public static Partitioner nonePartitioner() {
+        return new Partitioner.None();
+    }
+
+    /**
+     * Returns a new {@link Partitioner.OnToken} to split the index in {@code numPartitions} based on the row token.
+     *
+     * Index partitioning is useful to speed up some queries to the detriment of others, depending on the implementation.
+     * It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
+     *
+     * Partitioning on token guarantees a good load balancing between partitions while speeding up partition-directed
+     * searches to the detriment of token range searches.
+     *
+     * @param numPartitions the number of partitions
+     * @return a new partitioner based on Cassandra's partitioning token
+     */
+    public static Partitioner partitionerOnToken(int numPartitions) {
+        return new Partitioner.OnToken(numPartitions);
     }
 }

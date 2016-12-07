@@ -3,6 +3,8 @@
 ## 3.0.10.1 (Upcoming)
 
 * Optimize columns mapping (improves indexing performance)
+* Add generic support for index partitioning
+* Add token-based index partitioner
 
 ## 3.0.10.0 (January 09, 2017)
 

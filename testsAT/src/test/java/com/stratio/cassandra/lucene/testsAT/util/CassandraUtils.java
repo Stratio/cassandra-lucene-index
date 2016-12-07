@@ -256,7 +256,8 @@ public class CassandraUtils {
     public CassandraUtils createIndex() {
         Index index = index(keyspace, table, indexName).column(indexColumn)
                                                        .refreshSeconds(REFRESH)
-                                                       .indexingThreads(THREADS);
+                                                       .indexingThreads(THREADS)
+                                                       .partitioner(PARTITIONER);
         mappers.forEach(index::mapper);
         analyzers.forEach(index::analyzer);
         execute(index.build());

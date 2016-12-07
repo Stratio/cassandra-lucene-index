@@ -18,7 +18,7 @@ package com.stratio.cassandra.lucene
 import java.lang.management.ManagementFactory
 import javax.management.{JMException, ObjectName}
 
-import com.stratio.cassandra.lucene.index.{DocumentIterator, FSIndex}
+import com.stratio.cassandra.lucene.index.{DocumentIterator, PartitionedIndex}
 import com.stratio.cassandra.lucene.mapping._
 import com.stratio.cassandra.lucene.search.Search
 import com.stratio.cassandra.lucene.util._
@@ -70,7 +70,9 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
 
   // Setup FS index and write queue
   val queue = TaskQueue.build(options.indexingThreads, options.indexingQueuesSize)
-  val lucene = new FSIndex(
+  val partitioner = options.partitioner
+  val lucene = new PartitionedIndex(
+    partitioner.numPartitions,
     idxName,
     options.path,
     options.schema.analyzer,
@@ -214,17 +216,18 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   def upsert(key: DecoratedKey, row: Row, nowInSec: Int) {
     queue.submitAsynchronous(
       key, () => {
+        val partition = partitioner.partition(key)
         val clustering = row.clustering()
         val term = this.term(key, clustering)
         val columns = columnsMapper.columns(key, row, nowInSec)
         val fields = schema.indexableFields(columns)
         if (fields.isEmpty) {
-          lucene.delete(term)
+          lucene.delete(partition, term)
         } else {
           val doc = new Document
           keyIndexableFields(key, clustering).foreach(doc.add)
           fields.forEach(doc add _)
-          lucene.upsert(term, doc)
+          lucene.upsert(partition, term, doc)
         }
       })
   }
@@ -235,7 +238,11 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param clustering the clustering key
     */
   def delete(key: DecoratedKey, clustering: Clustering) {
-    queue.submitAsynchronous(key, () => lucene.delete(term(key, clustering)))
+    queue.submitAsynchronous(key, () => {
+      val partition = partitioner.partition(key)
+      val term = this.term(key, clustering)
+      lucene.delete(partition, term)
+    })
   }
 
   /** Deletes the partition identified by the specified key.
@@ -243,7 +250,11 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param key the partition key
     */
   def delete(key: DecoratedKey) {
-    queue.submitAsynchronous(key, () => lucene.delete(term(key)))
+    queue.submitAsynchronous(key, () => {
+      val partition = partitioner.partition(key)
+      val term = this.term(key)
+      lucene.delete(partition, term)
+    })
   }
 
   /** Returns a new index searcher for the specified read command.
@@ -256,10 +267,10 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     // Parse search
     tracer.trace("Building Lucene search")
     val search = expressionMapper.search(command)
-    val q = search.query(schema, query(command).orNull)
-    val a = after(search.paging, command)
-    val s = sort(search)
-    val n = command.limits.count
+    val query = search.query(schema, this.query(command).orNull)
+    val after = this.after(search.paging, command)
+    val sort = this.sort(search)
+    val count = command.limits.count
 
     // Refresh if required
     if (search.refresh) {
@@ -268,8 +279,9 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     }
 
     // Search
-    tracer.trace(s"Lucene index searching for $n rows")
-    val documents = lucene.search(a, q, s, n)
+    tracer.trace(s"Lucene index searching for $count rows")
+    val partitions = partitioner.partitions(command)
+    val documents = lucene.search(partitions, after, query, sort, count)
     reader(documents, command, orderGroup)
   }
 
@@ -360,12 +372,12 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   }
 
   /** @inheritdoc */
-  override def getNumDocs: Int = {
+  override def getNumDocs: Long = {
     lucene.getNumDocs
   }
 
   /** @inheritdoc */
-  override def getNumDeletedDocs: Int = {
+  override def getNumDeletedDocs: Long = {
     lucene.getNumDeletedDocs
   }
 
