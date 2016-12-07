@@ -1,4 +1,4 @@
-@Library('libpipelines@feature/multibranch') _
+@Library('libpipelines@master') _
 
 hose {
     EMAIL = 'cassandra'
