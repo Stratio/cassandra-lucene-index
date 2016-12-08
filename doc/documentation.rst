@@ -597,7 +597,8 @@ Partitioners
 Lucene indexes can be partitioned on a per-node basis. This means that the local index in each node
 can be split in multiple smaller fragments. Index partitioning is useful to speed up some searches
 to the detriment of others, depending on the implementation. It is also useful to overcome the
-Lucene's hard limit of 2147483519 documents per local index.
+Lucene's hard limit of 2147483519 documents per local index. However, queries involving partitions
+with more than 2147483519 total documents will still fail.
 
 Partitioning is disabled by default, and it can be activated specifying a partitioner implementation
 in the index creation statement.
@@ -625,8 +626,10 @@ Token partitioner
 _________________
 
 A partitioner based on the partition key token. Partitioning on token guarantees a good load
-balancing between partitions while speeding up partition-directed searches to the detriment of any
-other searches. The number of partitions per node should be specified.
+balancing between partitions while speeding up partition-directed searches to the detriment of token
+range searches performance. It allows to efficiently run partition directed queries in nodes
+indexing more than 2147483519 rows. However, token range searches in nodes with more than 2147483519
+rows will fail. The number of partitions per node should be specified.
 
 .. code-block:: sql
 

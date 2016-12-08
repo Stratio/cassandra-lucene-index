@@ -20,10 +20,12 @@ import com.stratio.cassandra.lucene.IndexException
 import org.apache.cassandra.db._
 import org.apache.cassandra.dht.Token
 
-/** [[Partitioner]] based on the partition key token.
+/** [[Partitioner]] partitioner based on the partition key token.
   *
   * Partitioning on token guarantees a good load balancing between partitions while speeding up
-  * partition-directed searches to the detriment of token range searches.
+  * partition-directed searches to the detriment of token range searches performance. It allows to
+  * efficiently run partition directed queries in nodes indexing more than 2147483519 rows. However,
+  * token range searches in nodes with more than 2147483519 rows will fail.
   *
   * @param partitions the number of partitions
   * @author Andres de la Pena `adelapena@stratio.com`

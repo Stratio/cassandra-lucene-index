@@ -24,7 +24,8 @@ import org.apache.cassandra.db.{DecoratedKey, ReadCommand}
   * Index partitioning is useful to speed up some searches to the detriment of others, depending on
   * the implementation.
   *
-  * It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
+  * It is also useful to overcome the  Lucene's hard limit of 2147483519 documents per local index.
+  * However, queries involving partitions with more than 2147483519 total documents will still fail.
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
