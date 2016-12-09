@@ -22,7 +22,7 @@ import com.stratio.cassandra.lucene.BaseScalaTest._
 import org.apache.cassandra.db.marshal.CompositeType
 import org.apache.cassandra.dht.Murmur3Partitioner
 
-/** Tests for [[PartitionerOnToken]].
+/** Tests for [[PartitionerOnColumn]].
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */

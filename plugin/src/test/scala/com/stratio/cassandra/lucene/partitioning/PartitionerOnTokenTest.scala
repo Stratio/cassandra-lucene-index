@@ -35,7 +35,8 @@ class PartitionerOnTokenTest extends PartitionerTest {
   }
 
   test("parse JSON") {
-    Partitioner.fromJson("{type:\"token\", partitions: 10}") shouldBe PartitionerOnToken.Builder(10)
+    val json = "{type:\"token\", partitions: 10}"
+    Partitioner.fromJson(json) shouldBe PartitionerOnToken.Builder(10)
   }
 
   test("num partitions") {
