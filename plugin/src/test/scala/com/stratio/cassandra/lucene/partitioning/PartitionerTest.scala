@@ -27,7 +27,7 @@ import org.apache.cassandra.dht.Murmur3Partitioner
 class PartitionerTest extends BaseScalaTest {
 
   test("parse default") {
-    Partitioner.fromJson("{}") shouldBe PartitionerOnNone()
+    Partitioner.fromJson(null, "{}") shouldBe PartitionerOnNone()
   }
 
   test("num partitions wiht none partitioner") {

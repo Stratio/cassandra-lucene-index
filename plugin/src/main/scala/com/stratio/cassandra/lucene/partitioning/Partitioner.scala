@@ -17,7 +17,8 @@ package com.stratio.cassandra.lucene.partitioning
 
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.stratio.cassandra.lucene.common.JsonSerializer
-import org.apache.cassandra.db.{DecoratedKey, ReadCommand}
+import org.apache.cassandra.config.CFMetaData
+import org.apache.cassandra.db.{Clustering, DecoratedKey, ReadCommand}
 
 /** Class defining an index partitioning strategy.
   *
@@ -29,14 +30,6 @@ import org.apache.cassandra.db.{DecoratedKey, ReadCommand}
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-@JsonTypeInfo(
-  use = JsonTypeInfo.Id.NAME,
-  include = JsonTypeInfo.As.PROPERTY,
-  property = "type",
-  defaultImpl = classOf[PartitionerOnNone])
-@JsonSubTypes(Array(
-  new JsonSubTypes.Type(value = classOf[PartitionerOnNone], name = "none"),
-  new JsonSubTypes.Type(value = classOf[PartitionerOnToken], name = "token")))
 trait Partitioner {
 
   /** Returns the number of partitions. */
@@ -45,7 +38,7 @@ trait Partitioner {
   /** Returns all the partitions. */
   def allPartitions: List[Int] = (0 until numPartitions).toList
 
-  /** Returns the partition for the specified key.
+  /** Returns the partition for the specified partition key.
     *
     * @param key a partition key to be routed to a partition
     * @return the partition owning `key`
@@ -69,7 +62,22 @@ object Partitioner {
     * @param json a JSON string representing a [[Partitioner]]
     * @return the partitioner represented by `json`
     */
-  def fromJson(json: String): Partitioner =
-    JsonSerializer.fromString(json, classOf[Partitioner])
+  def fromJson(metadata: CFMetaData, json: String): Partitioner =
+    JsonSerializer.fromString(json, classOf[Partitioner.Builder]).build(metadata)
+
+  @JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "type",
+    defaultImpl = classOf[PartitionerOnNone.Builder])
+  @JsonSubTypes(Array(
+    new JsonSubTypes.Type(value = classOf[PartitionerOnNone.Builder], name = "none"),
+    new JsonSubTypes.Type(value = classOf[PartitionerOnToken.Builder], name = "token"),
+    new JsonSubTypes.Type(value = classOf[PartitionerOnColumn.Builder], name = "column")))
+  trait Builder {
+
+    def build(metadata: CFMetaData): Partitioner
+
+  }
 
 }

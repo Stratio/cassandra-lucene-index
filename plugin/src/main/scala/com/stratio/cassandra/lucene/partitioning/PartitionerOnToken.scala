@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.partitioning
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.stratio.cassandra.lucene.IndexException
+import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db._
 import org.apache.cassandra.dht.Token
 
@@ -30,22 +31,22 @@ import org.apache.cassandra.dht.Token
   * @param partitions the number of partitions
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-case class PartitionerOnToken(@JsonProperty("partitions") partitions: Int) extends Partitioner {
+case class PartitionerOnToken(partitions: Int) extends Partitioner {
 
   if (partitions <= 0) throw new IndexException(
     s"The number of partitions should be strictly positive but found $partitions")
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   private[this] def partition(token: Token): Int =
     (Math.abs(token.getTokenValue.asInstanceOf[Long]) % partitions).toInt
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def numPartitions: Int = partitions
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def partition(key: DecoratedKey): Int = partition(key.getToken)
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def partitions(command: ReadCommand): List[Int] = command match {
     case c: SinglePartitionReadCommand => List(partition(c.partitionKey))
     case c: PartitionRangeReadCommand =>
@@ -54,6 +55,19 @@ case class PartitionerOnToken(@JsonProperty("partitions") partitions: Int) exten
       val stop = range.stopKey().getToken
       if (start.equals(stop) && !start.isMinimum) List(partition(start)) else allPartitions
     case _ => throw new IndexException(s"Unsupported read command type: ${command.getClass}")
+  }
+
+}
+
+/** Companion obejct for [[PartitionerOnToken]]. */
+object PartitionerOnToken {
+
+  /** [[PartitionerOnToken]] builder.
+    *
+    * @param partitions the number of partitions
+    */
+  class Builder(@JsonProperty("partitions") partitions: Int) extends Partitioner.Builder {
+    override def build(metadata: CFMetaData): PartitionerOnToken = PartitionerOnToken(partitions)
   }
 
 }

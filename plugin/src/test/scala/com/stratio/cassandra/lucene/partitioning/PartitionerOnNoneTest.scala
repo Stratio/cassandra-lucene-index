@@ -26,7 +26,7 @@ import org.scalatest.junit.JUnitRunner
 class PartitionerOnNoneTest extends PartitionerTest {
 
   test("parse") {
-    Partitioner.fromJson("{type:\"none\"}") shouldBe PartitionerOnNone()
+    Partitioner.fromJson(null, "{type:\"none\"}") shouldBe PartitionerOnNone()
   }
 
   test("num partitions") {
