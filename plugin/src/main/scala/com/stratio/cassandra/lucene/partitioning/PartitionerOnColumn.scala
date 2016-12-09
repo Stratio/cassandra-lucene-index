@@ -25,18 +25,25 @@ import org.apache.cassandra.db.PartitionPosition.Kind.ROW_KEY
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.marshal.{AbstractType, UTF8Type}
 import org.apache.cassandra.utils.MurmurHash
+import org.apache.commons.lang3.StringUtils
 
 import scala.collection.JavaConverters._
 
-/** [[Partitioner]] partitioner based on the partition key token.
+/** [[Partitioner]] based on a partition key column. Rows will be stored in an index partition
+  * determined by the hash of the specified partition key column. Both partition-directed and token
+  * range searches containing an CQL equality filter over the selected partition key column will be
+  * routed to a single partition, increasing performance. However, token range searches without
+  * filters over the partitioning column will be routed to all the partitions, with a slightly lower
+  * performance.
   *
-  * Partitioning on token guarantees a good load balancing between partitions while speeding up
-  * partition-directed searches to the detriment of token range searches performance. It allows to
-  * efficiently run partition directed queries in nodes indexing more than 2147483519 rows. However,
-  * token range searches in nodes with more than 2147483519 rows will fail.
+  * Load balancing depends on the cardinality and distribution of the values of the partitioning
+  * column. Both high cardinalities and uniform distributions will provide better load balancing
+  * between partitions.
   *
-  * @param partitions the number of partitions
-  * @param column     the name of the column
+  * @param partitions   the number of index partitions per node
+  * @param column       the name of the partition key column
+  * @param position     the position of the partition column in the partition key
+  * @param keyValidator the type of the partition key
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 case class PartitionerOnColumn(
@@ -48,20 +55,29 @@ case class PartitionerOnColumn(
   if (partitions <= 0) throw new IndexException(
     s"The number of partitions should be strictly positive but found $partitions")
 
-  protected def partition(bb: ByteBuffer): Int = {
+  if (StringUtils.isBlank(column)) throw new IndexException(
+    s"A partition column should be specified")
+
+  if (position < 0) throw new IndexException(
+    s"The column position in the partition key should be positive")
+
+  if (keyValidator == null) throw new IndexException(
+    s"The partition key type should be specified")
+
+  private def partition(bb: ByteBuffer): Int = {
     val hash = new Array[Long](2)
     MurmurHash.hash3_x64_128(bb, bb.position, bb.remaining, 0, hash)
     (Math.abs(hash(0)) % partitions).toInt
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def numPartitions: Int = partitions
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def partition(key: DecoratedKey): Int =
     partition(ByteBufferUtils.split(key.getKey, keyValidator)(position))
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partitions(command: ReadCommand): List[Int] = command match {
     case c: SinglePartitionReadCommand => List(partition(c.partitionKey))
     case c: PartitionRangeReadCommand =>
@@ -85,10 +101,10 @@ object PartitionerOnColumn {
 
   /** [[PartitionerOnColumn]] builder.
     *
-    * @param partitions the number of partitions
-    * @param column     the name of the column
+    * @param partitions the number of index partitions per node
+    * @param column     the name of the partition key column
     */
-  class Builder(
+  case class Builder(
       @JsonProperty("partitions") partitions: Int,
       @JsonProperty("column") column: String)
     extends Partitioner.Builder {

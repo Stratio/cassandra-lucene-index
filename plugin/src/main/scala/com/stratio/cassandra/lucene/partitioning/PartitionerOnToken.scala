@@ -21,14 +21,14 @@ import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db._
 import org.apache.cassandra.dht.Token
 
-/** [[Partitioner]] partitioner based on the partition key token.
+/** [[Partitioner]] based on the partition key token. Rows will be stored in an index partition
+  * determined by the hash of the partition key token. Partition-directed searches will be routed to
+  * a single partition, increasing performance. However, token range searches will be routed to all
+  * the partitions, with a slightly lower performance.
   *
-  * Partitioning on token guarantees a good load balancing between partitions while speeding up
-  * partition-directed searches to the detriment of token range searches performance. It allows to
-  * efficiently run partition directed queries in nodes indexing more than 2147483519 rows. However,
-  * token range searches in nodes with more than 2147483519 rows will fail.
+  * This partitioner guarantees an excellent load balancing between index partitions.
   *
-  * @param partitions the number of partitions
+  * @param partitions the number of index partitions per node
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 case class PartitionerOnToken(partitions: Int) extends Partitioner {
@@ -59,14 +59,14 @@ case class PartitionerOnToken(partitions: Int) extends Partitioner {
 
 }
 
-/** Companion obejct for [[PartitionerOnToken]]. */
+/** Companion object for [[PartitionerOnToken]]. */
 object PartitionerOnToken {
 
   /** [[PartitionerOnToken]] builder.
     *
-    * @param partitions the number of partitions
+    * @param partitions the number of index partitions per node
     */
-  class Builder(@JsonProperty("partitions") partitions: Int) extends Partitioner.Builder {
+  case class Builder(@JsonProperty("partitions") partitions: Int) extends Partitioner.Builder {
     override def build(metadata: CFMetaData): PartitionerOnToken = PartitionerOnToken(partitions)
   }
 
