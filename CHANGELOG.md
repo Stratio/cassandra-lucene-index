@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.8.2 (Upcoming)
+## 3.8.2 (December 09, 2016)
 
 * Optimize columns mapping (improves indexing performance)
 * Add generic support for index partitioning
