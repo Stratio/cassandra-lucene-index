@@ -26,10 +26,13 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.*;
+import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 
@@ -39,6 +42,8 @@ import static java.util.stream.Collectors.toList;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class Mapper {
+
+    private static final Logger logger = LoggerFactory.getLogger(Mapper.class);
 
     /** A no-action analyzer for not tokenized {@link Mapper} implementations. */
     static final String KEYWORD_ANALYZER = StandardAnalyzers.KEYWORD.toString();
@@ -108,7 +113,7 @@ public abstract class Mapper {
         this.docValues = docValues;
         this.validated = validated == null ? DEFAULT_VALIDATED : validated;
         this.analyzer = analyzer;
-        this.mappedColumns = mappedColumns.stream().filter(x -> x != null).collect(toList()); // Remove nulls
+        this.mappedColumns = mappedColumns.stream().filter(Objects::nonNull).collect(toList()); // Remove nulls
         this.mappedCells = this.mappedColumns.stream().map(Column::parseCellName).collect(toList());
         this.supportedTypes = supportedTypes;
     }
@@ -122,11 +127,33 @@ public abstract class Mapper {
     public abstract List<IndexableField> indexableFields(Columns columns);
 
     /**
+     * Returns the Lucene {@link IndexableField}s resulting from the mapping of the specified {@link Columns}, ignoring
+     * any mapping errors.
+     *
+     * @param columns the columns
+     */
+    public List<IndexableField> bestEffortIndexableFields(Columns columns) {
+        return bestEffort(columns, this::indexableFields);
+    }
+
+    <T> List<IndexableField> bestEffort(T base, Function<T, List<IndexableField>> mapping) {
+        try {
+            return mapping.apply(base);
+        } catch (IndexException e) {
+            logger.warn("Error in Lucene index:\n\t" +
+                        "while mapping : {}\n\t" +
+                        "with mapper   : {}\n\t" +
+                        "caused by     : {}", base, this, e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    /**
      * Validates the specified {@link Columns} if {#validated}.
      *
      * @param columns the columns to be validated
      */
-    public final void validate(Columns columns) {
+    public void validate(Columns columns) {
         if (validated) {
             indexableFields(columns);
         }

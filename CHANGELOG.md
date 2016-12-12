@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.7.5 (Upcoming)
+
+* Fix best effort mapping of collections (#246)
+
 ## 3.7.4 (December 09, 2016)
 
 * Optimize columns mapping (improves indexing performance)
