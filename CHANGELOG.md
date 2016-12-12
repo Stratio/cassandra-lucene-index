@@ -1,6 +1,10 @@
 # Changelog
 
-## 3.9.4 (Upcoming)
+## 3.9.5 (Upcoming)
+
+* Fix best effort mapping of collections (#246)
+
+## 3.9.4 (December 09, 2016)
 
 * Optimize columns mapping (improves indexing performance)
 * Add generic support for index partitioning
