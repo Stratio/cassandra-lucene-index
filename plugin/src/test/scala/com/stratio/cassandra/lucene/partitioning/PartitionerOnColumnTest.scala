@@ -18,39 +18,51 @@ package com.stratio.cassandra.lucene.partitioning
 import com.stratio.cassandra.lucene.IndexException
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import com.stratio.cassandra.lucene.BaseScalaTest._
+import org.apache.cassandra.db.marshal.CompositeType
+import org.apache.cassandra.dht.Murmur3Partitioner
 
-/** Tests for [[PartitionerOnToken]].
+/** Tests for [[PartitionerOnColumn]].
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 @RunWith(classOf[JUnitRunner])
-class PartitionerOnTokenTest extends PartitionerTest {
+class PartitionerOnColumnTest extends PartitionerTest {
 
   test("build with zero partitions") {
-    assertThrows[IndexException] {PartitionerOnToken(0)}
+    assertThrows[IndexException] {PartitionerOnColumn(0, "c", 0, int32)}
   }
 
   test("build with negative partitions") {
-    assertThrows[IndexException] {PartitionerOnToken(-1)}
+    assertThrows[IndexException] {PartitionerOnColumn(-1, "c", 0, int32)}
+  }
+
+  test("build with negative position") {
+    assertThrows[IndexException] {PartitionerOnColumn(1, "c", -1, int32)}
+  }
+
+  test("build with null type") {
+    assertThrows[IndexException] {PartitionerOnColumn(1, "c", 0, null)}
   }
 
   test("parse JSON") {
-    val json = "{type:\"token\", partitions: 10}"
-    Partitioner.fromJson(json) shouldBe PartitionerOnToken.Builder(10)
+    val json = "{type:\"column\", partitions: 10, column:\"c\"}"
+    Partitioner.fromJson(json) shouldBe PartitionerOnColumn.Builder(10, "c")
   }
 
   test("num partitions") {
-    PartitionerOnToken(4).numPartitions shouldBe 4
+    PartitionerOnColumn(4, "c", 0, int32).numPartitions shouldBe 4
   }
 
   test("key partition with 1 partition") {
+    val partitioner = PartitionerOnColumn(1, "c", 0, int32)
     for (i <- 1 to 10) {
-      PartitionerOnToken(1).partition(key(i)) shouldBe 0
+      partitioner.partition(key(i)) shouldBe 0
     }
   }
 
   test("key partition with n partitions") {
-    val partitioner = PartitionerOnToken(10)
+    val partitioner = PartitionerOnColumn(10, "c", 0, int32)
     partitioner.partition(key(0)) shouldBe 8
     partitioner.partition(key(1)) shouldBe 9
     partitioner.partition(key(2)) shouldBe 2
@@ -59,6 +71,15 @@ class PartitionerOnTokenTest extends PartitionerTest {
     partitioner.partition(key(5)) shouldBe 4
     partitioner.partition(key(6)) shouldBe 8
     partitioner.partition(key(7)) shouldBe 6
+  }
+
+  test("composite key") {
+    val validator = CompositeType.getInstance(int32, utf8)
+    val bb = validator.builder().add(int32.decompose(3)).add(utf8.decompose("v1")).build
+    val key = Murmur3Partitioner.instance.decorateKey(bb)
+    PartitionerOnColumn(10, "c", 0, validator).partition(key) shouldBe 5
+    PartitionerOnColumn(10, "c", 1, validator).partition(key) shouldBe 3
+
   }
 
 }

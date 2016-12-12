@@ -98,15 +98,6 @@ class PartitionedIndexTest extends BaseScalaTest {
       Thread.sleep(WAIT_MILLISECONDS)
       assertEquals("Expected 1 document", 1, index.getNumDocs)
 
-      // Delete by query
-      index.upsert(0, term1, document1)
-      index.commit()
-      Thread.sleep(WAIT_MILLISECONDS)
-      assertEquals("Expected 2 documents", 2, index.getNumDocs)
-      index.delete(0, new TermQuery(term1))
-      Thread.sleep(WAIT_MILLISECONDS)
-      assertEquals("Expected 1 document", 1, index.getNumDocs)
-
       // Upsert
       index.upsert(0, term1, document1)
       index.upsert(0, term2, document2)
@@ -159,15 +150,6 @@ class PartitionedIndexTest extends BaseScalaTest {
       // Delete by term
       index.delete(0, term1)
       index.commit()
-      Thread.sleep(WAIT_MILLISECONDS)
-      assertEquals("Expected 1 document", 1, index.getNumDocs)
-
-      // Delete by query
-      index.upsert(0, term1, document1)
-      index.commit()
-      Thread.sleep(WAIT_MILLISECONDS)
-      assertEquals("Expected 2 documents", 2, index.getNumDocs)
-      index.delete(0, new TermQuery(term1))
       Thread.sleep(WAIT_MILLISECONDS)
       assertEquals("Expected 1 document", 1, index.getNumDocs)
 

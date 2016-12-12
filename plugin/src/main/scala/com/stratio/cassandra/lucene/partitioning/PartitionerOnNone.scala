@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.partitioning
 
+import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db.{DecoratedKey, ReadCommand}
 
 /** [[Partitioner]] with no action, equivalent to just don't partitioning the index.
@@ -23,13 +24,23 @@ import org.apache.cassandra.db.{DecoratedKey, ReadCommand}
   */
 case class PartitionerOnNone() extends Partitioner {
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def numPartitions: Int = 1
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def partition(key: DecoratedKey): Int = 0
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def partitions(command: ReadCommand): List[Int] = allPartitions
+
+}
+
+/** Companion object for [[PartitionerOnNone]]. */
+object PartitionerOnNone {
+
+  /** [[PartitionerOnNone]] builder. */
+  case class Builder() extends Partitioner.Builder {
+    override def build(metadata: CFMetaData): PartitionerOnNone = PartitionerOnNone()
+  }
 
 }

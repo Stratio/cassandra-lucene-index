@@ -25,8 +25,9 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class PartitionerOnNoneTest extends PartitionerTest {
 
-  test("parse") {
-    Partitioner.fromJson("{type:\"none\"}") shouldBe PartitionerOnNone()
+  test("parse JSON") {
+    val json = "{type:\"none\"}"
+    Partitioner.fromJson(json) shouldBe PartitionerOnNone.Builder()
   }
 
   test("num partitions") {
@@ -34,7 +35,8 @@ class PartitionerOnNoneTest extends PartitionerTest {
   }
 
   test("key partition") {
-    for (i <- 1 to 10) PartitionerOnNone().partition(key(i)) shouldBe 0
+    val partitioner = PartitionerOnNone()
+    for (i <- 1 to 20) partitioner.partition(key(i)) shouldBe 0
   }
 
 }
