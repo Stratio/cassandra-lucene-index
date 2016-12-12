@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.util;
 
+import com.stratio.cassandra.lucene.builder.index.Partitioner;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.SingleColumnMapper;
@@ -41,6 +42,7 @@ public class CassandraUtilsBuilder {
     private List<String> clusteringKey;
     private String clusteringOrderColumn;
     private boolean clusteringOrderAscending;
+    private Partitioner partitioner = PARTITIONER;
 
     private final Map<String, Map<String, String>> udts;
 
@@ -139,6 +141,11 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
+    public CassandraUtilsBuilder withPartitioner(Partitioner partitioner) {
+        this.partitioner = partitioner;
+        return this;
+    }
+
     private SingleColumnMapper<?> defaultMapper(String name) {
         switch (name) {
             case "ascii":
@@ -196,6 +203,7 @@ public class CassandraUtilsBuilder {
                                   clusteringKey,
                                   udts,
                                   clusteringOrderColumn,
-                                  clusteringOrderAscending);
+                                  clusteringOrderAscending,
+                                  partitioner);
     }
 }
