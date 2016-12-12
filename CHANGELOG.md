@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.10.2 (Upcoming)
+
+* Fix best effort mapping of collections (#246)
+
 ## 3.0.10.1 (January 10, 2017)
 
 * Optimize columns mapping (improves indexing performance)
