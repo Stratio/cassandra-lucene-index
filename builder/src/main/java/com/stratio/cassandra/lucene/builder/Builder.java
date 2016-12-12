@@ -765,23 +765,40 @@ public abstract class Builder {
      *
      * @return a new no-action partitioning, equivalent to just don't partitioning the index
      */
-    public static Partitioner nonePartitioner() {
+    public static Partitioner.None nonePartitioner() {
         return new Partitioner.None();
     }
 
     /**
-     * Returns a new {@link Partitioner.OnToken} to split the index in {@code numPartitions} based on the row token.
+     * Returns a new {@link Partitioner.OnToken} based on the partition key token. Rows will be stored in an index
+     * partition determined by the hash of the partition key token. Partition-directed searches will be routed to a
+     * single partition, increasing performance. However, token range searches will be routed to all the partitions,
+     * with a slightly lower performance.
      *
-     * Index partitioning is useful to speed up some queries to the detriment of others, depending on the implementation.
-     * It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
+     * This partitioner guarantees an excellent load balancing between index partitions.
      *
-     * Partitioning on token guarantees a good load balancing between partitions while speeding up partition-directed
-     * searches to the detriment of token range searches.
-     *
-     * @param numPartitions the number of partitions
+     * @param partitions the number of index partitions per node
      * @return a new partitioner based on Cassandra's partitioning token
      */
-    public static Partitioner partitionerOnToken(int numPartitions) {
-        return new Partitioner.OnToken(numPartitions);
+    public static Partitioner.OnToken partitionerOnToken(int partitions) {
+        return new Partitioner.OnToken(partitions);
+    }
+
+    /**
+     * Returns a new {@link Partitioner.OnColumn} based on the specified partition key column. Rows will be stored in an
+     * index partition determined by the hash of the specified partition key column. Both partition-directed as well as
+     * token range searches containing an CQL equality filter over the selected partition key column will be routed to a
+     * single partition, increasing performance. However, token range searches without filters over the partitioning
+     * column will be routed to all the partitions, with a slightly lower performance.
+     *
+     * Load balancing depends on the cardinality and distribution of the values of the partitioning column. Both high
+     * cardinalities and uniform distributions will provide better load balancing between partitions.
+     *
+     * @param partitions the number of index partitions per node
+     * @param column     the name of the partition key column
+     * @return a new partitioner based on a partitioning key column
+     */
+    public static Partitioner.OnColumn partitionerOnColumn(int partitions, String column) {
+        return new Partitioner.OnColumn(partitions, column);
     }
 }

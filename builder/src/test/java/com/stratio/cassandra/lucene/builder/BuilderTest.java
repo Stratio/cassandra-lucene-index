@@ -95,6 +95,13 @@ public class BuilderTest {
     }
 
     @Test
+    public void testColumnPartitioner() {
+        String actual = partitionerOnColumn(6, "col").build();
+        String expected = "{\"type\":\"column\",\"partitions\":6,\"column\":\"col\"}";
+        assertEquals("column partitioner serialization is wrong", expected, actual);
+    }
+
+    @Test
     public void testBigDecimalMapperDefaults() {
         String actual = bigDecimalMapper().build();
         String expected = "{\"type\":\"bigdec\"}";
