@@ -345,7 +345,7 @@ object Index extends Logging {
     val modifiersField = classOf[Field].getDeclaredField("modifiers")
     modifiersField.setAccessible(true)
     modifiersField.setInt(field, field.getModifiers & ~Modifier.FINAL)
-    field.set(null, new IndexQueryHandler);
+    field.set(null, new IndexQueryHandler)
   } catch {
     case e: Exception => logger.error("Unable to set Lucene CQL query handler", e)
   }

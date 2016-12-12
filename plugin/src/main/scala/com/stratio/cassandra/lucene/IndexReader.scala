@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene
 
-import com.stratio.cassandra.lucene.index.DocumentIterator
+import com.stratio.cassandra.lucene.index.{DocumentIterator, PartitionedDocumentIterator}
 import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.ClusteringIndexFilter
@@ -34,7 +34,7 @@ abstract class IndexReader(
     command: ReadCommand,
     table: ColumnFamilyStore,
     controller: ReadExecutionController,
-    documents: DocumentIterator)
+    documents: PartitionedDocumentIterator)
   extends UnfilteredPartitionIterator {
 
   protected var nextData: Option[UnfilteredRowIterator] = None

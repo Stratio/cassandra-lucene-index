@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene
 
 import com.google.common.collect.Sets
-import com.stratio.cassandra.lucene.index.DocumentIterator
+import com.stratio.cassandra.lucene.index.{DocumentIterator, PartitionedDocumentIterator}
 import com.stratio.cassandra.lucene.mapping.PartitionMapper
 import org.apache.cassandra.db.PartitionPosition.Kind._
 import org.apache.cassandra.db._
@@ -24,8 +24,9 @@ import org.apache.cassandra.db.filter.ClusteringIndexFilter
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.schema.IndexMetadata
 import org.apache.cassandra.utils.concurrent.OpOrder
+import org.apache.lucene.document.Document
 import org.apache.lucene.index.{IndexableField, Term}
-import org.apache.lucene.search.{Query, SortField, TermQuery}
+import org.apache.lucene.search.{Query, ScoreDoc, SortField, TermQuery}
 
 /** [[IndexService]] for skinny rows.
   *
@@ -95,7 +96,7 @@ class IndexServiceSkinny(table: ColumnFamilyStore, index: IndexMetadata)
 
   /** @inheritdoc */
   override def reader(
-      documents: DocumentIterator,
+      documents: PartitionedDocumentIterator,
       command: ReadCommand,
       controller: ReadExecutionController): IndexReader = {
     new IndexReaderSkinny(this, command, table, controller, documents)
