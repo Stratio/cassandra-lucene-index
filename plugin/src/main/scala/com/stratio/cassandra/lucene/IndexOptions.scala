@@ -179,7 +179,7 @@ object IndexOptions {
   def parsePartitioner(options: Map[String, String], table: CFMetaData): Partitioner = {
     options.get(PARTITIONER_OPTION).map(
       value => try {
-        Partitioner.fromJson(value)
+        Partitioner.fromJson(table, value)
       } catch {
         case e: Exception => throw new IndexException(e,
           s"'$PARTITIONER_OPTION' is invalid : ${e.getMessage}")

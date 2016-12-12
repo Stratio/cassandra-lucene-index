@@ -98,15 +98,6 @@ class FSIndexTest extends BaseScalaTest {
         Thread.sleep(WAIT_MILLISECONDS)
         assertEquals("Expected 1 document", 1, index.getNumDocs)
 
-        // Delete by query
-        index.upsert(term1, document1)
-        index.commit()
-        Thread.sleep(WAIT_MILLISECONDS)
-        assertEquals("Expected 2 documents", 2, index.getNumDocs)
-        index.delete(new TermQuery(term1))
-        Thread.sleep(WAIT_MILLISECONDS)
-        assertEquals("Expected 1 document", 1, index.getNumDocs)
-
         // Upsert
         index.upsert(term1, document1)
         index.upsert(term2, document2)
