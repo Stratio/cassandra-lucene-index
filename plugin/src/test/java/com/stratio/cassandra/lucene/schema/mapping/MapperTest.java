@@ -15,96 +15,37 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.column.Columns;
+import org.apache.lucene.index.IndexableField;
+import org.junit.Test;
+
+import java.util.List;
+
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.integerMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
+import static org.junit.Assert.assertEquals;
+
 /**
+ * {@link Mapper} tests.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class MapperTest {
 
-    //    @Test
-    //    public void testSupportsSimple() {
-    //        testSupports(true, UTF8Type.instance, UTF8Type.instance);
-    //    }
-    //
-    //    @Test
-    //    public void testSupportsSimpleNot() {
-    //        testSupports(false, UTF8Type.instance, IntegerType.instance);
-    //    }
-    //
-    //    @Test
-    //    public void testSupportsMultiple() {
-    //        testSupports(true, UTF8Type.instance, UTF8Type.instance, IntegerType.instance);
-    //    }
-    //
-    //    @Test
-    //    public void testSupportsMultipleNot() {
-    //        testSupports(false, UUIDType.instance, UTF8Type.instance, IntegerType.instance);
-    //    }
-    //
-    //    @Test
-    //    public void testSupportsMap() {
-    //        testSupports(true, MapType.getInstance(IntegerType.instance, UTF8Type.instance, false), UTF8Type.instance);
-    //    }
-    //
-    //    @Test
-    //    public void testSupportsMapMultiCell() {
-    //        testSupports(true, MapType.getInstance(IntegerType.instance, UTF8Type.instance, true), UTF8Type.instance);
-    //    }
-    //
-    //    @Test
-    //    public void testSupportsMapNot() {
-    //        testSupports(false, MapType.getInstance(IntegerType.instance, UTF8Type.instance, false), IntegerType.instance);
-    //    }
-    //
-    //    @Test
-    //    public void testSupportsList() {
-    //        testSupports(true, ListType.getInstance(UTF8Type.instance, false), UTF8Type.instance);
-    //    }
-    //
-    //    @Test
-    //    public void testSupportsListMultiCell() {
-    //        testSupports(true, ListType.getInstance(UTF8Type.instance, true), UTF8Type.instance);
-    //    }
-    //
-    //    @Test
-    //    public void testSupportsListNot() {
-    //        testSupports(false, ListType.getInstance(UTF8Type.instance, false), IntegerType.instance);
-    //    }
-    //
-    //    @Test
-    //    public void testSupportsSet() {
-    //        testSupports(true, SetType.getInstance(UTF8Type.instance, false), UTF8Type.instance);
-    //    }
-    //
-    //    @Test
-    //    public void testSupportsSetMultiCell() {
-    //        testSupports(true, SetType.getInstance(UTF8Type.instance, true), UTF8Type.instance);
-    //    }
-    //
-    //    @Test
-    //    public void testSupportsSetNot() {
-    //        testSupports(false, SetType.getInstance(IntegerType.instance, false), UTF8Type.instance);
-    //    }
-    //
-    //    @Test
-    //    public void testSupportsReversed() {
-    //        testSupports(true, ReversedType.getInstance(UTF8Type.instance), UTF8Type.instance);
-    //    }
-    //
-    //    private void testSupports(boolean expected, AbstractType<?> candidateType, AbstractType<?>... types) {
-    //
-    //        Mapper mapper = new Mapper("field", true, null, null, Collections.singletonList("field"), types) {
-    //
-    //            @Override
-    //            public void fields(Document document, Columns columns) {
-    //
-    //            }
-    //
-    //            @Override
-    //            public SortField sortField(String name, boolean reverse) {
-    //                return null;
-    //            }
-    //        };
-    //        assertEquals("Method #supports is wrong", expected, mapper.supports(candidateType));
-    //    }
+    @Test
+    public void testIndexableFields() {
+        Mapper mapper = stringMapper().build("f");
+        Columns columns = Columns.empty().add("f", "v");
+        List<IndexableField> fields = mapper.indexableFields(columns);
+        assertEquals("Expected 2 fields", 2, fields.size());
+    }
+
+    @Test
+    public void testBestEffortIndexableFields() {
+        Mapper mapper = integerMapper().build("f");
+        Columns columns = Columns.empty().add("f", "1").add("f", "x").add("f", "2");
+        List<IndexableField> fields = mapper.bestEffortIndexableFields(columns);
+        assertEquals("Expected 4 fields", 4, fields.size());
+    }
 
 }
