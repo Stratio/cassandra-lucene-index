@@ -21,8 +21,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.stratio.cassandra.lucene.builder.Builder.integerMapper;
-import static com.stratio.cassandra.lucene.builder.Builder.match;
+import java.util.*;
+
+import static com.stratio.cassandra.lucene.builder.Builder.*;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 
 /**
@@ -35,23 +36,72 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 public class Issue246IT extends BaseIT {
 
     @Test
-    public void test() {
+    public void testSet() {
+        Set<String> set = Sets.newHashSet("1", "a", "3", "999");
         builder("issue_246").withTable("test")
                             .withIndexName("idx")
                             .withColumn("id", "int")
                             .withColumn("value", "frozen<set<text>>")
                             .withIndexColumn("lucene")
                             .withPartitionKey("id")
-                            .withMapper("value", integerMapper().column("value"))
+                            .withMapper("value", integerMapper())
                             .build()
                             .createKeyspace()
                             .createTable()
                             .createIndex()
-                            .insert(new String[]{"id", "value"}, new Object[]{1, Sets.newHashSet("1", "a", "3", "999")})
+                            .insert(new String[]{"id", "value"}, new Object[]{1, set})
                             .refresh()
                             .filter(match("value", 1)).check(1)
                             .filter(match("value", 3)).check(1)
                             .filter(match("value", 999)).check(1)
+                            .dropKeyspace();
+    }
+
+    @Test
+    public void testList() {
+        List<String> list = Arrays.asList("1", "a", "3", "999");
+        builder("issue_246").withTable("test")
+                            .withIndexName("idx")
+                            .withColumn("id", "int")
+                            .withColumn("value", "frozen<list<text>>")
+                            .withIndexColumn("lucene")
+                            .withPartitionKey("id")
+                            .withMapper("value", integerMapper())
+                            .build()
+                            .createKeyspace()
+                            .createTable()
+                            .createIndex()
+                            .insert(new String[]{"id", "value"}, new Object[]{1, list})
+                            .refresh()
+                            .filter(match("value", 1)).check(1)
+                            .filter(match("value", 3)).check(1)
+                            .filter(match("value", 999)).check(1)
+                            .dropKeyspace();
+    }
+
+    @Test
+    public void testMap() {
+        Map<Integer, String> map = new HashMap<>();
+        map.put(0, "1");
+        map.put(1, "a");
+        map.put(2, "3");
+        map.put(3, "999");
+        builder("issue_246").withTable("test")
+                            .withIndexName("idx")
+                            .withColumn("id", "int")
+                            .withColumn("value", "frozen<map<int, text>>")
+                            .withIndexColumn("lucene")
+                            .withPartitionKey("id")
+                            .withMapper("value", integerMapper())
+                            .build()
+                            .createKeyspace()
+                            .createTable()
+                            .createIndex()
+                            .insert(new String[]{"id", "value"}, new Object[]{1, map})
+                            .refresh()
+                            .filter(match("value$0", 1)).check(1)
+                            .filter(match("value$2", 3)).check(1)
+                            .filter(match("value$3", 999)).check(1)
                             .dropKeyspace();
     }
 }

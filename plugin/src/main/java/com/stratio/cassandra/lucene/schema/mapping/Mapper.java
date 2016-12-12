@@ -119,6 +119,14 @@ public abstract class Mapper {
     }
 
     /**
+     * Returns the Lucene {@link IndexableField}s resulting from the mapping of the specified {@link Columns}.
+     *
+     * @param columns the columns
+     * @return a list of indexable fields
+     */
+    public abstract List<IndexableField> indexableFields(Columns columns);
+
+    /**
      * Returns the Lucene {@link IndexableField}s resulting from the mapping of the specified {@link Columns}, ignoring
      * any mapping errors.
      *
@@ -139,14 +147,6 @@ public abstract class Mapper {
             return Collections.emptyList();
         }
     }
-
-    /**
-     * Returns the Lucene {@link IndexableField}s resulting from the mapping of the specified {@link Columns}.
-     *
-     * @param columns the columns
-     * @return a list of indexable fields
-     */
-    public abstract List<IndexableField> indexableFields(Columns columns);
 
     /**
      * Validates the specified {@link Columns} if {#validated}.
