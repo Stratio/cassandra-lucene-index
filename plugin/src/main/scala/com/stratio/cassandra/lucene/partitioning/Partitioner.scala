@@ -17,34 +17,26 @@ package com.stratio.cassandra.lucene.partitioning
 
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.stratio.cassandra.lucene.common.JsonSerializer
+import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db.{DecoratedKey, ReadCommand}
 
-/** Class defining an index partitioning strategy.
-  *
-  * Index partitioning is useful to speed up some searches to the detriment of others, depending on
-  * the implementation.
-  *
-  * It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
+/** Class defining an index partitioning strategy. Partitioning splits each node index in multiple
+  * partitions in order to speed up some searches to the detriment of others, depending on
+  * the concrete partitioning strategy. It is also useful to overcome the  Lucene's hard limit of
+  * 2147483519 documents per local index, which becomes a per-partition limit. However, searches
+  * involving multiple partitions with more than 2147483519 total documents will still fail.
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-@JsonTypeInfo(
-  use = JsonTypeInfo.Id.NAME,
-  include = JsonTypeInfo.As.PROPERTY,
-  property = "type",
-  defaultImpl = classOf[PartitionerOnNone])
-@JsonSubTypes(Array(
-  new JsonSubTypes.Type(value = classOf[PartitionerOnNone], name = "none"),
-  new JsonSubTypes.Type(value = classOf[PartitionerOnToken], name = "token")))
 trait Partitioner {
 
   /** Returns the number of partitions. */
   def numPartitions: Int
 
   /** Returns all the partitions. */
-  def allPartitions: List[Int] = (0 until numPartitions).toList
+  lazy val allPartitions: List[Int] = (0 until numPartitions).toList
 
-  /** Returns the partition for the specified key.
+  /** Returns the partition for the specified partition key.
     *
     * @param key a partition key to be routed to a partition
     * @return the partition owning `key`
@@ -63,12 +55,36 @@ trait Partitioner {
 /** Companion object for [[Partitioner]]. */
 object Partitioner {
 
-  /** The [[Partitioner]] represented by the specified JSON string.
+  /** Returns the [[Builder]] represented by the specified JSON string.
     *
+    * @param json a JSON string representing a [[Partitioner]]
+    * @return the partitioner builder represented by `json`
+    */
+  def fromJson(json: String): Builder =
+    JsonSerializer.fromString(json, classOf[Partitioner.Builder])
+
+  /** Returns the [[Partitioner]] represented by the specified JSON string.
+    *
+    * @param metadata the indexed table metadata
     * @param json a JSON string representing a [[Partitioner]]
     * @return the partitioner represented by `json`
     */
-  def fromJson(json: String): Partitioner =
-    JsonSerializer.fromString(json, classOf[Partitioner])
+  def fromJson(metadata: CFMetaData, json: String): Partitioner =
+    fromJson(json).build(metadata)
+
+  @JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "type",
+    defaultImpl = classOf[PartitionerOnNone.Builder])
+  @JsonSubTypes(Array(
+    new JsonSubTypes.Type(value = classOf[PartitionerOnNone.Builder], name = "none"),
+    new JsonSubTypes.Type(value = classOf[PartitionerOnToken.Builder], name = "token"),
+    new JsonSubTypes.Type(value = classOf[PartitionerOnColumn.Builder], name = "column")))
+  trait Builder {
+
+    def build(metadata: CFMetaData): Partitioner
+
+  }
 
 }

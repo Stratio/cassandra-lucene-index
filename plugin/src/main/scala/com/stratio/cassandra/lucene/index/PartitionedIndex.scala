@@ -172,16 +172,6 @@ class PartitionedIndex(
     indexes(partition).delete(term)
   }
 
-  /** Deletes all the documents satisfying the specified query.
-    *
-    * @param partition the index partition where the operation will be done
-    * @param query     the query identifying the documents to be deleted
-    */
-  def delete(partition: Int, query: Query) {
-    logger.debug(s"Deleting $query from $name")
-    indexes(partition).delete(query)
-  }
-
   /** Finds the top hits for a query and sort, starting from an optional position.
     *
     * @param partitions the index partitions where the operation will be done

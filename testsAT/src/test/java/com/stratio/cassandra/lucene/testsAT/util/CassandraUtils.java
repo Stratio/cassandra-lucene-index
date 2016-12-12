@@ -20,6 +20,7 @@ import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.stratio.cassandra.lucene.builder.index.Index;
+import com.stratio.cassandra.lucene.builder.index.Partitioner;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.builder.search.Search;
@@ -62,6 +63,7 @@ public class CassandraUtils {
     private final String indexBean;
     private final String clusteringOrderColumn;
     private final boolean clusteringOrderAscending;
+    private final Partitioner partitioner;
 
     public static CassandraUtilsBuilder builder(String name) {
         return new CassandraUtilsBuilder(name);
@@ -79,7 +81,8 @@ public class CassandraUtils {
                           List<String> clusteringKey,
                           Map<String, Map<String, String>> udts,
                           String clusteringOrderColumn,
-                          boolean clusteringOrderAscending) {
+                          boolean clusteringOrderAscending,
+                          Partitioner partitioner) {
 
         this.keyspace = keyspace;
         this.table = table;
@@ -94,6 +97,7 @@ public class CassandraUtils {
         this.udts = udts;
         this.clusteringOrderColumn = clusteringOrderColumn;
         this.clusteringOrderAscending = clusteringOrderAscending;
+        this.partitioner = partitioner;
 
         qualifiedTable = keyspace + "." + table;
 
@@ -257,7 +261,7 @@ public class CassandraUtils {
         Index index = index(keyspace, table, indexName).column(indexColumn)
                                                        .refreshSeconds(REFRESH)
                                                        .indexingThreads(THREADS)
-                                                       .partitioner(PARTITIONER);
+                                                       .partitioner(partitioner);
         mappers.forEach(index::mapper);
         analyzers.forEach(index::analyzer);
         execute(index.build());

@@ -2,6 +2,7 @@
 
 ## 3.0.10.2 (Upcoming)
 
+* Add column-based index partitioner
 * Fix best effort mapping of collections (#246)
 
 ## 3.0.10.1 (January 10, 2017)

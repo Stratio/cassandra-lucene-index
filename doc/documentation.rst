@@ -14,6 +14,7 @@ Stratio's Cassandra Lucene Index
     - `Partitioners <#partitioners>`__
         - `None partitioner <#none-partitioner>`__
         - `Token partitioner <#token-partitioner>`__
+        - `Column partitioner <#column-partitioner>`__
     - `Analyzers <#analyzers>`__
         - `Classpath analyzer <#classpath-analyzer>`__
         - `Snowball analyzer <#snowball-analyzer>`__
@@ -643,12 +644,63 @@ other searches. The number of partitions per node should be specified.
 
 .. code-block:: sql
 
-    CREATE CUSTOM INDEX test_idx ON test()
+    CREATE TABLE tweets (
+       user TEXT,
+       month INT,
+       date TIMESTAMP,
+       id INT,
+       body TEXT
+       PRIMARY KEY ((user, month), date, id)
+    );
+
+    CREATE CUSTOM INDEX idx ON tweets()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
        'schema': '{...}',
        'partitioner': '{type: "token", partitions: 4}',
     };
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' AND month = 5; -- Fetches 1 node, 1 partition
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' ALLOW FILTERING; -- Fetches all nodes, all partitions
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}')'; -- Fetches all nodes, all partitions
+
+Column partitioner
+__________________
+
+A partitioner based on a column of the partition key. Rows will be stored in an index partition determined by the hash
+of the specified partition key column. Both partition-directed and token range searches containing an CQL equality
+filter over the selected partition key column will be routed to a single partition, increasing performance. However,
+token range searches without filters over the partitioning column will be routed to all the partitions, with a slightly
+lower performance.
+
+Load balancing depends on the cardinality and distribution of the values of the partitioning column. Both high
+cardinalities and uniform distributions will provide better load balancing between partitions.
+
+.. code-block:: sql
+
+    CREATE TABLE tweets (
+       user TEXT,
+       month INT,
+       date TIMESTAMP,
+       id INT,
+       body TEXT
+       PRIMARY KEY ((user, month), date, id)
+    );
+
+    CREATE CUSTOM INDEX idx ON tweets()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'schema': '{...}',
+       'partitioner': '{type: "column", partitions: 4, column:"user"}',
+    };
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' AND month = 5; -- Fetches 1 node, 1 partition
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' ALLOW FILTERING; -- Fetches all nodes, 1 partition
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}')'; -- Fetches all nodes, all partitions
 
 Analyzers
 =========
