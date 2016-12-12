@@ -79,6 +79,14 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
 
     /** {@inheritDoc} */
     @Override
+    public List<IndexableField> bestEffortIndexableFields(Columns columns) {
+        List<IndexableField> fields = new LinkedList<>();
+        columns.foreachWithMapper(column, c -> fields.addAll(bestEffort(c, this::indexableFields)));
+        return fields;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public List<IndexableField> indexableFields(Columns columns) {
         List<IndexableField> fields = new LinkedList<>();
         columns.foreachWithMapper(column, c -> fields.addAll(indexableFields(c)));
