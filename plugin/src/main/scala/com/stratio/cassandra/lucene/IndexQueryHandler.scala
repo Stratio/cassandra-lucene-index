@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene
 
+import java.lang.reflect.{Field, Modifier}
 import java.nio.ByteBuffer
-import java.{util => java}
 
 import com.stratio.cassandra.lucene.IndexQueryHandler._
 import com.stratio.cassandra.lucene.partitioning.Partitioner
@@ -29,7 +29,7 @@ import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.RowFilter.{CustomExpression, Expression}
 import org.apache.cassandra.db.partitions.PartitionIterator
 import org.apache.cassandra.exceptions.InvalidRequestException
-import org.apache.cassandra.service.{LuceneStorageProxy, QueryState}
+import org.apache.cassandra.service.{ClientState, LuceneStorageProxy, QueryState}
 import org.apache.cassandra.transport.messages.ResultMessage
 import org.apache.cassandra.transport.messages.ResultMessage.{Prepared, Rows}
 import org.apache.cassandra.utils.{FBUtilities, MD5Digest}
@@ -44,7 +44,7 @@ import scala.collection.mutable
   */
 class IndexQueryHandler extends QueryHandler with Logging {
 
-  type Payload = java.Map[String, ByteBuffer]
+  type Payload = java.util.Map[String, ByteBuffer]
 
   /** @inheritdoc */
   override def prepare(query: String, state: QueryState, payload: Payload): Prepared = {
@@ -152,7 +152,6 @@ class IndexQueryHandler extends QueryHandler with Logging {
     if (result == null) new ResultMessage.Void else result
   }
 
-  @throws[ReflectiveOperationException]
   def executeLuceneQuery(
       select: SelectStatement,
       state: QueryState,
@@ -187,7 +186,6 @@ class IndexQueryHandler extends QueryHandler with Logging {
     }
   }
 
-  @throws[ReflectiveOperationException]
   def executeSortedLuceneQuery(
       select: SelectStatement,
       state: QueryState,
@@ -242,5 +240,23 @@ object IndexQueryHandler {
   val processResults = classOf[SelectStatement].getDeclaredMethod(
     "processResults", classOf[PartitionIterator], classOf[QueryOptions], classOf[Int], classOf[Int])
   processResults.setAccessible(true)
+
+  /** Sets this query handler as the Cassandra CQL query handler, replacing the previous one. */
+  def set(): Unit = {
+    this.synchronized {
+      if (!ClientState.getCQLQueryHandler.isInstanceOf[IndexQueryHandler]) {
+        try {
+          val field = classOf[ClientState].getDeclaredField("cqlQueryHandler")
+          field.setAccessible(true)
+          val modifiersField = classOf[Field].getDeclaredField("modifiers")
+          modifiersField.setAccessible(true)
+          modifiersField.setInt(field, field.getModifiers & ~Modifier.FINAL)
+          field.set(null, new IndexQueryHandler)
+        } catch {
+          case e: Exception => throw new IndexException("Unable to set Lucene CQL query handler", e)
+        }
+      }
+    }
+  }
 
 }

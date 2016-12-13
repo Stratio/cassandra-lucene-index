@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene
 
 import java.{util => java}
 
-import com.stratio.cassandra.lucene.index.{DocumentIterator, PartitionedDocumentIterator}
+import com.stratio.cassandra.lucene.index.DocumentIterator
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter
 import org.apache.lucene.document.Document
@@ -36,7 +36,7 @@ class IndexReaderWide(
     command: ReadCommand,
     table: ColumnFamilyStore,
     controller: ReadExecutionController,
-    documents: PartitionedDocumentIterator)
+    documents: DocumentIterator)
   extends IndexReader(command, table, controller, documents) {
 
   private[this] val comparator = service.metadata.comparator

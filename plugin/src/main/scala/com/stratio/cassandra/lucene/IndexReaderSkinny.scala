@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene
 
-import com.stratio.cassandra.lucene.index.{DocumentIterator, PartitionedDocumentIterator}
+import com.stratio.cassandra.lucene.index.DocumentIterator
 import org.apache.cassandra.db._
 
 /** [[IndexReader]] for skinny rows.
@@ -32,7 +32,7 @@ class IndexReaderSkinny(
     command: ReadCommand,
     table: ColumnFamilyStore,
     controller: ReadExecutionController,
-    documents: PartitionedDocumentIterator)
+    documents: DocumentIterator)
   extends IndexReader(command, table, controller, documents) {
 
   /** @inheritdoc */

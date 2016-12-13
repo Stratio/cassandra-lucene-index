@@ -42,34 +42,34 @@ abstract class IndexWriter(
   val metadata = service.metadata
   val table = service.table
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def begin() {
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partitionDelete(deletionTime: DeletionTime) {
     logger.trace(s"Delete partition during $transactionType: $deletionTime")
     delete()
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def rangeTombstone(tombstone: RangeTombstone) {
     logger.trace(s"Range tombstone during $transactionType: $tombstone")
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def insertRow(row: Row): Unit = {
     logger.trace(s"Insert rows during $transactionType: $row")
     index(row)
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def updateRow(oldRowData: Row, newRowData: Row): Unit = {
     logger.trace(s"Update row during $transactionType: $oldRowData TO $newRowData")
     index(newRowData)
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def removeRow(row: Row): Unit = {
     logger.trace(s"Remove row during $transactionType: $row")
     index(row)

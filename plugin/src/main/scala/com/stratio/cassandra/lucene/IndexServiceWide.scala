@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene
 
 import com.google.common.collect.Sets
-import com.stratio.cassandra.lucene.index.{DocumentIterator, PartitionedDocumentIterator}
+import com.stratio.cassandra.lucene.index.DocumentIterator
 import com.stratio.cassandra.lucene.mapping.ClusteringMapper._
 import com.stratio.cassandra.lucene.mapping.{ClusteringMapper, KeyMapper, PartitionMapper}
 import org.apache.cassandra.db.PartitionPosition.Kind._
@@ -28,7 +28,7 @@ import org.apache.cassandra.utils.concurrent.OpOrder
 import org.apache.lucene.document.Document
 import org.apache.lucene.index.{IndexableField, Term}
 import org.apache.lucene.search.BooleanClause.Occur._
-import org.apache.lucene.search.{BooleanQuery, Query, ScoreDoc, SortField}
+import org.apache.lucene.search.{BooleanQuery, Query, SortField}
 
 import scala.collection.mutable
 
@@ -160,7 +160,7 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
 
   /** @inheritdoc */
   override def reader(
-      documents: PartitionedDocumentIterator,
+      documents: DocumentIterator,
       command: ReadCommand,
       controller: ReadExecutionController): IndexReader = {
     new IndexReaderWide(this, command, table, controller, documents)

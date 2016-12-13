@@ -53,13 +53,14 @@ class IndexPagingState(var remaining: Int) {
     * @param command a read command
     * @return the primary key of the last seen row for `command`
     */
-  def forCommand(command: ReadCommand, partitioner: Partitioner): List[Option[((Int, DecoratedKey), Clustering)]] = {
+  def forCommand(command: ReadCommand, partitioner: Partitioner)
+  : List[Option[((Int, DecoratedKey), Clustering)]] = {
     (0 until partitioner.numPartitions).map(i => {
       command match {
         case c: SinglePartitionReadCommand =>
-          entries.find { case ((partition, key), _) => c.partitionKey == key && partition == i}
+          entries.find { case ((partition, key), _) => c.partitionKey == key && partition == i }
         case c: PartitionRangeReadCommand =>
-          entries.find { case ((partition, key), _) => c.dataRange.contains(key) && partition == i}
+          entries.find { case ((partition, key), _) => c.dataRange.contains(key) && partition == i }
         case _ => throw new IndexException(s"Unsupported read command type: ${command.getClass}")
       }
     }).toList
@@ -160,7 +161,8 @@ class IndexPagingState(var remaining: Int) {
       val p = partitioner.partition(key)
       val bound = bounds.find(_ contains key)
       while (partition.hasNext) {
-        bound.foreach(bound => entries.keys.filter(x => bound.contains(x._2) && p == x._1).foreach(entries.remove))
+        bound.foreach(bound => entries.keys.filter(x => bound.contains(x._2) && p == x._1).foreach(
+          entries.remove))
         val newRowIterator = new SingleRowIterator(partition)
         rowIterators += newRowIterator
         val clustering = newRowIterator.row.clustering
@@ -184,7 +186,7 @@ class IndexPagingState(var remaining: Int) {
     if (hasMorePages) new PagingState(toByteBuffer, null, remaining, remaining) else null
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def toString: String = {
     MoreObjects.toStringHelper(this).add("remaining", remaining).add("entries", entries).toString
   }

@@ -23,8 +23,8 @@ import com.stratio.cassandra.lucene.util.Logging
 import org.apache.cassandra.io.util.FileUtils.deleteRecursive
 import org.apache.lucene.analysis.Analyzer
 import org.apache.lucene.document.Document
-import org.apache.lucene.index.{MultiReader, Term}
-import org.apache.lucene.search.{IndexSearcher, Query, Sort}
+import org.apache.lucene.index.Term
+import org.apache.lucene.search.{Query, Sort}
 
 /** An [[FSIndex]] partitioned by some not specified criterion.
   *
@@ -175,29 +175,22 @@ class PartitionedIndex(
   /** Finds the top hits for a query and sort, starting from an optional position.
     *
     * @param partitions the index partitions where the operation will be done
-    * @param afters      the starting term
     * @param query      the query to search for
     * @param sort       the sort to be applied
     * @param count      the max number of results to be collected
     * @return the found documents, sorted according to the supplied [[Sort]] instance
     */
-  def search(partitions: List[Int], afters: List[Option[Term]], query: Query, sort: Sort, count: Int)
-  : PartitionedDocumentIterator = {
+  def search(partitions: List[(Int, Option[Term])], query: Query, sort: Sort, count: Int)
+  : DocumentIterator = {
     logger.debug(
-      s"""Searching in $name (${partitions.mkString(", ")})
-         | after: $afters
+      s"""Searching in $name (${partitions.map(_._1).mkString(", ")})
+         | after: ${partitions.map(_._2).mkString(", ")}
          | query: $query
          | count: $count
          | sort : $sort
        """.stripMargin)
-//    partitions match {
-//      case partition :: Nil => indexes(partition).search(afters.head, query, sort, count)
-//      case _ =>
-        val pairs = partitions.map(indexes(_).searcher)
-        val searchers = pairs.map(_._1)
-        val releasers = pairs.map(_._2)
-        new PartitionedDocumentIterator(searchers, releasers, afters, mergeSort, sort, query, count, fields)
-//    }
+    val managers = partitions.map { case (p, a) => (indexes(p).searcherManager, a) }
+    new DocumentIterator(managers, mergeSort, sort, query, count, fields)
   }
 
 }
