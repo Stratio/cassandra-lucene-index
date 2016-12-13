@@ -242,7 +242,7 @@ object IndexQueryHandler {
   processResults.setAccessible(true)
 
   /** Sets this query handler as the Cassandra CQL query handler, replacing the previous one. */
-  def set(): Unit = {
+  def activate(): Unit = {
     this.synchronized {
       if (!ClientState.getCQLQueryHandler.isInstanceOf[IndexQueryHandler]) {
         try {

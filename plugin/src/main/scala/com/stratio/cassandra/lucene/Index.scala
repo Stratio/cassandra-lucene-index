@@ -48,7 +48,7 @@ class Index(table: ColumnFamilyStore, indexMetadata: IndexMetadata)
   extends CassandraIndex with Logging {
 
   // Set Lucene query handler as CQL query handler
-  IndexQueryHandler.set()
+  IndexQueryHandler.activate()
 
   logger.debug(s"Building Lucene index ${table.metadata} $indexMetadata")
 
