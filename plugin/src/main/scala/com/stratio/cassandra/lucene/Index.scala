@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene
 
-import java.lang.reflect.{Field, Modifier}
 import java.util.concurrent.Callable
 import java.util.function.BiFunction
 import java.util.{Collections, Optional}
@@ -35,7 +34,6 @@ import org.apache.cassandra.index.Index.{Indexer, Searcher}
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.index.{IndexRegistry, Index => CassandraIndex}
 import org.apache.cassandra.schema.IndexMetadata
-import org.apache.cassandra.service.ClientState
 import org.apache.cassandra.utils.concurrent.OpOrder
 
 
@@ -48,6 +46,9 @@ import org.apache.cassandra.utils.concurrent.OpOrder
   */
 class Index(table: ColumnFamilyStore, indexMetadata: IndexMetadata)
   extends CassandraIndex with Logging {
+
+  // Set Lucene query handler as CQL query handler
+  IndexQueryHandler.activate()
 
   logger.debug(s"Building Lucene index ${table.metadata} $indexMetadata")
 
@@ -337,18 +338,6 @@ class Index(table: ColumnFamilyStore, indexMetadata: IndexMetadata)
 
 /** Companion object for [[Index]]. */
 object Index extends Logging {
-
-  // Setup CQL query handler
-  try {
-    val field = classOf[ClientState].getDeclaredField("cqlQueryHandler")
-    field.setAccessible(true)
-    val modifiersField = classOf[Field].getDeclaredField("modifiers")
-    modifiersField.setAccessible(true)
-    modifiersField.setInt(field, field.getModifiers & ~Modifier.FINAL)
-    field.set(null, new IndexQueryHandler);
-  } catch {
-    case e: Exception => logger.error("Unable to set Lucene CQL query handler", e)
-  }
 
   /** Validates the specified index options.
     *
