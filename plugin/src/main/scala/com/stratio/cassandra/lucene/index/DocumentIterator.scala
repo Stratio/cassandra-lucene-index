@@ -27,16 +27,16 @@ import org.apache.lucene.search._
 
 /** [[CloseableIterator]] for retrieving Lucene documents satisfying a query.
   *
-  * @param partitions the searcher managers and pointers of the involved indexes
-  * @param indexSort  the sort of the index
-  * @param querySort  the sort in which the documents are going to be retrieved
-  * @param query      the query to be satisfied by the documents
-  * @param limit      the iteration page size
-  * @param fields     the names of the document fields to be loaded
+  * @param cursors   the searcher managers and pointers of the involved indexes
+  * @param indexSort the sort of the index
+  * @param querySort the sort in which the documents are going to be retrieved
+  * @param query     the query to be satisfied by the documents
+  * @param limit     the iteration page size
+  * @param fields    the names of the document fields to be loaded
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 class DocumentIterator(
-    partitions: List[(SearcherManager, Option[Term])],
+    cursors: List[(SearcherManager, Option[Term])],
     indexSort: Sort,
     querySort: Sort,
     query: Query,
@@ -46,15 +46,16 @@ class DocumentIterator(
 
   private[this] val pageSize = Math.min(limit, MAX_PAGE_SIZE) + 1
   private[this] val documents = new java.util.LinkedList[(Document, ScoreDoc)]
-  private[this] val managers = partitions.map(_._1)
+  private[this] val indices = cursors.indices
+  private[this] val managers = cursors.map(_._1)
   private[this] val searchers = managers.map(_.acquire())
-  private[this] val afterTerms = partitions.map(_._2)
-  private[this] val offsets = partitions.map(_ => 0).toArray
+  private[this] val afterTerms = cursors.map(_._2)
+  private[this] val offsets = cursors.map(_ => 0).toArray
   private[this] var finished = false
   private[this] var closed = false
 
   private[this] def releaseSearchers(): Unit =
-    partitions.indices.foreach(i => managers(i).release(searchers(i)))
+    indices.foreach(i => managers(i).release(searchers(i)))
 
   /** The sort of the query rewritten by the searcher. */
   private[this] val sort = try {
@@ -67,7 +68,7 @@ class DocumentIterator(
 
   /** The start after positions. */
   private[this] val afters = try {
-    partitions.indices.map(i => afterTerms(i).map(term => {
+    indices.map(i => afterTerms(i).map(term => {
       val time = TimeCounter.start
       val builder = new BooleanQuery.Builder
       builder.add(new TermQuery(term), FILTER)
@@ -87,9 +88,9 @@ class DocumentIterator(
 
   private[this] def fetch() = {
     try {
-      val time = TimeCounter.start
+      val fetchTime = TimeCounter.start
 
-      val topFieldDocs = afterTerms.indices.map(i => {
+      val fieldDocs = indices.map(i => {
         val afterTerm = afterTerms(i)
         if (afterTerm.isEmpty && canEarlyTerminate(sort, indexSort)) {
           val fieldDoc = afters(i).map(_.asInstanceOf[FieldDoc]).orNull
@@ -104,7 +105,7 @@ class DocumentIterator(
       }).toArray
 
       // Merge partitions results
-      val scoreDocs = TopDocs.merge(sort, pageSize, topFieldDocs).scoreDocs
+      val scoreDocs = TopDocs.merge(sort, pageSize, fieldDocs).scoreDocs
 
       val numFetched = scoreDocs.length
       finished = numFetched < pageSize
@@ -117,7 +118,7 @@ class DocumentIterator(
       }
 
       tracer.trace(s"Lucene index fetches $numFetched documents")
-      logger.debug(s"Page fetched with $numFetched documents in $time")
+      logger.debug(s"Page fetched with $numFetched documents in $fetchTime")
 
     } catch {
       case e: Exception =>

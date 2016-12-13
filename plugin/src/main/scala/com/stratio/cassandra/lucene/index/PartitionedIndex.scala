@@ -178,19 +178,20 @@ class PartitionedIndex(
     * @param query      the query to search for
     * @param sort       the sort to be applied
     * @param count      the max number of results to be collected
-    * @return the found documents, sorted according to the supplied [[Sort]] instance
+    * @return the found documents, sorted first by `sort`, then by `query` relevance
     */
   def search(partitions: List[(Int, Option[Term])], query: Query, sort: Sort, count: Int)
   : DocumentIterator = {
     logger.debug(
-      s"""Searching in $name (${partitions.map(_._1).mkString(", ")})
+      s"""Searching in $name
+         | chunk: ${partitions.map(_._1).mkString(", ")}
          | after: ${partitions.map(_._2).mkString(", ")}
          | query: $query
          | count: $count
          | sort : $sort
        """.stripMargin)
-    val managers = partitions.map { case (p, a) => (indexes(p).searcherManager, a) }
-    new DocumentIterator(managers, mergeSort, sort, query, count, fields)
+    val cursors = partitions.map { case (p, a) => (indexes(p).searcherManager, a) }
+    new DocumentIterator(cursors, mergeSort, sort, query, count, fields)
   }
 
 }
