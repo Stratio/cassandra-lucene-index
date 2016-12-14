@@ -23,8 +23,7 @@ import org.apache.cassandra.db.{DecoratedKey, ReadCommand}
 /** Class defining an index partitioning strategy. Partitioning splits each node index in multiple
   * partitions in order to speed up some searches to the detriment of others, depending on
   * the concrete partitioning strategy. It is also useful to overcome the  Lucene's hard limit of
-  * 2147483519 documents per local index, which becomes a per-partition limit. However, searches
-  * involving multiple partitions with more than 2147483519 total documents will still fail.
+  * 2147483519 documents per local index, which becomes a per-partition limit.
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */

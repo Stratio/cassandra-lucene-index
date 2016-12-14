@@ -73,7 +73,7 @@ case class PartitionerOnColumn(
   /** @inheritdoc */
   override def numPartitions: Int = partitions
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partition(key: DecoratedKey): Int =
     partition(ByteBufferUtils.split(key.getKey, keyValidator)(position))
 

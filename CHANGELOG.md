@@ -3,6 +3,7 @@
 ## 3.9.5 (Upcoming)
 
 * Add column-based index partitioner
+* Add support for local searches over index partitions with more than 2147483519 total documents
 * Fix CQL query handler activation at startup
 * Fix best effort mapping of collections (#246)
 
