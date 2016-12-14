@@ -19,12 +19,13 @@ import java.nio.ByteBuffer
 
 import com.google.common.base.MoreObjects
 import com.stratio.cassandra.lucene.IndexPagingState._
+import com.stratio.cassandra.lucene.partitioning.Partitioner
 import com.stratio.cassandra.lucene.search.SearchBuilder
 import com.stratio.cassandra.lucene.util.{ByteBufferUtils, SimplePartitionIterator, SingleRowIterator}
 import org.apache.cassandra.config.DatabaseDescriptor
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.RowFilter
-import org.apache.cassandra.db.marshal.UTF8Type
+import org.apache.cassandra.db.marshal.{Int32Type, UTF8Type}
 import org.apache.cassandra.db.partitions.PartitionIterator
 import org.apache.cassandra.service.LuceneStorageProxy
 import org.apache.cassandra.service.pager.PagingState
@@ -45,19 +46,24 @@ class IndexPagingState(var remaining: Int) {
   private var hasMorePages: Boolean = true
 
   /** The last row positions */
-  private val entries = mutable.LinkedHashMap.empty[DecoratedKey, Clustering]
+  private val entries = mutable.LinkedHashMap.empty[(Int, DecoratedKey), Clustering]
 
   /** Returns the primary key of the last seen row for the specified read command.
     *
     * @param command a read command
     * @return the primary key of the last seen row for `command`
     */
-  def forCommand(command: ReadCommand): Option[(DecoratedKey, Clustering)] = command match {
-    case c: SinglePartitionReadCommand =>
-      entries.find { case (key, clustering) => c.partitionKey == key }
-    case c: PartitionRangeReadCommand =>
-      entries.find { case (key, clustering) => c.dataRange contains key }
-    case _ => throw new IndexException(s"Unsupported read command type: ${command.getClass}")
+  def forCommand(command: ReadCommand, partitioner: Partitioner)
+  : List[Option[((Int, DecoratedKey), Clustering)]] = {
+    (0 until partitioner.numPartitions).map(i => {
+      command match {
+        case c: SinglePartitionReadCommand =>
+          entries.find { case ((partition, key), _) => c.partitionKey == key && partition == i }
+        case c: PartitionRangeReadCommand =>
+          entries.find { case ((partition, key), _) => c.dataRange.contains(key) && partition == i }
+        case _ => throw new IndexException(s"Unsupported read command type: ${command.getClass}")
+      }
+    }).toList
   }
 
   @throws[ReflectiveOperationException]
@@ -106,23 +112,26 @@ class IndexPagingState(var remaining: Int) {
   def update(
       query: ReadQuery,
       partitions: PartitionIterator,
-      consistency: ConsistencyLevel): PartitionIterator = query match {
-    case c: SinglePartitionReadCommand.Group => update(c, partitions)
-    case c: PartitionRangeReadCommand => update(c, partitions, consistency)
+      consistency: ConsistencyLevel,
+      partitioner: Partitioner): PartitionIterator = query match {
+    case c: SinglePartitionReadCommand.Group => update(c, partitions, partitioner)
+    case c: PartitionRangeReadCommand => update(c, partitions, consistency, partitioner)
     case _ => throw new IndexException(s"Unsupported query type ${query.getClass}")
   }
 
   private def update(
       group: SinglePartitionReadCommand.Group,
-      partitions: PartitionIterator): PartitionIterator = {
+      partitions: PartitionIterator,
+      partitioner: Partitioner): PartitionIterator = {
     val rowIterators = mutable.ListBuffer.empty[SingleRowIterator]
     var count = 0
     for (partition <- partitions.asScala) {
       val key = partition.partitionKey
+      val p = partitioner.partition(key)
       while (partition.hasNext) {
         val newRowIterator = new SingleRowIterator(partition)
         rowIterators += newRowIterator
-        entries.put(key, newRowIterator.row.clustering())
+        entries.put((p, key), newRowIterator.row.clustering())
         if (remaining > 0) remaining -= 1
         count += 1
       }
@@ -136,7 +145,8 @@ class IndexPagingState(var remaining: Int) {
   private def update(
       command: PartitionRangeReadCommand,
       partitions: PartitionIterator,
-      consistency: ConsistencyLevel): PartitionIterator = {
+      consistency: ConsistencyLevel,
+      partitioner: Partitioner): PartitionIterator = {
 
     // Collect query bounds
     val rangeMerger = LuceneStorageProxy.rangeMerger(command, consistency)
@@ -148,13 +158,15 @@ class IndexPagingState(var remaining: Int) {
     for (partition <- partitions.asScala) {
 
       val key = partition.partitionKey
+      val p = partitioner.partition(key)
       val bound = bounds.find(_ contains key)
       while (partition.hasNext) {
-        bound.foreach(bound => entries.keys.filter(bound.contains).foreach(entries.remove))
+        bound.foreach(bound => entries.keys.filter(x => bound.contains(x._2) && p == x._1).foreach(
+          entries.remove))
         val newRowIterator = new SingleRowIterator(partition)
         rowIterators += newRowIterator
         val clustering = newRowIterator.row.clustering
-        entries.put(key, clustering)
+        entries.put((p, key), clustering)
         if (remaining > 0) remaining -= 1
         count += 1
       }
@@ -174,7 +186,7 @@ class IndexPagingState(var remaining: Int) {
     if (hasMorePages) new PagingState(toByteBuffer, null, remaining, remaining) else null
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def toString: String = {
     MoreObjects.toStringHelper(this).add("remaining", remaining).add("entries", entries).toString
   }
@@ -185,11 +197,12 @@ class IndexPagingState(var remaining: Int) {
     * @return a byte buffer representing this
     */
   def toByteBuffer: ByteBuffer = {
-    val entryValues = entries.map { case (key, clustering) =>
-      val clusteringValues = clustering.getRawValues
-      val values = new Array[ByteBuffer](1 + clusteringValues.length)
-      values(0) = key.getKey
-      System.arraycopy(clusteringValues, 0, values, 1, clusteringValues.length)
+    val entryValues = entries.map { case ((partition, key), clustering) =>
+      val clusteringValues: Array[ByteBuffer] = clustering.getRawValues
+      val values = new Array[ByteBuffer](2 + clusteringValues.length)
+      values(0) = Int32Type.instance.decompose(partition)
+      values(1) = key.getKey
+      System.arraycopy(clusteringValues, 0, values, 2, clusteringValues.length)
       ByteBufferUtils.compose(values: _*)
     }
     val values = ByteBufferUtils.compose(entryValues.toArray: _*)
@@ -218,9 +231,10 @@ object IndexPagingState {
     ByteBufferUtils.decompose(bb).map(
       bbe => {
         val values = ByteBufferUtils.decompose(bbe)
-        val key = DatabaseDescriptor.getPartitioner.decorateKey(values(0))
-        val clustering = new Clustering(values.slice(1, values.length): _*)
-        state.entries.put(key, clustering)
+        val partition = Int32Type.instance.compose(values(0))
+        val key = DatabaseDescriptor.getPartitioner.decorateKey(values(1))
+        val clustering = new Clustering(values.slice(2, values.length + 1): _*)
+        state.entries.put((partition, key), clustering)
       })
     state
   }

@@ -44,8 +44,9 @@ import scala.collection.mutable
   * @param indexMetadata the index metadata
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: IndexMetadata)
-  extends IndexServiceMBean with Logging with Tracing {
+abstract class IndexService(
+    val table: ColumnFamilyStore,
+    val indexMetadata: IndexMetadata) extends IndexServiceMBean with Logging with Tracing {
 
   val metadata = table.metadata
   val ksName = metadata.ksName
@@ -71,8 +72,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   // Setup FS index and write queue
   val queue = TaskQueue.build(options.indexingThreads, options.indexingQueuesSize)
   val partitioner = options.partitioner
-  val lucene = new PartitionedIndex(
-    partitioner.numPartitions,
+  val lucene = new PartitionedIndex(partitioner.numPartitions,
     idxName,
     options.path,
     options.schema.analyzer,
@@ -214,22 +214,21 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param nowInSec now in seconds
     */
   def upsert(key: DecoratedKey, row: Row, nowInSec: Int) {
-    queue.submitAsynchronous(
-      key, () => {
-        val partition = partitioner.partition(key)
-        val clustering = row.clustering()
-        val term = this.term(key, clustering)
-        val columns = columnsMapper.columns(key, row, nowInSec)
-        val fields = schema.indexableFields(columns)
-        if (fields.isEmpty) {
-          lucene.delete(partition, term)
-        } else {
-          val doc = new Document
-          keyIndexableFields(key, clustering).foreach(doc.add)
-          fields.forEach(doc add _)
-          lucene.upsert(partition, term, doc)
-        }
-      })
+    queue.submitAsynchronous(key, () => {
+      val partition = partitioner.partition(key)
+      val clustering = row.clustering()
+      val term = this.term(key, clustering)
+      val columns = columnsMapper.columns(key, row, nowInSec)
+      val fields = schema.indexableFields(columns)
+      if (fields.isEmpty) {
+        lucene.delete(partition, term)
+      } else {
+        val doc = new Document
+        keyIndexableFields(key, clustering).foreach(doc.add)
+        fields.forEach(doc add _)
+        lucene.upsert(partition, term, doc)
+      }
+    })
   }
 
   /** Deletes the partition identified by the specified key.
@@ -259,16 +258,19 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
 
   /** Returns a new index searcher for the specified read command.
     *
-    * @param command the read command being executed
+    * @param command    the read command being executed
+    * @param orderGroup the Cassandra read order group
     * @return a searcher with which to perform the supplied command
     */
-  def search(command: ReadCommand, orderGroup: ReadOrderGroup): UnfilteredPartitionIterator = {
+  def search(
+      command: ReadCommand,
+      orderGroup: ReadOrderGroup): UnfilteredPartitionIterator = {
 
     // Parse search
     tracer.trace("Building Lucene search")
     val search = expressionMapper.search(command)
     val query = search.query(schema, this.query(command).orNull)
-    val after = this.after(search.paging, command)
+    val afters = this.after(search.paging, command)
     val sort = this.sort(search)
     val count = command.limits.count
 
@@ -281,7 +283,8 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     // Search
     tracer.trace(s"Lucene index searching for $count rows")
     val partitions = partitioner.partitions(command)
-    val documents = lucene.search(partitions, after, query, sort, count)
+    val readers = afters.filter(a => partitions.contains(a._1))
+    val documents = lucene.search(readers, query, sort, count)
     reader(documents, command, orderGroup)
   }
 
@@ -291,8 +294,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @return the key range query
     */
   def query(command: ReadCommand): Option[Query] = command match {
-    case command: SinglePartitionReadCommand =>
-      val key = command.partitionKey
+    case command: SinglePartitionReadCommand => val key = command.partitionKey
       val filter = command.clusteringIndexFilter(key)
       Some(query(key, filter))
     case command: PartitionRangeReadCommand => query(command.dataRange)
@@ -314,9 +316,13 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     */
   def query(dataRange: DataRange): Option[Query]
 
-  def after(pagingState: IndexPagingState, command: ReadCommand): Option[Term] = {
-    if (pagingState == null) return None
-    pagingState.forCommand(command).map { case (key, clustering) => after(key, clustering) }
+  def after(pagingState: IndexPagingState, command: ReadCommand): List[(Int, Option[Term])] = {
+    val partitions = partitioner.partitions(command)
+    val afters = if (pagingState == null)
+      (0 until partitioner.numPartitions).map(_ => None).toList
+    else
+      pagingState.forCommand(command, partitioner).map(_.map { case ((_, k), c) => after(k, c) })
+    partitions.map(i => (i, afters(i)))
   }
 
   /** Returns a Lucene query to retrieve the row identified by the specified paging state.
@@ -356,6 +362,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
       documents: DocumentIterator,
       command: ReadCommand,
       orderGroup: ReadOrderGroup): IndexReader
+
   /** Ensures that values present in a partition update are valid according to the schema.
     *
     * @param update the partition update containing the values to be validated

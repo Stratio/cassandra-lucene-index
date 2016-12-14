@@ -90,6 +90,8 @@ class FSIndex(
     try f.apply(searcher) finally manager.release(searcher)
   }
 
+  def searcherManager: SearcherManager = manager
+
   /** Upserts the specified document by first deleting the documents containing the specified term
     * and then adding the new document. The delete and then add are atomic as seen by a reader on
     * the same index (flush may happen only after the addition).
@@ -133,26 +135,6 @@ class FSIndex(
   /** Closes the index and removes all its files. */
   def delete() {
     try close() finally FileUtils.deleteRecursive(path.toFile)
-  }
-
-  /** Finds the top hits for a query and sort, starting from an optional position.
-    *
-    * @param after the starting term
-    * @param query the query to search for
-    * @param sort  the sort to be applied
-    * @param count the max number of results to be collected
-    * @return the found documents, sorted according to the supplied [[Sort]] instance
-    */
-  def search(after: Option[Term], query: Query, sort: Sort, count: Int): DocumentIterator = {
-    val searcher = manager.acquire()
-    val releaseSearcher = () => manager.release(searcher)
-    new DocumentIterator(searcher, releaseSearcher, after, mergeSort, sort, query, count, fields)
-  }
-
-  def searcher: (IndexSearcher, () => Unit) = {
-    val searcher = manager.acquire()
-    val releaseSearcher = () => manager.release(searcher)
-    (searcher, releaseSearcher)
   }
 
   /** Returns the total number of documents in this index.

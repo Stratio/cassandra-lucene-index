@@ -19,6 +19,7 @@ import java.lang.reflect.{Field, Modifier}
 import java.nio.ByteBuffer
 
 import com.stratio.cassandra.lucene.IndexQueryHandler._
+import com.stratio.cassandra.lucene.partitioning.Partitioner
 import com.stratio.cassandra.lucene.util.{Logging, TimeCounter}
 import org.apache.cassandra.cql3._
 import org.apache.cassandra.cql3.statements.RequestValidations.checkNotNull
@@ -151,7 +152,6 @@ class IndexQueryHandler extends QueryHandler with Logging {
     if (result == null) new ResultMessage.Void else result
   }
 
-  @throws[ReflectiveOperationException]
   def executeLuceneQuery(
       select: SelectStatement,
       state: QueryState,
@@ -167,23 +167,26 @@ class IndexQueryHandler extends QueryHandler with Logging {
     val (expression, index) = expressions.head
     val search = index.validate(expression)
 
+    // Get partitioner
+    val partitioner = index.service.partitioner
+
     // Get paging info
     val limit = select.getLimit(options)
     val page = getPageSize.invoke(select, options).asInstanceOf[Int]
 
     // Take control of paging if there is paging and the query requires post processing
     if (search.requiresPostProcessing && page > 0 && page < limit) {
-      executeSortedLuceneQuery(select, state, options)
+      executeSortedLuceneQuery(select, state, options, partitioner)
     } else {
       execute(select, state, options)
     }
   }
 
-  @throws[ReflectiveOperationException]
   def executeSortedLuceneQuery(
       select: SelectStatement,
       state: QueryState,
-      options: QueryOptions): Rows = {
+      options: QueryOptions,
+      partitioner: Partitioner): Rows = {
 
     // Check consistency level
     val consistency = options.getConsistency
@@ -207,7 +210,7 @@ class IndexQueryHandler extends QueryHandler with Logging {
 
     // Process data updating paging state
     try {
-      val processedData = pagingState.update(query, data, consistency)
+      val processedData = pagingState.update(query, data, consistency, partitioner)
       val rows = processResults.invoke(
         select,
         processedData,

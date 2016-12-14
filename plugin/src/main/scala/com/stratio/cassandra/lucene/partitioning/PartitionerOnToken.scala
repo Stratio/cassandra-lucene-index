@@ -36,17 +36,17 @@ case class PartitionerOnToken(partitions: Int) extends Partitioner {
   if (partitions <= 0) throw new IndexException(
     s"The number of partitions should be strictly positive but found $partitions")
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   private[this] def partition(token: Token): Int =
     (Math.abs(token.getTokenValue.asInstanceOf[Long]) % partitions).toInt
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def numPartitions: Int = partitions
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partition(key: DecoratedKey): Int = partition(key.getToken)
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partitions(command: ReadCommand): List[Int] = command match {
     case c: SinglePartitionReadCommand => List(partition(c.partitionKey))
     case c: PartitionRangeReadCommand =>

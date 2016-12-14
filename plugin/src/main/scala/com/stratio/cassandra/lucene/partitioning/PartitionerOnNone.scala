@@ -24,13 +24,13 @@ import org.apache.cassandra.db.{DecoratedKey, ReadCommand}
   */
 case class PartitionerOnNone() extends Partitioner {
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def numPartitions: Int = 1
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partition(key: DecoratedKey): Int = 0
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partitions(command: ReadCommand): List[Int] = allPartitions
 
 }
