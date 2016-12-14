@@ -2,6 +2,7 @@
 
 ## 3.0.10.2 (Upcoming)
 
+* Upgrade to Apache Lucene 5.5.3
 * Add column-based index partitioner
 * Add support for local searches over index partitions with more than 2147483519 total documents
 * Fix CQL query handler activation at startup
