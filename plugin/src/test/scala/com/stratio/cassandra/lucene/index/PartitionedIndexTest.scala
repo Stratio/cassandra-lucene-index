@@ -90,7 +90,7 @@ class PartitionedIndexTest extends BaseScalaTest {
       assertEquals("Expected 2 documents", 2, index.getNumDocs)
 
       val query = new WildcardQuery(new Term("field", "value*"))
-      assertCount(index.search(List(0), None, query, sort, 1), 2)
+      assertCount(index.search(List((0, None)), query, sort, 1), 2)
 
       // Delete by term
       index.delete(0, term1)
@@ -143,9 +143,9 @@ class PartitionedIndexTest extends BaseScalaTest {
       assertEquals("Expected 2 documents", 2, index.getNumDocs)
 
       val query = new WildcardQuery(new Term("field", "value*"))
-      assertCount(index.search(List(0), None, query, sort, 1), 1)
-      assertCount(index.search(List(1), None, query, sort, 1), 1)
-      assertCount(index.search(List(0, 1), None, query, sort, 1), 2)
+      assertCount(index.search(List((0, None)), query, sort, 1), 1)
+      assertCount(index.search(List((1, None)), query, sort, 1), 1)
+      assertCount(index.search(List((0, None), (1, None)), query, sort, 1), 2)
 
       // Delete by term
       index.delete(0, term1)
@@ -193,8 +193,8 @@ class PartitionedIndexTest extends BaseScalaTest {
       Thread.sleep(REFRESH_MILLISECONDS)
       assertEquals("Expected 2 documents", 100, index.getNumDocs)
       val query = new MatchAllDocsQuery
-      assertCount(index.search(List(0), None, query, sort, 1000), 100)
-      assertCount(index.search(List(0), Some(new Term("field_s", "49")), query, sort, 1000), 50)
+      assertCount(index.search(List((0, None)), query, sort, 1000), 100)
+      assertCount(index.search(List((0, Some(new Term("field_s", "49")))), query, sort, 1000), 50)
     })
   }
 
@@ -219,8 +219,10 @@ class PartitionedIndexTest extends BaseScalaTest {
       Thread.sleep(REFRESH_MILLISECONDS)
       assertEquals("Expected 2 documents", 100, index.getNumDocs)
       val query = new MatchAllDocsQuery
-      assertCount(index.search(List(0, 1), None, query, sort, 1000), 100)
-      assertCount(index.search(List(0, 1), Some(new Term("field_s", "49")), query, sort, 1000), 50)
+      assertCount(index.search(List((0, None), (1, None)), query, sort, 1000), 100)
+      assertCount(index.search(List(
+        (0, Some(new Term("field_s", "48"))),
+        (1, Some(new Term("field_s", "49")))), query, sort, 1000), 50)
     })
   }
 

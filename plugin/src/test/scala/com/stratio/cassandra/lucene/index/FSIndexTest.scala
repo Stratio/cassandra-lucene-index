@@ -89,9 +89,6 @@ class FSIndexTest extends BaseScalaTest {
         Thread.sleep(REFRESH_MILLISECONDS)
         assertEquals("Expected 2 documents", 2, index.getNumDocs)
 
-        val query = new WildcardQuery(new Term("field", "value*"))
-        assertCount(index.search(None, query, sort, 1), 2)
-
         // Delete by term
         index.delete(term1)
         index.commit()
@@ -114,33 +111,6 @@ class FSIndexTest extends BaseScalaTest {
 
         // Delete
         index.delete()
-      })
-  }
-
-  test("paged search") {
-    doWithIndex(
-      index => {
-        val sort = new Sort(new SortedNumericSortField("field", SortField.Type.INT, false))
-        val fields = Collections.singleton("field")
-        index.init(sort, fields)
-
-        assertEquals("Index must be empty", 0, index.getNumDocs)
-
-        for (i <- 0 until 100) {
-          val value = i.toString
-          val term = new Term("field_s", value)
-          val document = new Document
-          document.add(new StringField("field_s", value, Field.Store.NO))
-          document.add(new SortedNumericDocValuesField("field", i))
-          index.upsert(term, document)
-        }
-
-        index.commit()
-        Thread.sleep(REFRESH_MILLISECONDS)
-        assertEquals("Expected 2 documents", 100, index.getNumDocs)
-        val query = new MatchAllDocsQuery
-        assertCount(index.search(None, query, sort, 1000), 100)
-        assertCount(index.search(Some(new Term("field_s", "49")), query, sort, 1000), 50)
       })
   }
 
