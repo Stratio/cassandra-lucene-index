@@ -22,7 +22,7 @@ import com.google.common.primitives.Longs
 import com.stratio.cassandra.lucene.mapping.ClusteringMapper._
 import com.stratio.cassandra.lucene.util.ByteBufferUtils
 import com.stratio.cassandra.lucene.util.ByteBufferUtils._
-import org.apache.cassandra.config.CFMetaData
+import org.apache.cassandra.config.{CFMetaData, ColumnDefinition}
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.{ClusteringIndexNamesFilter, ClusteringIndexSliceFilter}
 import org.apache.cassandra.db.marshal.CompositeType
@@ -47,12 +47,12 @@ import scala.collection.JavaConverters._
 class ClusteringMapper(metadata: CFMetaData) {
 
   /** The clustering key comparator */
-  val comparator = metadata.comparator
+  val comparator: ClusteringComparator = metadata.comparator
 
   /** A composite type composed by the types of the clustering key */
-  val clusteringType = CompositeType.getInstance(comparator.subtypes)
+  val clusteringType: CompositeType = CompositeType.getInstance(comparator.subtypes)
 
-  val clusteringColumns = metadata.clusteringColumns.asScala
+  val clusteringColumns: List[ColumnDefinition] = metadata.clusteringColumns.asScala.toList
 
   /** Returns a list of Lucene [[IndexableField]]s representing the specified primary key.
     *
@@ -230,7 +230,7 @@ object ClusteringMapper {
   * @param mapper the primary key mapper to be used
   */
 class ClusteringSort(mapper: ClusteringMapper) extends SortField(
-  FIELD_NAME, (field, hits, sortPos, reversed) => new TermValComparator(hits, field, false) {
+  FIELD_NAME, (field, hits, _, _) => new TermValComparator(hits, field, false) {
     override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
       val comp = compareUnsigned(t1.bytes, 0, PREFIX_SIZE, t2.bytes, 0, PREFIX_SIZE)
       if (comp != 0) return comp
@@ -247,7 +247,7 @@ class ClusteringSort(mapper: ClusteringMapper) extends SortField(
 
   /** @inheritdoc */
   override def equals(o: Any): Boolean = o match {
-    case cs: ClusteringSort => true
+    case _: ClusteringSort => true
     case _ => false
   }
 

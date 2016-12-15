@@ -131,7 +131,7 @@ object PartitionMapper {
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 class PartitionSort(mapper: PartitionMapper) extends SortField(
-  FIELD_NAME, (field, hits, sortPos, reversed) => new TermValComparator(hits, field, false) {
+  FIELD_NAME, (field, hits, _, _) => new TermValComparator(hits, field, false) {
     override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
       val bb1 = ByteBufferUtils.byteBuffer(t1)
       val bb2 = ByteBufferUtils.byteBuffer(t2)
@@ -144,7 +144,7 @@ class PartitionSort(mapper: PartitionMapper) extends SortField(
 
   /** @inheritdoc **/
   override def equals(o: Any): Boolean = o match {
-    case ps: PartitionSort => true
+    case _: PartitionSort => true
     case _ => false
   }
 

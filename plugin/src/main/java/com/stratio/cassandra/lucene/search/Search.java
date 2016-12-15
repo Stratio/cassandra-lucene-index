@@ -23,8 +23,6 @@ import com.stratio.cassandra.lucene.search.sort.SortField;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -41,8 +39,6 @@ import static org.apache.lucene.search.BooleanClause.Occur.MUST;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class Search {
-
-    protected static final Logger logger = LoggerFactory.getLogger(Search.class);
 
     private static final boolean DEFAULT_FORCE_REFRESH = false;
 

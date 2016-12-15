@@ -37,7 +37,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.*;
  */
 public class BooleanCondition extends Condition {
 
-    protected static final Logger logger = LoggerFactory.getLogger(BooleanCondition.class);
+    private static final Logger logger = LoggerFactory.getLogger(BooleanCondition.class);
 
     /** The mandatory conditions. */
     public final List<Condition> must;

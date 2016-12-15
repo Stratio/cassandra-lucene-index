@@ -60,18 +60,6 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
      * @param operation the name of the spatial operation
      * @return this with the operation set
      */
-    @JsonProperty("operation")
-    public GeoShapeConditionBuilder operation(String operation) {
-        this.operation = GeoOperation.parse(operation);
-        return this;
-    }
-
-    /**
-     * Sets the name of the spatial operation to be performed.
-     *
-     * @param operation the name of the spatial operation
-     * @return this with the operation set
-     */
     public GeoShapeConditionBuilder operation(GeoOperation operation) {
         this.operation = operation;
         return this;
