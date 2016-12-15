@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.8.3 (Upcoming)
+## 3.8.3 (December 15, 2016)
 
 * Upgrade to Apache Lucene 5.5.3
 * Add column-based index partitioner
