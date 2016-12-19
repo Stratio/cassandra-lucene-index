@@ -89,7 +89,7 @@ class DocumentIterator(
 
 
 
-      logger.debug("Document iterator: fetching documents with: [after: "+after+" query: "+query+" pageSize: "+pageSize+" sort: "+sort+" ]")
+      //logger.debug("Document iterator: fetching documents with: [after: "+after+" query: "+query+" pageSize: "+pageSize+" sort: "+sort+" ]")
       val topDocs = /*if (afterTerm.isEmpty && canEarlyTerminate(sort, indexSort)) {
         val fieldDoc = after.map(_.asInstanceOf[FieldDoc]).orNull
         val collector = TopFieldCollector.create(sort, pageSize, fieldDoc, true, false, false)
@@ -106,7 +106,7 @@ class DocumentIterator(
       for (scoreDoc <- scoreDocs) {
         after = Some(scoreDoc)
         val document = searcher.doc(scoreDoc.doc, fields)
-        logger.debug("Page fetched docId: "+scoreDoc.doc+" document: "+document)
+        //logger.debug("Page fetched docId: "+scoreDoc.doc+" document: "+document)
         documents.add((document, scoreDoc))
       }
 

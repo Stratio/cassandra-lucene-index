@@ -50,7 +50,7 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
 
   /** @inheritdoc */
   override def fieldsToLoad: java.util.Set[String] = {
-    Sets.newHashSet(PartitionMapper.FIELD_NAME, clusteringMapper.FIELD_NAME)
+    Sets.newHashSet(PartitionMapper.FIELD_NAME, ClusteringMapper.FIELD_NAME)
   }
 
   /** @inheritdoc */

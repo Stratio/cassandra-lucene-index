@@ -34,7 +34,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <cassandra.driver.version>3.0.2</cassandra.driver.version>
+        <cassandra.driver.version>3.1.2</cassandra.driver.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <runSuite>**/AllSuite.java</runSuite>
     </properties>

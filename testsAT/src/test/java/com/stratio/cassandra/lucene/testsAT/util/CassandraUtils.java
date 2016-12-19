@@ -60,8 +60,8 @@ public class CassandraUtils {
     private final Map<String, Map<String, String>> udts;
     private final boolean useNewQuerySyntax;
     private final String indexBean;
-    private final String clusteringOrderColumn;
-    private final boolean clusteringOrderAscending;
+    private final List<String> clusteringOrderColumns;
+    private final List<Boolean> clusteringOrderAscending;
 
     public static CassandraUtilsBuilder builder(String name) {
         return new CassandraUtilsBuilder(name);
@@ -78,8 +78,8 @@ public class CassandraUtils {
                           List<String> partitionKey,
                           List<String> clusteringKey,
                           Map<String, Map<String, String>> udts,
-                          String clusteringOrderColumn,
-                          boolean clusteringOrderAscending) {
+                          List<String> clusteringOrderColumns,
+                          List<Boolean> clusteringOrderAscending) {
 
         this.keyspace = keyspace;
         this.table = table;
@@ -92,7 +92,7 @@ public class CassandraUtils {
         this.partitionKey = partitionKey;
         this.clusteringKey = clusteringKey;
         this.udts = udts;
-        this.clusteringOrderColumn = clusteringOrderColumn;
+        this.clusteringOrderColumns = clusteringOrderColumns;
         this.clusteringOrderAscending = clusteringOrderAscending;
 
         qualifiedTable = keyspace + "." + table;
@@ -212,11 +212,16 @@ public class CassandraUtils {
             sb.append(", ").append(s);
         }
         sb.append("))");
-        if (clusteringOrderColumn != null) {
+        if (clusteringOrderColumns != null) {
             sb.append(" WITH CLUSTERING ORDER BY(");
-            sb.append(clusteringOrderColumn);
-            sb.append(" ");
-            sb.append(this.clusteringOrderAscending ? "ASC" : "DESC");
+            for (int i=0;i<clusteringOrderColumns.size();i++) {
+                sb.append(clusteringOrderColumns.get(i));
+                sb.append(" ");
+                sb.append(clusteringOrderAscending.get(i) ? "ASC" : "DESC");
+                if (i!= clusteringOrderColumns.size()-1) {
+                    sb.append(", ");
+                }
+            }
             sb.append(")");
         }
         execute(sb);

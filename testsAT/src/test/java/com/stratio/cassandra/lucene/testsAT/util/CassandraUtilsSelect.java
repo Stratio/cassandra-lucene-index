@@ -21,19 +21,23 @@ import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.querybuilder.Clause;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
+import com.google.common.collect.Ordering;
 import com.stratio.cassandra.lucene.builder.Builder;
 import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.FETCH;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.LIMIT;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -223,6 +227,13 @@ public class CassandraUtilsSelect {
                                             Arrays.toString(expecteds),
                                             Arrays.toString(actuals)), expecteds, actuals);
         }
+        return parent;
+    }
+
+    public CassandraUtils checkIfSortedByComparator(String column, Comparator<Row> comparator, String errorMessage) {
+        List<Row> rows = get();
+        Ordering<Row> ordering= Ordering.from(comparator);
+        assertTrue( errorMessage, ordering.isOrdered(rows));
         return parent;
     }
 

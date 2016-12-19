@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.util;
 
+import com.google.common.collect.Lists;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.SingleColumnMapper;
@@ -39,8 +40,8 @@ public class CassandraUtilsBuilder {
     private Map<String, Analyzer> analyzers;
     private List<String> partitionKey;
     private List<String> clusteringKey;
-    private String clusteringOrderColumn;
-    private boolean clusteringOrderAscending;
+    private List<String> clusteringOrderColumn;
+    private List<Boolean> clusteringOrderAscending;
 
     private final Map<String, Map<String, String>> udts;
 
@@ -133,9 +134,15 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
-    public CassandraUtilsBuilder withClusteringOrder(String columnName, boolean ascending) {
-        clusteringOrderColumn = columnName;
-        clusteringOrderAscending = ascending;
+    public CassandraUtilsBuilder withClusteringOrder(String columnName, Boolean ascending) {
+        clusteringOrderColumn = Collections.singletonList(columnName);
+        clusteringOrderAscending = Collections.singletonList(ascending);
+        return this;
+    }
+
+    public CassandraUtilsBuilder withClusteringOrder(String[] columnsName, Boolean[] ascending) {
+        clusteringOrderColumn = Arrays.asList(columnsName);
+        clusteringOrderAscending = Arrays.asList(ascending);
         return this;
     }
 

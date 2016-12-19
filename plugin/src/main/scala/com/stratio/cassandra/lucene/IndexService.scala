@@ -394,7 +394,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   /** @inheritdoc */
   override def refresh() {
     queue.submitSynchronous(lucene.refresh)
-    //queue.submitSynchronous(lucene.flush)
+    queue.submitSynchronous(lucene.flush)
   }
 
 }

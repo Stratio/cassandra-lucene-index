@@ -156,4 +156,14 @@ object ByteBufferUtils {
         ByteBufferUtil.readBytes(duplicate, componentLength)
       }).toArray
   }
+
+  /** Returns an String with ByteBuffer value composing the value with the ByteBuffer cassandra AbstractType.
+    *
+    * @param bb a byte buffer.
+    * @param bbType a cassandra AbstractType.
+    * @return the components of `bb`
+    */
+  def toString(bb:ByteBuffer, bbType: AbstractType[_]):String= {
+    new StringBuilder().append(bbType.compose(bb)).toString()
+  }
 }
