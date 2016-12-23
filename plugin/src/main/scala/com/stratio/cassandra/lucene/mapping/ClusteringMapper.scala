@@ -287,7 +287,6 @@ class ClusteringSort(mapper: ClusteringMapper) extends SortField(
       mapper.compare(t1, t2)
     }
   }) {
-
   /** @inheritdoc*/
   override def toString: String = "<clustering>"
 
@@ -326,8 +325,7 @@ class ClusteringComparator(val types: java.util.List[AbstractType[_]]) extends C
   * @param start    the start clustering
   * @param stop     the stop clustering
   */
-class ClusteringQuery(
-                       val mapper: ClusteringMapper,
+class ClusteringQuery( val mapper: ClusteringMapper,
                        val position: PartitionPosition,
                        val start: Option[ClusteringPrefix],
                        val stop: Option[ClusteringPrefix]) extends MultiTermQuery(ClusteringMapper.FIELD_NAME) with Logging {
@@ -345,7 +343,7 @@ class ClusteringQuery(
 
   /** Important to avoid collisions in Lucene's query cache. */
   override def equals(o: Any): Boolean = o match {
-    case q: ClusteringQuery => token == q.token && start == q.start && stop == q.stop
+    case q: ClusteringQuery => token == q.token && start == q.start && stop == q.stop && seek == q.seek
     case _ => false
   }
 
@@ -353,8 +351,8 @@ class ClusteringQuery(
   override def hashCode: Int = {
     var result = super.hashCode
     result = 31 * result + token.hashCode
-    result = 31 * result + start.map(_.hashCode).getOrElse(0)
-    result = 31 * result + stop.map(_.hashCode).getOrElse(0)
+    result = 31 * result + startBB.map(_.hashCode).getOrElse(0)
+    result = 31 * result + stopBB.map(_.hashCode).getOrElse(0)
     result = 31 * result + seek.map(_.hashCode).getOrElse(0)
     result
   }

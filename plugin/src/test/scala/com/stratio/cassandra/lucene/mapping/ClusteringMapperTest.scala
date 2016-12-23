@@ -24,6 +24,8 @@ import com.stratio.cassandra.lucene.util.ByteBufferUtils
 import org.apache.cassandra.db.marshal._
 import org.apache.lucene.util.BytesRef
 import org.junit.Assert._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 import scala.Ordering.comparatorToOrdering
 import scala.collection.mutable.ListBuffer
@@ -33,7 +35,7 @@ import scala.collection.mutable.ListBuffer
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 
-
+@RunWith(classOf[JUnitRunner])
 class ClusteringMapperTest extends BaseScalaTest {
 
   def bytesRef(globalCType: CompositeType, values: ByteBuffer*): BytesRef = ByteBufferUtils.bytesRef(byteBuffer(globalCType, values: _*))
@@ -129,15 +131,34 @@ class ClusteringMapperTest extends BaseScalaTest {
   }
 
 
-  test("Clustering mapper comparing Ascii and reversed") {
+  test("Clustering mapper comparing Ascii") {
     val types: util.List[AbstractType[_]] = new util.ArrayList[AbstractType[_]]()
     types.add(AsciiType.instance)
 
     val clusteringComparator: ClusteringComparator = new ClusteringComparator(types)
 
+    val asciiValues: scala.collection.mutable.ListBuffer[String] = ListBuffer("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "40", "41", "42", "60", "205", "100","11","25", "21", "20", "200")
+    val asciiValuesBB: scala.collection.mutable.ListBuffer[ByteBuffer]  =asciiValues.map(AsciiType.instance decompose _)
 
 
-    val asciiValues: scala.collection.mutable.ListBuffer[String] = ListBuffer("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "40", "41", "42", "60", "205")
+    val orderingFromCmpAsciiType: Ordering[ByteBuffer] = comparatorToOrdering(AsciiType.instance)
+    val orderingFromCmpClusteringComparator: Ordering[ByteBuffer] = comparatorToOrdering(clusteringComparator)
+
+    val sortedBBByCassandra=asciiValuesBB.sorted(orderingFromCmpAsciiType)
+    val sortedBBByCLI=asciiValuesBB.sorted(orderingFromCmpClusteringComparator)
+
+    assertListEquals(sortedBBByCassandra,sortedBBByCLI, List(AsciiType.instance))
+    //System.out.println("sorting "+asciiValues+ " resutls in: "+sortedValues)
+
+  }
+
+  test("Clustering mapper comparing reverse(Ascii)") {
+    val types: util.List[AbstractType[_]] = new util.ArrayList[AbstractType[_]]()
+    types.add(ReversedType.getInstance(AsciiType.instance))
+
+    val clusteringComparator: ClusteringComparator = new ClusteringComparator(types)
+
+    val asciiValues: scala.collection.mutable.ListBuffer[String] = ListBuffer("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "40", "41", "42", "60", "205", "100","11","25", "21", "20", "200")
     val asciiValuesBB: scala.collection.mutable.ListBuffer[ByteBuffer]  =asciiValues.map(AsciiType.instance decompose _)
 
 
@@ -151,8 +172,6 @@ class ClusteringMapperTest extends BaseScalaTest {
     System.out.println("sorting "+asciiValues+ " resutls in: "+sortedValues)
 
   }
-
-
 
   def bbToString(bb: ByteBuffer, types: List[AbstractType[_]]): String = {
     val sb: StringBuilder = new StringBuilder
