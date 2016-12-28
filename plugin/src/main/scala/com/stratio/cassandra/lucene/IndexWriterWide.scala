@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene
 
-import org.apache.cassandra.db.rows.Row
+import org.apache.cassandra.db.rows.{Row, Unfiltered}
 import org.apache.cassandra.db.{Clustering, DecoratedKey}
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.index.transactions.IndexTransaction.Type._
@@ -77,6 +77,7 @@ class IndexWriterWide(
     // Read required rows from storage engine
     read(key, clusterings)
       .asScala
+      .filter(_.kind()== Unfiltered.Kind.ROW)
       .map(_.asInstanceOf[Row])
       .foreach(row => rows.put(row.clustering(), row))
 
