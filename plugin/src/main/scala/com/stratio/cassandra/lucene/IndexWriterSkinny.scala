@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene
 
-import org.apache.cassandra.db.DecoratedKey
+import org.apache.cassandra.db.{DecoratedKey, RangeTombstone}
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.index.transactions.IndexTransaction.Type._
@@ -44,6 +44,11 @@ class IndexWriterSkinny(
   override def delete() {
     service.delete(key)
     row = None
+  }
+
+  /** @inheritdoc */
+  override def delete(tombstone: RangeTombstone): Unit = {
+    logger.warn(s"Ignoring range tombstone $tombstone in skinny table")
   }
 
   /** @inheritdoc */
