@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene
 
 import org.apache.cassandra.db.rows.{Row, Unfiltered}
-import org.apache.cassandra.db.{Clustering, DecoratedKey}
+import org.apache.cassandra.db.{Clustering, DecoratedKey, RangeTombstone}
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.index.transactions.IndexTransaction.Type._
 import org.apache.cassandra.utils.concurrent.OpOrder
@@ -47,14 +47,22 @@ class IndexWriterWide(
   /** The rows ready to be written. */
   private val rows = new java.util.TreeMap[Clustering, Row](metadata.comparator)
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def delete() {
     service.delete(key)
     clusterings.clear()
     rows.clear()
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
+  override def delete(tombstone: RangeTombstone): Unit = {
+    val slice = tombstone.deletedSlice
+    service.delete(key, slice)
+    clusterings.removeIf(slice.includes(metadata.comparator, _))
+    rows.keySet.removeIf(slice.includes(metadata.comparator, _))
+  }
+
+  /** @inheritdoc*/
   override def index(row: Row) {
     if (!row.isStatic) {
       val clustering = row.clustering
@@ -68,7 +76,7 @@ class IndexWriterWide(
     }
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def finish() {
 
     // Skip on cleanups
@@ -77,7 +85,7 @@ class IndexWriterWide(
     // Read required rows from storage engine
     read(key, clusterings)
       .asScala
-      .filter(_.kind()== Unfiltered.Kind.ROW)
+      .filter(_.kind() == Unfiltered.Kind.ROW)
       .map(_.asInstanceOf[Row])
       .foreach(row => rows.put(row.clustering(), row))
 

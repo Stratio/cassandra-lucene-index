@@ -2,7 +2,8 @@
 
 ## 3.9.6 (Upcoming)
 
-* Fix read RangeTombstoneBoundMarker instead of Rows while writing (#255)
+* Ignore tombstones during read before write (#255)
+* Fix deletion of ranges of rows in a partition
 
 ## 3.9.5 (December 15, 2016)
 

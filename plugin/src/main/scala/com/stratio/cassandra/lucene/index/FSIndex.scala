@@ -111,6 +111,14 @@ class FSIndex(
     writer.deleteDocuments(term)
   }
 
+  /** Deletes all the documents satisfying the specified query.
+    *
+    * @param query the query identifying the documents to be deleted
+    */
+  def delete(query: Query) {
+    writer.deleteDocuments(query)
+  }
+
   /** Deletes all the documents. */
   def truncate() {
     writer.deleteAll()
