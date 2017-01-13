@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene
 
 import org.apache.cassandra.db.rows.Row
-import org.apache.cassandra.db.{Clustering, DecoratedKey}
+import org.apache.cassandra.db.{Clustering, DecoratedKey, RangeTombstone}
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.index.transactions.IndexTransaction.Type._
 import org.apache.cassandra.utils.concurrent.OpOrder
@@ -52,6 +52,14 @@ class IndexWriterWide(
     service.delete(key)
     clusterings.clear()
     rows.clear()
+  }
+
+  /** @inheritdoc */
+  override def delete(tombstone: RangeTombstone): Unit = {
+    val slice = tombstone.deletedSlice
+    service.delete(key, slice)
+    clusterings.removeIf(slice.includes(metadata.comparator, _))
+    rows.keySet.removeIf(slice.includes(metadata.comparator, _))
   }
 
   /** @inheritdoc */
