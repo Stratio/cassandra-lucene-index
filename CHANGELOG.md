@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.10.3 (Upcoming)
+
+* Fix deletion of ranges of rows in a partition
+
 ## 3.0.10.2 (January 10, 2017)
 
 * Upgrade to Apache Lucene 5.5.3
