@@ -83,11 +83,7 @@ class IndexWriterWide(
     if (transactionType == CLEANUP) return
 
     // Read required rows from storage engine
-    read(key, clusterings)
-      .asScala
-      .filter(_.kind() == Unfiltered.Kind.ROW)
-      .map(_.asInstanceOf[Row])
-      .foreach(row => rows.put(row.clustering(), row))
+    read(key, clusterings).asScala.foreach(row => rows.put(row.clustering(), row))
 
     // Write rows
     rows.forEach((clustering, row) => {
