@@ -44,6 +44,7 @@ abstract class IndexWriter(
 
   /** @inheritdoc */
   override def begin() {
+    logger.trace(s"Begin transaction $transactionType")
   }
 
   /** @inheritdoc */
@@ -55,6 +56,7 @@ abstract class IndexWriter(
   /** @inheritdoc */
   override def rangeTombstone(tombstone: RangeTombstone) {
     logger.trace(s"Range tombstone during $transactionType: $tombstone")
+    delete(tombstone)
   }
 
   /** @inheritdoc */
@@ -77,6 +79,9 @@ abstract class IndexWriter(
 
   /** Deletes all the partition. */
   protected def delete()
+
+  /** Deletes all the rows in the specified tombstone. */
+  protected def delete(tombstone: RangeTombstone)
 
   /** Indexes the specified row. It behaviours as an upsert and may involve read-before-write.
     *
