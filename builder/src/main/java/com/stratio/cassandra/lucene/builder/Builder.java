@@ -760,8 +760,8 @@ public abstract class Builder {
     /**
      * Returns a new {@link Partitioner.None} to not partitioning the index.
      *
-     * Index partitioning is useful to speed up some queries to the detriment of others, depending on the
-     * implementation. It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
+     * Index partitioning is useful to speed up some queries to the detriment of others, depending on the implementation.
+     * It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
      *
      * @return a new no-action partitioning, equivalent to just don't partitioning the index
      */
