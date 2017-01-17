@@ -166,4 +166,11 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
     new IndexReaderWide(this, command, table, orderGroup, documents)
   }
 
+  def delete(key: DecoratedKey, slice: Slice) {
+    queue.submitAsynchronous(key, () => {
+      val partition = partitioner.partition(key)
+      val query = clusteringMapper.query(key, slice)
+      lucene.delete(partition, query)
+    })
+  }
 }
