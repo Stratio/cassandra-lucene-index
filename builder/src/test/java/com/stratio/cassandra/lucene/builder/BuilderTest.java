@@ -102,6 +102,13 @@ public class BuilderTest {
     }
 
     @Test
+    public void testVNodesPartitioner() {
+        String actual = partitionerOnVNodes().build();
+        String expected = "{\"type\":\"vnodes\"}";
+        assertEquals("vnodes partitioner serialization is wrong", expected, actual);
+    }
+
+    @Test
     public void testBigDecimalMapperDefaults() {
         String actual = bigDecimalMapper().build();
         String expected = "{\"type\":\"bigdec\"}";
@@ -723,9 +730,9 @@ public class BuilderTest {
                           "{\"type\":\"wkt\",\"value\":\"1\"}," +
                           "{\"type\":\"wkt\",\"value\":\"2\"}" +
                           "]}";
-        assertEquals("Shape intersection is wrong", expected, intersection(wkt("1"),wkt("2")).build());
-        assertEquals("Shape intersection is wrong", expected, intersection("1","2").build());
-        assertEquals("Shape intersection is wrong", expected, intersection(Arrays.asList(wkt("1"),wkt("2"))).build());
+        assertEquals("Shape intersection is wrong", expected, intersection(wkt("1"), wkt("2")).build());
+        assertEquals("Shape intersection is wrong", expected, intersection("1", "2").build());
+        assertEquals("Shape intersection is wrong", expected, intersection(Arrays.asList(wkt("1"), wkt("2"))).build());
         assertEquals("Shape intersection is wrong", expected, intersection().add("1").add(wkt("2")).build());
     }
 
@@ -735,9 +742,9 @@ public class BuilderTest {
                           "{\"type\":\"wkt\",\"value\":\"1\"}," +
                           "{\"type\":\"wkt\",\"value\":\"2\"}" +
                           "]}";
-        assertEquals("Shape union is wrong", expected, union(wkt("1"),wkt("2")).build());
-        assertEquals("Shape union is wrong", expected, union("1","2").build());
-        assertEquals("Shape union is wrong", expected, union(Arrays.asList(wkt("1"),wkt("2"))).build());
+        assertEquals("Shape union is wrong", expected, union(wkt("1"), wkt("2")).build());
+        assertEquals("Shape union is wrong", expected, union("1", "2").build());
+        assertEquals("Shape union is wrong", expected, union(Arrays.asList(wkt("1"), wkt("2"))).build());
         assertEquals("Shape union is wrong", expected, union().add("1").add(wkt("2")).build());
     }
 
@@ -747,9 +754,9 @@ public class BuilderTest {
                           "{\"type\":\"wkt\",\"value\":\"1\"}," +
                           "{\"type\":\"wkt\",\"value\":\"2\"}" +
                           "]}";
-        assertEquals("Shape difference is wrong", expected, difference(wkt("1"),wkt("2")).build());
-        assertEquals("Shape difference is wrong", expected, difference("1","2").build());
-        assertEquals("Shape difference is wrong", expected, difference(Arrays.asList(wkt("1"),wkt("2"))).build());
+        assertEquals("Shape difference is wrong", expected, difference(wkt("1"), wkt("2")).build());
+        assertEquals("Shape difference is wrong", expected, difference("1", "2").build());
+        assertEquals("Shape difference is wrong", expected, difference(Arrays.asList(wkt("1"), wkt("2"))).build());
         assertEquals("Shape difference is wrong", expected, difference().add("1").add(wkt("2")).build());
     }
 

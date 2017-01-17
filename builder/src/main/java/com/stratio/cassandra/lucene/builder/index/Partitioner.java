@@ -22,6 +22,7 @@ import com.stratio.cassandra.lucene.builder.JSONBuilder;
 import com.stratio.cassandra.lucene.builder.index.Partitioner.None;
 import com.stratio.cassandra.lucene.builder.index.Partitioner.OnColumn;
 import com.stratio.cassandra.lucene.builder.index.Partitioner.OnToken;
+import com.stratio.cassandra.lucene.builder.index.Partitioner.OnVNodes;
 
 /**
  * An index partitioner to split the index in multiple partitions.
@@ -36,7 +37,8 @@ import com.stratio.cassandra.lucene.builder.index.Partitioner.OnToken;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = None.class, name = "none"),
         @JsonSubTypes.Type(value = OnToken.class, name = "token"),
-        @JsonSubTypes.Type(value = OnColumn.class, name = "column")})
+        @JsonSubTypes.Type(value = OnColumn.class, name = "column"),
+        @JsonSubTypes.Type(value = OnVNodes.class, name = "vnodes")})
 public abstract class Partitioner extends JSONBuilder {
 
     /**
@@ -102,6 +104,27 @@ public abstract class Partitioner extends JSONBuilder {
         public OnColumn(int partitions, String column) {
             this.partitions = partitions;
             this.column = column;
+        }
+    }
+
+    /**
+     * A {@link Partitioner} based on a partition key column. Rows will be stored in an index partition determined by
+     * the hash of the specified partition key column. Both partition-directed as well as token range searches
+     * containing an CQL equality filter over the selected partition key column will be routed to a single partition,
+     * increasing performance. However, token range searches without filters over the partitioning column will be routed
+     * to all the partitions, with a slightly lower performance.
+     *
+     * Load balancing depends on the cardinality and distribution of the values of the partitioning column. Both high
+     * cardinalities and uniform distributions will provide better load balancing between partitions.
+     *
+     * Both the number of partitions per node and the name of the partition column should be specified.
+     */
+    public static class OnVNodes extends Partitioner {
+
+        /**
+         * Builds a new partitioner on virtual nodes token ranges.
+         */
+        public OnVNodes() {
         }
     }
 }

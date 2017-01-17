@@ -15,6 +15,7 @@ Stratio's Cassandra Lucene Index
         - `None partitioner <#none-partitioner>`__
         - `Token partitioner <#token-partitioner>`__
         - `Column partitioner <#column-partitioner>`__
+        - `VNodes partitioner <#vnodes-partitioner>`__
     - `Analyzers <#analyzers>`__
         - `Classpath analyzer <#classpath-analyzer>`__
         - `Snowball analyzer <#snowball-analyzer>`__
@@ -706,6 +707,47 @@ cardinalities and uniform distributions will provide better load balancing betwe
     SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' AND month = 5; -- Fetches 1 node, 1 partition
 
     SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' ALLOW FILTERING; -- Fetches all nodes, 1 partition
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}')'; -- Fetches all nodes, all partitions
+
+Vnodes partitioner
+__________________
+
+//TODO revise this
+A partitioner based on the virtual nodes partition key token ranges. When a new node is firstly joined to the cluster,
+if num_tokens > 1 in cassandra.yaml, then cassandra calculates num_tokens virtual nodes. Each row will be stored in an
+index partition determined by those virtual node raneg inclusion. This is s token partitioneer drived by num_tokens
+in cassandra.yaml
+
+
+
+Partitioning on virtual nodes token guarantees a good load
+balancing between partitions while speeding up partition-directed searches to the detriment of token
+range searches performance. It allows to efficiently run partition directed queries in nodes
+indexing more than 2147483519 rows. However, token range searches in nodes with more than 2147483519
+rows will fail. The number of partitions per node should be specified.
+
+.. code-block:: sql
+
+    CREATE TABLE tweets (
+       user TEXT,
+       month INT,
+       date TIMESTAMP,
+       id INT,
+       body TEXT
+       PRIMARY KEY ((user, month), date, id)
+    );
+
+    CREATE CUSTOM INDEX idx ON tweets()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'schema': '{...}',
+       'partitioner': '{type: "vnodes"}',
+    };
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' AND month = 5; -- Fetches 1 node, 1 partition
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' ALLOW FILTERING; -- Fetches all nodes, all partitions
 
     SELECT * FROM tweets WHERE expr(idx, '{...}')'; -- Fetches all nodes, all partitions
 
