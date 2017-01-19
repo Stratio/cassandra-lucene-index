@@ -34,7 +34,7 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 public class PartitioningOnVNodesIT extends BaseIT {
 
     @Test
-    public void testVNodesPartitioning() {
+    public void testVNodesPartitioningWithHalfPartitionsThanVnodes() {
         builder("vnodes_partitioning")
                 .withTable("test")
                 .withIndexName("idx")
@@ -45,7 +45,76 @@ public class PartitioningOnVNodesIT extends BaseIT {
                 .withIndexColumn("lucene")
                 .withPartitionKey("pk1", "pk2")
                 .withClusteringKey("ck")
-                .withPartitioner(new Partitioner.OnVNodes())
+                .withPartitioner(new Partitioner.OnVNodes(5))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{0, 0, 0, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{0, 0, 1, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{0, 1, 0, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{0, 1, 1, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{1, 0, 0, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{1, 0, 1, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{1, 1, 0, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{1, 1, 1, 0})
+                .refresh()
+                .filter(all()).fetchSize(2).check(8)
+                .filter(all()).andEq("pk1", 0).andEq("pk2", 0).fetchSize(2).check(2)
+                .filter(all()).andEq("pk1", 0).andEq("pk2", 0).andEq("ck", 0).fetchSize(2).check(1)
+                .filter(all()).andEq("pk1", 0).allowFiltering(true).fetchSize(2).check(4)
+                .filter(all()).andEq("pk1", 1).allowFiltering(true).fetchSize(2).check(4)
+                .dropKeyspace();
+    }
+
+    @Test
+    public void testVNodesPartitioningExactVNodes() {
+        builder("vnodes_partitioning")
+                .withTable("test")
+                .withIndexName("idx")
+                .withColumn("pk1", "int")
+                .withColumn("pk2", "int")
+                .withColumn("ck", "int")
+                .withColumn("rc", "int")
+                .withIndexColumn("lucene")
+                .withPartitionKey("pk1", "pk2")
+                .withClusteringKey("ck")
+                .withPartitioner(new Partitioner.OnVNodes(10))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{0, 0, 0, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{0, 0, 1, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{0, 1, 0, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{0, 1, 1, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{1, 0, 0, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{1, 0, 1, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{1, 1, 0, 0})
+                .insert(new String[]{"pk1", "pk2", "ck", "rc"}, new Object[]{1, 1, 1, 0})
+                .refresh()
+                .filter(all()).fetchSize(2).check(8)
+                .filter(all()).andEq("pk1", 0).andEq("pk2", 0).fetchSize(2).check(2)
+                .filter(all()).andEq("pk1", 0).andEq("pk2", 0).andEq("ck", 0).fetchSize(2).check(1)
+                .filter(all()).andEq("pk1", 0).allowFiltering(true).fetchSize(2).check(4)
+                .filter(all()).andEq("pk1", 1).allowFiltering(true).fetchSize(2).check(4)
+                .dropKeyspace();
+    }
+
+
+    @Test
+    public void testVNodesPartitioningMoreThanVnodes() {
+        builder("vnodes_partitioning")
+                .withTable("test")
+                .withIndexName("idx")
+                .withColumn("pk1", "int")
+                .withColumn("pk2", "int")
+                .withColumn("ck", "int")
+                .withColumn("rc", "int")
+                .withIndexColumn("lucene")
+                .withPartitionKey("pk1", "pk2")
+                .withClusteringKey("ck")
+                .withPartitioner(new Partitioner.OnVNodes(15))
                 .build()
                 .createKeyspace()
                 .createTable()

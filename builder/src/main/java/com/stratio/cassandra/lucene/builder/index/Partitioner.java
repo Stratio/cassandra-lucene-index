@@ -108,7 +108,7 @@ public abstract class Partitioner extends JSONBuilder {
     }
 
     /**
-     * A {@link Partitioner} based on a partition key column. Rows will be stored in an index partition determined by
+     * A {@link Partitioner} based on virtual nodes. Rows will be stored in an index partition determined by
      * the hash of the specified partition key column. Both partition-directed as well as token range searches
      * containing an CQL equality filter over the selected partition key column will be routed to a single partition,
      * increasing performance. However, token range searches without filters over the partitioning column will be routed
@@ -121,10 +121,15 @@ public abstract class Partitioner extends JSONBuilder {
      */
     public static class OnVNodes extends Partitioner {
 
+        /** The number of partitions per node. */
+        @JsonProperty("partitions")
+        public final int partitions;
+
         /**
          * Builds a new partitioner on virtual nodes token ranges.
          */
-        public OnVNodes() {
+        public OnVNodes(int partitions) {
+            this.partitions = partitions;
         }
     }
 }

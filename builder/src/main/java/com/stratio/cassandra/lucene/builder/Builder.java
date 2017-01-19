@@ -810,10 +810,11 @@ public abstract class Builder {
      *
      * This partitioner guarantees an excellent load balancing between index partitions.
      *
+     * @param partitions the number of index partitions per node
      * @return a new partitioner based on Cassandra's vnodes partitioning token ranges
      */
-    public static Partitioner.OnVNodes partitionerOnVNodes() {
-        return new Partitioner.OnVNodes();
+    public static Partitioner.OnVNodes partitionerOnVNodes(int partitions) {
+        return new Partitioner.OnVNodes(partitions);
     }
 
 }
