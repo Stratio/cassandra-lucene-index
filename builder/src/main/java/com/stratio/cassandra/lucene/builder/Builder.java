@@ -803,7 +803,7 @@ public abstract class Builder {
     }
 
     /**
-     * Returns a new {@link Partitioner.OnVirtualNodes} based on the partition key token. Rows will be stored in an
+     * Returns a new {@link Partitioner.OnVirtualNode} based on the partition key token. Rows will be stored in an
      * index partition determined by the virtual nodes token range. Partition-directed searches will be routed to a
      * single partition, increasing performance. However,unfiltered token range searches will be routed to all the
      * partitions, with a slightly lower performance. Virtual node token range queries will be routed to only one
@@ -816,8 +816,8 @@ public abstract class Builder {
      * @param partitions the number of index partitions per node
      * @return a new partitioner based on Cassandra's vnodes partitioning token ranges
      */
-    public static Partitioner.OnVirtualNodes partitionerOnVirtualNodes(int partitions) {
-        return new Partitioner.OnVirtualNodes(partitions);
+    public static Partitioner.OnVirtualNode partitionerOnVirtualNodes(int partitions) {
+        return new Partitioner.OnVirtualNode(partitions);
     }
 
 }

@@ -15,7 +15,7 @@ Stratio's Cassandra Lucene Index
         - `None partitioner <#none-partitioner>`__
         - `Token partitioner <#token-partitioner>`__
         - `Column partitioner <#column-partitioner>`__
-        - `Virtual nodes partitioner <#virtual-nodes-partitioner>`__
+        - `Virtual node partitioner <#virtual-node-partitioner>`__
     - `Analyzers <#analyzers>`__
         - `Classpath analyzer <#classpath-analyzer>`__
         - `Snowball analyzer <#snowball-analyzer>`__
@@ -710,10 +710,10 @@ cardinalities and uniform distributions will provide better load balancing betwe
 
     SELECT * FROM tweets WHERE expr(idx, '{...}')'; -- Fetches all nodes, all partitions
 
-Virtual nodes partitioner
-_________________________
+Virtual node partitioner
+________________________
 
-A partitioner based on the virtual nodes partition key token ranges. Rows will be stored in an index partition determined
+A virtual node based partitioner. Rows will be stored in an index partition determined
 by the hash of the virtual node token range number. Partition-directed and specific virtual node token range searches will
 be routed to a single partition, increasing performance. However, unbounded token range searches will be routed to all
 the partitions, with a slightly lower performance.
@@ -737,7 +737,7 @@ similarity in number of tokens that falls inside any virtual node) between virtu
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
        'schema': '{...}',
-       'partitioner': '{type: "vnodes", partitions: 4}',
+       'partitioner': '{type: "vnode", partitions: 4}',
     };
 
     SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' AND month = 5; -- Fetches 1 node, 1 partition
@@ -745,13 +745,11 @@ similarity in number of tokens that falls inside any virtual node) between virtu
     SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' ALLOW FILTERING; -- Fetches all nodes, all partitions
 
     SELECT * FROM tweets WHERE expr(idx, '{...}')'
-        AND token(user, month)>=-2918332558536081408 AND token(user, month)< -2882303761517117440; -- Fetches 1 node, 1 partition
+        AND token(user, month) >= -2918332558536081408 AND token(user, month) < -2882303761517117440; -- Fetches 1 node, 1 partition
 
         being [-2918332558536081408, -2882303761517117440) one virtual node token range assignment
 
     SELECT * FROM tweets WHERE expr(idx, '{...}')'; -- Fetches all nodes, all partitions
-
-
 
 Analyzers
 =========

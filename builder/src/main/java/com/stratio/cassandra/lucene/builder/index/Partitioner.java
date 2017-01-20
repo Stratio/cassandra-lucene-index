@@ -22,7 +22,7 @@ import com.stratio.cassandra.lucene.builder.JSONBuilder;
 import com.stratio.cassandra.lucene.builder.index.Partitioner.None;
 import com.stratio.cassandra.lucene.builder.index.Partitioner.OnColumn;
 import com.stratio.cassandra.lucene.builder.index.Partitioner.OnToken;
-import com.stratio.cassandra.lucene.builder.index.Partitioner.OnVirtualNodes;
+import com.stratio.cassandra.lucene.builder.index.Partitioner.OnVirtualNode;
 
 /**
  * An index partitioner to split the index in multiple partitions.
@@ -38,7 +38,7 @@ import com.stratio.cassandra.lucene.builder.index.Partitioner.OnVirtualNodes;
         @JsonSubTypes.Type(value = None.class, name = "none"),
         @JsonSubTypes.Type(value = OnToken.class, name = "token"),
         @JsonSubTypes.Type(value = OnColumn.class, name = "column"),
-        @JsonSubTypes.Type(value = OnVirtualNodes.class, name = "vnodes")})
+        @JsonSubTypes.Type(value = OnVirtualNode.class, name = "vnode")})
 public abstract class Partitioner extends JSONBuilder {
 
     /**
@@ -109,27 +109,28 @@ public abstract class Partitioner extends JSONBuilder {
 
     /**
      * A {@link Partitioner} based on the partition key token. Rows will be stored in an index partition determined by
-     * the virtual nodes token range. Partition-directed searches will be routed to a single partition, increasing
-     * performance. However,unfiltered token range searches will be routed to all the partitions, with a slightly lower
+     * the virtual node token range. Partition-directed searches will be routed to a single partition, increasing
+     * performance. However, unbounded token range searches will be routed to all the partitions, with a slightly lower
      * performance. Virtual node token range queries will be routed to only one partition which increase performance in
-     * spark queries with vnodes rather than partitioning on token.
+     * spark queries with virtual nodes rather than partitioning on token.
      *
      * This partitioner load balance depends on virtual node token ranges asignation. The more virtual nodes, the better
      * distribution (more similarity in number of tokens that falls inside any virtual node) between virtual nodes, the
-     * better load balnce with this partitioner.
+     * better load balance with this partitioner.
      *
      * The number of partitions per node should be specified.
      */
-    public static class OnVirtualNodes extends Partitioner {
+    public static class OnVirtualNode extends Partitioner {
 
         /** The number of partitions per node. */
         @JsonProperty("partitions")
         public final int partitions;
 
         /**
-         * Builds a new partitioner on virtual nodes token ranges.
+         * Builds a new virtual node based partitioner.
+         * @param partitions
          */
-        public OnVirtualNodes(int partitions) {
+        public OnVirtualNode(int partitions) {
             this.partitions = partitions;
         }
     }

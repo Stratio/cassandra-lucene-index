@@ -25,21 +25,21 @@ import org.apache.cassandra.service.StorageService
 
 import scala.collection.JavaConverters._
 
-/** [[Partitioner]]  based on the partition key token. Rows will be stored in an index partition
+/** [[Partitioner]] based on the partition key token. Rows will be stored in an index partition
   * determined by the virtual nodes token range. Partition-directed searches will be routed to a
-  * single partition, increasing performance. However,unfiltered token range searches will be routed
+  * single partition, increasing performance. However, unbounded token range searches will be routed
   * to all the partitions, with a slightly lower performance. Virtual node token range queries will
-  * be routed to only one partition which increase performance in spark queries with vnodes rather
+  * be routed to only one partition which increase performance in spark queries with virtual nodes rather
   * than partitioning on token.
   *
-  * This partitioner load balance depends on virtual node token ranges asignation. The more virtual
+  * This partitioner load balance depends on virtual node token ranges assignation. The more virtual
   * nodes, the better distribution (more similarity in number of tokens that falls inside any virtual
   * node) between virtual nodes, the better load balance with this partitioner.
   *
   * @param partitions_number the number of index partitions per node
   * @author Eduardo Alonso `eduardoalonso@stratio.com`
   */
-case class PartitionerOnVirtualNodes(partitions_number: Int) extends Partitioner with Logging {
+case class PartitionerOnVirtualNode(partitions_number: Int) extends Partitioner with Logging {
 
   if (partitions_number <= 0) throw new IndexException(
     s"The number of partitions should be strictly positive but found $partitions_number")
@@ -47,7 +47,7 @@ case class PartitionerOnVirtualNodes(partitions_number: Int) extends Partitioner
   val tokens: List[Long] = StorageService.instance.getLocalTokens.asScala.toList.map(_.getTokenValue.asInstanceOf[Long])
 
   val numTokens = tokens.size
-  if (numTokens == 1) logger.warn("You are using a PartitionerOnVNodes but cassandra is only configured with one token (non using virtual nodes.)")
+  if (numTokens == 1) logger.warn("You are using a PartitionerOnVirtualNode but cassandra is only configured with one token (non using virtual nodes.)")
 
   /** Returns a list of the partitions involved in the range.
     *
@@ -56,37 +56,32 @@ case class PartitionerOnVirtualNodes(partitions_number: Int) extends Partitioner
     * @return a list of partitions involved in the range
     **/
   def partitions(lower: Token, upper: Token): List[Int] = {
-    val lowerPartition = partition(lower)
-    val upperPartition = partition(upper)
+    if (lower.equals(upper)) {
+      if (lower.isMinimum) {
+        allPartitions
+      } else {
+        List(partition(lower))
+      }
+    } else {
+      val lowerPartition = partition(lower)
+      val upperPartition = partition(upper)
 
-    if (lowerPartition <= upperPartition)
-      (lowerPartition to upperPartition).toList
-    else
-      (lowerPartition to numTokens).toList ::: (0 to upperPartition).toList
+      if (lowerPartition <= upperPartition)
+        (lowerPartition to upperPartition).toList
+      else
+        (lowerPartition to numTokens).toList ::: (0 to upperPartition).toList
+    }
   }
 
-
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partition(key: DecoratedKey): Int = partition(key.getToken)
 
   /** @inheritdoc */
   override def partitions(command: ReadCommand): List[Int] = command match {
     case c: SinglePartitionReadCommand => List(partition(c.partitionKey))
     case c: PartitionRangeReadCommand =>
-      val range = c.dataRange()
-      val start = range.startKey().getToken
-      val stop = range.stopKey().getToken
-
-      if (start.equals(stop)) {
-        if (start.isMinimum) {
-          //this is a unbounded select
-          allPartitions
-        } else {
-          List(partition(start))
-        }
-      } else {
-        partitions(start, stop)
-      }
+      val range = c.dataRange
+      partitions(range.startKey.getToken, range.stopKey.getToken)
     case _ => throw new IndexException(s"Unsupported read command type: ${command.getClass}")
   }
 
@@ -103,18 +98,18 @@ case class PartitionerOnVirtualNodes(partitions_number: Int) extends Partitioner
     if (vnode < 0) numTokens + vnode else vnode
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   private[this] def partition(token: Token): Int =
     virtualNode(token.getTokenValue.asInstanceOf[Long]) % partitions_number
 
 }
 
-/** Companion object for [[PartitionerOnVirtualNodes]]. */
-object PartitionerOnVirtualNodes {
+/** Companion object for [[PartitionerOnVirtualNode]]. */
+object PartitionerOnVirtualNode {
 
-  /** [[PartitionerOnVirtualNodes]] builder. */
+  /** [[PartitionerOnVirtualNode]] builder. */
   case class Builder(@JsonProperty("partitions") partitions: Int) extends Partitioner.Builder {
-    override def build(metadata: CFMetaData): PartitionerOnVirtualNodes = PartitionerOnVirtualNodes(partitions)
+    override def build(metadata: CFMetaData): PartitionerOnVirtualNode = PartitionerOnVirtualNode(partitions)
   }
 
 }
