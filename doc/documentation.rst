@@ -15,7 +15,7 @@ Stratio's Cassandra Lucene Index
         - `None partitioner <#none-partitioner>`__
         - `Token partitioner <#token-partitioner>`__
         - `Column partitioner <#column-partitioner>`__
-        - `VNodes partitioner <#vnodes-partitioner>`__
+        - `Virtual nodes partitioner <#virtual-nodes-partitioner>`__
     - `Analyzers <#analyzers>`__
         - `Classpath analyzer <#classpath-analyzer>`__
         - `Snowball analyzer <#snowball-analyzer>`__
@@ -710,22 +710,17 @@ cardinalities and uniform distributions will provide better load balancing betwe
 
     SELECT * FROM tweets WHERE expr(idx, '{...}')'; -- Fetches all nodes, all partitions
 
-Vnodes partitioner
-__________________
+Virtual nodes partitioner
+_________________________
 
-//TODO revise this
-A partitioner based on the virtual nodes partition key token ranges. When a new node is firstly joined to the cluster,
-if num_tokens > 1 in cassandra.yaml, then cassandra calculates num_tokens virtual nodes. Each row will be stored in an
-index partition determined by those virtual node raneg inclusion. This is s token partitioneer drived by num_tokens
-in cassandra.yaml
-
+A partitioner based on the virtual nodes partition key token ranges. Rows will be stored in an index partition determined
+by the hash of the virtual node token range number. Partition-directed and specific virtual node token range searches will
+be routed to a single partition, increasing performance. However, unbounded token range searches will be routed to all
+the partitions, with a slightly lower performance.
 
 
-Partitioning on virtual nodes token guarantees a good load
-balancing between partitions while speeding up partition-directed searches to the detriment of token
-range searches performance. It allows to efficiently run partition directed queries in nodes
-indexing more than 2147483519 rows. However, token range searches in nodes with more than 2147483519
-rows will fail. The number of partitions per node should be specified.
+Load balancing depends on virtual node token ranges distribution. The more virtual nodes, the better distribution (more
+similarity in number of tokens that falls inside any virtual node) between virtual nodes, the better load balancing.
 
 .. code-block:: sql
 
@@ -742,14 +737,21 @@ rows will fail. The number of partitions per node should be specified.
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
        'schema': '{...}',
-       'partitioner': '{type: "vnodes"}',
+       'partitioner': '{type: "vnodes", partitions: 4}',
     };
 
     SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' AND month = 5; -- Fetches 1 node, 1 partition
 
     SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' ALLOW FILTERING; -- Fetches all nodes, all partitions
 
+    SELECT * FROM tweets WHERE expr(idx, '{...}')'
+        AND token(user, month)>=-2918332558536081408 AND token(user, month)< -2882303761517117440; -- Fetches 1 node, 1 partition
+
+        being [-2918332558536081408, -2882303761517117440) one virtual node token range assignment
+
     SELECT * FROM tweets WHERE expr(idx, '{...}')'; -- Fetches all nodes, all partitions
+
+
 
 Analyzers
 =========

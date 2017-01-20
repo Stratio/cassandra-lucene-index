@@ -31,11 +31,12 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 @RunWith(JUnit4.class)
-public class PartitioningOnVNodesIT extends BaseIT {
+public class PartitioningOnVirtualNodesIT extends BaseIT {
+
 
     @Test
     public void testVNodesPartitioningWithHalfPartitionsThanVnodes() {
-        builder("vnodes_partitioning")
+        builder("virtual_nodes_partitioning")
                 .withTable("test")
                 .withIndexName("idx")
                 .withColumn("pk1", "int")
@@ -45,7 +46,7 @@ public class PartitioningOnVNodesIT extends BaseIT {
                 .withIndexColumn("lucene")
                 .withPartitionKey("pk1", "pk2")
                 .withClusteringKey("ck")
-                .withPartitioner(new Partitioner.OnVNodes(5))
+                .withPartitioner(new Partitioner.OnVirtualNodes(5))
                 .build()
                 .createKeyspace()
                 .createTable()
@@ -69,7 +70,7 @@ public class PartitioningOnVNodesIT extends BaseIT {
 
     @Test
     public void testVNodesPartitioningExactVNodes() {
-        builder("vnodes_partitioning")
+        builder("virtual_nodes_partitioning")
                 .withTable("test")
                 .withIndexName("idx")
                 .withColumn("pk1", "int")
@@ -79,7 +80,7 @@ public class PartitioningOnVNodesIT extends BaseIT {
                 .withIndexColumn("lucene")
                 .withPartitionKey("pk1", "pk2")
                 .withClusteringKey("ck")
-                .withPartitioner(new Partitioner.OnVNodes(10))
+                .withPartitioner(new Partitioner.OnVirtualNodes(10))
                 .build()
                 .createKeyspace()
                 .createTable()
@@ -104,7 +105,7 @@ public class PartitioningOnVNodesIT extends BaseIT {
 
     @Test
     public void testVNodesPartitioningMoreThanVnodes() {
-        builder("vnodes_partitioning")
+        builder("virtual_nodes_partitioning")
                 .withTable("test")
                 .withIndexName("idx")
                 .withColumn("pk1", "int")
@@ -114,7 +115,7 @@ public class PartitioningOnVNodesIT extends BaseIT {
                 .withIndexColumn("lucene")
                 .withPartitionKey("pk1", "pk2")
                 .withClusteringKey("ck")
-                .withPartitioner(new Partitioner.OnVNodes(15))
+                .withPartitioner(new Partitioner.OnVirtualNodes(15))
                 .build()
                 .createKeyspace()
                 .createTable()

@@ -22,7 +22,7 @@ import com.stratio.cassandra.lucene.builder.JSONBuilder;
 import com.stratio.cassandra.lucene.builder.index.Partitioner.None;
 import com.stratio.cassandra.lucene.builder.index.Partitioner.OnColumn;
 import com.stratio.cassandra.lucene.builder.index.Partitioner.OnToken;
-import com.stratio.cassandra.lucene.builder.index.Partitioner.OnVNodes;
+import com.stratio.cassandra.lucene.builder.index.Partitioner.OnVirtualNodes;
 
 /**
  * An index partitioner to split the index in multiple partitions.
@@ -38,7 +38,7 @@ import com.stratio.cassandra.lucene.builder.index.Partitioner.OnVNodes;
         @JsonSubTypes.Type(value = None.class, name = "none"),
         @JsonSubTypes.Type(value = OnToken.class, name = "token"),
         @JsonSubTypes.Type(value = OnColumn.class, name = "column"),
-        @JsonSubTypes.Type(value = OnVNodes.class, name = "vnodes")})
+        @JsonSubTypes.Type(value = OnVirtualNodes.class, name = "vnodes")})
 public abstract class Partitioner extends JSONBuilder {
 
     /**
@@ -108,18 +108,19 @@ public abstract class Partitioner extends JSONBuilder {
     }
 
     /**
-     * A {@link Partitioner} based on virtual nodes. Rows will be stored in an index partition determined by
-     * the hash of the specified partition key column. Both partition-directed as well as token range searches
-     * containing an CQL equality filter over the selected partition key column will be routed to a single partition,
-     * increasing performance. However, token range searches without filters over the partitioning column will be routed
-     * to all the partitions, with a slightly lower performance.
+     * A {@link Partitioner} based on the partition key token. Rows will be stored in an index partition determined by
+     * the virtual nodes token range. Partition-directed searches will be routed to a single partition, increasing
+     * performance. However,unfiltered token range searches will be routed to all the partitions, with a slightly lower
+     * performance. Virtual node token range queries will be routed to only one partition which increase performance in
+     * spark queries with vnodes rather than partitioning on token.
      *
-     * Load balancing depends on the cardinality and distribution of the values of the partitioning column. Both high
-     * cardinalities and uniform distributions will provide better load balancing between partitions.
+     * This partitioner load balance depends on virtual node token ranges asignation. The more virtual nodes, the better
+     * distribution (more similarity in number of tokens that falls inside any virtual node) between virtual nodes, the
+     * better load balnce with this partitioner.
      *
-     * Both the number of partitions per node and the name of the partition column should be specified.
+     * The number of partitions per node should be specified.
      */
-    public static class OnVNodes extends Partitioner {
+    public static class OnVirtualNodes extends Partitioner {
 
         /** The number of partitions per node. */
         @JsonProperty("partitions")
@@ -128,7 +129,7 @@ public abstract class Partitioner extends JSONBuilder {
         /**
          * Builds a new partitioner on virtual nodes token ranges.
          */
-        public OnVNodes(int partitions) {
+        public OnVirtualNodes(int partitions) {
             this.partitions = partitions;
         }
     }

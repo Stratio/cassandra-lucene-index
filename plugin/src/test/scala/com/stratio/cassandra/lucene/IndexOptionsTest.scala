@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene
 
 import com.stratio.cassandra.lucene.IndexOptions._
-import com.stratio.cassandra.lucene.partitioning.{PartitionerOnNone, PartitionerOnToken, PartitionerOnVNodes}
+import com.stratio.cassandra.lucene.partitioning.{PartitionerOnNone, PartitionerOnToken, PartitionerOnVirtualNodes$}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 

@@ -103,7 +103,7 @@ public class BuilderTest {
 
     @Test
     public void testVNodesPartitioner() {
-        String actual = partitionerOnVNodes(7).build();
+        String actual = partitionerOnVirtualNodes(7).build();
         String expected = "{\"type\":\"vnodes\",\"partitions\":7}";
         assertEquals("vnodes partitioner serialization is wrong", expected, actual);
     }

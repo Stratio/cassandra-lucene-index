@@ -80,7 +80,7 @@ object Partitioner {
     new JsonSubTypes.Type(value = classOf[PartitionerOnNone.Builder], name = "none"),
     new JsonSubTypes.Type(value = classOf[PartitionerOnToken.Builder], name = "token"),
     new JsonSubTypes.Type(value = classOf[PartitionerOnColumn.Builder], name = "column"),
-    new JsonSubTypes.Type(value = classOf[PartitionerOnVNodes.Builder], name = "vnodes")))
+    new JsonSubTypes.Type(value = classOf[PartitionerOnVirtualNodes.Builder], name = "vnodes")))
   trait Builder {
 
     def build(metadata: CFMetaData): Partitioner

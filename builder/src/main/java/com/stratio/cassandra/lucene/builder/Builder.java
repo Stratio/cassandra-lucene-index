@@ -760,8 +760,8 @@ public abstract class Builder {
     /**
      * Returns a new {@link Partitioner.None} to not partitioning the index.
      *
-     * Index partitioning is useful to speed up some queries to the detriment of others, depending on the implementation.
-     * It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
+     * Index partitioning is useful to speed up some queries to the detriment of others, depending on the
+     * implementation. It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
      *
      * @return a new no-action partitioning, equivalent to just don't partitioning the index
      */
@@ -803,18 +803,21 @@ public abstract class Builder {
     }
 
     /**
-     * Returns a new {@link Partitioner.OnVNodes} based on the partition key token. Rows will be stored in an index
-     * partition determined by the virtual nodes token range. Partition-directed searches will be routed to a single
-     * partition, increasing performance. However, token range searches will be routed to all the partitions, with a
-     * slightly lower performance.
+     * Returns a new {@link Partitioner.OnVirtualNodes} based on the partition key token. Rows will be stored in an
+     * index partition determined by the virtual nodes token range. Partition-directed searches will be routed to a
+     * single partition, increasing performance. However,unfiltered token range searches will be routed to all the
+     * partitions, with a slightly lower performance. Virtual node token range queries will be routed to only one
+     * partition which increase performance in spark queries with vnodes rather than partitioning on token.
      *
-     * This partitioner guarantees an excellent load balancing between index partitions.
+     * This partitioner load balance depends on virtual node token ranges asignation. The more virtual nodes, the better
+     * distribution (more similarity in number of tokens that falls inside any virtual node) between virtual nodes, the
+     * better load balnce with this partitioner.
      *
      * @param partitions the number of index partitions per node
      * @return a new partitioner based on Cassandra's vnodes partitioning token ranges
      */
-    public static Partitioner.OnVNodes partitionerOnVNodes(int partitions) {
-        return new Partitioner.OnVNodes(partitions);
+    public static Partitioner.OnVirtualNodes partitionerOnVirtualNodes(int partitions) {
+        return new Partitioner.OnVirtualNodes(partitions);
     }
 
 }
