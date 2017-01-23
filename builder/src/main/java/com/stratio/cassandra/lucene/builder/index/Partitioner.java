@@ -114,11 +114,11 @@ public abstract class Partitioner extends JSONBuilder {
      * performance. Virtual node token range queries will be routed to only one partition which increase performance in
      * spark queries with virtual nodes rather than partitioning on token.
      *
-     * This partitioner load balance depends on virtual node token ranges asignation. The more virtual nodes, the better
-     * distribution (more similarity in number of tokens that falls inside any virtual node) between virtual nodes, the
-     * better load balance with this partitioner.
+     * This partitioner load balance depends on virtual node token ranges assignation. The more virtual nodes, the
+     * better distribution (more similarity in number of tokens that falls inside any virtual node) between virtual
+     * nodes, the better load balance with this partitioner.
      *
-     * The number of partitions per node should be specified.
+     * The number of virtual nodes per each partition must be specified.
      */
     public static class OnVirtualNode extends Partitioner {
 
@@ -128,7 +128,8 @@ public abstract class Partitioner extends JSONBuilder {
 
         /**
          * Builds a new virtual node based partitioner.
-         * @param virtualNodesPerPartition
+         *
+         * @param virtualNodesPerPartition the number of virtual nodes per each partition
          */
         public OnVirtualNode(int virtualNodesPerPartition) {
             this.virtualNodesPerPartition = virtualNodesPerPartition;

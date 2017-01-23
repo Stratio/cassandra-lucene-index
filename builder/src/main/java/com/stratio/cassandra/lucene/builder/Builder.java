@@ -809,9 +809,9 @@ public abstract class Builder {
      * partitions, with a slightly lower performance. Virtual node token range queries will be routed to only one
      * partition which increase performance in spark queries with vnodes rather than partitioning on token.
      *
-     * This partitioner load balance depends on virtual node token ranges asignation. The more virtual nodes, the better
+     * This partitioner load balance depends on virtual node token ranges assignation. The more virtual nodes, the better
      * distribution (more similarity in number of tokens that falls inside any virtual node) between virtual nodes, the
-     * better load balnce with this partitioner.
+     * better load balance with this partitioner.
      *
      * @param virtualNodesPerPartition the number of virtual nodes per each partition
      * @return a new partitioner based on Cassandra's vnode partitioning token ranges
