@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene
 
-import org.apache.cassandra.db.rows.{Row, Unfiltered}
+import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.db.{Clustering, DecoratedKey, RangeTombstone}
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.index.transactions.IndexTransaction.Type._
@@ -47,14 +47,14 @@ class IndexWriterWide(
   /** The rows ready to be written. */
   private val rows = new java.util.TreeMap[Clustering, Row](metadata.comparator)
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def delete() {
     service.delete(key)
     clusterings.clear()
     rows.clear()
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def delete(tombstone: RangeTombstone): Unit = {
     val slice = tombstone.deletedSlice
     service.delete(key, slice)
@@ -62,7 +62,7 @@ class IndexWriterWide(
     rows.keySet.removeIf(slice.includes(metadata.comparator, _))
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def index(row: Row) {
     if (!row.isStatic) {
       val clustering = row.clustering
@@ -76,7 +76,7 @@ class IndexWriterWide(
     }
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def finish() {
 
     // Skip on cleanups
