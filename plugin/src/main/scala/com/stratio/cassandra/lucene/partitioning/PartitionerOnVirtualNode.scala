@@ -20,10 +20,12 @@ import com.stratio.cassandra.lucene.IndexException
 import com.stratio.cassandra.lucene.util.Logging
 import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db._
-import org.apache.cassandra.dht.Token
+import org.apache.cassandra.dht.Murmur3Partitioner.LongToken
+import org.apache.cassandra.dht.{Bounds, Token}
 import org.apache.cassandra.service.StorageService
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /** [[Partitioner]] based on the partition key token. Rows will be stored in an index partition
   * determined by the virtual nodes token range. Partition-directed searches will be routed to a
@@ -36,18 +38,30 @@ import scala.collection.JavaConverters._
   * nodes, the better distribution (more similarity in number of tokens that falls inside any virtual
   * node) between virtual nodes, the better load balance with this partitioner.
   *
-  * @param partitions_number the number of index partitions per node
+  * @param vnodes_per_partition the number of virtual nodes that falls inside an index partition
   * @author Eduardo Alonso `eduardoalonso@stratio.com`
   */
-case class PartitionerOnVirtualNode(partitions_number: Int) extends Partitioner with Logging {
+case class PartitionerOnVirtualNode(vnodes_per_partition: Int) extends Partitioner with Logging {
 
-  if (partitions_number <= 0) throw new IndexException(
-    s"The number of partitions should be strictly positive but found $partitions_number")
+  if (vnodes_per_partition <= 0) throw new IndexException(
+    s"The number of partitions should be strictly positive but found $vnodes_per_partition")
 
-  val tokens: List[Long] = StorageService.instance.getLocalTokens.asScala.toList.map(_.getTokenValue.asInstanceOf[Long])
-
+  val tokens: List[Token] = StorageService.instance.getLocalTokens.asScala.toList
   val numTokens = tokens.size
+
+  /** @inheritdoc */
+  override def numPartitions : Int = (numTokens.toDouble/vnodes_per_partition.toDouble).ceil.toInt
+
   if (numTokens == 1) logger.warn("You are using a PartitionerOnVirtualNode but cassandra is only configured with one token (non using virtual nodes.)")
+
+  val partitionPerBound = new mutable.HashMap[Bounds[Token],Int]()
+
+  for (i <-0 until numPartitions) {
+    val next = if (i + 1 == numPartitions) 0 else i + 1
+    val bound : Bounds[Token] = new Bounds(tokens(i), new LongToken(tokens(next).getTokenValue.asInstanceOf[Long]-1))
+    val partition = (i.toDouble/vnodes_per_partition.toDouble).floor.toInt
+    partitionPerBound(bound)=partition
+  }
 
   /** Returns a list of the partitions involved in the range.
     *
@@ -86,21 +100,8 @@ case class PartitionerOnVirtualNode(partitions_number: Int) extends Partitioner 
   }
 
   /** @inheritdoc */
-  override def numPartitions: Int = partitions_number
-
-  /** Returns the virtual node index for the token
-    *
-    * @param token the token Long value
-    * @return the virtual node index where this token falls into
-    */
-  private[this] def virtualNode(token: Long): Int = {
-    val vnode = tokens.count(x => token >= x) - 1
-    if (vnode < 0) numTokens + vnode else vnode
-  }
-
-  /** @inheritdoc */
   private[this] def partition(token: Token): Int =
-    virtualNode(token.getTokenValue.asInstanceOf[Long]) % partitions_number
+    partitionPerBound.filter(_._1.contains(token)).toList.head._2
 
 }
 
@@ -108,8 +109,7 @@ case class PartitionerOnVirtualNode(partitions_number: Int) extends Partitioner 
 object PartitionerOnVirtualNode {
 
   /** [[PartitionerOnVirtualNode]] builder. */
-  case class Builder(@JsonProperty("partitions") partitions: Int) extends Partitioner.Builder {
-    override def build(metadata: CFMetaData): PartitionerOnVirtualNode = PartitionerOnVirtualNode(partitions)
+  case class Builder(@JsonProperty("vnodes_per_partition") vnodes_per_partition: Int) extends Partitioner.Builder {
+    override def build(metadata: CFMetaData): PartitionerOnVirtualNode = PartitionerOnVirtualNode(vnodes_per_partition)
   }
-
 }

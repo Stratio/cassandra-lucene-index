@@ -123,15 +123,15 @@ public abstract class Partitioner extends JSONBuilder {
     public static class OnVirtualNode extends Partitioner {
 
         /** The number of partitions per node. */
-        @JsonProperty("partitions")
-        public final int partitions;
+        @JsonProperty("vnodes_per_partition")
+        public final int virtualNodesPerPartition;
 
         /**
          * Builds a new virtual node based partitioner.
-         * @param partitions
+         * @param virtualNodesPerPartition
          */
-        public OnVirtualNode(int partitions) {
-            this.partitions = partitions;
+        public OnVirtualNode(int virtualNodesPerPartition) {
+            this.virtualNodesPerPartition = virtualNodesPerPartition;
         }
     }
 }
