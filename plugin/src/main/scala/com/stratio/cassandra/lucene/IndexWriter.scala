@@ -15,10 +15,11 @@
  */
 package com.stratio.cassandra.lucene
 
+import java.util.NavigableSet
+
 import com.stratio.cassandra.lucene.util.{Logging, Tracing}
 import org.apache.cassandra.db._
-import org.apache.cassandra.db.filter.{ClusteringIndexNamesFilter, ColumnFilter}
-import org.apache.cassandra.db.rows.{Row, UnfilteredRowIterator}
+import org.apache.cassandra.db.rows.{Row, RowIterator, UnfilteredRowIterators}
 import org.apache.cassandra.index.Index.Indexer
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
@@ -94,7 +95,7 @@ abstract class IndexWriter(
     * @param key the partition key
     * @return a row iterator
     */
-  protected def read(key: DecoratedKey): UnfilteredRowIterator = {
+  protected def read(key: DecoratedKey): RowIterator = {
     read(SinglePartitionReadCommand.fullPartitionRead(metadata, nowInSec, key))
   }
 
@@ -104,11 +105,8 @@ abstract class IndexWriter(
     * @param clusterings the clustering keys
     * @return a row iterator
     */
-  protected def read(key: DecoratedKey, clusterings: java.util.NavigableSet[Clustering])
-  : UnfilteredRowIterator = {
-    val filter = new ClusteringIndexNamesFilter(clusterings, false)
-    val columnFilter = ColumnFilter.all(metadata)
-    read(SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter))
+  protected def read(key: DecoratedKey, clusterings: NavigableSet[Clustering]): RowIterator = {
+    read(SinglePartitionReadCommand.create(metadata, nowInSec, key, clusterings))
   }
 
   /** Retrieves from the local storage the rows satisfying the specified read command.
@@ -116,8 +114,9 @@ abstract class IndexWriter(
     * @param command a single partition read command
     * @return a row iterator
     */
-  protected def read(command: SinglePartitionReadCommand): UnfilteredRowIterator = {
-    try command.queryMemtableAndDisk(table, opGroup)
+  protected def read(command: SinglePartitionReadCommand): RowIterator = {
+    val unfilteredRows = command.queryMemtableAndDisk(table, opGroup)
+    UnfilteredRowIterators.filter(unfilteredRows, nowInSec)
   }
 
 }
