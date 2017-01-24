@@ -25,8 +25,9 @@ import static com.stratio.cassandra.lucene.builder.Builder.all;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 
 /**
- * Test partitioning on virtual nodes partition. This test does not depends on virtual tokens in cassandra because vnodes
- * partitioning also works with 1 token range (num_tokens==1, initial_token != null)
+ * Test partitioning on virtual nodes partition. This test does not depends on virtual tokens in
+ * cassandra because vnodes partitioning also works with 1 token range (num_tokens==1, initial_token
+ * != null)
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
