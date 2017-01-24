@@ -723,9 +723,9 @@ public class BuilderTest {
                           "{\"type\":\"wkt\",\"value\":\"1\"}," +
                           "{\"type\":\"wkt\",\"value\":\"2\"}" +
                           "]}";
-        assertEquals("Shape intersection is wrong", expected, intersection(wkt("1"),wkt("2")).build());
-        assertEquals("Shape intersection is wrong", expected, intersection("1","2").build());
-        assertEquals("Shape intersection is wrong", expected, intersection(Arrays.asList(wkt("1"),wkt("2"))).build());
+        assertEquals("Shape intersection is wrong", expected, intersection(wkt("1"), wkt("2")).build());
+        assertEquals("Shape intersection is wrong", expected, intersection("1", "2").build());
+        assertEquals("Shape intersection is wrong", expected, intersection(Arrays.asList(wkt("1"), wkt("2"))).build());
         assertEquals("Shape intersection is wrong", expected, intersection().add("1").add(wkt("2")).build());
     }
 
@@ -735,9 +735,9 @@ public class BuilderTest {
                           "{\"type\":\"wkt\",\"value\":\"1\"}," +
                           "{\"type\":\"wkt\",\"value\":\"2\"}" +
                           "]}";
-        assertEquals("Shape union is wrong", expected, union(wkt("1"),wkt("2")).build());
-        assertEquals("Shape union is wrong", expected, union("1","2").build());
-        assertEquals("Shape union is wrong", expected, union(Arrays.asList(wkt("1"),wkt("2"))).build());
+        assertEquals("Shape union is wrong", expected, union(wkt("1"), wkt("2")).build());
+        assertEquals("Shape union is wrong", expected, union("1", "2").build());
+        assertEquals("Shape union is wrong", expected, union(Arrays.asList(wkt("1"), wkt("2"))).build());
         assertEquals("Shape union is wrong", expected, union().add("1").add(wkt("2")).build());
     }
 
@@ -747,9 +747,9 @@ public class BuilderTest {
                           "{\"type\":\"wkt\",\"value\":\"1\"}," +
                           "{\"type\":\"wkt\",\"value\":\"2\"}" +
                           "]}";
-        assertEquals("Shape difference is wrong", expected, difference(wkt("1"),wkt("2")).build());
-        assertEquals("Shape difference is wrong", expected, difference("1","2").build());
-        assertEquals("Shape difference is wrong", expected, difference(Arrays.asList(wkt("1"),wkt("2"))).build());
+        assertEquals("Shape difference is wrong", expected, difference(wkt("1"), wkt("2")).build());
+        assertEquals("Shape difference is wrong", expected, difference("1", "2").build());
+        assertEquals("Shape difference is wrong", expected, difference(Arrays.asList(wkt("1"), wkt("2"))).build());
         assertEquals("Shape difference is wrong", expected, difference().add("1").add(wkt("2")).build());
     }
 
