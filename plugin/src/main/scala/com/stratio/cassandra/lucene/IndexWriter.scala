@@ -15,8 +15,6 @@
  */
 package com.stratio.cassandra.lucene
 
-import java.util.NavigableSet
-
 import com.stratio.cassandra.lucene.util.{Logging, Tracing}
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.rows.{Row, RowIterator, UnfilteredRowIterators}
@@ -89,25 +87,6 @@ abstract class IndexWriter(
     * @param row the row to be indexed.
     */
   protected def index(row: Row)
-
-  /** Retrieves from the local storage all the rows in the specified partition.
-    *
-    * @param key the partition key
-    * @return a row iterator
-    */
-  protected def read(key: DecoratedKey): RowIterator = {
-    read(SinglePartitionReadCommand.fullPartitionRead(metadata, nowInSec, key))
-  }
-
-  /** Retrieves from the local storage the rows in the specified partition slice.
-    *
-    * @param key         the partition key
-    * @param clusterings the clustering keys
-    * @return a row iterator
-    */
-  protected def read(key: DecoratedKey, clusterings: NavigableSet[Clustering]): RowIterator = {
-    read(SinglePartitionReadCommand.create(metadata, nowInSec, key, clusterings))
-  }
 
   /** Retrieves from the local storage the rows satisfying the specified read command.
     *
