@@ -85,7 +85,7 @@ public class CassandraConnection {
         return session.prepare(query);
     }
 
-    static List<Object> getJMXAttribute(String bean, String attribute) {
+    public static List<Object> getJMXAttribute(String bean, String attribute) {
         try {
             List<Object> out = new ArrayList<>(jmxClients.size());
             for (CassandraMonitoringClient client : jmxClients) {
