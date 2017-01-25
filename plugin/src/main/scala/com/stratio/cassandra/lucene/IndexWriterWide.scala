@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene
 
 import org.apache.cassandra.db.rows.Row
-import org.apache.cassandra.db.{Clustering, DecoratedKey, RangeTombstone}
+import org.apache.cassandra.db.{Clustering, DecoratedKey, RangeTombstone, SinglePartitionReadCommand}
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.index.transactions.IndexTransaction.Type._
 import org.apache.cassandra.utils.concurrent.OpOrder
@@ -83,10 +83,10 @@ class IndexWriterWide(
     if (transactionType == CLEANUP) return
 
     // Read required rows from storage engine
-    read(key, clusterings)
-      .asScala
-      .map(_.asInstanceOf[Row])
-      .foreach(row => rows.put(row.clustering(), row))
+    if (!clusterings.isEmpty) {
+      val command = SinglePartitionReadCommand.create(metadata, nowInSec, key, clusterings)
+      read(command).asScala.foreach(row => rows.put(row.clustering(), row))
+    }
 
     // Write rows
     rows.forEach((clustering, row) => {

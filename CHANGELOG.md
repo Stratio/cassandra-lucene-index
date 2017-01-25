@@ -2,6 +2,7 @@
 
 ## 3.0.10.3 (Upcoming)
 
+* Ignore tombstones during read before write (#255)
 * Fix deletion of ranges of rows in a partition
 * Add virtual node based partitioner
 
