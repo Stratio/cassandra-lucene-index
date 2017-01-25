@@ -85,13 +85,13 @@ public class CassandraConnection {
         return session.prepare(query);
     }
 
-    public static List<Object> getJMXAttribute(String bean, String attribute) {
+    public static <T> List<T> getJMXAttribute(String bean, String attribute) {
         try {
             List<Object> out = new ArrayList<>(jmxClients.size());
             for (CassandraMonitoringClient client : jmxClients) {
                 out.add(client.read(bean, attribute));
             }
-            return out;
+            return (List<T>) out;
         } catch (RuntimeException e) {
             throw new RuntimeException(String.format("Error while reading JMX attribute %s.%s", bean, attribute), e);
         }

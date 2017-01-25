@@ -537,6 +537,7 @@ public class BitemporalSearchIT extends BaseIT {
                                                        .vtTo(nowValue)
                                                        .ttFrom(nowValue)
                                                        .ttTo(nowValue))
+                       .refresh(true)
                        .and("AND id = 1");
         select.check(1);
         select.checkUnorderedColumns("id", 1);

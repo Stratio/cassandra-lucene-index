@@ -194,11 +194,11 @@ class PartitionedIndex(
   : DocumentIterator = {
     logger.debug(
       s"""Searching in $name
-         | chunk: ${partitions.map(_._1).mkString(", ")}
-         | after: ${partitions.map(_._2).mkString(", ")}
-         | query: $query
-         | count: $count
-         | sort : $sort
+         | partitions: ${partitions.map(_._1).mkString(", ")}
+         | after     : ${partitions.map(_._2).mkString(", ")}
+         | query     : $query
+         | count     : $count
+         | sort      : $sort
        """.stripMargin)
     val cursors = partitions.map { case (p, a) => (indexes(p).searcherManager, a) }
     new DocumentIterator(cursors, mergeSort, sort, query, count, fields)

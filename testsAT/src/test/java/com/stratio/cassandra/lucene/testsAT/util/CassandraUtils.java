@@ -420,14 +420,14 @@ public class CassandraUtils {
     }
 
     public int getIndexNumDocs() {
-        return getJMXAttribute(indexBean, "NumDocs").stream().mapToInt(o -> ((Number) o).intValue()).sum() / REPLICATION;
+        List<Integer> numDocs= getJMXAttribute(indexBean, "NumDocs");
+        return numDocs.stream().reduce(0, (l, r) -> l + r)/ REPLICATION;
     }
 
     @SuppressWarnings("unchecked")
     private boolean isIndexBuilt() {
         String bean = String.format("org.apache.cassandra.db:type=%s,keyspace=%s,table=%s", "Tables", keyspace, table);
-        return getJMXAttribute(bean, "BuiltIndexes").stream()
-                                                    .map(o -> (List<String>) o)
-                                                    .allMatch(l -> l.contains(indexName));
+        List<List<String>> builtIndexes= getJMXAttribute(bean, "BuiltIndexes");
+        return builtIndexes.stream().allMatch(l -> l.contains(indexName));
     }
 }

@@ -721,9 +721,6 @@ performance.
 Load balancing depends on virtual node token ranges distribution. The more virtual nodes, the better distribution (more
 similarity in number of tokens that falls inside any virtual node) between virtual nodes, the better load balancing.
 
-Consecutive token ranges are grouped in the same partition. This increase performance when using spark due to that spark
-groups consecutive token ranges queries in one in order to execute less queries.
-
 .. code-block:: sql
 
     CREATE TABLE tweets (
