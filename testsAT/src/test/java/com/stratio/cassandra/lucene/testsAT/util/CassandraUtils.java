@@ -419,9 +419,9 @@ public class CassandraUtils {
         return this;
     }
 
-    public int getIndexNumDocs() {
-        List<Integer> numDocs= getJMXAttribute(indexBean, "NumDocs");
-        return numDocs.stream().reduce(0, (l, r) -> l + r)/ REPLICATION;
+    public long getIndexNumDocs() {
+        List<Long> numDocs= getJMXAttribute(indexBean, "NumDocs");
+        return numDocs.stream().reduce(0L, (l, r) -> l + r) / (long) REPLICATION;
     }
 
     @SuppressWarnings("unchecked")

@@ -76,7 +76,7 @@ public class SelectPartialExpiredTTLSkinnyRowsIT extends BaseIT {
         TimeUnit.SECONDS.sleep(15);
         utils.compact(false).refresh();
         utils.filter(match("b", "a")).checkUnorderedColumns("a", 2, 4, 5, 6, 14, 15, 16, 17);
-        assertEquals("NumDocs in index is not correct", 13, utils.getIndexNumDocs());
+        assertEquals("NumDocs in index is not correct", 13L, utils.getIndexNumDocs());
     }
 
     @AfterClass

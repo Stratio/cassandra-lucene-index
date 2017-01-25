@@ -67,7 +67,7 @@ public class RangeTombstoneIT extends BaseIT {
              .refresh()
              .execute(String.format("DELETE FROM %s WHERE pk = 0 AND %s", table, clause));
         utils.refresh().searchAll().check(expected);
-        assertEquals("The docs hasn't been deleted", expected, utils.getIndexNumDocs());
+        assertEquals("The docs hasn't been deleted", (long) expected, utils.getIndexNumDocs());
     }
     @Test
 
