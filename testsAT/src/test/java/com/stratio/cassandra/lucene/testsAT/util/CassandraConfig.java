@@ -32,7 +32,7 @@ class CassandraConfig {
 
     static final String HOST = getIP("host", "127.0.0.1");
     static final String JMX_PORT = getString("jmx_port", "7199");
-    static final String MONITOR_SERVICE = getString("monitor_service","jmx");// jmx or jolokia
+    static final String MONITOR_SERVICE = getString("monitor_service", "jmx");// jmx or jolokia
     static final String[] MONITOR_SERVICES_URL = getStringArray("monitor_services_url", HOST + ":" + JMX_PORT);
     static final int REPLICATION = getInt("replication", 1);
     static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(getString("consistency", "QUORUM"));
