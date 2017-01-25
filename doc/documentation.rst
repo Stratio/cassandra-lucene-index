@@ -713,14 +713,16 @@ cardinalities and uniform distributions will provide better load balancing betwe
 Virtual node partitioner
 ________________________
 
-A virtual node based partitioner. Rows will be stored in an index partition determined
-by the hash of the virtual node token range number. Partition-directed and specific virtual node token range searches will
-be routed to a single partition, increasing performance. However, unbounded token range searches will be routed to all
-the partitions, with a slightly lower performance.
-
+A virtual node based partitioner. Rows will be stored in an index partition determined by the hash of the virtual node
+token range number. Partition-directed and specific virtual node token range searches will be routed to a single partition,
+increasing performance. However, unbounded token range searches will be routed to all the partitions, with a slightly lower
+performance.
 
 Load balancing depends on virtual node token ranges distribution. The more virtual nodes, the better distribution (more
 similarity in number of tokens that falls inside any virtual node) between virtual nodes, the better load balancing.
+
+Consecutive token ranges are grouped in the same partition. This increase performance when using spark due to that spark
+groups consecutive token ranges queries in one in order to execute less queries.
 
 .. code-block:: sql
 
