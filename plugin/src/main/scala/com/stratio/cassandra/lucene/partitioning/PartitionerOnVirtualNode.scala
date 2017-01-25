@@ -85,7 +85,7 @@ case class PartitionerOnVirtualNode(
     * @param lower the lower bound partition
     * @param upper the upper bound partition
     * @return a list of partitions involved in the range
-    * */
+    */
   def partitions(lower: Token, upper: Token): List[Int] = {
     if (lower.equals(upper)) {
       if (lower.isMinimum) {
