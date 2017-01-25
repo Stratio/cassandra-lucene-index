@@ -739,7 +739,7 @@ groups consecutive token ranges queries in one in order to execute less queries.
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
        'schema': '{...}',
-       'partitioner': '{type: "vnode", partitions: 4}',
+       'partitioner': '{type: "vnode", vnodes_per_partition: 4}',
     };
 
     SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' AND month = 5; -- Fetches 1 node, 1 partition
