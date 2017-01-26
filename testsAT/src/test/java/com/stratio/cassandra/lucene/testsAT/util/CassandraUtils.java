@@ -419,9 +419,10 @@ public class CassandraUtils {
         return this;
     }
 
-    public long getIndexNumDocs() {
-        List<Long> numDocs = getJMXAttribute(indexBean, "NumDocs");
-        return numDocs.stream().reduce(0L, (l, r) -> l + r) / (long) REPLICATION;
+    public void checkNumDocsInIndex(Integer expectedNumDocs) {
+        List<Long> numDocsInEachNode = getJMXAttribute(indexBean, "NumDocs");
+        Long totalNumDocs = numDocsInEachNode.stream().reduce(0L, (l, r) -> l + r) / (long) REPLICATION;
+        assertEquals("NumDocs in index is not correct", new Long(expectedNumDocs), totalNumDocs);
     }
 
     @SuppressWarnings("unchecked")

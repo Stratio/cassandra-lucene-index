@@ -83,8 +83,8 @@ public class SelectTotalExpiredTTLWideRowsIT extends BaseIT {
         utils.refresh()
              .filter(match("c", "b")).check(0)
              .filter(match("c", "c")).checkUnorderedColumns("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20)
-             .filter(match("b", "a")).checkUnorderedColumns("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20);
-        assertEquals("NumDocs in index is not correct", 14L, utils.getIndexNumDocs());
+             .filter(match("b", "a")).checkUnorderedColumns("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20)
+             .checkNumDocsInIndex(14);
     }
 
     @AfterClass

@@ -524,11 +524,12 @@ public class BitemporalSearchIT extends BaseIT {
         assertTrue("batch execution didn't work",
                    utils.execute(batch).wasApplied());
 
+        utils.refresh();
+
         utils.filter(bitemporal("bitemporal").vtFrom("1970/01/01 00:00:00.001+0000")
                                              .vtTo(nowValue)
                                              .ttFrom(nowValue)
                                              .ttTo(nowValue))
-             .refresh(true)
              .checkUnorderedColumns("id", 1, 2, 3, 4, 5);
 
         CassandraUtilsSelect
@@ -537,7 +538,6 @@ public class BitemporalSearchIT extends BaseIT {
                                                        .vtTo(nowValue)
                                                        .ttFrom(nowValue)
                                                        .ttTo(nowValue))
-                       .refresh(true)
                        .and("AND id = 1");
         select.check(1);
         select.checkUnorderedColumns("id", 1);
