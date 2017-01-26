@@ -30,7 +30,7 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
  */
 public class CassandraUtilsBuilder {
 
-    private final String name;
+    private final String keyspace;
     private String table = TABLE;
     private String indexName = INDEX;
     private String indexColumn = COLUMN;
@@ -46,9 +46,8 @@ public class CassandraUtilsBuilder {
 
     private final Map<String, Map<String, String>> udts;
 
-    CassandraUtilsBuilder(String name) {
-        super();
-        this.name = name;
+    CassandraUtilsBuilder(String keyspacePrefix) {
+        this.keyspace = keyspacePrefix + "_" + Math.abs(new Random().nextLong());
         this.columns = new HashMap<>();
         this.mappers = new HashMap<>();
         this.analyzers = new HashMap<>();
@@ -190,7 +189,6 @@ public class CassandraUtilsBuilder {
     }
 
     public CassandraUtils build() {
-        String keyspace = name + "_" + Math.abs(new Random().nextLong());
         return new CassandraUtils(keyspace,
                                   table,
                                   indexName,
