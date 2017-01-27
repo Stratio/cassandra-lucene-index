@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.stratio.cassandra.lucene.builder.Builder.match;
 import static com.stratio.cassandra.lucene.builder.Builder.stringMapper;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -84,8 +83,8 @@ public class SelectTotalExpiredTTLSkinnyRowsIT extends BaseIT {
              .filter(match("c", "c"))
              .checkUnorderedColumns("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20)
              .filter(match("b", "a"))
-             .checkUnorderedColumns("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20);
-        assertEquals("NumDocs in index is not correct", 14, utils.getIndexNumDocs());
+             .checkUnorderedColumns("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20)
+             .checkNumDocsInIndex(14);
     }
 
     @AfterClass

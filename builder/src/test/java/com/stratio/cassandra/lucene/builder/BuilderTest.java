@@ -102,6 +102,13 @@ public class BuilderTest {
     }
 
     @Test
+    public void testVirtualNodePartitioner() {
+        String actual = partitionerOnVirtualNodes(7).build();
+        String expected = "{\"type\":\"vnode\",\"vnodes_per_partition\":7}";
+        assertEquals("vnodes partitioner serialization is wrong", expected, actual);
+    }
+
+    @Test
     public void testBigDecimalMapperDefaults() {
         String actual = bigDecimalMapper().build();
         String expected = "{\"type\":\"bigdec\"}";

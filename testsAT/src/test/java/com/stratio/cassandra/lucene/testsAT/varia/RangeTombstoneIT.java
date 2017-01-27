@@ -28,6 +28,8 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * Tests the deletion of a slice of rows inside a partition with a RangeTombstone.
+ *
+ * @author Andres de la Pena <adelapena@stratio.com>
  */
 @RunWith(JUnit4.class)
 public class RangeTombstoneIT extends BaseIT {
@@ -66,11 +68,12 @@ public class RangeTombstoneIT extends BaseIT {
              .insert(new String[]{"pk", "ck"}, new Object[]{0, 5})
              .refresh()
              .execute(String.format("DELETE FROM %s WHERE pk = 0 AND %s", table, clause));
-        utils.refresh().searchAll().check(expected);
-        assertEquals("The docs hasn't been deleted", expected, utils.getIndexNumDocs());
+        utils.refresh()
+             .searchAll().check(expected)
+             .checkNumDocsInIndex(expected);
     }
-    @Test
 
+    @Test
     public void testRangeTombstoneSingle() {
         test("ck = 1", 5);
     }
