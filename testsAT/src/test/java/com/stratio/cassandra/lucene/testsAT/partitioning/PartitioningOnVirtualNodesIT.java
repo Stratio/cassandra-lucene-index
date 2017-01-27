@@ -54,7 +54,7 @@ public class PartitioningOnVirtualNodesIT {
                 .withColumn("pk2", "int")
                 .withColumn("ck", "int")
                 .withColumn("rc", "int")
-                .withIndexColumn("lucene")
+                .withIndexColumn(null)
                 .withPartitionKey("pk1", "pk2")
                 .withClusteringKey("ck");
 
@@ -76,11 +76,12 @@ public class PartitioningOnVirtualNodesIT {
         cassandraUtilsBuilder.build().dropKeyspace();
     }
 
-    private void testWithVirtualNodesPerPartition(Integer vNodesPerPartition) {
+    private void testWithVirtualNodesPerPartition(String indexName, Integer vNodesPerPartition) {
         if (vNodesPerPartition == 0) {
             vNodesPerPartition = 1;
         }
         cassandraUtilsBuilder.withPartitioner(new Partitioner.OnVirtualNode(vNodesPerPartition))
+                             .withIndexName(indexName)
                              .build()
                              .createIndex()
                              .refresh()
@@ -94,36 +95,41 @@ public class PartitioningOnVirtualNodesIT {
 
     @Test
     public void testVNodesWithOneVNodePerPartition() {
-        testWithVirtualNodesPerPartition(1);
+        testWithVirtualNodesPerPartition("idx_test_vnodes_with_one_vnode_per_partition", 1);
     }
 
     @Test
     public void testVNodesWithNumTokensVNodePerPartition() {
-        testWithVirtualNodesPerPartition(numTokens);
+        testWithVirtualNodesPerPartition("idx_test_vnodes_with_num_tokens_vnode_per_partition", numTokens);
     }
 
     @Test
     public void testVNodesWithOneAndAHalfNumTokensVNodePerPartition() {
-        testWithVirtualNodesPerPartition(Math.round(numTokens * 1.5f));
+        testWithVirtualNodesPerPartition("idx_test_vnodes_with_one_and_a_half_num_tokens_vnode_per_partition",
+                                         Math.round(numTokens * 1.5f));
     }
 
     @Test
     public void testVNodesWithFloorNumTokensDiv2VNodePerPartition() {
-        testWithVirtualNodesPerPartition(Math.floorDiv(Math.round(numTokens), 2));
+        testWithVirtualNodesPerPartition("idx_test_vnodes_with_floor_num_tokens_div_2_vnode_per_partition",
+                                         Math.floorDiv(Math.round(numTokens), 2));
     }
 
     @Test
     public void testVNodesWithCeilNumTokensDiv2VNodePerPartition() {
-        testWithVirtualNodesPerPartition((int) Math.ceil(numTokens / 2.0f));
+        testWithVirtualNodesPerPartition("idx_test_vnodes_with_ceil_num_tokens_div_2_vnode_per_partition",
+                                         (int) Math.ceil(numTokens / 2.0f));
     }
 
     @Test
     public void testVNodesWithFloorNumTokensDiv3VNodePerPartition() {
-        testWithVirtualNodesPerPartition(Math.floorDiv(Math.round(numTokens), 3));
+        testWithVirtualNodesPerPartition("idx_test_vnodes_with_floor_num_tokens_div_3_vnode_per_partition",
+                                         Math.floorDiv(Math.round(numTokens), 3));
     }
 
     @Test
     public void testVNodesWithCeilNumTokensDiv3VNodePerPartition() {
-        testWithVirtualNodesPerPartition((int) Math.ceil(numTokens / 3.0f));
+        testWithVirtualNodesPerPartition("idx_test_vnodes_with_ceil_num_tokens_div_3_vnode_per_partition",
+                                         (int) Math.ceil(numTokens / 3.0f));
     }
 }
