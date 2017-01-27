@@ -23,8 +23,7 @@ import org.junit.runners.JUnit4;
 
 import java.util.*;
 
-import static com.stratio.cassandra.lucene.builder.Builder.integerMapper;
-import static com.stratio.cassandra.lucene.builder.Builder.match;
+import static com.stratio.cassandra.lucene.builder.Builder.*;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 
 /**
