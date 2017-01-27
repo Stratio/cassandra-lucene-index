@@ -22,6 +22,7 @@ import com.stratio.cassandra.lucene.builder.JSONBuilder;
 import com.stratio.cassandra.lucene.builder.index.Partitioner.None;
 import com.stratio.cassandra.lucene.builder.index.Partitioner.OnColumn;
 import com.stratio.cassandra.lucene.builder.index.Partitioner.OnToken;
+import com.stratio.cassandra.lucene.builder.index.Partitioner.OnVirtualNode;
 
 /**
  * An index partitioner to split the index in multiple partitions.
@@ -36,7 +37,8 @@ import com.stratio.cassandra.lucene.builder.index.Partitioner.OnToken;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = None.class, name = "none"),
         @JsonSubTypes.Type(value = OnToken.class, name = "token"),
-        @JsonSubTypes.Type(value = OnColumn.class, name = "column")})
+        @JsonSubTypes.Type(value = OnColumn.class, name = "column"),
+        @JsonSubTypes.Type(value = OnVirtualNode.class, name = "vnode")})
 public abstract class Partitioner extends JSONBuilder {
 
     /**
@@ -102,6 +104,35 @@ public abstract class Partitioner extends JSONBuilder {
         public OnColumn(int partitions, String column) {
             this.partitions = partitions;
             this.column = column;
+        }
+    }
+
+    /**
+     * A {@link Partitioner} based on the partition key token. Rows will be stored in an index partition determined by
+     * the virtual node token range. Partition-directed searches will be routed to a single partition, increasing
+     * performance. However, unbounded token range searches will be routed to all the partitions, with a slightly lower
+     * performance. Virtual node token range queries will be routed to only one partition which increase performance in
+     * spark queries with virtual nodes rather than partitioning on token.
+     *
+     * This partitioner load balance depends on virtual node token ranges assignation. The more virtual nodes, the
+     * better distribution (more similarity in number of tokens that falls inside any virtual node) between virtual
+     * nodes, the better load balance with this partitioner.
+     *
+     * The number of virtual nodes per each partition must be specified.
+     */
+    public static class OnVirtualNode extends Partitioner {
+
+        /** The number of partitions per node. */
+        @JsonProperty("vnodes_per_partition")
+        public final int virtualNodesPerPartition;
+
+        /**
+         * Builds a new virtual node based partitioner.
+         *
+         * @param virtualNodesPerPartition the number of virtual nodes per each partition
+         */
+        public OnVirtualNode(int virtualNodesPerPartition) {
+            this.virtualNodesPerPartition = virtualNodesPerPartition;
         }
     }
 }
