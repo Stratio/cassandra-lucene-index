@@ -506,7 +506,7 @@ public class GeoShapeSearchSpatialOperationsIT extends BaseIT {
         GeoShapeCondition geoShape1_3_8 = geoShape("shape", intersection(union(shape_1, shape_3), wkt(shape_8)));
         GeoShapeCondition geoShape1_7_6 = geoShape("shape", intersection(union(shape_1, shape_7), wkt(shape_6)));
         GeoShapeCondition geoShape9_10 = geoShape("shape", intersection(shape_9, shape_10));
-        GeoShapeCondition geoShape4_7_9 = geoShape("shape", intersection(union(shape_4, shape_7), wkt(shape_9)));
+        GeoShapeCondition geoShape4_7_9 = geoShape("shape", intersection(union(shape_4, shape_7),wkt(shape_9)));
         Integer search_case = 4;
         utils.filter(geoShape1_3_8.operation("contains"), match("search_case", search_case))
              .checkUnorderedColumns("identity", "1")

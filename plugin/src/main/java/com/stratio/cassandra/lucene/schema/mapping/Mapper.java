@@ -131,7 +131,6 @@ public abstract class Mapper {
      * any mapping errors.
      *
      * @param columns the columns
-     * @return a list of indexable fields
      */
     public List<IndexableField> bestEffortIndexableFields(Columns columns) {
         return bestEffort(columns, this::indexableFields);

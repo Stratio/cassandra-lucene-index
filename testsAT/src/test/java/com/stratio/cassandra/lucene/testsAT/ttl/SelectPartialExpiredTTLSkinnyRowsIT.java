@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.stratio.cassandra.lucene.builder.Builder.match;
 import static com.stratio.cassandra.lucene.builder.Builder.stringMapper;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -74,9 +75,8 @@ public class SelectPartialExpiredTTLSkinnyRowsIT extends BaseIT {
         utils.flush();
         TimeUnit.SECONDS.sleep(15);
         utils.compact(false).refresh();
-        utils.filter(match("b", "a")).checkUnorderedColumns("a", 2, 4, 5, 6, 14, 15, 16, 17)
-             .checkNumDocsInIndex(13);
-
+        utils.filter(match("b", "a")).checkUnorderedColumns("a", 2, 4, 5, 6, 14, 15, 16, 17);
+        assertEquals("NumDocs in index is not correct", 13, utils.getIndexNumDocs());
     }
 
     @AfterClass

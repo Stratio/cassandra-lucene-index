@@ -419,16 +419,15 @@ public class CassandraUtils {
         return this;
     }
 
-    public void checkNumDocsInIndex(Integer expectedNumDocs) {
-        List<Long> numDocsInEachNode = getJMXAttribute(indexBean, "NumDocs");
-        Long totalNumDocs = numDocsInEachNode.stream().reduce(0L, (l, r) -> l + r) / (long) REPLICATION;
-        assertEquals("NumDocs in index is not correct", new Long(expectedNumDocs), totalNumDocs);
+    public int getIndexNumDocs() {
+        return getJMXAttribute(indexBean, "NumDocs").stream().mapToInt(o -> ((Number) o).intValue()).sum() / REPLICATION;
     }
 
     @SuppressWarnings("unchecked")
     private boolean isIndexBuilt() {
         String bean = String.format("org.apache.cassandra.db:type=%s,keyspace=%s,table=%s", "Tables", keyspace, table);
-        List<List<String>> builtIndexes = getJMXAttribute(bean, "BuiltIndexes");
-        return builtIndexes.stream().allMatch(l -> l.contains(indexName));
+        return getJMXAttribute(bean, "BuiltIndexes").stream()
+                                                    .map(o -> (List<String>) o)
+                                                    .allMatch(l -> l.contains(indexName));
     }
 }
