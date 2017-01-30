@@ -15,16 +15,16 @@
  */
 package com.stratio.cassandra.lucene.schema;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.JsonSerializer;
 import com.stratio.cassandra.lucene.schema.analysis.AnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.analysis.Analyzer;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -123,7 +123,7 @@ public class SchemaBuilder {
                     try {
                         defaultAnalyzer = (new ClasspathAnalyzerBuilder(defaultAnalyzerName)).analyzer();
                     } catch (Exception e) {
-                        throw new IndexException(e, "Not found analyzer: '%s'", defaultAnalyzerName);
+                        throw new IndexException(e, "Not found analyzer: '{}'", defaultAnalyzerName);
                     }
                 }
                 analyzers.put(defaultAnalyzerName, defaultAnalyzer);
@@ -141,7 +141,7 @@ public class SchemaBuilder {
         try {
             return JsonSerializer.toString(this);
         } catch (IOException e) {
-            throw new IndexException(e, "Unformateable JSON schema: %s", e.getMessage());
+            throw new IndexException(e, "Unformateable JSON schema: {}", e.getMessage());
         }
     }
 
@@ -155,7 +155,7 @@ public class SchemaBuilder {
         try {
             return JsonSerializer.fromString(json, SchemaBuilder.class);
         } catch (IOException e) {
-            throw new IndexException(e, "Unparseable JSON schema: %s", e.getMessage());
+            throw new IndexException(e, "Unparseable JSON schema: {}: {}", e.getMessage(), json);
         }
     }
 

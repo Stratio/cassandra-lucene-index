@@ -22,7 +22,6 @@ import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
-import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.BytesRefBuilder;
 import org.apache.lucene.util.NumericUtils;
 import org.apache.lucene.util.QueryBuilder;
@@ -67,7 +66,7 @@ public class MatchCondition extends SingleColumnCondition {
 
         // Check doc values
         if (docValues && !mapper.docValues) {
-            throw new IndexException("Field '%s' does not support doc_values", mapper.field);
+            throw new IndexException("Field '{}' does not support doc_values", mapper.field);
         }
 
         Class<?> clazz = mapper.base;
@@ -92,7 +91,7 @@ public class MatchCondition extends SingleColumnCondition {
         } else if (clazz == Double.class) {
             query = query((Double) mapper.base(field, value));
         } else {
-            throw new IndexException("Match queries are not supported by mapper '%s'", mapper);
+            throw new IndexException("Match queries are not supported by mapper '{}'", mapper);
         }
         return query;
     }
@@ -106,8 +105,8 @@ public class MatchCondition extends SingleColumnCondition {
             return new DocValuesNumbersQuery(field, docValue(value));
         } else {
             BytesRefBuilder ref = new BytesRefBuilder();
-            NumericUtils.intToPrefixCoded(value, 0, ref );
-            return new TermQuery( new Term( field, ref.toBytesRef()) );
+            NumericUtils.intToPrefixCoded(value, 0, ref);
+            return new TermQuery(new Term(field, ref.toBytesRef()));
         }
     }
 
@@ -116,8 +115,8 @@ public class MatchCondition extends SingleColumnCondition {
             return new DocValuesNumbersQuery(field, docValue(value));
         } else {
             BytesRefBuilder ref = new BytesRefBuilder();
-            NumericUtils.longToPrefixCoded(value, 0, ref );
-            return new TermQuery( new Term( field, ref.toBytesRef()) );
+            NumericUtils.longToPrefixCoded(value, 0, ref);
+            return new TermQuery(new Term(field, ref.toBytesRef()));
         }
     }
 

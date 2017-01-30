@@ -18,9 +18,8 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.GeoBBoxConditionBuilder;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.spatial.composite.IntersectsRPTVerifyQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
@@ -77,12 +76,12 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     }
 
     @Test(expected = IndexException.class)
-    public void testBuildToSmallMinLongitude() {
+    public void testBuildTooSmallMinLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, -181D, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testBuildTooBiglMinLongitude() {
+    public void testBuildTooLargeMinLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, 181D, 1D);
     }
 
@@ -97,7 +96,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     }
 
     @Test(expected = IndexException.class)
-    public void testBuildTooBigMaxLongitude() {
+    public void testBuildTooLargeMaxLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, 0D, 181D);
     }
 
@@ -112,7 +111,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     }
 
     @Test(expected = IndexException.class)
-    public void testBuildTooBigMinLatitude() {
+    public void testBuildTooLargeMinLatitude() {
         new GeoBBoxCondition(null, "name", 91D, 3D, 0D, 1D);
     }
 
@@ -127,7 +126,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     }
 
     @Test(expected = IndexException.class)
-    public void testBuildTooBigMaxLatitude() {
+    public void testBuildTooLargeMaxLatitude() {
         new GeoBBoxCondition(null, "name", 2D, 91D, 0D, 1D);
     }
 
@@ -142,18 +141,25 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     }
 
     @Test
-    public void testQuery() {
+    public void testQueryWithPointMapper() {
         Schema schema = schema().mapper("name", geoPointMapper("lat", "lon").maxLevels(8)).build();
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         Query query = condition.doQuery(schema);
         assertNotNull("Query is wrong is not built", query);
-        assertTrue("Query type is wrong", query instanceof ConstantScoreQuery);
-        query = ((ConstantScoreQuery) query).getQuery();
-        assertTrue("Query type is wrong", query instanceof BooleanQuery);
+        assertEquals("Query type is wrong", IntersectsRPTVerifyQuery.class, query.getClass());
+    }
+
+    @Test
+    public void testQueryWithShapeMapper() {
+        Schema schema = schema().mapper("name", geoShapeMapper().maxLevels(8)).build();
+        GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
+        Query query = condition.doQuery(schema);
+        assertNotNull("Query is wrong is not built", query);
+        assertEquals("Query type is wrong", IntersectsRPTVerifyQuery.class, query.getClass());
     }
 
     @Test(expected = IndexException.class)
-    public void testQueryoutValidMapper() {
+    public void testQueryWithInvalidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         condition.query(schema);

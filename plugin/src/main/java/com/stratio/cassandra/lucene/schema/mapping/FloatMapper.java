@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.stratio.cassandra.lucene.IndexException;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FloatField;
 import org.apache.lucene.document.SortedNumericDocValuesField;
@@ -24,7 +24,6 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 import org.apache.lucene.search.SortedNumericSortField;
 import org.apache.lucene.util.NumericUtils;
-import org.codehaus.jackson.annotate.JsonCreator;
 
 import java.util.Optional;
 
@@ -43,29 +42,15 @@ public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
 
     /**
      * Builds a new {@link FloatMapper} using the specified boost.
-     *  @param field the name of the field
+     *
+     * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
      * @param boost the boost
      */
     @JsonCreator
     public FloatMapper(String field, String column, Boolean validated, Float boost) {
-        super(field,
-              column,
-              true,
-              validated,
-              null,
-              Float.class,
-              AsciiType.instance,
-              ByteType.instance,
-              DecimalType.instance,
-              DoubleType.instance,
-              FloatType.instance,
-              IntegerType.instance,
-              Int32Type.instance,
-              LongType.instance,
-              ShortType.instance,
-              UTF8Type.instance);
+        super(field, column, true, validated, null, Float.class, NUMERIC_TYPES);
         this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 
@@ -78,10 +63,10 @@ public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
             try {
                 return Double.valueOf((String) value).floatValue();
             } catch (NumberFormatException e) {
-                throw new IndexException("Field '%s' with value '%s' can not be parsed as float", name, value);
+                throw new IndexException("Field '{}' with value '{}' can not be parsed as float", name, value);
             }
         }
-        throw new IndexException("Field '%s' requires a float, but found '%s'", name, value);
+        throw new IndexException("Field '{}' requires a float, but found '{}'", name, value);
     }
 
     /** {@inheritDoc} */

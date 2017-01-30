@@ -56,7 +56,7 @@ public class PrefixCondition extends SingleColumnCondition {
             Term term = new Term(field, value);
             return new PrefixQuery(term);
         } else {
-            throw new IndexException("Prefix queries are not supported by mapper '%s'", mapper);
+            throw new IndexException("Prefix queries are not supported by mapper '{}'", mapper);
         }
     }
 

@@ -57,7 +57,7 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
      * weightings) have their score multiplied by {@code boost}.
-     * @param field The name of the field to be matched
+     * @param field the name of the field to be matched
      * @param vtFrom the valid time start
      * @param vtTo the valid time end
      * @param ttFrom the transaction time start
@@ -80,8 +80,8 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
         Long ttFromTime = parseTime(mapper, DEFAULT_FROM, ttFrom);
         Long ttToTime = parseTime(mapper, DEFAULT_TO, ttTo);
 
-        Long minTime = BitemporalDateTime.MIN.toDate().getTime();
-        Long maxTime = BitemporalDateTime.MAX.toDate().getTime();
+        Long minTime = BitemporalDateTime.MIN.toTimestamp();
+        Long maxTime = BitemporalDateTime.MAX.toTimestamp();
 
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
@@ -148,8 +148,8 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
 
     private static Long parseTime(BitemporalMapper mapper, Long defaultTime, Object value) {
         return value == null
-               ? new BitemporalDateTime(defaultTime).toDate().getTime()
-               : mapper.parseBitemporalDate(value).toDate().getTime();
+               ? new BitemporalDateTime(defaultTime).toTimestamp()
+               : mapper.parseBitemporalDate(value).toTimestamp();
     }
 
     /** {@inheritDoc} */

@@ -20,9 +20,8 @@ import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;
+import org.apache.lucene.spatial.composite.IntersectsRPTVerifyQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
@@ -137,11 +136,8 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         BooleanClause maxClause = booleanQuery.clauses().get(0);
         assertEquals("Query occur is wrong", BooleanClause.Occur.FILTER, maxClause.getOccur());
         query = maxClause.getQuery();
-        assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
-        assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
-                     "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)",
-                     query.toString());
+        assertEquals("Query type is wrong", IntersectsRPTVerifyQuery.class, query.getClass());
+        assertEquals("Query is wrong", "IntersectsVerified(fieldName=)", query.toString());
     }
 
     @Test(expected = IndexException.class)
@@ -150,8 +146,18 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
     }
 
     @Test
-    public void testQueryMinMax() {
+    public void testQueryMinMaxWithPointMapper() {
         Schema schema = schema().mapper("name", geoPointMapper("lat", "lon").maxLevels(8)).build();
+        testQueryMinMaxWithValidSchema(schema);
+    }
+
+    @Test
+    public void testQueryMinMaxWithShapeMapper() {
+        Schema schema = schema().mapper("name", geoShapeMapper().maxLevels(8)).build();
+        testQueryMinMaxWithValidSchema(schema);
+    }
+
+    private void testQueryMinMaxWithValidSchema(Schema schema) {
         GeoDistanceCondition condition = new GeoDistanceCondition(0.5f,
                                                                   "name",
                                                                   90D,
@@ -167,21 +173,15 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         BooleanClause minClause = booleanQuery.clauses().get(1);
         assertEquals("Query is wrong", BooleanClause.Occur.MUST_NOT, minClause.getOccur());
         query = minClause.getQuery();
-        assertEquals("Query is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
-        IntersectsPrefixTreeQuery minFilter = (IntersectsPrefixTreeQuery) query;
-        assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
-                     "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)",
-                     minFilter.toString());
+        assertEquals("Query is wrong", IntersectsRPTVerifyQuery.class, query.getClass());
+        IntersectsRPTVerifyQuery minFilter = (IntersectsRPTVerifyQuery) query;
+        assertEquals("Query is wrong", "IntersectsVerified(fieldName=)", minFilter.toString());
 
         BooleanClause maxClause = booleanQuery.clauses().get(0);
         assertEquals("Query is wrong", BooleanClause.Occur.FILTER, maxClause.getOccur());
         query = maxClause.getQuery();
-        assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
-        assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
-                     "d=0.0° 3.00km),detailLevel=8,prefixGridScanLevel=4)",
-                     query.toString());
+        assertEquals("Query type is wrong", IntersectsRPTVerifyQuery.class, query.getClass());
+        assertEquals("Query is wrong", "IntersectsVerified(fieldName=)", query.toString());
     }
 
     @Test(expected = IndexException.class)

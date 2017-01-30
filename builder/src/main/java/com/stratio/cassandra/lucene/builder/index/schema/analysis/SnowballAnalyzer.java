@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema.analysis;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * {@link Analyzer} for tartarus.org snowball {@code Analyzer}.
@@ -30,7 +30,7 @@ public class SnowballAnalyzer extends Analyzer {
 
     /**
      * The language. The supported values are English, French, Spanish, Portuguese, Italian, Romanian, German, Dutch,
-     * Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian, Basque and Catalan.
+     * Swedish, Norwegian, Danish, Russian, Finnish, Hungarian and Turkish.
      */
     @JsonProperty("language")
     final String language;

@@ -101,8 +101,8 @@ public class FuzzyConditionTest extends AbstractConditionTest {
                                                                                    .maxExpansions(49)
                                                                                    .transpositions(true);
         testJsonSerialization(builder,
-                              "{type:\"fuzzy\",field:\"field\",value:\"value\",boost:0.7," +
-                              "transpositions:true,max_edits:2,prefix_length:2,max_expansions:49}");
+                              "{type:\"fuzzy\",field:\"field\",value:\"value\",boost:0.7,max_edits:2," +
+                              "prefix_length:2,max_expansions:49,transpositions:true}");
     }
 
     @Test

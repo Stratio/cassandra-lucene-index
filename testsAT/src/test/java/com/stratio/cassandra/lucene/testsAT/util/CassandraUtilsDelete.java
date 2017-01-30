@@ -60,10 +60,6 @@ public class CassandraUtilsDelete {
         return parent;
     }
 
-    public CassandraUtils refresh() {
-        return execute().refresh();
-    }
-
     public CassandraUtilsSelect query(Condition query) {
         return execute().query(query);
     }
@@ -76,7 +72,7 @@ public class CassandraUtilsDelete {
         return execute().sort(sort);
     }
 
-    public CassandraUtils waitForIndexing() {
-        return execute().waitForIndexing();
+    public CassandraUtils refresh() {
+        return execute().commit().refresh();
     }
 }

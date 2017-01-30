@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.schema.mapping.FloatMapper;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link SingleColumnMapperBuilder} to build a new {@link FloatMapper}.
@@ -31,7 +31,7 @@ public class FloatMapperBuilder extends SingleColumnMapperBuilder<FloatMapper, F
     /**
      * Sets the boost to be used.
      *
-     * @param boost The boost to be used.
+     * @param boost the boost to be used
      * @return this
      */
     public FloatMapperBuilder boost(Float boost) {

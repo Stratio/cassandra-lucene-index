@@ -19,6 +19,9 @@ import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * The abstract base class for queries directed to a specific field which name should be specified.
  *
@@ -51,6 +54,12 @@ public abstract class SingleFieldCondition extends Condition {
         this.field = field;
     }
 
+    /** {@inheritDoc} */
+    public Set<String> postProcessingFields() {
+        return Collections.singleton(field);
+    }
+
+    /** {@inheritDoc} */
     @Override
     protected MoreObjects.ToStringHelper toStringHelper(Object o) {
         return super.toStringHelper(o).add("field", field);

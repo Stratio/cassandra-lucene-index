@@ -66,7 +66,7 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals("Upper is not set", 2, condition.upper);
         assertEquals("Include lower is not set", false, condition.includeLower);
         assertEquals("Include upper is not set", true, condition.includeUpper);
-        assertEquals("Use doc values is not set", true,  condition.docValues);
+        assertEquals("Use doc values is not set", true, condition.docValues);
     }
 
     @Test

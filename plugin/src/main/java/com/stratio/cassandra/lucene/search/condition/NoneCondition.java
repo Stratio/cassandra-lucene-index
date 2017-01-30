@@ -20,6 +20,9 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * A {@link Condition} implementation that matches none documents.
  *
@@ -41,6 +44,11 @@ public class NoneCondition extends Condition {
     @Override
     public Query doQuery(Schema schema) {
         return new BooleanQuery.Builder().build();
+    }
+
+    /** {@inheritDoc} */
+    public Set<String> postProcessingFields() {
+        return Collections.emptySet();
     }
 
     /** {@inheritDoc} */

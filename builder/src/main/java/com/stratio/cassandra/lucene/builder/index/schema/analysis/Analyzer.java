@@ -15,9 +15,9 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema.analysis;
 
-import com.stratio.cassandra.lucene.builder.Builder;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.stratio.cassandra.lucene.builder.JSONBuilder;
 
 /**
  * A Lucene {@code Analyzer}.
@@ -27,5 +27,5 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = ClasspathAnalyzer.class, name = "classpath"),
                @JsonSubTypes.Type(value = SnowballAnalyzer.class, name = "snowball")})
-public abstract class Analyzer extends Builder {
+public abstract class Analyzer extends JSONBuilder {
 }

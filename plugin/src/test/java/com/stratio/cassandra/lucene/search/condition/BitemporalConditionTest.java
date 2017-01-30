@@ -32,8 +32,6 @@ import static org.junit.Assert.*;
  */
 public class BitemporalConditionTest extends AbstractConditionTest {
 
-    private static final String TIMESTAMP_PATTERN = "timestamp";
-
     @Test
     public void testBuildLong() {
         BitemporalCondition condition = new BitemporalConditionBuilder("field").boost(0.7)
@@ -95,10 +93,9 @@ public class BitemporalConditionTest extends AbstractConditionTest {
     @Test
     public void testQuery() {
 
-        MapperBuilder<?, ?> mapperBuilder = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern(
-                TIMESTAMP_PATTERN);
+        MapperBuilder<?, ?> mapperBuilder = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("yyyy");
         Schema schema = schema().mapper("name", mapperBuilder).build();
-        BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4);
+        BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 2001, 2002, 2003, 2004);
 
         Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);

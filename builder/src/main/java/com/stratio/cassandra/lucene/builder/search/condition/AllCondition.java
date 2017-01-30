@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.builder.search.condition;
 
-import org.codehaus.jackson.annotate.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 /**
  * A {@link Condition} implementation that matches all documents.
