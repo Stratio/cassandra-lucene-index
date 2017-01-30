@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene
 
 import org.apache.cassandra.db.rows.Row
-import org.apache.cassandra.db.{Clustering, DecoratedKey}
+import org.apache.cassandra.db.{Clustering, DecoratedKey, RangeTombstone, SinglePartitionReadCommand}
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.index.transactions.IndexTransaction.Type._
 import org.apache.cassandra.utils.concurrent.OpOrder
@@ -55,6 +55,14 @@ class IndexWriterWide(
   }
 
   /** @inheritdoc */
+  override def delete(tombstone: RangeTombstone): Unit = {
+    val slice = tombstone.deletedSlice
+    service.delete(key, slice)
+    clusterings.removeIf(slice.selects(metadata.comparator, _))
+    rows.keySet.removeIf(slice.selects(metadata.comparator, _))
+  }
+
+  /** @inheritdoc */
   override def index(row: Row) {
     if (!row.isStatic) {
       val clustering = row.clustering
@@ -75,10 +83,10 @@ class IndexWriterWide(
     if (transactionType == CLEANUP) return
 
     // Read required rows from storage engine
-    read(key, clusterings)
-      .asScala
-      .map(_.asInstanceOf[Row])
-      .foreach(row => rows.put(row.clustering(), row))
+    if (!clusterings.isEmpty) {
+      val command = SinglePartitionReadCommand.create(metadata, nowInSec, key, clusterings)
+      read(command).asScala.foreach(row => rows.put(row.clustering(), row))
+    }
 
     // Write rows
     rows.forEach((clustering, row) => {
@@ -87,7 +95,7 @@ class IndexWriterWide(
         service.upsert(key, row, nowInSec)
       } else {
         tracer.trace("Lucene index deleting document")
-        service.delete(key, row)
+        service.delete(key, clustering)
       }
     })
   }

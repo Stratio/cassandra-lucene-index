@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.0.9.3 (Upcoming)
+
+* Ignore tombstones during read before write (#255)
+* Fix deletion of ranges of rows in a partition
+* Add virtual node based partitioner
+* Upgrade to Apache Lucene 5.5.3
+* Add column-based index partitioner
+* Add support for local searches over index partitions with more than 2147483519 total documents
+* Fix CQL query handler activation at startup
+* Fix best effort mapping of collections (#246)
+* Optimize columns mapping (improves indexing performance)
+* Add generic support for index partitioning
+* Add token-based index partitioner
+
 ## 3.0.9.2 (November 24, 2016)
 
 * Upgrade to Scala 2.12.0

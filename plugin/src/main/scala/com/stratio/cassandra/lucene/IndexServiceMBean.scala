@@ -28,13 +28,13 @@ trait IndexServiceMBean {
     *
     * @return the number of documents
     */
-  def getNumDocs: Int
+  def getNumDocs: Long
 
   /** Returns the total number of deleted documents in this index.
     *
     * @return the number of deleted documents
     */
-  def getNumDeletedDocs: Int
+  def getNumDeletedDocs: Long
 
   /** Optimizes the index forcing merge segments leaving the specified number of segments. This
     * operation may block until all merging completes.

@@ -17,7 +17,6 @@ package com.stratio.cassandra.lucene.index
 
 import java.nio.file.Path
 
-import com.stratio.cassandra.lucene.util.Logging
 import org.apache.cassandra.io.util.FileUtils
 import org.apache.lucene.analysis.Analyzer
 import org.apache.lucene.document.Document
@@ -43,8 +42,7 @@ class FSIndex(
     refreshSeconds: Double,
     ramBufferMB: Int,
     maxMergeMB: Int,
-    maxCachedMB: Int)
-  extends Logging {
+    maxCachedMB: Int) {
 
   private[this] var mergeSort: Sort = _
   private[this] var fields: java.util.Set[String] = _
@@ -92,6 +90,8 @@ class FSIndex(
     try f.apply(searcher) finally manager.release(searcher)
   }
 
+  def searcherManager: SearcherManager = manager
+
   /** Upserts the specified document by first deleting the documents containing the specified term
     * and then adding the new document. The delete and then add are atomic as seen by a reader on
     * the same index (flush may happen only after the addition).
@@ -100,7 +100,6 @@ class FSIndex(
     * @param document the document to be added
     */
   def upsert(term: Term, document: Document) {
-    logger.debug(s"Indexing $document with term $term in $name")
     writer.updateDocument(term, document)
   }
 
@@ -109,7 +108,6 @@ class FSIndex(
     * @param term the term identifying the documents to be deleted
     */
   def delete(term: Term) {
-    logger.debug(s"Deleting $term from $name")
     writer.deleteDocuments(term)
   }
 
@@ -118,7 +116,6 @@ class FSIndex(
     * @param query the query identifying the documents to be deleted
     */
   def delete(query: Query) {
-    logger.debug(s"Deleting $query from $name")
     writer.deleteDocuments(query)
   }
 
@@ -126,13 +123,11 @@ class FSIndex(
   def truncate() {
     writer.deleteAll()
     writer.commit()
-    logger.info(s"Truncated $name")
   }
 
   /** Commits the pending changes. */
   def commit() {
     writer.commit()
-    logger.debug(s"Committed $name")
   }
 
   /** Commits all changes to the index, waits for pending merges to complete, and closes all
@@ -143,32 +138,11 @@ class FSIndex(
     manager.close()
     writer.close()
     directory.close()
-    logger.info(s"Closed $name")
   }
 
   /** Closes the index and removes all its files. */
   def delete() {
     try close() finally FileUtils.deleteRecursive(path.toFile)
-    logger.info(s"Deleted $name")
-  }
-
-  /** Finds the top hits for a query and sort, starting from an optional position.
-    *
-    * @param after the starting term
-    * @param query the query to search for
-    * @param sort  the sort to be applied
-    * @param count the max number of results to be collected
-    * @return the found documents, sorted according to the supplied [[Sort]] instance
-    */
-  def search(after: Option[Term], query: Query, sort: Sort, count: Int): DocumentIterator = {
-    logger.debug(
-      s"""Searching in $name
-          | after: $after
-          | query: $query
-          | count: $count
-          | sort :  $sort
-       """.stripMargin)
-    new DocumentIterator(manager, after, mergeSort, sort, query, count, fields)
   }
 
   /** Returns the total number of documents in this index.
@@ -176,7 +150,6 @@ class FSIndex(
     * @return the number of documents
     */
   def getNumDocs: Int = {
-    logger.debug(s"Getting $name num docs")
     doWithSearcher(searcher => searcher.getIndexReader.numDocs)
   }
 
@@ -185,7 +158,6 @@ class FSIndex(
     * @return the number of deleted documents
     */
   def getNumDeletedDocs: Int = {
-    logger.debug(s"Getting $name num deleted docs")
     doWithSearcher(searcher => searcher.getIndexReader.numDeletedDocs)
   }
 
@@ -196,10 +168,8 @@ class FSIndex(
     * @param doWait         `true` if the call should block until the operation completes
     */
   def forceMerge(maxNumSegments: Int, doWait: Boolean) {
-    logger.info(s"Merging $name segments to $maxNumSegments")
     writer.forceMerge(maxNumSegments, doWait)
     writer.commit()
-    logger.info(s"Merged $name segments to $maxNumSegments")
   }
 
   /** Optimizes the index forcing merge of all segments that have deleted documents.
@@ -208,16 +178,13 @@ class FSIndex(
     * @param doWait `true` if the call should block until the operation completes
     */
   def forceMergeDeletes(doWait: Boolean) {
-    logger.info(s"Merging $name segments with deletions")
     writer.forceMergeDeletes(doWait)
     writer.commit()
-    logger.info(s"Merged $name segments with deletions")
   }
 
   /** Refreshes the index readers. */
   def refresh() {
     manager.maybeRefreshBlocking()
-    logger.debug(s"Refreshed $name readers")
   }
 }
 

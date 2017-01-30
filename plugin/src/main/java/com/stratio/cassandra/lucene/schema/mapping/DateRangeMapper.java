@@ -17,7 +17,6 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.common.DateParser;
 import org.apache.commons.lang3.StringUtils;
@@ -136,15 +135,7 @@ public class DateRangeMapper extends Mapper {
      * @return the start date
      */
     Date readFrom(Columns columns) {
-        Column<?> column = columns.withFieldName(from).head();
-        if (column == null) {
-            return null;
-        }
-        Date fromDate = parser.parse(column.value().getOrElse(null));
-        if (fromDate == null) {
-            throw new IndexException("From date required");
-        }
-        return fromDate;
+        return parser.parse(columns.valueForField(from));
     }
 
     /**
@@ -154,15 +145,7 @@ public class DateRangeMapper extends Mapper {
      * @return the end date
      */
     Date readTo(Columns columns) {
-        Column<?> column = columns.withFieldName(to).head();
-        if (column == null) {
-            return null;
-        }
-        Date toDate = parser.parse(column.value().getOrElse(null));
-        if (toDate == null) {
-            throw new IndexException("To date required");
-        }
-        return toDate;
+        return parser.parse(columns.valueForField(to));
     }
 
     /**

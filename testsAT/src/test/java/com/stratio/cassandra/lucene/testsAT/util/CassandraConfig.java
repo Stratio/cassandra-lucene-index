@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.testsAT.util;
 
 import com.datastax.driver.core.ConsistencyLevel;
+import com.stratio.cassandra.lucene.builder.index.Partitioner;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -31,7 +32,7 @@ class CassandraConfig {
 
     static final String HOST = getIP("host", "127.0.0.1");
     static final String JMX_PORT = getString("jmx_port", "7199");
-    static final String MONITOR_SERVICE = getString("monitor_service","jmx");// jmx or jolokia
+    static final String MONITOR_SERVICE = getString("monitor_service", "jmx");// jmx or jolokia
     static final String[] MONITOR_SERVICES_URL = getStringArray("monitor_services_url", HOST + ":" + JMX_PORT);
     // static final String[] MONITOR_SERVICES_URL = getStringArray("jmx_services", "127.0.0.1:7100,127.0.0.1:7200,127.0.0.1:7300");
     static final int REPLICATION = getInt("replication", 1);
@@ -44,6 +45,7 @@ class CassandraConfig {
     static final String COLUMN = getString("column", "lucene");
     static final boolean USE_NEW_QUERY_SYNTAX = getBool("use_new_query_syntax", true);
     static final int LIMIT = getInt("limit", 10000);
+    static final Partitioner PARTITIONER = new Partitioner.None();
 
     static {
         assert COLUMN != null || USE_NEW_QUERY_SYNTAX;

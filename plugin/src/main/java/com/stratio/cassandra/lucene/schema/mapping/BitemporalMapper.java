@@ -17,7 +17,6 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.common.DateParser;
 import org.apache.commons.lang3.StringUtils;
@@ -168,25 +167,11 @@ public class BitemporalMapper extends Mapper {
      * Returns a {@link BitemporalDateTime} read from the specified {@link Columns}.
      *
      * @param columns the column where the data is
-     * @param fieldName the name of the field to be read from {@code columns}
+     * @param field the name of the field to be read from {@code columns}
      * @return a bitemporal date time
      */
-    BitemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
-        Column<?> column = columns.withFieldName(fieldName).head();
-        if (column == null) {
-            return null;
-        }
-        return parseBitemporalDate(column.value().getOrElse(null));
-    }
-
-    private BitemporalDateTime checkIfNow(Long in) {
-        if (in > nowValue) {
-            throw new IndexException("BitemporalDateTime value '{}' exceeds Max Value: '{}'", in, nowValue);
-        } else if (in < nowValue) {
-            return new BitemporalDateTime(in);
-        } else {
-            return new BitemporalDateTime(Long.MAX_VALUE);
-        }
+    BitemporalDateTime readBitemporalDate(Columns columns, String field) {
+        return parseBitemporalDate(columns.valueForField(field));
     }
 
     /**
@@ -199,6 +184,16 @@ public class BitemporalMapper extends Mapper {
     public BitemporalDateTime parseBitemporalDate(Object value) {
         Date date = parser.parse(value);
         return date == null ? null : checkIfNow(date.getTime());
+    }
+
+    private BitemporalDateTime checkIfNow(Long in) {
+        if (in > nowValue) {
+            throw new IndexException("BitemporalDateTime value '{}' exceeds Max Value: '{}'", in, nowValue);
+        } else if (in < nowValue) {
+            return new BitemporalDateTime(in);
+        } else {
+            return new BitemporalDateTime(Long.MAX_VALUE);
+        }
     }
 
     /** {@inheritDoc} */

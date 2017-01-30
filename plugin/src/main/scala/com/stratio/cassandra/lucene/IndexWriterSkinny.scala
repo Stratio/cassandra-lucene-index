@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene
 
-import org.apache.cassandra.db.DecoratedKey
 import org.apache.cassandra.db.rows.Row
+import org.apache.cassandra.db.{DecoratedKey, RangeTombstone, SinglePartitionReadCommand}
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.index.transactions.IndexTransaction.Type._
 import org.apache.cassandra.utils.concurrent.OpOrder
@@ -47,6 +47,11 @@ class IndexWriterSkinny(
   }
 
   /** @inheritdoc */
+  override def delete(tombstone: RangeTombstone): Unit = {
+    logger.warn(s"Ignoring range tombstone $tombstone in skinny table")
+  }
+
+  /** @inheritdoc */
   override def index(row: Row) {
     this.row = Option(row)
   }
@@ -61,8 +66,9 @@ class IndexWriterSkinny(
       row => {
         if (transactionType == COMPACTION || service.needsReadBeforeWrite(key, row)) {
           tracer.trace("Lucene index reading before write")
-          val iterator = read(key)
-          if (iterator.hasNext) iterator.next.asInstanceOf[Row] else row
+          val command = SinglePartitionReadCommand.fullPartitionRead(metadata, nowInSec, key)
+          val readRows = read(command)
+          if (readRows.hasNext) readRows.next else row
         } else row
       }).foreach(
       row => {

@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.MoreObjects;
-import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
@@ -24,8 +23,6 @@ import com.stratio.cassandra.lucene.search.Search;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexableField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.util.LinkedList;
@@ -40,8 +37,6 @@ import java.util.stream.Collectors;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class Schema implements Closeable {
-
-    private static final Logger logger = LoggerFactory.getLogger(Schema.class);
 
     /** The {@link Columns} {@link Mapper}s. */
     public final Map<String, Mapper> mappers;
@@ -69,7 +64,7 @@ public class Schema implements Closeable {
         mappedCells = mappers.values()
                              .stream()
                              .flatMap(x -> x.mappedColumns.stream())
-                             .map(x -> Column.parse(x).cellName())
+                             .map(Column::parseCellName)
                              .collect(Collectors.toSet());
     }
 
@@ -90,7 +85,7 @@ public class Schema implements Closeable {
      * @return the mapper, or {@code null} if not found.
      */
     public Mapper mapper(String field) {
-        String mapperName = Column.parse(field).mapperName();
+        String mapperName = Column.parseMapperName(field);
         return mappers.get(mapperName);
     }
 
@@ -123,16 +118,7 @@ public class Schema implements Closeable {
      */
     public List<IndexableField> indexableFields(Columns columns) {
         List<IndexableField> fields = new LinkedList<>();
-        for (Mapper mapper : mappers.values()) {
-            try {
-                fields.addAll(mapper.indexableFields(columns));
-            } catch (IndexException e) {
-                logger.warn("Error in Lucene index:\n\t" +
-                            "while mapping : {}\n\t" +
-                            "with mapper   : {}\n\t" +
-                            "caused by     : {}", columns, mapper, e.getMessage());
-            }
-        }
+        mappers.values().forEach(mapper -> fields.addAll(mapper.bestEffortIndexableFields(columns)));
         return fields;
     }
 

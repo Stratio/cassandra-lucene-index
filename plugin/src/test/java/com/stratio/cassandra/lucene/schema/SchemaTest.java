@@ -31,6 +31,8 @@ import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.*;
 
 /**
+ * {@link Schema} tests.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SchemaTest {
@@ -86,7 +88,7 @@ public class SchemaTest {
     @Test
     public void testValidateColumns() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
-        Columns columns = new Columns().add("field1", "value");
+        Columns columns = Columns.empty().add("field1", "value");
         schema.validate(columns);
         schema.close();
     }
@@ -94,26 +96,26 @@ public class SchemaTest {
     @Test(expected = IndexException.class)
     public void testValidateColumnsFailing() {
         Schema schema = SchemaBuilders.schema().mapper("field1", integerMapper().validated(true)).build();
-        Columns columns = new Columns().add("field1", "value");
+        Columns columns = Columns.empty().add("field1", "value");
         schema.validate(columns);
         schema.close();
     }
 
     @Test
-    public void testAddFields() {
+    public void testIndexableFields() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
-        Columns columns = new Columns().add("field1", "value");
+        Columns columns = Columns.empty().add("field1", "value");
         List<IndexableField> fields = schema.indexableFields(columns);
         assertFalse("Expected true", fields.isEmpty());
         schema.close();
     }
 
     @Test
-    public void testAddFieldsFailing() {
-        Schema schema = SchemaBuilders.schema().mapper("field1", integerMapper()).build();
-        Columns columns = new Columns().add("field1", "value");
+    public void testIndexableFieldsBestEffort() {
+        Schema schema = SchemaBuilders.schema().mapper("f", integerMapper()).build();
+        Columns columns = Columns.empty().add("f", "1").add("f", "x").add("f", "2");
         List<IndexableField> fields = schema.indexableFields(columns);
-        assertTrue("Expected true", fields.isEmpty());
+        assertEquals("Expected 4 fields", 4, fields.size());
         schema.close();
     }
 

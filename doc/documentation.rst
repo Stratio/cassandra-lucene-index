@@ -11,6 +11,11 @@ Stratio's Cassandra Lucene Index
     - `Example <#example>`__
     - `Alternative syntaxes <#alternative-syntaxes>`__
 - `Indexing <#indexing>`__
+    - `Partitioners <#partitioners>`__
+        - `None partitioner <#none-partitioner>`__
+        - `Token partitioner <#token-partitioner>`__
+        - `Column partitioner <#column-partitioner>`__
+        - `Virtual node partitioner <#virtual-node-partitioner>`__
     - `Analyzers <#analyzers>`__
         - `Classpath analyzer <#classpath-analyzer>`__
         - `Snowball analyzer <#snowball-analyzer>`__
@@ -159,6 +164,7 @@ Not yet supported:
 -  Indexing ``counter`` columns
 -  Indexing static columns
 -  Other partitioners than Murmur3
+-  Per partition limit
 
 Architecture
 ============
@@ -243,51 +249,55 @@ and create them again with running newer version.
 If you have huge amount of data in your cluster this could be an expensive task. We have tested it and here you have a
 compatibility matrix that states between which versions it is not needed to delete the index:
 
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| From\\ To | 3.0.3.0 | 3.0.3.1 | 3.0.4.0 | 3.0.4.1 | 3.0.5.0 | 3.0.5.1 | 3.0.5.2 | 3.0.6.0 | 3.0.6.1 | 3.0.6.2 | 3.0.7.0 | 3.0.7.1 | 3.0.7.2 | 3.0.8.0 | 3.0.8.1 | 3.0.8.2 | 3.0.8.3 | 3.0.9.0 | 3.0.9.1 | 3.0.9.2 |
-+===========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+
-| 2.x       |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.3.0   |    --   |   YES   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.3.1   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.4.0   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.4.1   |    --   |    --   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.5.0   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.5.1   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.5.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.6.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.6.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.6.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.7.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.7.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.7.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.8.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.8.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.8.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.8.3   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.9.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.9.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| From\\ To | 3.0.3.0 | 3.0.3.1 | 3.0.4.0 | 3.0.4.1 | 3.0.5.0 | 3.0.5.1 | 3.0.5.2 | 3.0.6.0 | 3.0.6.1 | 3.0.6.2 | 3.0.7.0 | 3.0.7.1 | 3.0.7.2 | 3.0.8.0 | 3.0.8.1 | 3.0.8.2 | 3.0.8.3 | 3.0.9.0 | 3.0.9.1 | 3.0.9.2 | 3.0.9.3 |
++===========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+
+| 2.x       |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.3.0   |    --   |   YES   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.3.1   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.4.0   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.4.1   |    --   |    --   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.5.0   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.5.1   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.5.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.6.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.6.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.6.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.7.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.7.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.7.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.8.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |  \(1\)  |  \(1\)  |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.8.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.8.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.8.3   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.9.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.9.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.9.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
 
 **(1):** Compatible only if you are not using geospatial mappers.
+
+**(2):** Compatible only if you are not using snowball analyzers.
 
 Alternative syntaxes
 ====================
@@ -548,6 +558,7 @@ where <options> is a JSON object:
        ('indexing_queues_size': '<int_value>',)?
        ('directory_path': '<string_value>',)?
        ('excluded_data_centers': '<string_value>',)?
+       ('partitioner': '<partitioner_definition>',)?
        'schema': '<schema_definition>'
     };
 
@@ -569,6 +580,9 @@ All options take a value enclosed in single quotes:
 -  **excluded\_data\_centers**: The comma-separated list of the data centers
    to be excluded. The index will be created on this data centers but all the
    write operations will be silently ignored.
+-  **partitioner**: The optional index `partitioner <#partitioners>`__. Index partitioning is useful
+   to speed up some searches to the detriment of others, depending on the implementation. It is also
+   useful to overcome the Lucene's hard limit of 2147483519 documents per index.
 -  **schema**: see below
 
 .. code-block:: sql
@@ -592,6 +606,145 @@ Where default\_analyzer defaults to ‘org.apache.lucene.analysis.standard.Stand
     <mapper_definition>:= <mapper_name>: {
        type: "<mapper_type>" (, <option>: "<value>")*
     }
+
+Partitioners
+============
+
+Lucene indexes can be partitioned on a per-node basis. This means that the local index in each node
+can be split in multiple smaller fragments. Index partitioning is useful to speed up some searches
+to the detriment of others, depending on the implementation. It is also useful to overcome the
+Lucene's hard limit of 2147483519 documents per local index, which becomes a per-partition limit.
+
+Partitioning is disabled by default, and it can be activated specifying a partitioner implementation
+in the index creation statement.
+
+Please note that the index creation statement specifies the values of several Lucene memory-related
+attributes, such as *max_merge_mb* or *ram_buffer_mb*. These attributes are applied to each local
+Lucene index or partition, so the amount of memory should be multiplied by the number of partitions.
+
+None partitioner
+________________
+
+A partitioner with no action, equivalent to not defining a partitioner. This is the default
+implementation.
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX test_idx ON test()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'schema': '{...}',
+       'partitioner': '{type: "none"}',
+    };
+
+Token partitioner
+_________________
+
+A partitioner based on the partition key token. Partitioning on token guarantees a good load
+balancing between partitions while speeding up partition-directed searches to the detriment of token
+range searches performance. It allows to efficiently run partition directed queries in nodes
+indexing more than 2147483519 rows. However, token range searches in nodes with more than 2147483519
+rows will fail. The number of partitions per node should be specified.
+
+.. code-block:: sql
+
+    CREATE TABLE tweets (
+       user TEXT,
+       month INT,
+       date TIMESTAMP,
+       id INT,
+       body TEXT
+       PRIMARY KEY ((user, month), date, id)
+    );
+
+    CREATE CUSTOM INDEX idx ON tweets()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'schema': '{...}',
+       'partitioner': '{type: "token", partitions: 4}',
+    };
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' AND month = 5; -- Fetches 1 node, 1 partition
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' ALLOW FILTERING; -- Fetches all nodes, all partitions
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}')'; -- Fetches all nodes, all partitions
+
+Column partitioner
+__________________
+
+A partitioner based on a column of the partition key. Rows will be stored in an index partition determined by the hash
+of the specified partition key column. Both partition-directed and token range searches containing an CQL equality
+filter over the selected partition key column will be routed to a single partition, increasing performance. However,
+token range searches without filters over the partitioning column will be routed to all the partitions, with a slightly
+lower performance.
+
+Load balancing depends on the cardinality and distribution of the values of the partitioning column. Both high
+cardinalities and uniform distributions will provide better load balancing between partitions.
+
+.. code-block:: sql
+
+    CREATE TABLE tweets (
+       user TEXT,
+       month INT,
+       date TIMESTAMP,
+       id INT,
+       body TEXT
+       PRIMARY KEY ((user, month), date, id)
+    );
+
+    CREATE CUSTOM INDEX idx ON tweets()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'schema': '{...}',
+       'partitioner': '{type: "column", partitions: 4, column:"user"}',
+    };
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' AND month = 5; -- Fetches 1 node, 1 partition
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' ALLOW FILTERING; -- Fetches all nodes, 1 partition
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}')'; -- Fetches all nodes, all partitions
+
+Virtual node partitioner
+________________________
+
+A virtual node based partitioner. Rows will be stored in an index partition determined by the hash of the virtual node
+token range number. Partition-directed and specific virtual node token range searches will be routed to a single partition,
+increasing performance. However, unbounded token range searches will be routed to all the partitions, with a slightly lower
+performance.
+
+Load balancing depends on virtual node token ranges distribution. The more virtual nodes, the better distribution (more
+similarity in number of tokens that falls inside any virtual node) between virtual nodes, the better load balancing.
+
+.. code-block:: sql
+
+    CREATE TABLE tweets (
+       user TEXT,
+       month INT,
+       date TIMESTAMP,
+       id INT,
+       body TEXT
+       PRIMARY KEY ((user, month), date, id)
+    );
+
+    CREATE CUSTOM INDEX idx ON tweets()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'schema': '{...}',
+       'partitioner': '{type: "vnode", vnodes_per_partition: 4}',
+    };
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' AND month = 5; -- Fetches 1 node, 1 partition
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' ALLOW FILTERING; -- Fetches all nodes, all partitions
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}')'
+        AND token(user, month) >= -2918332558536081408 AND token(user, month) < -2882303761517117440; -- Fetches 1 node, 1 partition
+
+        being [-2918332558536081408, -2882303761517117440) one virtual node token range assignment
+
+    SELECT * FROM tweets WHERE expr(idx, '{...}')'; -- Fetches all nodes, all partitions
 
 Analyzers
 =========
@@ -1659,7 +1812,6 @@ Maps an UUID value.
        }'
     };
 
-
 Example
 =======
 
@@ -1679,6 +1831,7 @@ Cassandra shell:
        'max_merge_mb': '5',
        'max_cached_mb': '30',
        'excluded_data_centers': 'dc2,dc3',
+       'partitioner': '{type: "token", partitions: 4}',
        'schema': '{
           analyzers: {
              my_custom_analyzer: {
@@ -1752,20 +1905,16 @@ and <sort> is another JSON object:
 When searching by ``filter``, without any ``query`` or ``sort`` defined,
 then the results are returned in the Cassandra’s natural order, which is
 defined by the partitioner and the column name comparator. When searching
-by ``query``, results are returned sorted by descending
-`relevance <https://lucene.apache.org/core/3_6_0/scoring.html>`_. ``sort``
-option is used to specify the order in which the indexed rows will be traversed.
-Field-based sorting has preference over query's relevance sorting.
+by ``query``, results are returned sorted by descending relevance. Sort option is used
+to specify the order in which the indexed rows will be traversed. When
+simple_sort_field sorting is used, the query scoring is delayed.
 
-``geo_distance`` sort field is used to sort the matched rows by ascending distance
-to a certain geographical point, indicating the `geo point field <#geo-point-mapper>`__
-to be used.
+Geo_distance_sort_field is use to sort Rows by min distance to point
+indicating the GeoPointMapper to use by mapper field
 
 Relevance queries must touch all the nodes in the ring in order to find
 the globally best results, so you should prefer filters over queries
-when no relevance nor sorting are needed. The only exception to this are
-searches directed to a single very wide partition (hundreds of thousands of rows),
-where query's particular pagination technique may sometimes have a better performance.
+when no relevance nor sorting are needed.
 
 The ``refresh`` boolean option indicates if the search must commit pending
 writes and refresh the Lucene IndexSearcher before being performed. This
@@ -2289,6 +2438,7 @@ You can also write this search without the ``type`` attribute:
           must: [{type: "wildcard", field: "food", value: "tu*"}]
        }
     }');
+
 
 It is also possible to write the search this way:
 
@@ -4385,10 +4535,6 @@ Query searches involve relevance so they should be sent to all nodes in the
 cluster in order to find the globally best results.
 However, filters have a chance to find the results in a subset of the nodes.
 So if you are not interested in relevance sorting then you should prefer filters over queries.
-
-The only exception to this are searches directed to a single very wide partition (hundreds of
-thousands of rows), where query's particular pagination technique may sometimes have a better
-performance.
 
 Try doc values
 ==============

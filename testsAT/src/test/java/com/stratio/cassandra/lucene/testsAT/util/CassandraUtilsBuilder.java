@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.util;
 
+import com.stratio.cassandra.lucene.builder.index.Partitioner;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.SingleColumnMapper;
@@ -29,7 +30,7 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
  */
 public class CassandraUtilsBuilder {
 
-    private final String name;
+    private final String keyspace;
     private String table = TABLE;
     private String indexName = INDEX;
     private String indexColumn = COLUMN;
@@ -41,12 +42,12 @@ public class CassandraUtilsBuilder {
     private List<String> clusteringKey;
     private String clusteringOrderColumn;
     private boolean clusteringOrderAscending;
+    private Partitioner partitioner = PARTITIONER;
 
     private final Map<String, Map<String, String>> udts;
 
-    CassandraUtilsBuilder(String name) {
-        super();
-        this.name = name;
+    CassandraUtilsBuilder(String keyspacePrefix) {
+        this.keyspace = keyspacePrefix + "_" + Math.abs(new Random().nextLong());
         this.columns = new HashMap<>();
         this.mappers = new HashMap<>();
         this.analyzers = new HashMap<>();
@@ -139,6 +140,11 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
+    public CassandraUtilsBuilder withPartitioner(Partitioner partitioner) {
+        this.partitioner = partitioner;
+        return this;
+    }
+
     private SingleColumnMapper<?> defaultMapper(String name) {
         switch (name) {
             case "ascii":
@@ -183,7 +189,6 @@ public class CassandraUtilsBuilder {
     }
 
     public CassandraUtils build() {
-        String keyspace = name + "_" + Math.abs(new Random().nextLong());
         return new CassandraUtils(keyspace,
                                   table,
                                   indexName,
@@ -196,6 +201,7 @@ public class CassandraUtilsBuilder {
                                   clusteringKey,
                                   udts,
                                   clusteringOrderColumn,
-                                  clusteringOrderAscending);
+                                  clusteringOrderAscending,
+                                  partitioner);
     }
 }

@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.builder;
 import com.stratio.cassandra.lucene.builder.common.GeoShape;
 import com.stratio.cassandra.lucene.builder.common.GeoTransformation;
 import com.stratio.cassandra.lucene.builder.index.Index;
+import com.stratio.cassandra.lucene.builder.index.Partitioner;
 import com.stratio.cassandra.lucene.builder.index.schema.Schema;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.ClasspathAnalyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.SnowballAnalyzer;
@@ -755,4 +756,68 @@ public abstract class Builder {
     public static GeoShape.Union union(String... shapes) {
         return union(Stream.of(shapes).map(Builder::wkt).collect(Collectors.toList()));
     }
+
+    /**
+     * Returns a new {@link Partitioner.None} to not partitioning the index.
+     *
+     * Index partitioning is useful to speed up some queries to the detriment of others, depending on the
+     * implementation. It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
+     *
+     * @return a new no-action partitioning, equivalent to just don't partitioning the index
+     */
+    public static Partitioner.None nonePartitioner() {
+        return new Partitioner.None();
+    }
+
+    /**
+     * Returns a new {@link Partitioner.OnToken} based on the partition key token. Rows will be stored in an index
+     * partition determined by the hash of the partition key token. Partition-directed searches will be routed to a
+     * single partition, increasing performance. However, token range searches will be routed to all the partitions,
+     * with a slightly lower performance.
+     *
+     * This partitioner guarantees an excellent load balancing between index partitions.
+     *
+     * @param partitions the number of index partitions per node
+     * @return a new partitioner based on Cassandra's partitioning token
+     */
+    public static Partitioner.OnToken partitionerOnToken(int partitions) {
+        return new Partitioner.OnToken(partitions);
+    }
+
+    /**
+     * Returns a new {@link Partitioner.OnColumn} based on the specified partition key column. Rows will be stored in an
+     * index partition determined by the hash of the specified partition key column. Both partition-directed as well as
+     * token range searches containing an CQL equality filter over the selected partition key column will be routed to a
+     * single partition, increasing performance. However, token range searches without filters over the partitioning
+     * column will be routed to all the partitions, with a slightly lower performance.
+     *
+     * Load balancing depends on the cardinality and distribution of the values of the partitioning column. Both high
+     * cardinalities and uniform distributions will provide better load balancing between partitions.
+     *
+     * @param partitions the number of index partitions per node
+     * @param column the name of the partition key column
+     * @return a new partitioner based on a partitioning key column
+     */
+    public static Partitioner.OnColumn partitionerOnColumn(int partitions, String column) {
+        return new Partitioner.OnColumn(partitions, column);
+    }
+
+    /**
+     * Returns a new {@link Partitioner.OnVirtualNode} based on the partition key token. Rows will be stored in an index
+     * partition determined by the virtual nodes token range. Partition-directed searches will be routed to a single
+     * partition, increasing performance. However, unbounded token range searches will be routed to all the partitions,
+     * with a slightly lower performance. Virtual node token range queries will be routed to only one partition which
+     * increase performance in spark queries with vnodes rather than partitioning on token.
+     *
+     * This partitioner load balance depends on virtual node token ranges assignation. The more virtual nodes, the
+     * better distribution (more similarity in number of tokens that falls inside any virtual node) between virtual
+     * nodes, the better load balance with this partitioner.
+     *
+     * @param virtualNodesPerPartition the number of virtual nodes per each partition
+     * @return a new partitioner based on Cassandra's vnode partitioning token ranges
+     */
+    public static Partitioner.OnVirtualNode partitionerOnVirtualNodes(int virtualNodesPerPartition) {
+        return new Partitioner.OnVirtualNode(virtualNodesPerPartition);
+    }
+
 }

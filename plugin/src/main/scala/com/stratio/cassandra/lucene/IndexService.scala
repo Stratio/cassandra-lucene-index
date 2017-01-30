@@ -18,9 +18,8 @@ package com.stratio.cassandra.lucene
 import java.lang.management.ManagementFactory
 import javax.management.{JMException, ObjectName}
 
-import com.stratio.cassandra.lucene.column.Columns
-import com.stratio.cassandra.lucene.index.{DocumentIterator, FSIndex}
-import com.stratio.cassandra.lucene.mapping.{ExpressionMapper, PartitionMapper, TokenMapper}
+import com.stratio.cassandra.lucene.index.{DocumentIterator, PartitionedIndex}
+import com.stratio.cassandra.lucene.mapping._
 import com.stratio.cassandra.lucene.search.Search
 import com.stratio.cassandra.lucene.util._
 import org.apache.cassandra.config.ColumnDefinition
@@ -30,6 +29,7 @@ import org.apache.cassandra.db.partitions._
 import org.apache.cassandra.db.rows._
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.schema.IndexMetadata
+import org.apache.cassandra.utils.FBUtilities
 import org.apache.cassandra.utils.concurrent.OpOrder
 import org.apache.lucene.document.Document
 import org.apache.lucene.index.{IndexableField, Term}
@@ -44,8 +44,9 @@ import scala.collection.mutable
   * @param indexMetadata the index metadata
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: IndexMetadata)
-  extends IndexServiceMBean with Logging with Tracing {
+abstract class IndexService(
+    val table: ColumnFamilyStore,
+    val indexMetadata: IndexMetadata) extends IndexServiceMBean with Logging with Tracing {
 
   val metadata = table.metadata
   val ksName = metadata.ksName
@@ -56,18 +57,22 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   // Parse options
   val options = new IndexOptions(metadata, indexMetadata)
 
-  // Setup mapping
+  // Setup schema
   val schema = options.schema
-  val tokenMapper = new TokenMapper
-  val partitionMapper = new PartitionMapper(metadata)
-  val expressionMapper = ExpressionMapper(metadata, indexMetadata)
   val regulars = metadata.partitionColumns.regulars.asScala.toSet
   val mappedRegulars = regulars.map(_.name.toString).filter(schema.mappedCells.contains)
   val mapsMultiCell = regulars.exists(x => x.`type`.isMultiCell && schema.mapsCell(x.name.toString))
 
+  // Setup mapping
+  val tokenMapper = new TokenMapper
+  val partitionMapper = new PartitionMapper(metadata)
+  val columnsMapper = new ColumnsMapper(schema, metadata)
+  val expressionMapper = ExpressionMapper(metadata, indexMetadata)
+
   // Setup FS index and write queue
   val queue = TaskQueue.build(options.indexingThreads, options.indexingQueuesSize)
-  val lucene = new FSIndex(
+  val partitioner = options.partitioner
+  val lucene = new PartitionedIndex(partitioner.numPartitions,
     idxName,
     options.path,
     options.schema.analyzer,
@@ -113,15 +118,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     */
   def fieldsToLoad: java.util.Set[String]
 
-  /** Returns a [[Columns]] representing the specified row.
-    *
-    * @param key the partition key
-    * @param row the row
-    * @return the columns representing the specified row
-    */
-  def columns(key: DecoratedKey, row: Row): Columns
-
-  def keyIndexableFields(key: DecoratedKey, row: Row): List[IndexableField]
+  def keyIndexableFields(key: DecoratedKey, clustering: Clustering): List[IndexableField]
 
   /** Returns if the specified column definition is mapped by this index.
     *
@@ -143,11 +140,11 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
 
   /** Returns a Lucene term uniquely identifying the specified row.
     *
-    * @param key the partition key
-    * @param row the row
+    * @param key        the partition key
+    * @param clustering the clustering key
     * @return a Lucene identifying term
     */
-  def term(key: DecoratedKey, row: Row): Term
+  def term(key: DecoratedKey, clustering: Clustering): Term
 
   /** Returns a Lucene term identifying documents representing all the row's which are in the
     * partition the specified [[DecoratedKey]].
@@ -213,33 +210,38 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   /** Upserts the specified row.
     *
     * @param key      the partition key
-    * @param row      the row to be upserted
+    * @param row      the row
     * @param nowInSec now in seconds
     */
   def upsert(key: DecoratedKey, row: Row, nowInSec: Int) {
-    queue.submitAsynchronous(
-      key, () => {
-        val t = term(key, row)
-        val cols = columns(key, row).withoutDeleted(nowInSec)
-        val fields = schema.indexableFields(cols)
-        if (fields.isEmpty) {
-          lucene.delete(t)
-        } else {
-          val doc = new Document
-          keyIndexableFields(key, row).foreach(doc.add)
-          fields.forEach(doc add _)
-          lucene.upsert(t, doc)
-        }
-      })
+    queue.submitAsynchronous(key, () => {
+      val partition = partitioner.partition(key)
+      val clustering = row.clustering()
+      val term = this.term(key, clustering)
+      val columns = columnsMapper.columns(key, row, nowInSec)
+      val fields = schema.indexableFields(columns)
+      if (fields.isEmpty) {
+        lucene.delete(partition, term)
+      } else {
+        val doc = new Document
+        keyIndexableFields(key, clustering).foreach(doc.add)
+        fields.forEach(doc add _)
+        lucene.upsert(partition, term, doc)
+      }
+    })
   }
 
   /** Deletes the partition identified by the specified key.
     *
-    * @param key the partition key
-    * @param row the row to be deleted
+    * @param key        the partition key
+    * @param clustering the clustering key
     */
-  def delete(key: DecoratedKey, row: Row) {
-    queue.submitAsynchronous(key, () => lucene.delete(term(key, row)))
+  def delete(key: DecoratedKey, clustering: Clustering) {
+    queue.submitAsynchronous(key, () => {
+      val partition = partitioner.partition(key)
+      val term = this.term(key, clustering)
+      lucene.delete(partition, term)
+    })
   }
 
   /** Deletes the partition identified by the specified key.
@@ -247,23 +249,30 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @param key the partition key
     */
   def delete(key: DecoratedKey) {
-    queue.submitAsynchronous(key, () => lucene.delete(term(key)))
+    queue.submitAsynchronous(key, () => {
+      val partition = partitioner.partition(key)
+      val term = this.term(key)
+      lucene.delete(partition, term)
+    })
   }
 
   /** Returns a new index searcher for the specified read command.
     *
-    * @param command the read command being executed
+    * @param command    the read command being executed
+    * @param orderGroup the Cassandra read order group
     * @return a searcher with which to perform the supplied command
     */
-  def search(command: ReadCommand, orderGroup: ReadOrderGroup): UnfilteredPartitionIterator = {
+  def search(
+      command: ReadCommand,
+      orderGroup: ReadOrderGroup): UnfilteredPartitionIterator = {
 
     // Parse search
     tracer.trace("Building Lucene search")
     val search = expressionMapper.search(command)
-    val q = search.query(schema, query(command).orNull)
-    val a = after(search.paging, command)
-    val s = sort(search)
-    val n = command.limits.count
+    val query = search.query(schema, this.query(command).orNull)
+    val afters = this.after(search.paging, command)
+    val sort = this.sort(search)
+    val count = command.limits.count
 
     // Refresh if required
     if (search.refresh) {
@@ -272,8 +281,10 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     }
 
     // Search
-    tracer.trace(s"Lucene index searching for $n rows")
-    val documents = lucene.search(a, q, s, n)
+    tracer.trace(s"Lucene index searching for $count rows")
+    val partitions = partitioner.partitions(command)
+    val readers = afters.filter(a => partitions.contains(a._1))
+    val documents = lucene.search(readers, query, sort, count)
     reader(documents, command, orderGroup)
   }
 
@@ -283,8 +294,7 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     * @return the key range query
     */
   def query(command: ReadCommand): Option[Query] = command match {
-    case command: SinglePartitionReadCommand =>
-      val key = command.partitionKey
+    case command: SinglePartitionReadCommand => val key = command.partitionKey
       val filter = command.clusteringIndexFilter(key)
       Some(query(key, filter))
     case command: PartitionRangeReadCommand => query(command.dataRange)
@@ -306,9 +316,13 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
     */
   def query(dataRange: DataRange): Option[Query]
 
-  def after(pagingState: IndexPagingState, command: ReadCommand): Option[Term] = {
-    if (pagingState == null) return None
-    pagingState.forCommand(command).map { case (key, clustering) => after(key, clustering) }
+  def after(pagingState: IndexPagingState, command: ReadCommand): List[(Int, Option[Term])] = {
+    val partitions = partitioner.partitions(command)
+    val afters = if (pagingState == null)
+      (0 until partitioner.numPartitions).map(_ => None).toList
+    else
+      pagingState.forCommand(command, partitioner).map(_.map { case ((_, k), c) => after(k, c) })
+    partitions.map(i => (i, afters(i)))
   }
 
   /** Returns a Lucene query to retrieve the row identified by the specified paging state.
@@ -348,13 +362,15 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
       documents: DocumentIterator,
       command: ReadCommand,
       orderGroup: ReadOrderGroup): IndexReader
+
   /** Ensures that values present in a partition update are valid according to the schema.
     *
     * @param update the partition update containing the values to be validated
     */
   def validate(update: PartitionUpdate) {
     val key = update.partitionKey
-    update.forEach(row => schema.validate(columns(key, row)))
+    val now = FBUtilities.nowInSeconds
+    update.forEach(row => schema.validate(columnsMapper.columns(key, row, now)))
   }
 
   /** @inheritdoc */
@@ -363,12 +379,12 @@ abstract class IndexService(val table: ColumnFamilyStore, val indexMetadata: Ind
   }
 
   /** @inheritdoc */
-  override def getNumDocs: Int = {
+  override def getNumDocs: Long = {
     lucene.getNumDocs
   }
 
   /** @inheritdoc */
-  override def getNumDeletedDocs: Int = {
+  override def getNumDeletedDocs: Long = {
     lucene.getNumDeletedDocs
   }
 

@@ -21,8 +21,7 @@ import java.util.concurrent._
 import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.stratio.cassandra.lucene.IndexException
-
-//import com.stratio.cassandra.lucene.util.JavaConversions.asJavaCallable
+import org.apache.commons.lang3.concurrent.BasicThreadFactory
 
 import scala.concurrent.ExecutionException
 
@@ -64,7 +63,7 @@ private class TaskQueueSync extends TaskQueue {
   override def submitSynchronous[A](task: () => A): A = task.apply
 
   /** @inheritdoc */
-  override def close() = {}
+  override def close(): Unit = {}
 
 }
 
@@ -79,6 +78,7 @@ private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue
   private val pools = (1 to numThreads)
     .map(index => new ArrayBlockingQueue[Runnable](queuesSize, true))
     .map(queue => new ThreadPoolExecutor(1, 1, 1, DAYS, queue,
+      new BasicThreadFactory.Builder().namingPattern("lucene-indexer-%d").build(),
       (task, executor) => if (!executor.isShutdown) executor.getQueue.put(task)))
 
   /** @inheritdoc */
@@ -113,7 +113,7 @@ private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue
   }
 
   /** @inheritdoc */
-  override def close() = {
+  override def close(): Unit = {
     lock.writeLock.lock()
     try pools.foreach(_.shutdown())
     finally lock.writeLock.unlock()
