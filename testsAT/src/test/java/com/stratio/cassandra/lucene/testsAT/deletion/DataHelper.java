@@ -15,12 +15,12 @@
  */
 package com.stratio.cassandra.lucene.testsAT.deletion;
 
-import com.stratio.cassandra.lucene.testsAT.BaseAT;
+import com.stratio.cassandra.lucene.testsAT.BaseIT;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public final class DataHelper extends BaseAT {
+public final class DataHelper extends BaseIT {
 
     protected static final Map<String, String> data1;
     protected static final Map<String, String> data2;

@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.testsAT.util;
 
 import com.datastax.driver.core.*;
-import com.stratio.cassandra.lucene.testsAT.BaseAT;
+import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import com.stratio.cassandra.lucene.testsAT.util.monitoring.CassandraJMXClient;
 import com.stratio.cassandra.lucene.testsAT.util.monitoring.CassandraJolokiaClient;
 import com.stratio.cassandra.lucene.testsAT.util.monitoring.CassandraMonitoringClient;
@@ -33,7 +33,7 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
  */
 public class CassandraConnection {
 
-    private static final Logger logger = BaseAT.logger;
+    private static final Logger logger = BaseIT.logger;
 
     private static Cluster cluster;
     private static Session session;
@@ -85,13 +85,13 @@ public class CassandraConnection {
         return session.prepare(query);
     }
 
-    static List<Object> getJMXAttribute(String bean, String attribute) {
+    public static <T> List<T> getJMXAttribute(String bean, String attribute) {
         try {
             List<Object> out = new ArrayList<>(jmxClients.size());
             for (CassandraMonitoringClient client : jmxClients) {
                 out.add(client.read(bean, attribute));
             }
-            return out;
+            return (List<T>) out;
         } catch (RuntimeException e) {
             throw new RuntimeException(String.format("Error while reading JMX attribute %s.%s", bean, attribute), e);
         }

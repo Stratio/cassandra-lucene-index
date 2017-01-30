@@ -58,7 +58,7 @@ public class StandardStopwordsTest {
     }
 
     @Test
-    public void testGetCaatalanPreBuiltAnalyzer() {
+    public void testGetCatalanPreBuiltAnalyzer() {
         CharArraySet stopwords = StandardStopwords.CATALAN.get();
         assertEquals("Expected another stopwords", CatalanAnalyzer.getDefaultStopSet(), stopwords);
     }
@@ -172,8 +172,8 @@ public class StandardStopwordsTest {
     }
 
     @Test
-    public void testGetStandardStopwordsUnexistent() {
-        CharArraySet stopwords = StandardStopwords.get("unexistent");
+    public void testGetStandardStopwordsNonExistent() {
+        CharArraySet stopwords = StandardStopwords.get("non-existent");
         assertEquals("Expected null stopwords", stopwords, CharArraySet.EMPTY_SET);
     }
 

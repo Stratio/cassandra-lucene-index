@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Abstract {@link MapperBuilder} for creating new {@link SingleColumnMapper}s.

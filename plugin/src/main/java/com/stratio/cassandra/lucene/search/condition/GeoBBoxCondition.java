@@ -18,21 +18,20 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.google.common.base.MoreObjects;
 import com.spatial4j.core.shape.Rectangle;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
-import org.apache.lucene.analysis.Analyzer;
+import com.stratio.cassandra.lucene.common.GeospatialUtils;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 
-import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
+import static com.stratio.cassandra.lucene.common.GeospatialUtils.CONTEXT;
 
 /**
  * A {@link Condition} that matches documents containing a shape contained in a certain bounding box.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
+public class GeoBBoxCondition extends GeospatialCondition {
 
     /** The minimum accepted latitude. */
     public final double minLatitude;
@@ -63,7 +62,7 @@ public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
                             Double maxLatitude,
                             Double minLongitude,
                             Double maxLongitude) {
-        super(boost, field, GeoPointMapper.class);
+        super(boost, field, "geo_bbox");
 
         this.minLatitude = GeospatialUtils.checkLatitude("min_latitude", minLatitude);
         this.maxLatitude = GeospatialUtils.checkLatitude("max_latitude", maxLatitude);
@@ -81,10 +80,10 @@ public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(GeoPointMapper mapper, Analyzer analyzer) {
+    public Query doQuery(SpatialStrategy strategy) {
         Rectangle rectangle = CONTEXT.makeRectangle(minLongitude, maxLongitude, minLatitude, maxLatitude);
         SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, rectangle);
-        return mapper.strategy.makeQuery(args);
+        return strategy.makeQuery(args);
     }
 
     /** {@inheritDoc} */

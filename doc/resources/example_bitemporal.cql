@@ -42,7 +42,7 @@ INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Edward',
 INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Johnatan', 'San Francisco', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
 
 
--- John moves to Amsterdam in '2015/03/05' but he does not comunicate this to census bureau until '2015/06/29' because he need it to apply for taxes reduction.
+-- John moves to Amsterdam in '2015/03/05' but he does not communicate this to census bureau until '2015/06/29' because he need it to apply for taxes reduction.
 
 -- So, the system need to update last information from John,and insert the new. This is done with batch execution updating the transaction time end of previous data and inserting new. 
 
@@ -66,7 +66,7 @@ There are several types of queries concerning this type of indexing.
 SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census ;
 
 
--- If you want to know what is the last info about where John have resided, you perform a query with tt_from and tt_to setted to now_value:
+-- If you want to know what is the last info about where John have resided, you perform a query with tt_from and tt_to set to now_value:
 
 SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE 
 expr(census_index,'{
@@ -82,7 +82,7 @@ expr(census_index,'{
 AND name='John';
 
 
--- If you want to know what is the last info about where John resides now, you perform a query with tt_from, tt_to, vt_from, vt_to setted to now_value:
+-- If you want to know what is the last info about where John resides now, you perform a query with tt_from, tt_to, vt_from, vt_to set to now_value:
 
 SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
 expr(census_index,'{

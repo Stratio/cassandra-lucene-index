@@ -20,10 +20,6 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoOperation;
 import com.stratio.cassandra.lucene.common.GeoShape;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
-import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
@@ -44,7 +40,7 @@ import org.apache.lucene.spatial.query.SpatialArgs;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoShapeCondition extends SingleFieldCondition {
+public class GeoShapeCondition extends GeospatialCondition {
 
     /** The default spatial operation. */
     public static final GeoOperation DEFAULT_OPERATION = GeoOperation.IS_WITHIN;
@@ -65,7 +61,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
      * @param operation the spatial operation to be done, defaults to {@link #DEFAULT_OPERATION}
      */
     public GeoShapeCondition(Float boost, String field, GeoShape shape, GeoOperation operation) {
-        super(boost, field);
+        super(boost, field, "geo_shape");
 
         if (shape == null) {
             throw new IndexException("Shape required");
@@ -77,23 +73,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query doQuery(Schema schema) {
-
-        // Get the spatial strategy from the mapper
-        SpatialStrategy strategy;
-        Mapper mapper = schema.mapper(field);
-        if (mapper == null) {
-            throw new IndexException("No mapper found for field '{}'", field);
-        } else if (mapper instanceof GeoShapeMapper) {
-            strategy = ((GeoShapeMapper) mapper).strategy;
-        } else if (mapper instanceof GeoPointMapper) {
-            strategy = ((GeoPointMapper) mapper).strategy;
-        } else {
-            throw new IndexException("'geo_shape' search requires a mapper of type 'geo_point' or 'geo_shape' " +
-                                     "but found {}:{}", field, mapper);
-        }
-
-        // Build query
+    public Query doQuery(SpatialStrategy strategy) {
         SpatialArgs args = new SpatialArgs(operation.getSpatialOperation(), shape.apply());
         args.setDistErr(0.0);
         return strategy.makeQuery(args);

@@ -30,7 +30,7 @@ public class SnowballAnalyzer extends Analyzer {
 
     /**
      * The language. The supported values are English, French, Spanish, Portuguese, Italian, Romanian, German, Dutch,
-     * Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian, Basque and Catalan.
+     * Swedish, Norwegian, Danish, Russian, Finnish, Hungarian and Turkish.
      */
     @JsonProperty("language")
     final String language;

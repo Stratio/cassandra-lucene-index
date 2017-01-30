@@ -110,7 +110,7 @@ public class LuceneStorageProxy {
         } finally {
             long latency = System.nanoTime() - start;
             readMetrics.addNano(latency);
-            // TODO avoid giving every command the same latency number.  Can fix this in CASSADRA-5329
+            // TODO avoid giving every command the same latency number.  Can fix this in CASSANDRA-5329
             for (ReadCommand command : group.commands) {
                 Keyspace.openAndGetStore(command.metadata()).metric.coordinatorReadLatency.update(latency,
                                                                                                   TimeUnit.NANOSECONDS);

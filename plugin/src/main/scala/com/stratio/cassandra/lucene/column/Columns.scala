@@ -15,83 +15,68 @@
  */
 package com.stratio.cassandra.lucene.column
 
-import java.util.stream.StreamSupport
+import com.google.common.base.MoreObjects.toStringHelper
 
-import com.google.common.base.MoreObjects
-
-/**
-  * A sorted list of CQL3 logic [[Column]]s.
+/** An immutable sorted list of CQL3 logic [[Column]]s.
   *
   * @param columns the [[Column]]s composing this
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 @scala.annotation.varargs
-case class Columns(columns: Column[_]*) extends Traversable[Column[_]] with java.lang.Iterable[Column[_]] {
-
-  /** @constructor create a new columns with a list of columns. */
-  def this(columns: Traversable[Column[_]]) = this(columns.toArray: _*)
+case class Columns(private val columns: List[Column]) extends Traversable[Column] {
 
   /** @constructor create a new empty columns. */
-  def this() = this(Array[Column[_]]())
+  def this() = this(Nil)
 
-  override def foreach[U](f: Column[_] => U) = columns.foreach(f)
+  /** @inheritdoc */
+  override def isEmpty: Boolean = columns.isEmpty
 
-  override def iterator: java.util.Iterator[Column[_]] = {
-    import collection.JavaConversions._
-    columns.iterator
-  }
+  /** @inheritdoc */
+  override def foreach[A](f: Column => A): Unit = columns.foreach(f)
 
-  def stream: java.util.stream.Stream[Column[_]] =
-    StreamSupport.stream(spliterator(), false)
+  /** Returns a copy of this with the specified column prepended in O(1) time. */
+  def ::(column: Column): Columns = new Columns(column :: columns)
 
-  /** Returns a copy of this with the specified column appended. */
-  def +(column: Column[_]): Columns =
-    new Columns(columns :+ column)
+  /** Returns a copy of this with the specified column appended in O(n) time. */
+  def +(column: Column): Columns = new Columns(columns :+ column)
 
   /** Returns a copy of this with the specified columns appended. */
-  def +(columns: Columns): Columns =
-    new Columns(this.columns ++ columns)
+  def ++(columns: Columns): Columns = new Columns(this.columns ++ columns)
 
-  override def head: Column[_] =
-    if (columns.isEmpty) null else columns.head
+  /** Returns the value of the first column with the specifed mapper name. */
+  def valueForField(field: String): Any = columns.find(_.field == field).flatMap(_.value).orNull
 
-  /** Returns copy of this with only the columns with the specified full name. */
-  def withFieldName(name: String): Columns =
-    new Columns(filter(_.fieldName == name))
-
-  /** Returns copy of this with only the columns with the specified cell name. */
-  def withCellName(name: String): Columns = {
-    lazy val cellName = Column.parse(name).cellName
-    new Columns(filter(_.cellName == cellName))
+  /** Runs the specified function over each column with the specified field name. */
+  def foreachWithMapper[A](field: String)(f: Column => A): Unit = {
+    val mapper = Column.parseMapperName(field)
+    columns.foreach(column => if (column.mapper == mapper) f(column))
   }
 
-  /** Returns copy of this with only the columns with the specified mapper name. */
-  def withMapperName(name: String): Columns = {
-    lazy val mapperName = Column.parse(name).mapperName
-    new Columns(filter(_.mapperName == mapperName))
-  }
+  /** Returns a copy of this with the specified column appended. */
+  def add(cell: String): Columns = this + Column(cell)
 
-  /** Returns copy of this without the columns deleted at the specified time.
-    *
-    * @param timeInSec the max allowed UNIX time in seconds
-    */
-  def withoutDeleted(timeInSec: Int): Columns =
-    new Columns(filterNot(_.isDeleted(timeInSec)))
+  /** Returns a copy of this with the specified column appended. */
+  def add(cell: String, value: Any): Columns = this + Column(cell, value = Option(value))
 
-  def add[A](column: Column[A]) =
-    this + column
+  /** @inheritdoc */
+  override def toString: String = (toStringHelper(this) /: columns) ((helper, column) =>
+    helper.add(column.field, column.value)).toString
 
-  def add[A](columns: Columns) =
-    this + columns
+}
 
-  def add[A](cellName: String) =
-    this + Column(cellName)
+/** Companion object for [[Columns]]. */
+object Columns {
 
-  def add[A](cellName: String, value: A) =
-    this + Column(cellName, value = Option(value))
+  /** An empty columns. */
+  val empty: Columns = new Columns
 
-  override def toString: String =
-    columns.foldLeft(MoreObjects.toStringHelper(this))((helper, column) =>
-      helper.add(column.fieldName, column.value.getOrElse("null"))).toString
+  /** Returns a new empty columns. */
+  def apply: Columns = empty
+
+  /** Returns a new [[Columns]] composed by the specified [[Column]]s. */
+  def apply(columns: Traversable[Column]): Columns = new Columns(columns.toList)
+
+  /** Returns a new [[Columns]] composed by the specified [[Column]]s. */
+  def apply(columns: Column*): Columns = new Columns(columns.toList)
 
 }

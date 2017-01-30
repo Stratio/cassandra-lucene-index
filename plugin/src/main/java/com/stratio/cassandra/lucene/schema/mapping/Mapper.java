@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import org.apache.commons.lang3.StringUtils;
@@ -25,10 +26,15 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.*;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
@@ -36,6 +42,8 @@ import java.util.*;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class Mapper {
+
+    private static final Logger logger = LoggerFactory.getLogger(Mapper.class);
 
     /** A no-action analyzer for not tokenized {@link Mapper} implementations. */
     static final String KEYWORD_ANALYZER = StandardAnalyzers.KEYWORD.toString();
@@ -76,6 +84,9 @@ public abstract class Mapper {
     /** The names of the columns to be mapped. */
     public final List<String> mappedColumns;
 
+    /** The names of the columns to be mapped. */
+    public final List<String> mappedCells;
+
     /** The supported column value data types. */
     public final List<Class<?>> supportedTypes;
 
@@ -102,7 +113,8 @@ public abstract class Mapper {
         this.docValues = docValues;
         this.validated = validated == null ? DEFAULT_VALIDATED : validated;
         this.analyzer = analyzer;
-        this.mappedColumns = mappedColumns;
+        this.mappedColumns = mappedColumns.stream().filter(Objects::nonNull).collect(toList()); // Remove nulls
+        this.mappedCells = this.mappedColumns.stream().map(Column::parseCellName).collect(toList());
         this.supportedTypes = supportedTypes;
     }
 
@@ -115,11 +127,34 @@ public abstract class Mapper {
     public abstract List<IndexableField> indexableFields(Columns columns);
 
     /**
+     * Returns the Lucene {@link IndexableField}s resulting from the mapping of the specified {@link Columns}, ignoring
+     * any mapping errors.
+     *
+     * @param columns the columns
+     * @return a list of indexable fields
+     */
+    public List<IndexableField> bestEffortIndexableFields(Columns columns) {
+        return bestEffort(columns, this::indexableFields);
+    }
+
+    <T> List<IndexableField> bestEffort(T base, Function<T, List<IndexableField>> mapping) {
+        try {
+            return mapping.apply(base);
+        } catch (IndexException e) {
+            logger.warn("Error in Lucene index:\n\t" +
+                        "while mapping : {}\n\t" +
+                        "with mapper   : {}\n\t" +
+                        "caused by     : {}", base, this, e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    /**
      * Validates the specified {@link Columns} if {#validated}.
      *
      * @param columns the columns to be validated
      */
-    public final void validate(Columns columns) {
+    public void validate(Columns columns) {
         if (validated) {
             indexableFields(columns);
         }
@@ -135,13 +170,13 @@ public abstract class Mapper {
     public abstract SortField sortField(String name, boolean reverse);
 
     /**
-     * Returns if this maps the specified column.
+     * Returns if this maps the specified cell.
      *
-     * @param column the column name
+     * @param cell the cell name
      * @return {@code true} if this maps the column, {@code false} otherwise
      */
-    public boolean maps(String column) {
-        return mappedColumns.stream().anyMatch(x -> x.equals(column));
+    public boolean mapsCell(String cell) {
+        return mappedCells.stream().anyMatch(x -> x.equals(cell));
     }
 
     void validateTerm(String name, BytesRef term) {

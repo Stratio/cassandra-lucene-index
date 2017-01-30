@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.util;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.DateParser;
 import org.apache.cassandra.utils.UUIDGen;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;

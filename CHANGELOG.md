@@ -1,5 +1,28 @@
 # Changelog
 
+## 3.0.7.4 (Upcoming)
+
+* Ignore tombstones during read before write (#255)
+* Fix deletion of ranges of rows in a partition
+* Add virtual node based partitioner
+* Upgrade to Apache Lucene 5.5.3
+* Add column-based index partitioner
+* Add support for local searches over index partitions with more than 2147483519 total documents
+* Fix CQL query handler activation at startup
+* Fix best effort mapping of collections (#246)
+* Optimize columns mapping (improves indexing performance)
+* Add generic support for index partitioning
+* Add token-based index partitioner
+* Upgrade to Scala 2.12.0
+* Avoid not required string interpolations in logging
+* Avoid not required string interpolations in tracing
+* Add support for geospatial shapes in bounding box search
+* Add support for geospatial shapes in distance search
+* Improve performance of needs before write calculation
+* Fix conflict between Lucene and SASI Snowball stemmer version (#216)
+* Upgrade all JSON serializers to FasterXML Jackson 2.8.6
+* Optimize clustering key index format (breaks backward compatibility)
+
 ## 3.0.7.3 (September 07, 2016)
 
 Merged from 3.0.8.2:
@@ -7,7 +30,6 @@ Merged from 3.0.8.2:
 * Simplify naming of builder static methods for creating geospatial transformations
 * Fix paged index-sorted queries matching more than 65535 rows
 * Fix partition directed queries using dummy column syntax in skinny tables
-Merged from 3.0.8.1:
 * Upgrade query builder JSON serializer to Jackson 2.8.0
 * Add geospatial post filtering (ensures accuracy with any tree levels)
 * Set default number of indexing threads to number of processors available to the JVM
