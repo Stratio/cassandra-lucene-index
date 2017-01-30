@@ -15,10 +15,10 @@
  */
 package com.stratio.cassandra.lucene.common;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.google.common.base.MoreObjects;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.stratio.cassandra.lucene.IndexException;
-import org.codehaus.jackson.annotate.JsonCreator;
 
 /**
  * Class representing a geographical distance.

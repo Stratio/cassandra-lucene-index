@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.schema.analysis;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
+import com.stratio.cassandra.lucene.common.JsonSerializer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -124,12 +124,6 @@ public class SnowballAnalyzerBuilderTest {
     }
 
     @Test
-    public void testBuildIrish() {
-        AnalyzerBuilder builder = new SnowballAnalyzerBuilder("Irish", null);
-        testAnalyzer(builder, "stuif", "stuif");
-    }
-
-    @Test
     public void testBuildHungarian() {
         AnalyzerBuilder builder = new SnowballAnalyzerBuilder("Hungarian", null);
         testAnalyzer(builder, "dolog", "dolog");
@@ -138,25 +132,7 @@ public class SnowballAnalyzerBuilderTest {
     @Test
     public void testBuildTurkish() {
         AnalyzerBuilder builder = new SnowballAnalyzerBuilder("Turkish", null);
-        testAnalyzer(builder, "tekneler", "tekne");
-    }
-
-    @Test
-    public void testBuildArmenian() {
-        AnalyzerBuilder builder = new SnowballAnalyzerBuilder("Armenian", null);
-        testAnalyzer(builder, "megy", "megy");
-    }
-
-    @Test
-    public void testBuildBasque() {
-        AnalyzerBuilder builder = new SnowballAnalyzerBuilder("Basque", null);
-        testAnalyzer(builder, "harrizko", "harri");
-    }
-
-    @Test
-    public void testBuildCatalan() {
-        AnalyzerBuilder builder = new SnowballAnalyzerBuilder("Catalan", null);
-        testAnalyzer(builder, "catalans", "catalan");
+        testAnalyzer(builder, "kitapçıdaki", "kitapçı");
     }
 
     @Test(expected = RuntimeException.class)

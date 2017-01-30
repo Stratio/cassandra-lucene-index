@@ -28,7 +28,7 @@ import java.text.ParseException;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.geoShape;
-import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
+import static com.stratio.cassandra.lucene.common.GeospatialUtilsJTS.geometry;
 import static org.junit.Assert.*;
 
 /**

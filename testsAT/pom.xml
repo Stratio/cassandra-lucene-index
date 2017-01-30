@@ -36,7 +36,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <cassandra.driver.version>3.0.2</cassandra.driver.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <runSuite>**/AllSuite.java</runSuite>
     </properties>
 
     <dependencies>
@@ -116,13 +115,6 @@
                             <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
-                        <configuration>
-                            <parallel>suites</parallel>
-                            <threadCountSuites>4</threadCountSuites>
-                            <includes>
-                                <include>${runSuite}</include>
-                            </includes>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

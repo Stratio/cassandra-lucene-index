@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FloatField;
@@ -23,7 +24,6 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 import org.apache.lucene.search.SortedNumericSortField;
 import org.apache.lucene.util.NumericUtils;
-import org.codehaus.jackson.annotate.JsonCreator;
 
 import java.util.Optional;
 

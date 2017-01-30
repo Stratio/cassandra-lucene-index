@@ -221,7 +221,7 @@ public class StringMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFields() {
         StringMapper mapper = stringMapper().caseSensitive(true).build("field");
-        Columns columns = new Columns().add("field", "value");
+        Columns columns = Columns.empty().add("field", "value");
         List<IndexableField> fields = mapper.indexableFields(columns);
         assertEquals("Number of created fields is wrong", 2, fields.size());
         assertTrue("Indexed field is not properly created", fields.get(0) instanceof Field);

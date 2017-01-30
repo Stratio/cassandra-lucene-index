@@ -18,7 +18,7 @@ package com.stratio.cassandra.lucene.search.sort.builder;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.search.sort.GeoDistanceSortField;
 import com.stratio.cassandra.lucene.search.sort.SortField;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
+import com.stratio.cassandra.lucene.common.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -103,14 +103,14 @@ public class GeoDistanceSortFieldBuilderTest {
     @Test
     public void testJson() throws IOException {
         String json1 = "{type:\"geo_distance\",field:\"geo_place\",latitude:0.0,longitude:0.0,reverse:false}";
-        String json2 = JsonSerializer.toString(JsonSerializer.fromString(json1, GeoDistanceSortFieldBuilder.class));
+        String json2 = JsonSerializer.toString(JsonSerializer.fromString(json1, SortFieldBuilder.class));
         assertEquals("JSON serialization is wrong", json1, json2);
     }
 
     @Test
     public void testJsonDefault() throws IOException {
         String json1 = "{type:\"geo_distance\",field:\"geo_place\",latitude:0.0,longitude:0.0,reverse:false}";
-        GeoDistanceSortFieldBuilder builder = JsonSerializer.fromString(json1, GeoDistanceSortFieldBuilder.class);
+        SortFieldBuilder builder = JsonSerializer.fromString(json1, SortFieldBuilder.class);
         String json2 = JsonSerializer.toString(builder);
         assertEquals("JSON serialization is wrong", json1, json2);
     }
@@ -118,7 +118,7 @@ public class GeoDistanceSortFieldBuilderTest {
     @Test
     public void testJsonReverse() throws IOException {
         String json1 = "{type:\"geo_distance\",field:\"geo_place\",latitude:0.0,longitude:0.0,reverse:false}";
-        String json2 = JsonSerializer.toString(JsonSerializer.fromString(json1, GeoDistanceSortFieldBuilder.class));
+        String json2 = JsonSerializer.toString(JsonSerializer.fromString(json1, SortFieldBuilder.class));
         assertEquals("JSON serialization is wrong", json1, json2);
     }
 }

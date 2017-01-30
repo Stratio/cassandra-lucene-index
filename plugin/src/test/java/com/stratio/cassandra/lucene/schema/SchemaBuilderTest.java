@@ -50,7 +50,7 @@ public class SchemaBuilderTest {
                                 .mapper("text", textMapper().analyzer("snowball"))
                                 .mapper("uuid", uuidMapper())
                                 .build();
-        assertEquals("Failed schema building", EnglishAnalyzer.class, schema.defaultAnalyzer().getClass());
+        assertEquals("Failed schema building", EnglishAnalyzer.class, schema.defaultAnalyzer.getClass());
         assertEquals("Failed schema building", BlobMapper.class, schema.mapper("blob").getClass());
         assertEquals("Failed schema building", BooleanMapper.class, schema.mapper("bool").getClass());
         assertEquals("Failed schema building", DateMapper.class, schema.mapper("date").getClass());
@@ -73,7 +73,7 @@ public class SchemaBuilderTest {
                                 .mapper("int", integerMapper().boost(0.3f))
                                 .mapper("long", longMapper())
                                 .build();
-        assertEquals("Failed schema building", EnglishAnalyzer.class, schema.defaultAnalyzer().getClass());
+        assertEquals("Failed schema building", EnglishAnalyzer.class, schema.defaultAnalyzer.getClass());
         assertEquals("Failed schema building", BigIntegerMapper.class, schema.mapper("big_int").getClass());
         assertEquals("Failed schema building", BigDecimalMapper.class, schema.mapper("big_dec").getClass());
         assertEquals("Failed schema building", DoubleMapper.class, schema.mapper("double").getClass());
@@ -96,7 +96,7 @@ public class SchemaBuilderTest {
                                 .mapper("date_range", dateRangeMapper("from", "to"))
                                 .mapper("geo", geoPointMapper("lat", "lon"))
                                 .build();
-        assertEquals("Failed schema building", EnglishAnalyzer.class, schema.defaultAnalyzer().getClass());
+        assertEquals("Failed schema building", EnglishAnalyzer.class, schema.defaultAnalyzer.getClass());
         assertEquals("Failed schema building", BitemporalMapper.class, schema.mapper("bitemporal").getClass());
         assertEquals("Failed schema building", DateRangeMapper.class, schema.mapper("date_range").getClass());
         assertEquals("Failed schema building", GeoPointMapper.class, schema.mapper("geo").getClass());
@@ -166,7 +166,7 @@ public class SchemaBuilderTest {
                       "uuid:{type:\"uuid\"}" +
                       "}}";
         Schema schema = SchemaBuilder.fromJson(json).build();
-        assertEquals("Failed schema JSON parsing", EnglishAnalyzer.class, schema.defaultAnalyzer().getClass());
+        assertEquals("Failed schema JSON parsing", EnglishAnalyzer.class, schema.defaultAnalyzer.getClass());
         assertEquals("Failed schema JSON parsing", BlobMapper.class, schema.mapper("blob").getClass());
         assertEquals("Failed schema JSON parsing", BooleanMapper.class, schema.mapper("bool").getClass());
         assertEquals("Failed schema JSON parsing", DateMapper.class, schema.mapper("date").getClass());
@@ -192,7 +192,7 @@ public class SchemaBuilderTest {
                       "int:{type:\"integer\"}," +
                       "long:{type:\"long\"}}}";
         Schema schema = SchemaBuilder.fromJson(json).build();
-        assertEquals("Failed schema JSON parsing", EnglishAnalyzer.class, schema.defaultAnalyzer().getClass());
+        assertEquals("Failed schema JSON parsing", EnglishAnalyzer.class, schema.defaultAnalyzer.getClass());
         assertEquals("Failed schema JSON parsing", BigIntegerMapper.class, schema.mapper("big_int").getClass());
         assertEquals("Failed schema JSON parsing", BigDecimalMapper.class, schema.mapper("big_dec").getClass());
         assertEquals("Failed schema JSON parsing", DoubleMapper.class, schema.mapper("double").getClass());
@@ -214,7 +214,7 @@ public class SchemaBuilderTest {
                       "geo:{type:\"geo_point\",latitude:\"lat\",longitude:\"lon\"}" +
                       "}}";
         Schema schema = SchemaBuilder.fromJson(json).build();
-        assertEquals("Failed schema JSON parsing", EnglishAnalyzer.class, schema.defaultAnalyzer().getClass());
+        assertEquals("Failed schema JSON parsing", EnglishAnalyzer.class, schema.defaultAnalyzer.getClass());
         assertEquals("Failed schema JSON parsing", BitemporalMapper.class, schema.mapper("bitemporal").getClass());
         assertEquals("Failed schema JSON parsing", DateRangeMapper.class, schema.mapper("date_range").getClass());
         assertEquals("Failed schema JSON parsing", GeoPointMapper.class, schema.mapper("geo").getClass());
@@ -239,7 +239,7 @@ public class SchemaBuilderTest {
 
         Schema schema = SchemaBuilder.fromJson(json).build();
 
-        Analyzer defaultAnalyzer = schema.defaultAnalyzer();
+        Analyzer defaultAnalyzer = schema.defaultAnalyzer;
         assertTrue("Expected english analyzer", defaultAnalyzer instanceof EnglishAnalyzer);
 
         Mapper idMapper = schema.mapper("id");
@@ -276,7 +276,7 @@ public class SchemaBuilderTest {
                       " }'";
         Schema schema = SchemaBuilder.fromJson(json).build();
 
-        Analyzer defaultAnalyzer = schema.defaultAnalyzer();
+        Analyzer defaultAnalyzer = schema.defaultAnalyzer;
         assertTrue("Expected EnglishAnalyzer", defaultAnalyzer instanceof EnglishAnalyzer);
 
         Mapper idMapper = schema.mapper("id");
@@ -310,7 +310,7 @@ public class SchemaBuilderTest {
                       " }'";
         Schema schema = SchemaBuilder.fromJson(json).build();
 
-        Analyzer defaultAnalyzer = schema.defaultAnalyzer();
+        Analyzer defaultAnalyzer = schema.defaultAnalyzer;
         assertEquals("Expected default analyzer",
                      StandardAnalyzers.DEFAULT.get().getClass(),
                      defaultAnalyzer.getClass());

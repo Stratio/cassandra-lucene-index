@@ -15,14 +15,14 @@
  */
 package com.stratio.cassandra.lucene.search;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.IndexPagingState;
+import com.stratio.cassandra.lucene.common.Builder;
+import com.stratio.cassandra.lucene.common.JsonSerializer;
 import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
-import com.stratio.cassandra.lucene.util.Builder;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -128,7 +128,7 @@ public class SearchBuilder implements Builder<Search> {
         return new Search(filter.stream().map(ConditionBuilder::build).collect(toList()),
                           query.stream().map(ConditionBuilder::build).collect(toList()),
                           sort.stream().map(SortFieldBuilder::build).collect(toList()),
-                          paging == null ? null : IndexPagingState.build(ByteBufferUtils.byteBuffer(paging)),
+                          paging == null ? null : IndexPagingState.fromByteBuffer(ByteBufferUtils.byteBuffer(paging)),
                           refresh);
     }
 
