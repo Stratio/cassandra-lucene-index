@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * A {@link Mapper} to map geographical points.
@@ -33,7 +33,7 @@ public class GeoPointMapper extends Mapper<GeoPointMapper> {
     @JsonProperty("longitude")
     final String longitude;
 
-    /** The maximum number of levels in the tree. */
+    /** The maximum number of levels in the geohash search tree. */
     @JsonProperty("max_levels")
     Integer maxLevels;
 
@@ -50,10 +50,12 @@ public class GeoPointMapper extends Mapper<GeoPointMapper> {
     }
 
     /**
-     * Sets the maximum number of levels in the tree.
+     * Sets the maximum number of levels in the geohash search tree. False positives will be discarded using stored doc
+     * values, so a low value doesn't mean precision lost. High values will produce few false positives to be
+     * post-filtered, at the expense of creating more terms in the search index.
      *
-     * @param maxLevels the maximum number of levels
-     * @return this with hte specified max number of levels
+     * @param maxLevels the maximum number of levels in the geohash search tree
+     * @return this with the specified max number of levels
      */
     public GeoPointMapper maxLevels(Integer maxLevels) {
         this.maxLevels = maxLevels;

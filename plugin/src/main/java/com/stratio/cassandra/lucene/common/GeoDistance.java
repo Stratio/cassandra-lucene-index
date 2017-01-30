@@ -15,10 +15,10 @@
  */
 package com.stratio.cassandra.lucene.common;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.google.common.base.MoreObjects;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.stratio.cassandra.lucene.IndexException;
-import org.codehaus.jackson.annotate.JsonCreator;
 
 /**
  * Class representing a geographical distance.
@@ -88,7 +88,7 @@ public final class GeoDistance implements Comparable<GeoDistance> {
             double value = Double.parseDouble(json);
             return new GeoDistance(value, GeoDistanceUnit.METRES);
         } catch (Exception e) {
-            throw new IndexException(e, "Unparseable distance: %s", json);
+            throw new IndexException(e, "Unparseable distance: {}", json);
         }
     }
 

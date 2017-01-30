@@ -15,47 +15,47 @@
  */
 package com.stratio.cassandra.lucene.search.sort.builder;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.search.sort.GeoDistanceSortField;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class GeoDistanceSortFieldBuilder extends SortFieldBuilder<GeoDistanceSortField, GeoDistanceSortFieldBuilder> {
 
-    /** The name of mapper to use to calculate distance. */
+    /** The name of the the geo point field mapper to use to calculate distance. */
     @JsonProperty("field")
     private final String field;
-
-    /** The longitude of the center point to sort by min distance to it. */
-    @JsonProperty("longitude")
-    private final double longitude;
 
     /** The latitude of the center point to sort by min distance to it. */
     @JsonProperty("latitude")
     private final double latitude;
 
+    /** The longitude of the center point to sort by min distance to it. */
+    @JsonProperty("longitude")
+    private final double longitude;
+
     /**
      * Creates a new {@link GeoDistanceSortFieldBuilder} for the specified field.
      *
-     * @param field the name of mapper to use to calculate distance
-     * @param longitude the longitude of the center point to sort by min distance to it
+     * @param field the name of the geo point field mapper to use to calculate distance
      * @param latitude the latitude of the center point to sort by min distance to it
+     * @param longitude the longitude of the center point to sort by min distance to it
      */
     @JsonCreator
     public GeoDistanceSortFieldBuilder(@JsonProperty("field") String field,
-                                       @JsonProperty("longitude") double longitude,
-                                       @JsonProperty("latitude") double latitude) {
+                                       @JsonProperty("latitude") double latitude,
+                                       @JsonProperty("longitude") double longitude) {
 
         this.field = field;
-        this.longitude = longitude;
         this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     /** {@inheritDoc} */
     @Override
     public GeoDistanceSortField build() {
-        return new GeoDistanceSortField(field, reverse, longitude, latitude);
+        return new GeoDistanceSortField(field, reverse, latitude, longitude);
     }
 }

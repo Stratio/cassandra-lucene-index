@@ -15,176 +15,105 @@
  */
 package com.stratio.cassandra.lucene.testsAT.varia;
 
-import com.datastax.driver.core.Row;
-import com.stratio.cassandra.lucene.builder.search.Search;
-import com.stratio.cassandra.lucene.builder.search.sort.SimpleSortField;
-import com.stratio.cassandra.lucene.testsAT.search.AbstractSearchAT;
-import org.junit.Assert;
+import com.stratio.cassandra.lucene.builder.Builder;
+import com.stratio.cassandra.lucene.testsAT.search.AbstractSearchIT;
+import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsSelect;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.util.List;
-
 import static com.stratio.cassandra.lucene.builder.Builder.*;
-import static org.junit.Assert.assertArrayEquals;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(JUnit4.class)
-public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
+public class BoundStatementWithSortedKQuery extends AbstractSearchIT {
 
-    private static Integer[] intColumn(List<Row> rows, String name) {
-        Integer[] values = new Integer[rows.size()];
-        int count = 0;
-        for (Row row : rows) {
-            values[count++] = row.getInt(name);
-        }
-        return values;
-    }
-
-    private static Double[] doubleColumn(List<Row> rows, String name) {
-        Double[] values = new Double[rows.size()];
-        int count = 0;
-        for (Row row : rows) {
-            values[count++] = row.getDouble(name);
-        }
-        return values;
+    @Test
+    public void testSortIntegerAsc() {
+        utils.sort(field("integer_1").reverse(false)).checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortIntegerAsc() {
-        Search search = search().sort(new SimpleSortField("integer_1").reverse(false));
-        Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortIntegerDesc() {
+        utils.sort(field("integer_1").reverse(true)).checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
-    public void sortIntegerDesc() {
-        Search search = search().sort(field("integer_1").reverse(true));
-        Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortIntegerDefault() {
+        utils.sort(field("integer_1")).checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortIntegerDefault() {
-        Search search = search().sort(field("integer_1"));
-        Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortDoubleAsc() {
+        utils.sort(field("double_1").reverse(false)).checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
     }
 
     @Test
-    public void sortDoubleAsc() {
-        Search search = search().sort(field("double_1").reverse(false));
-        Double[] returnedValues = doubleColumn(utils.searchWithPreparedStatement(search), "double_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Double[] expectedValues = new Double[]{1D, 2D, 3D, 3D, 3D};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortDoubleDesc() {
+        utils.sort(field("double_1").reverse(true)).checkOrderedColumns("double_1", 3D, 3D, 3D, 2D, 1D);
     }
 
     @Test
-    public void sortDoubleDesc() {
-        Search search = search().sort(field("double_1").reverse(true));
-        Double[] returnedValues = doubleColumn(utils.searchWithPreparedStatement(search), "double_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Double[] expectedValues = new Double[]{3D, 3D, 3D, 2D, 1D};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortDoubleDefault() {
+        utils.sort(field("double_1")).checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
     }
 
     @Test
-    public void sortDoubleDefault() {
-        Search search = search().sort(field("double_1"));
-        Double[] returnedValues = doubleColumn(utils.searchWithPreparedStatement(search), "double_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Double[] expectedValues = new Double[]{1D, 2D, 3D, 3D, 3D};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortCombined() {
+        CassandraUtilsSelect select = utils.sort(field("double_1"), field("integer_1"));
+        select.checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
+        select.checkOrderedColumns("integer_1", -1, -2, -5, -4, -3);
     }
 
     @Test
-    public void sortCombined() {
-        Search search = search().sort(field("double_1"), field("integer_1"));
-        List<Row> rows = utils.searchWithPreparedStatement(search);
-        Double[] returnedDoubleValues = doubleColumn(rows, "double_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedDoubleValues.length);
-        Integer[] returnedIntValues = intColumn(rows, "integer_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedIntValues.length);
-        Double[] expectedDoubleValues = new Double[]{1D, 2D, 3D, 3D, 3D};
-        Integer[] expectedIntValues = new Integer[]{-1, -2, -5, -4, -3};
-        assertArrayEquals("Wrong doubles sort!", expectedDoubleValues, returnedDoubleValues);
-        assertArrayEquals("Wrong integers sort!", expectedIntValues, returnedIntValues);
+    public void testSortWithFilter() {
+        utils.filter(all())
+             .sort(field("integer_1").reverse(false))
+             .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortWithFilter() {
-        Search search = search().filter(all()).sort(field("integer_1").reverse(false));
-        Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortWithQuery() {
+        utils.query(all())
+             .sort(field("integer_1").reverse(false))
+             .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortWithQuery() {
-        Search search = search().query(all()).sort(field("integer_1").reverse(false));
-        Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortWithFilterAndQuery() {
+        utils.filter(all())
+             .query(all())
+             .sort(field("integer_1").reverse(false))
+             .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortWithFilterAndQuery() {
-        Search search = search().filter(all()).query(all()).sort(field("integer_1").reverse(false));
-        Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortWithGeoDistanceFilterNotReversed() {
+        utils.filter(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
+             .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(false))
+             .checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
-    public void sortWithGeoDistanceFilterNotReversed() {
-        Search search = search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false));
-        Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
-        assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
+    public void testSortWithGeoDistanceQueryNotReversed() {
+        utils.query(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
+             .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(false))
+             .checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
-    public void sortWithGeoDistanceQueryNotReversed() {
-        Search search = search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false));
-        Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
-        assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
+    public void testSortWithGeoDistanceFilterReversed() {
+        utils.filter(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
+             .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(true))
+             .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortWithGeoDistanceFilterReversed() {
-        Search search = search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true));
-        Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
-    }
-
-    @Test
-    public void sortWithGeoDistanceQueryReversed() {
-        Search search = search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true));
-        Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
-        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
+    public void testSortWithGeoDistanceQueryReversed() {
+        utils.query(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
+             .sort(Builder.geoDistance("geo_point", 40.442163, -3.784519).reverse(true))
+             .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 }

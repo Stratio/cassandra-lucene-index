@@ -18,24 +18,22 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.google.common.base.MoreObjects;
 import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
-import org.apache.cassandra.db.marshal.*;
+import com.stratio.cassandra.lucene.common.GeospatialUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
-import org.apache.lucene.spatial.SpatialStrategy;
-import org.apache.lucene.spatial.bbox.BBoxStrategy;
+import org.apache.lucene.spatial.composite.CompositeSpatialStrategy;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
+import org.apache.lucene.spatial.serialized.SerializedDVStrategy;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
+import static com.stratio.cassandra.lucene.common.GeospatialUtils.CONTEXT;
 
 /**
  * A {@link Mapper} to map geographical points.
@@ -43,6 +41,9 @@ import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class GeoPointMapper extends Mapper {
+
+    /** The default max number of levels for geohash search trees. */
+    public static final int DEFAULT_MAX_LEVELS = 11;
 
     /** The name of the latitude column. */
     public final String latitude;
@@ -53,11 +54,8 @@ public class GeoPointMapper extends Mapper {
     /** The max number of levels in the tree. */
     public final int maxLevels;
 
-    /** The spatial strategy for radial distance searches. */
-    public final SpatialStrategy distanceStrategy;
-
-    /** The spatial strategy for bounding box searches. */
-    public final SpatialStrategy bboxStrategy;
+    /** The spatial strategy. */
+    public final CompositeSpatialStrategy strategy;
 
     /**
      * Builds a new {@link GeoPointMapper}.
@@ -66,26 +64,12 @@ public class GeoPointMapper extends Mapper {
      * @param validated if the field must be validated
      * @param latitude the name of the column containing the latitude
      * @param longitude the name of the column containing the longitude
-     * @param maxLevels the maximum number of levels in the tree
+     * @param maxLevels the maximum number of levels in the geohash search tree. False positives will be discarded using
+     * stored doc values, so a low value doesn't mean precision lost. High values will produce few false positives to be
+     * post-filtered, at the expense of creating more terms in the search index.
      */
-    public GeoPointMapper(String field,
-                          Boolean validated,
-                          String latitude,
-                          String longitude,
-                          Integer maxLevels) {
-        super(field,
-              false,
-              validated,
-              null,
-              Arrays.asList(latitude, longitude),
-              AsciiType.instance,
-              DecimalType.instance,
-              DoubleType.instance,
-              FloatType.instance,
-              IntegerType.instance,
-              Int32Type.instance,
-              LongType.instance,
-              ShortType.instance, UTF8Type.instance);
+    public GeoPointMapper(String field, Boolean validated, String latitude, String longitude, Integer maxLevels) {
+        super(field, false, validated, null, Arrays.asList(latitude, longitude), NUMERIC_TYPES);
 
         if (StringUtils.isBlank(latitude)) {
             throw new IndexException("latitude column name is required");
@@ -97,22 +81,23 @@ public class GeoPointMapper extends Mapper {
 
         this.latitude = latitude;
         this.longitude = longitude;
-        this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels);
+        this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels, DEFAULT_MAX_LEVELS);
 
         SpatialPrefixTree grid = new GeohashPrefixTree(CONTEXT, this.maxLevels);
-        distanceStrategy = new RecursivePrefixTreeStrategy(grid, field + ".dist");
-        bboxStrategy = new BBoxStrategy(CONTEXT, field + ".bbox");
+        RecursivePrefixTreeStrategy indexStrategy = new RecursivePrefixTreeStrategy(grid, field);
+        SerializedDVStrategy geometryStrategy = new SerializedDVStrategy(CONTEXT, field);
+        strategy = new CompositeSpatialStrategy(field, indexStrategy, geometryStrategy);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void addFields(Document document, Columns columns) {
+    public List<IndexableField> indexableFields(Columns columns) {
 
         Double lon = readLongitude(columns);
         Double lat = readLatitude(columns);
 
         if (lon == null && lat == null) {
-            return;
+            return Collections.emptyList();
         } else if (lat == null) {
             throw new IndexException("Latitude column required if there is a longitude");
         } else if (lon == null) {
@@ -121,20 +106,13 @@ public class GeoPointMapper extends Mapper {
 
         Point point = CONTEXT.makePoint(lon, lat);
 
-        for (IndexableField indexableField : distanceStrategy.createIndexableFields(point)) {
-            document.add(indexableField);
-        }
-        for (IndexableField indexableField : bboxStrategy.createIndexableFields(point)) {
-            document.add(indexableField);
-        }
-
-        document.add(new StoredField(distanceStrategy.getFieldName(), point.getX() + " " + point.getY()));
+        return Arrays.asList(strategy.createIndexableFields(point));
     }
 
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new IndexException("GeoPoint mapper '%s' does not support simple sorting", name);
+        throw new IndexException("GeoPoint mapper '{}' does not support simple sorting", name);
     }
 
     /**
@@ -143,9 +121,9 @@ public class GeoPointMapper extends Mapper {
      * @param columns the columns containing the latitude
      * @return the validated latitude
      */
-    public Double readLatitude(Columns columns) {
-        Column<?> column = columns.getColumnsByFullName(latitude).getFirst();
-        return column == null ? null : readLatitude(column.getComposedValue());
+    Double readLatitude(Columns columns) {
+        Object value = columns.valueForField(latitude);
+        return value == null ? null : readLatitude(value);
     }
 
     /**
@@ -155,9 +133,9 @@ public class GeoPointMapper extends Mapper {
      * @param columns the columns containing the longitude
      * @return the validated longitude
      */
-    public Double readLongitude(Columns columns) {
-        Column<?> column = columns.getColumnsByFullName(longitude).getFirst();
-        return column == null ? null : readLongitude(column.getComposedValue());
+    Double readLongitude(Columns columns) {
+        Object value = columns.valueForField(longitude);
+        return value == null ? null : readLongitude(value);
     }
 
     /**
@@ -168,17 +146,16 @@ public class GeoPointMapper extends Mapper {
      * @param o the {@link Object} containing the latitude
      * @return the latitude
      */
-    private Double readLatitude(Object o) {
+    private static <T> Double readLatitude(Object o) {
+        if (o == null) return null;
         Double value;
-        if (o == null) {
-            return null;
-        } else if (o instanceof Number) {
+        if (o instanceof Number) {
             value = ((Number) o).doubleValue();
         } else {
             try {
                 value = Double.valueOf(o.toString());
             } catch (NumberFormatException e) {
-                throw new IndexException("Unparseable latitude: %s", o);
+                throw new IndexException("Unparseable latitude: {}", o);
             }
         }
         return GeospatialUtils.checkLatitude("latitude", value);
@@ -192,17 +169,16 @@ public class GeoPointMapper extends Mapper {
      * @param o the {@link Object} containing the latitude
      * @return the longitude
      */
-    private static Double readLongitude(Object o) {
+    private static <T> Double readLongitude(Object o) {
+        if (o == null) return null;
         Double value;
-        if (o == null) {
-            return null;
-        } else if (o instanceof Number) {
+        if (o instanceof Number) {
             value = ((Number) o).doubleValue();
         } else {
             try {
                 value = Double.valueOf(o.toString());
             } catch (NumberFormatException e) {
-                throw new IndexException("Unparseable longitude: %s", o);
+                throw new IndexException("Unparseable longitude: {}", o);
             }
         }
         return GeospatialUtils.checkLongitude("longitude", value);

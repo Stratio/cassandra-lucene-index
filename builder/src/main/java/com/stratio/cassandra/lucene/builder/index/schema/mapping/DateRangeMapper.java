@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * A {@link Mapper} to map 1-dimensional date ranges.
@@ -32,9 +32,9 @@ public class DateRangeMapper extends Mapper<DateRangeMapper> {
     @JsonProperty("to")
     final String to;
 
-    /** The date pattern to be used. */
+    /** The date pattern */
     @JsonProperty("pattern")
-    String pattern;
+    private String pattern;
 
     /**
      * Returns a new {@link DateRangeMapper}.
@@ -48,9 +48,9 @@ public class DateRangeMapper extends Mapper<DateRangeMapper> {
     }
 
     /**
-     * Sets the date pattern to be used.
+     * Sets the date pattern.
      *
-     * @param pattern the date pattern to be used
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern
      * @return this with the specified date pattern
      */
     public DateRangeMapper pattern(String pattern) {

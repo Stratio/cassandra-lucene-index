@@ -15,17 +15,16 @@
  */
 package com.stratio.cassandra.lucene.common;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.MoreObjects;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Geometry;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
 
-import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.CONTEXT;
-import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
+import static com.stratio.cassandra.lucene.common.GeospatialUtilsJTS.CONTEXT;
 
 /**
  * Class representing the transformation of a JTS geographical shape into a new shape.
@@ -36,10 +35,7 @@ import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
 @JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformation.BBox.class, name = "bbox"),
                @JsonSubTypes.Type(value = GeoTransformation.Buffer.class, name = "buffer"),
                @JsonSubTypes.Type(value = GeoTransformation.Centroid.class, name = "centroid"),
-               @JsonSubTypes.Type(value = GeoTransformation.ConvexHull.class, name = "convex_hull"),
-               @JsonSubTypes.Type(value = GeoTransformation.Difference.class, name = "difference"),
-               @JsonSubTypes.Type(value = GeoTransformation.Intersection.class, name = "intersection"),
-               @JsonSubTypes.Type(value = GeoTransformation.Union.class, name = "union")})
+               @JsonSubTypes.Type(value = GeoTransformation.ConvexHull.class, name = "convex_hull")})
 public interface GeoTransformation {
 
     /**
@@ -178,122 +174,6 @@ public interface GeoTransformation {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this).toString();
-        }
-    }
-
-    /**
-     * {@link GeoTransformation} that returns the difference of two JTS geographical shapes.
-     */
-    class Difference implements GeoTransformation {
-
-        /** The shape to be subtracted. */
-        @JsonProperty("shape")
-        public final String other;
-
-        /**
-         * Constructor receiving the geometry to be subtracted.
-         *
-         * @param other the geometry
-         */
-        @JsonCreator
-        public Difference(@JsonProperty("shape") String other) {
-            this.other = other;
-        }
-
-        /**
-         * Returns the difference of the specified {@link JtsGeometry}.
-         *
-         * @param shape the JTS shape to be transformed
-         * @return the difference
-         */
-        @Override
-        public JtsGeometry apply(JtsGeometry shape) {
-            Geometry geometry = geometry(other).getGeom();
-            Geometry difference = shape.getGeom().difference(geometry);
-            return CONTEXT.makeShape(difference);
-        }
-
-        /** {@inheritDoc} */
-        @Override
-        public String toString() {
-            return MoreObjects.toStringHelper(this).add("other", other).toString();
-        }
-    }
-
-    /**
-     * {@link GeoTransformation} that returns the intersection of two JTS geographical shapes.
-     */
-    class Intersection implements GeoTransformation {
-
-        /** The shape to be intersected. */
-        @JsonProperty("shape")
-        public final String other;
-
-        /**
-         * Constructor receiving the geometry to be added.
-         *
-         * @param other the geometry to be added
-         */
-        @JsonCreator
-        public Intersection(@JsonProperty("shape") String other) {
-            this.other = other;
-        }
-
-        /**
-         * Returns the intersection of the specified {@link JtsGeometry}.
-         *
-         * @param shape the JTS shape to be transformed
-         * @return the intersection
-         */
-        @Override
-        public JtsGeometry apply(JtsGeometry shape) {
-            Geometry geometry = geometry(other).getGeom();
-            Geometry intersection = shape.getGeom().intersection(geometry);
-            return CONTEXT.makeShape(intersection);
-        }
-
-        /** {@inheritDoc} */
-        @Override
-        public String toString() {
-            return MoreObjects.toStringHelper(this).add("other", other).toString();
-        }
-    }
-
-    /**
-     * {@link GeoTransformation} that returns the union of two JTS geographical shapes.
-     */
-    class Union implements GeoTransformation {
-
-        /** The shape to be added. */
-        @JsonProperty("shape")
-        public final String other;
-
-        /**
-         * Constructor receiving the geometry to be added.
-         *
-         * @param other the geometry to be added
-         */
-        @JsonCreator
-        public Union(@JsonProperty("shape") String other) {
-            this.other = other;
-        }
-
-        /**
-         * Returns the union of the specified {@link JtsGeometry}.
-         *
-         * @param shape the JTS shape to be transformed
-         * @return the union
-         */
-        @Override
-        public JtsGeometry apply(JtsGeometry shape) {
-            Geometry geometry = geometry(other).getGeom();
-            Geometry union = shape.getGeom().union(geometry);
-            return CONTEXT.makeShape(union);
-        }
-
-        @Override
-        public String toString() {
-            return MoreObjects.toStringHelper(this).add("other", other).toString();
         }
     }
 }

@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.search.condition.builder;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.stratio.cassandra.lucene.search.condition.AllCondition;
-import org.codehaus.jackson.annotate.JsonCreator;
 
 /**
  * {@link ConditionBuilder} for building a new {@link AllCondition}.

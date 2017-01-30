@@ -19,10 +19,10 @@ import com.google.common.base.MoreObjects;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.GeospatialUtils;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.SpatialStrategy;
@@ -30,7 +30,7 @@ import org.apache.lucene.spatial.SpatialStrategy;
 import java.util.Collections;
 import java.util.Set;
 
-import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
+import static com.stratio.cassandra.lucene.common.GeospatialUtils.CONTEXT;
 
 /**
  * {@link SortField} to sort geo points by their distance to a fixed reference point.
@@ -42,51 +42,51 @@ public class GeoDistanceSortField extends SortField {
     /** The name of mapper to use to calculate distance. */
     public final String field;
 
-    /** The longitude of the center point to sort by min distance to it. */
-    public final double longitude;
-
     /** The latitude of the center point to sort by min distance to it. */
     public final double latitude;
+
+    /** The longitude of the center point to sort by min distance to it. */
+    public final double longitude;
 
     /**
      * Returns a new {@link SortField}.
      *
-     * @param field the name of mapper to use to calculate distance
+     * @param field the name of the geo point field mapper to use to calculate distance
      * @param reverse {@code true} if natural order should be reversed
-     * @param longitude the longitude
      * @param latitude the latitude
+     * @param longitude the longitude
      */
-    public GeoDistanceSortField(String field, Boolean reverse, double longitude, double latitude) {
+    public GeoDistanceSortField(String field, Boolean reverse, double latitude, double longitude) {
         super(reverse);
         if (field == null || StringUtils.isBlank(field)) {
             throw new IndexException("Field name required");
         }
         this.field = field;
-        this.longitude = GeospatialUtils.checkLongitude("longitude", longitude);
         this.latitude = GeospatialUtils.checkLatitude("latitude", latitude);
+        this.longitude = GeospatialUtils.checkLongitude("longitude", longitude);
     }
 
     /** {@inheritDoc} */
     @Override
     public org.apache.lucene.search.SortField sortField(Schema schema) {
-        final Mapper mapper = schema.getMapper(field);
+        final Mapper mapper = schema.mapper(field);
         if (mapper == null) {
-            throw new IndexException("Field '%s' is not found", field);
+            throw new IndexException("Field '{}' is not found", field);
         } else if (!(mapper instanceof GeoPointMapper)) {
-            throw new IndexException("Field '%s' type is not geo_point", field);
+            throw new IndexException("Field '{}' type is not geo_point", field);
         }
         GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
 
-        SpatialStrategy strategy = geoPointMapper.distanceStrategy;
-        Point pt = CONTEXT.makePoint(longitude, latitude);
+        Point point = CONTEXT.makePoint(longitude, latitude);
 
-        // The distance (in km)
-        ValueSource valueSource = strategy.makeDistanceValueSource(pt, DistanceUtils.DEG_TO_KM);
-        return valueSource.getSortField(this.reverse);
+        // Use the distance (in km) as source
+        SpatialStrategy strategy = geoPointMapper.strategy.getGeometryStrategy();
+        ValueSource valueSource = strategy.makeDistanceValueSource(point, DistanceUtils.DEG_TO_KM);
+        return valueSource.getSortField(reverse);
     }
 
     /** {@inheritDoc} */
-    public Set<String> involvedFields() {
+    public Set<String> postProcessingFields() {
         return Collections.singleton(field);
     }
 
@@ -96,8 +96,8 @@ public class GeoDistanceSortField extends SortField {
         return MoreObjects.toStringHelper(this)
                           .add("field", field)
                           .add("reverse", reverse)
-                          .add("longitude", longitude)
                           .add("latitude", latitude)
+                          .add("longitude", longitude)
                           .toString();
     }
 
@@ -113,8 +113,8 @@ public class GeoDistanceSortField extends SortField {
         GeoDistanceSortField other = (GeoDistanceSortField) o;
         return reverse == other.reverse &&
                field.equals(other.field) &&
-               longitude == other.longitude &&
-               latitude == other.latitude;
+               latitude == other.latitude &&
+               longitude == other.longitude;
     }
 
     /** {@inheritDoc} */

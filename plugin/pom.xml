@@ -35,17 +35,43 @@
     <description>Cassandra Lucene Index plugin</description>
 
     <properties>
+        <scala.version>2.12.0</scala.version>
+        <scala.binary.version>2.12</scala.binary.version>
+        <scala.logging.version>3.5.0</scala.logging.version>
+        <scalatest.version>3.0.1</scalatest.version>
         <cassandra.version>3.0.6</cassandra.version>
-        <lucene.version>5.5.1</lucene.version>
+        <lucene.version>5.5.3</lucene.version>
         <jts.version>1.14.0</jts.version>
+        <jackson.version>2.8.4</jackson.version>
         <mockito.version>1.10.19</mockito.version>
     </properties>
 
     <dependencies>
         <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging_${scala.binary.version}</artifactId>
+            <version>${scala.logging.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.binary.version}</artifactId>
+            <version>${scalatest.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.cassandra</groupId>
             <artifactId>cassandra-all</artifactId>
             <version>${cassandra.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.rholder</groupId>
+            <artifactId>snowball-stemmer</artifactId>
+            <version>1.3.0.581.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
@@ -74,15 +100,57 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.1</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <configuration>
+                    <args>
+                        <arg>-nowarn</arg>
+                    </args>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>scala-compile-first</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>scala-test-compile</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -90,12 +158,13 @@
                 <configuration>
                     <artifactSet>
                         <includes>
+                            <include>org.scala-lang:*</include>
+                            <include>com.typesafe.scala-logging:*</include>
                             <include>org.apache.lucene:*</include>
                             <include>com.spatial4j:*</include>
+                            <include>com.github.rholder:*</include>
+                            <include>com.fasterxml.jackson.core:*</include>
                         </includes>
-                        <excludes>
-                            <exclude>org.apache.cassandra:*</exclude>
-                        </excludes>
                     </artifactSet>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                 </configuration>
@@ -119,7 +188,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>1.9.1</version>
+                        <version>1.10</version>
                         <executions>
                             <execution>
                                 <id>parse-version</id>
@@ -143,7 +212,7 @@
                             <contactEmail>cassandra@stratio.com</contactEmail>
                             <deb>
                                 <section>devel</section>
-                                <preDepends>stratio-cassandra (= ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}), python2.7
+                                <preDepends>stratio-cassandra (=${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}), python2.7
                                 </preDepends>
                             </deb>
                             <rpm>

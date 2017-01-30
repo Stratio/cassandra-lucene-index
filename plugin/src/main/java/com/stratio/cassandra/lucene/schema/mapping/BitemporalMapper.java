@@ -17,17 +17,14 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
-import com.stratio.cassandra.lucene.util.DateParser;
-import org.apache.cassandra.db.marshal.*;
+import com.stratio.cassandra.lucene.common.DateParser;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.document.LongField;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 
-import java.util.Arrays;
-import java.util.Date;
+import java.util.*;
 
 /**
  * A {@link Mapper} to map bitemporal DateRanges.
@@ -48,9 +45,6 @@ public class BitemporalMapper extends Mapper {
     /** The lucene Field suffix for tt_to */
     public static final String TT_TO_FIELD_SUFFIX = ".ttTo";
 
-    /** The {@link DateParser} pattern. */
-    public final String pattern;
-
     /** The name of the column containing the valid time start. **/
     final String vtFrom;
 
@@ -67,7 +61,7 @@ public class BitemporalMapper extends Mapper {
     final Long nowValue;
 
     /** The {@link DateParser}. */
-    private final DateParser dateParser;
+    public final DateParser parser;
 
     /**
      * Builds a new {@link BitemporalMapper}.
@@ -78,7 +72,7 @@ public class BitemporalMapper extends Mapper {
      * @param vtTo the name of the column containing the valid time end
      * @param ttFrom the name of the column containing the transaction time start
      * @param ttTo the name of the column containing the transaction time end
-     * @param pattern the date format pattern to be used
+     * @param pattern the date pattern
      * @param nowValue the value representing now
      */
     public BitemporalMapper(String field,
@@ -90,18 +84,7 @@ public class BitemporalMapper extends Mapper {
                             String pattern,
                             Object nowValue) {
 
-        super(field,
-              false,
-              validated,
-              null,
-              Arrays.asList(vtFrom, vtTo, ttFrom, ttTo),
-              AsciiType.instance,
-              UTF8Type.instance,
-              Int32Type.instance,
-              LongType.instance,
-              IntegerType.instance,
-              SimpleDateType.instance,
-              TimestampType.instance, TimeUUIDType.instance);
+        super(field, false, validated, null, Arrays.asList(vtFrom, vtTo, ttFrom, ttTo), DATE_TYPES);
 
         if (StringUtils.isBlank(vtFrom)) {
             throw new IndexException("vt_from column name is required");
@@ -119,21 +102,19 @@ public class BitemporalMapper extends Mapper {
             throw new IndexException("tt_to column name is required");
         }
 
-        this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
-        this.dateParser = new DateParser(this.pattern);
-
         this.vtFrom = vtFrom;
         this.vtTo = vtTo;
         this.ttFrom = ttFrom;
         this.ttTo = ttTo;
+        this.parser = new DateParser(pattern);
 
         // Validate pattern
-        this.nowValue = (nowValue == null) ? Long.MAX_VALUE : dateParser.parse(nowValue).getTime();
+        this.nowValue = (nowValue == null) ? Long.MAX_VALUE : parser.parse(nowValue).getTime();
     }
 
     /** {@inheritDoc} */
     @Override
-    public void addFields(Document document, Columns columns) {
+    public List<IndexableField> indexableFields(Columns columns) {
 
         BitemporalDateTime vtFromTime = readBitemporalDate(columns, vtFrom);
         BitemporalDateTime vtToTime = readBitemporalDate(columns, vtTo);
@@ -141,15 +122,17 @@ public class BitemporalMapper extends Mapper {
         BitemporalDateTime ttToTime = readBitemporalDate(columns, ttTo);
 
         if (vtFromTime == null && vtToTime == null && ttFromTime == null && ttToTime == null) {
-            return;
+            return Collections.emptyList();
         }
 
         validate(vtFromTime, vtToTime, ttFromTime, ttToTime);
 
-        document.add(new LongField(field + VT_FROM_FIELD_SUFFIX, vtFromTime.toDate().getTime(), STORE));
-        document.add(new LongField(field + VT_TO_FIELD_SUFFIX, vtToTime.toDate().getTime(), STORE));
-        document.add(new LongField(field + TT_FROM_FIELD_SUFFIX, ttFromTime.toDate().getTime(), STORE));
-        document.add(new LongField(field + TT_TO_FIELD_SUFFIX, ttToTime.toDate().getTime(), STORE));
+        List<IndexableField> fields = new ArrayList<>(4);
+        fields.add(new LongField(field + VT_FROM_FIELD_SUFFIX, vtFromTime.toTimestamp(), STORE));
+        fields.add(new LongField(field + VT_TO_FIELD_SUFFIX, vtToTime.toTimestamp(), STORE));
+        fields.add(new LongField(field + TT_FROM_FIELD_SUFFIX, ttFromTime.toTimestamp(), STORE));
+        fields.add(new LongField(field + TT_TO_FIELD_SUFFIX, ttToTime.toTimestamp(), STORE));
+        return fields;
     }
 
     private void validate(BitemporalDateTime vtFrom,
@@ -169,14 +152,14 @@ public class BitemporalMapper extends Mapper {
             throw new IndexException("tt_to column required");
         }
         if (vtFrom.after(vtTo)) {
-            throw new IndexException("vt_from:'%s' is after vt_to:'%s'",
-                                     vtTo.toString(dateParser),
-                                     vtFrom.toString(dateParser));
+            throw new IndexException("vt_from:'{}' is after vt_to:'{}'",
+                                     vtTo.toString(parser),
+                                     vtFrom.toString(parser));
         }
         if (ttFrom.after(ttTo)) {
-            throw new IndexException("tt_from:'%s' is after tt_to:'%s'",
-                                     ttTo.toString(dateParser),
-                                     ttFrom.toString(dateParser));
+            throw new IndexException("tt_from:'{}' is after tt_to:'{}'",
+                                     ttTo.toString(parser),
+                                     ttFrom.toString(parser));
         }
     }
 
@@ -184,25 +167,11 @@ public class BitemporalMapper extends Mapper {
      * Returns a {@link BitemporalDateTime} read from the specified {@link Columns}.
      *
      * @param columns the column where the data is
-     * @param fieldName the name of the field to be read from {@code columns}
+     * @param field the name of the field to be read from {@code columns}
      * @return a bitemporal date time
      */
-    BitemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
-        Column<?> column = columns.getColumnsByFullName(fieldName).getFirst();
-        if (column == null) {
-            return null;
-        }
-        return parseBitemporalDate(column.getComposedValue());
-    }
-
-    private BitemporalDateTime checkIfNow(Long in) {
-        if (in > nowValue) {
-            throw new IndexException("BitemporalDateTime value '%s' exceeds Max Value: '%s'", in, nowValue);
-        } else if (in < nowValue) {
-            return new BitemporalDateTime(in);
-        } else {
-            return new BitemporalDateTime(Long.MAX_VALUE);
-        }
+    BitemporalDateTime readBitemporalDate(Columns columns, String field) {
+        return parseBitemporalDate(columns.valueForField(field));
     }
 
     /**
@@ -213,18 +182,24 @@ public class BitemporalMapper extends Mapper {
      * @return a bitemporal date time
      */
     public BitemporalDateTime parseBitemporalDate(Object value) {
-        Date opt = dateParser.parse(value);
-        if (opt != null) {
-            return checkIfNow(opt.getTime());
+        Date date = parser.parse(value);
+        return date == null ? null : checkIfNow(date.getTime());
+    }
+
+    private BitemporalDateTime checkIfNow(Long in) {
+        if (in > nowValue) {
+            throw new IndexException("BitemporalDateTime value '{}' exceeds Max Value: '{}'", in, nowValue);
+        } else if (in < nowValue) {
+            return new BitemporalDateTime(in);
         } else {
-            return null;
+            return new BitemporalDateTime(Long.MAX_VALUE);
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new IndexException(String.format("Bitemporal mapper '%s' does not support sorting", name));
+        throw new IndexException("Bitemporal mapper '{}' does not support sorting", name);
     }
 
     /** {@inheritDoc} */
@@ -237,7 +212,7 @@ public class BitemporalMapper extends Mapper {
                           .add("vtTo", vtTo)
                           .add("ttFrom", ttFrom)
                           .add("ttTo", ttTo)
-                          .add("pattern", pattern)
+                          .add("pattern", parser.pattern)
                           .add("nowValue", nowValue)
                           .toString();
     }
@@ -283,6 +258,10 @@ public class BitemporalMapper extends Mapper {
 
         public Date toDate() {
             return date;
+        }
+
+        public Long toTimestamp() {
+            return timestamp;
         }
 
         public boolean after(BitemporalDateTime time) {
