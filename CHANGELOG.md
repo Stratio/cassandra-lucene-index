@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.7.6 (Upcoming)
+
+* Ignore tombstones during read before write (#255)
+* Fix deletion of ranges of rows in a partition
+* Add virtual node based partitioner
+
 ## 3.7.5 (December 15, 2016)
 
 * Upgrade to Apache Lucene 5.5.3

@@ -17,8 +17,7 @@ package com.stratio.cassandra.lucene
 
 import com.stratio.cassandra.lucene.util.{Logging, Tracing}
 import org.apache.cassandra.db._
-import org.apache.cassandra.db.filter.{ClusteringIndexNamesFilter, ColumnFilter}
-import org.apache.cassandra.db.rows.{Row, UnfilteredRowIterator}
+import org.apache.cassandra.db.rows.{Row, RowIterator, UnfilteredRowIterators}
 import org.apache.cassandra.index.Index.Indexer
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
@@ -44,6 +43,7 @@ abstract class IndexWriter(
 
   /** @inheritdoc */
   override def begin() {
+    logger.trace(s"Begin transaction $transactionType")
   }
 
   /** @inheritdoc */
@@ -55,6 +55,7 @@ abstract class IndexWriter(
   /** @inheritdoc */
   override def rangeTombstone(tombstone: RangeTombstone) {
     logger.trace(s"Range tombstone during $transactionType: $tombstone")
+    delete(tombstone)
   }
 
   /** @inheritdoc */
@@ -78,42 +79,26 @@ abstract class IndexWriter(
   /** Deletes all the partition. */
   protected def delete()
 
+  /** Deletes all the rows in the specified tombstone. */
+  protected def delete(tombstone: RangeTombstone)
+
   /** Indexes the specified row. It behaviours as an upsert and may involve read-before-write.
     *
     * @param row the row to be indexed.
     */
   protected def index(row: Row)
 
-  /** Retrieves from the local storage all the rows in the specified partition.
-    *
-    * @param key the partition key
-    * @return a row iterator
-    */
-  protected def read(key: DecoratedKey): UnfilteredRowIterator = {
-    read(SinglePartitionReadCommand.fullPartitionRead(metadata, nowInSec, key))
-  }
-
-  /** Retrieves from the local storage the rows in the specified partition slice.
-    *
-    * @param key         the partition key
-    * @param clusterings the clustering keys
-    * @return a row iterator
-    */
-  protected def read(key: DecoratedKey, clusterings: java.util.NavigableSet[Clustering])
-  : UnfilteredRowIterator = {
-    val filter = new ClusteringIndexNamesFilter(clusterings, false)
-    val columnFilter = ColumnFilter.all(metadata)
-    read(SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter))
-  }
-
   /** Retrieves from the local storage the rows satisfying the specified read command.
     *
     * @param command a single partition read command
     * @return a row iterator
     */
-  protected def read(command: SinglePartitionReadCommand): UnfilteredRowIterator = {
+  protected def read(command: SinglePartitionReadCommand): RowIterator = {
     val controller = command.executionController
-    try command.queryMemtableAndDisk(table, controller) finally controller.close()
+    try {
+      val unfilteredRows = command.queryMemtableAndDisk(table, controller)
+      UnfilteredRowIterators.filter(unfilteredRows, nowInSec)
+    } finally controller.close()
   }
 
 }

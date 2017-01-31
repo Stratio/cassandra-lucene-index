@@ -27,7 +27,7 @@ import org.apache.cassandra.db.filter.RowFilter.{CustomExpression, Expression}
 import org.apache.cassandra.db.marshal.UTF8Type
 import org.apache.cassandra.db.rows.{BTreeRow, BufferCell, Row}
 import org.apache.cassandra.schema.IndexMetadata
-import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.StringUtils.isBlank
 import org.apache.lucene.search.ScoreDoc
 
 import scala.collection.JavaConverters._
@@ -41,7 +41,7 @@ import scala.collection.JavaConverters._
 case class ExpressionMapper(tableMetadata: CFMetaData, indexMetadata: IndexMetadata) {
 
   val name = indexMetadata.name
-  val column = Option(indexMetadata.options.get(TARGET_OPTION_NAME)).filterNot(StringUtils.isBlank)
+  val column = Option(indexMetadata.options.get(TARGET_OPTION_NAME)).filterNot(isBlank)
   val columns = tableMetadata.allColumns.asScala.toSet
   val columnDefinition = column.flatMap(name => columns.find(_.name.toString == name))
 

@@ -89,15 +89,6 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
     }
 
     /**
-     * Returns the default {@link Analyzer}.
-     *
-     * @return the default analyzer
-     */
-    public TokenLengthAnalyzer getDefaultAnalyzer() {
-        return defaultAnalyzer;
-    }
-
-    /**
      * Returns the {@link Analyzer} identified by the specified field name.
      *
      * @param fieldName the name of the {@link Analyzer} to be returned

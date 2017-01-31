@@ -43,7 +43,7 @@ case class Columns(private val columns: List[Column]) extends Traversable[Column
   /** Returns a copy of this with the specified columns appended. */
   def ++(columns: Columns): Columns = new Columns(this.columns ++ columns)
 
-  /** Returns the value of the first column with the specifed mapper name. */
+  /** Returns the value of the first column with the specified mapper name. */
   def valueForField(field: String): Any = columns.find(_.field == field).flatMap(_.value).orNull
 
   /** Runs the specified function over each column with the specified field name. */

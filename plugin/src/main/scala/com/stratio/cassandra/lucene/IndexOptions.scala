@@ -189,7 +189,7 @@ object IndexOptions {
   private def parseInt(options: Map[String, String], name: String, default: Int): Int = {
     options.get(name).map(
       string => try string.toInt catch {
-        case e: NumberFormatException =>
+        case _: NumberFormatException =>
           throw new IndexException(s"'$name' must be an integer, found: $string")
       }).getOrElse(default)
   }
@@ -200,7 +200,7 @@ object IndexOptions {
       default: Int): Int = {
     options.get(name).map(
       string => try string.toInt catch {
-        case e: NumberFormatException =>
+        case _: NumberFormatException =>
           throw new IndexException(s"'$name' must be a strictly positive integer, found: $string")
       }).map(
       integer => if (integer > 0) integer
@@ -215,7 +215,7 @@ object IndexOptions {
       default: Double): Double = {
     options.get(name).map(
       string => try string.toDouble catch {
-        case e: NumberFormatException =>
+        case _: NumberFormatException =>
           throw new IndexException(s"'$name' must be a strictly positive decimal, found: $string")
       }).map(
       double => if (double > 0) double

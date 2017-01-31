@@ -158,7 +158,7 @@ class PartitionedIndex(
     * @param document  the document to be added
     */
   def upsert(partition: Int, term: Term, document: Document) {
-    logger.debug(s"Indexing $document with term $term in $name")
+    logger.debug(s"Indexing $document with term $term in $name in partition $partition")
     indexes(partition).upsert(term, document)
   }
 
@@ -168,8 +168,18 @@ class PartitionedIndex(
     * @param term      the term identifying the documents to be deleted
     */
   def delete(partition: Int, term: Term) {
-    logger.debug(s"Deleting $term from $name")
+    logger.debug(s"Deleting $term from $name in partition $partition")
     indexes(partition).delete(term)
+  }
+
+  /** Deletes all the documents satisfying the specified query.
+    *
+    * @param partition the index partition where the operation will be done
+    * @param query     the query identifying the documents to be deleted
+    */
+  def delete(partition: Int, query: Query) {
+    logger.debug(s"Deleting $query from $name in partition $partition")
+    indexes(partition).delete(query)
   }
 
   /** Finds the top hits for a query and sort, starting from an optional position.
@@ -184,11 +194,11 @@ class PartitionedIndex(
   : DocumentIterator = {
     logger.debug(
       s"""Searching in $name
-         | chunk: ${partitions.map(_._1).mkString(", ")}
-         | after: ${partitions.map(_._2).mkString(", ")}
-         | query: $query
-         | count: $count
-         | sort : $sort
+         | partitions : ${partitions.map(_._1).mkString(", ")}
+         |      after : ${partitions.map(_._2).mkString(", ")}
+         |      query : $query
+         |      count : $count
+         |       sort : $sort
        """.stripMargin)
     val cursors = partitions.map { case (p, a) => (indexes(p).searcherManager, a) }
     new DocumentIterator(cursors, mergeSort, sort, query, count, fields)

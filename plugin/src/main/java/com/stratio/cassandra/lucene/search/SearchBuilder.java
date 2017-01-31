@@ -48,7 +48,7 @@ public class SearchBuilder implements Builder<Search> {
 
     /** The {@link SortFieldBuilder}s for the query. */
     @JsonProperty("sort")
-    private List<SortFieldBuilder> sort = new LinkedList<>();
+    private final List<SortFieldBuilder> sort = new LinkedList<>();
 
     /** If this search must force the refresh the index before reading it. */
     @JsonProperty("refresh")

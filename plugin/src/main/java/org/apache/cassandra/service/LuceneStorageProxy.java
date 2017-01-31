@@ -242,7 +242,7 @@ public class LuceneStorageProxy {
         //   so will be very small (< RF). In that case, retainAll is in fact more efficient.
         //   2) we do ultimately need a list so converting everything to sets don't make sense
         //   3) l1 and l2 are sorted by proximity. The use of retainAll  maintain that sorting in the result, while using sets wouldn't.
-        List<InetAddress> inter = new ArrayList<InetAddress>(l1);
+        List<InetAddress> inter = new ArrayList<>(l1);
         inter.retainAll(l2);
         return inter;
     }
