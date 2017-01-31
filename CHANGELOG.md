@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.10.3 (Upcoming)
+## 3.0.10.3 (January 31, 2017)
 
 * Ignore tombstones during read before write (#255)
 * Fix deletion of ranges of rows in a partition
