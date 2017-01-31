@@ -58,7 +58,7 @@ public abstract class SingleMapperCondition<T extends Mapper> extends SingleFiel
         } else if (!type.isAssignableFrom(mapper.getClass())) {
             throw new IndexException("Field '{}' requires a mapper of type '{}' but found '{}'", field, type, mapper);
         }
-        return doQuery((T) mapper, schema.analyzer());
+        return doQuery((T) mapper, schema.analyzer);
     }
 
     /**

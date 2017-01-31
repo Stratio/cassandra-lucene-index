@@ -15,10 +15,10 @@
  */
 package com.stratio.cassandra.lucene.schema.analysis;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.analysis.Analyzer;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.lang.reflect.Constructor;
 

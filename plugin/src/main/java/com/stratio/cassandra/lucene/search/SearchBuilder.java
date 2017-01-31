@@ -15,14 +15,14 @@
  */
 package com.stratio.cassandra.lucene.search;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.IndexPagingState;
+import com.stratio.cassandra.lucene.common.Builder;
+import com.stratio.cassandra.lucene.common.JsonSerializer;
 import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
-import com.stratio.cassandra.lucene.util.Builder;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -48,7 +48,7 @@ public class SearchBuilder implements Builder<Search> {
 
     /** The {@link SortFieldBuilder}s for the query. */
     @JsonProperty("sort")
-    private List<SortFieldBuilder> sort = new LinkedList<>();
+    private final List<SortFieldBuilder> sort = new LinkedList<>();
 
     /** If this search must force the refresh the index before reading it. */
     @JsonProperty("refresh")

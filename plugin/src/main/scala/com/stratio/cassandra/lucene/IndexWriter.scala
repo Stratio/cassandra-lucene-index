@@ -15,12 +15,12 @@
  */
 package com.stratio.cassandra.lucene
 
-import org.apache.cassandra.db.rows.Row
-import org.apache.cassandra.db.{DecoratedKey, DeletionTime, RangeTombstone}
+import com.stratio.cassandra.lucene.util.{Logging, Tracing}
+import org.apache.cassandra.db._
+import org.apache.cassandra.db.rows.{Row, RowIterator, UnfilteredRowIterators}
+import org.apache.cassandra.index.Index.Indexer
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
-import org.slf4j.LoggerFactory
-import org.apache.cassandra.index.Index.Indexer
 
 /** [[Indexer]] for Lucene-based index.
   *
@@ -31,16 +31,19 @@ import org.apache.cassandra.index.Index.Indexer
   * @param transactionType what kind of update is being performed on the base data
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-abstract class IndexWriter(service: IndexService,
-                           key: DecoratedKey,
-                           nowInSec: Int,
-                           opGroup: OpOrder.Group,
-                           transactionType: IndexTransaction.Type) extends Indexer {
+abstract class IndexWriter(
+    service: IndexService,
+    key: DecoratedKey,
+    nowInSec: Int,
+    opGroup: OpOrder.Group,
+    transactionType: IndexTransaction.Type) extends Indexer with Logging with Tracing {
 
-  protected val logger = LoggerFactory.getLogger(classOf[IndexWriter])
+  val metadata = service.metadata
+  val table = service.table
 
   /** @inheritdoc */
   override def begin() {
+    logger.trace(s"Begin transaction $transactionType")
   }
 
   /** @inheritdoc */
@@ -52,6 +55,7 @@ abstract class IndexWriter(service: IndexService,
   /** @inheritdoc */
   override def rangeTombstone(tombstone: RangeTombstone) {
     logger.trace(s"Range tombstone during $transactionType: $tombstone")
+    delete(tombstone)
   }
 
   /** @inheritdoc */
@@ -75,9 +79,25 @@ abstract class IndexWriter(service: IndexService,
   /** Deletes all the partition. */
   protected def delete()
 
+  /** Deletes all the rows in the specified tombstone. */
+  protected def delete(tombstone: RangeTombstone)
+
   /** Indexes the specified row. It behaviours as an upsert and may involve read-before-write.
     *
     * @param row the row to be indexed.
     */
   protected def index(row: Row)
+
+  /** Retrieves from the local storage the rows satisfying the specified read command.
+    *
+    * @param command a single partition read command
+    * @return a row iterator
+    */
+  protected def read(command: SinglePartitionReadCommand): RowIterator = {
+    val controller = command.executionController
+    try {
+      val unfilteredRows = command.queryMemtableAndDisk(table, controller)
+      UnfilteredRowIterators.filter(unfilteredRows, nowInSec)
+    } finally controller.close()
+  }
 }

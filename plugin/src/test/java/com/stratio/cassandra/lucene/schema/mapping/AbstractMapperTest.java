@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
+import com.stratio.cassandra.lucene.common.JsonSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

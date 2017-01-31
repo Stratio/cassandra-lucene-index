@@ -15,9 +15,9 @@
  */
 package com.stratio.cassandra.lucene.common;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.spatial.query.SpatialOperation;
-import org.codehaus.jackson.annotate.JsonCreator;
 
 /**
  * Enum representing a spatial operation.

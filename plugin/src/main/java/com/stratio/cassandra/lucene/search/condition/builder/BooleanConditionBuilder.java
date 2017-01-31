@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.search.condition.builder;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.search.condition.BooleanCondition;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -33,15 +33,15 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
 
     /** The mandatory conditions. */
     @JsonProperty("must")
-    protected final List<ConditionBuilder<?, ?>> must = new LinkedList<>();
+    private final List<ConditionBuilder<?, ?>> must = new LinkedList<>();
 
     /** The optional conditions. */
     @JsonProperty("should")
-    protected final List<ConditionBuilder<?, ?>> should = new LinkedList<>();
+    private final List<ConditionBuilder<?, ?>> should = new LinkedList<>();
 
     /** The mandatory not conditions. */
     @JsonProperty("not")
-    protected final List<ConditionBuilder<?, ?>> not = new LinkedList<>();
+    private final List<ConditionBuilder<?, ?>> not = new LinkedList<>();
 
     /**
      * Returns this builder with the specified mandatory conditions.

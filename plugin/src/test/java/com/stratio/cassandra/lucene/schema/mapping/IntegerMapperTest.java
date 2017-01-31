@@ -101,7 +101,7 @@ public class IntegerMapperTest extends AbstractMapperTest {
     @Test
     public void testValueLong() {
         IntegerMapper mapper = integerMapper().boost(1f).build("field");
-        Integer parsed = mapper.base("test", 3l);
+        Integer parsed = mapper.base("test", 3L);
         assertEquals("Base for longs is wrong", Integer.valueOf(3), parsed);
     }
 

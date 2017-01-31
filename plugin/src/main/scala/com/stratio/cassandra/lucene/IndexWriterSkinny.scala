@@ -15,9 +15,8 @@
  */
 package com.stratio.cassandra.lucene
 
-import com.stratio.cassandra.lucene.util.Tracer
-import org.apache.cassandra.db.DecoratedKey
 import org.apache.cassandra.db.rows.Row
+import org.apache.cassandra.db.{DecoratedKey, RangeTombstone, SinglePartitionReadCommand}
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.index.transactions.IndexTransaction.Type._
 import org.apache.cassandra.utils.concurrent.OpOrder
@@ -31,11 +30,12 @@ import org.apache.cassandra.utils.concurrent.OpOrder
   * @param transactionType what kind of update is being performed on the base data
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class IndexWriterSkinny(service: IndexServiceSkinny,
-                        key: DecoratedKey,
-                        nowInSec: Int,
-                        opGroup: OpOrder.Group,
-                        transactionType: IndexTransaction.Type)
+class IndexWriterSkinny(
+    service: IndexServiceSkinny,
+    key: DecoratedKey,
+    nowInSec: Int,
+    opGroup: OpOrder.Group,
+    transactionType: IndexTransaction.Type)
   extends IndexWriter(service, key, nowInSec, opGroup, transactionType) {
 
   private var row: Option[Row] = None
@@ -47,28 +47,38 @@ class IndexWriterSkinny(service: IndexServiceSkinny,
   }
 
   /** @inheritdoc */
+  override def delete(tombstone: RangeTombstone): Unit = {
+    logger.warn(s"Ignoring range tombstone $tombstone in skinny table")
+  }
+
+  /** @inheritdoc */
   override def index(row: Row) {
     this.row = Option(row)
   }
 
   /** @inheritdoc */
   override def finish() {
-    if (transactionType != CLEANUP) {
-      row.map(row => {
+
+    // Skip on cleanups
+    if (transactionType == CLEANUP) return
+
+    row.map(
+      row => {
         if (transactionType == COMPACTION || service.needsReadBeforeWrite(key, row)) {
-          Tracer.trace("Lucene index reading before write")
-          val iterator = service.read(key, nowInSec)
-          if (iterator.hasNext) iterator.next.asInstanceOf[Row] else row
+          tracer.trace("Lucene index reading before write")
+          val command = SinglePartitionReadCommand.fullPartitionRead(metadata, nowInSec, key)
+          val readRows = read(command)
+          if (readRows.hasNext) readRows.next else row
         } else row
-      }).foreach(row => {
+      }).foreach(
+      row => {
         if (row.hasLiveData(nowInSec)) {
-          Tracer.trace("Lucene index writing document")
+          tracer.trace("Lucene index writing document")
           service.upsert(key, row, nowInSec)
         } else {
-          Tracer.trace("Lucene index deleting document")
+          tracer.trace("Lucene index deleting document")
           service.delete(key)
         }
       })
-    }
   }
 }

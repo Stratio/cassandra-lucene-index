@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene
 
 import com.stratio.cassandra.lucene.IndexException._
-import org.slf4j.Logger
 import org.slf4j.helpers.MessageFormatter
 
 /** [[RuntimeException]] to be thrown when there are Lucene index-related errors.
@@ -42,7 +41,7 @@ case class IndexException(
     * @param message the detail message
     */
   def this(message: String) =
-  this(message, null)
+    this(message, null)
 
   /** Constructs a new index exception with the specified formatted detail message.
     *
@@ -50,7 +49,7 @@ case class IndexException(
     * @param a1      first argument
     */
   def this(message: String, a1: AnyRef) =
-  this(format1(message, a1), null)
+    this(format1(message, a1), null)
 
   /** Constructs a new index exception with the specified formatted detail message.
     *
@@ -59,7 +58,7 @@ case class IndexException(
     * @param a2      second argument
     */
   def this(message: String, a1: AnyRef, a2: AnyRef) =
-  this(format2(message, a1, a2), null)
+    this(format2(message, a1, a2), null)
 
   /** Constructs a new index exception with the specified formatted detail message.
     *
@@ -69,7 +68,7 @@ case class IndexException(
     * @param a3      third argument
     */
   def this(message: String, a1: AnyRef, a2: AnyRef, a3: AnyRef) =
-  this(formatN(message, a1, a2, a3), null)
+    this(formatN(message, a1, a2, a3), null)
 
   /** Constructs a new index exception with the specified formatted detail message.
     *
@@ -80,16 +79,15 @@ case class IndexException(
     * @param a4      fourth argument
     */
   def this(message: String, a1: AnyRef, a2: AnyRef, a3: AnyRef, a4: AnyRef) =
-  this(formatN(message, a1, a2, a3, a4), null)
+    this(formatN(message, a1, a2, a3, a4), null)
 
-  /**
-    * Constructs a new index exception with the specified formatted detail message.
+  /** Constructs a new index exception with the specified formatted detail message.
     *
     * @param cause   the cause
     * @param message the detail message
     */
   def this(cause: Throwable, message: String) =
-  this(message, cause)
+    this(message, cause)
 
   /** Constructs a new index exception with the specified formatted detail message.
     *
@@ -98,7 +96,7 @@ case class IndexException(
     * @param a1      first argument
     */
   def this(cause: Throwable, message: String, a1: AnyRef) =
-  this(format1(message, a1), cause)
+    this(format1(message, a1), cause)
 
   /** Constructs a new index exception with the specified formatted detail message.
     *
@@ -108,7 +106,7 @@ case class IndexException(
     * @param a2      second argument
     */
   def this(cause: Throwable, message: String, a1: AnyRef, a2: AnyRef) =
-  this(format2(message, a1, a2), cause)
+    this(format2(message, a1, a2), cause)
 
   /** Constructs a new index exception with the specified formatted detail message.
     *
@@ -119,7 +117,7 @@ case class IndexException(
     * @param a3      third argument
     */
   def this(cause: Throwable, message: String, a1: AnyRef, a2: AnyRef, a3: AnyRef) =
-  this(formatN(message, a1, a2, a3), cause)
+    this(formatN(message, a1, a2, a3), cause)
 
   /** Constructs a new index exception with the specified formatted detail message.
     *
@@ -131,89 +129,10 @@ case class IndexException(
     * @param a4      fourth argument
     */
   def this(cause: Throwable, message: String, a1: AnyRef, a2: AnyRef, a3: AnyRef, a4: AnyRef) =
-  this(formatN(message, a1, a2, a3, a4), cause)
-
-
-  /** Constructs a new index exception with the specified formatted detail message.
-    *
-    * @param logger  a logger to log the message with ERROR level
-    * @param cause   the cause
-    * @param message the detail message
-    */
-  def this(logger: Logger, cause: Throwable, message: String) = {
-    this(message, cause)
-    logger.error(getMessage, cause)
-  }
-
-  /** Constructs a new index exception with the specified formatted detail message.
-    *
-    * @param logger  a logger to log the message with ERROR level
-    * @param cause   the cause
-    * @param message the detail message
-    * @param a1      first argument
-    */
-  def this(logger: Logger, cause: Throwable, message: String, a1: AnyRef) = {
-    this(format1(message, a1), cause)
-    logger.error(getMessage, cause)
-  }
-
-  /** Constructs a new index exception with the specified formatted detail message.
-    *
-    * @param logger  a logger to log the message with ERROR level
-    * @param cause   the cause
-    * @param message the detail message
-    * @param a1      first argument
-    * @param a2      second argument
-    */
-  def this(logger: Logger, cause: Throwable, message: String, a1: AnyRef, a2: AnyRef) = {
-    this(format2(message, a1, a2), cause)
-    logger.error(getMessage, cause)
-  }
-
-  /** Constructs a new index exception with the specified formatted detail message.
-    *
-    * @param logger  a logger to log the message with ERROR level
-    * @param cause   the cause
-    * @param message the detail message
-    * @param a1      first argument
-    * @param a2      second argument
-    * @param a3      third argument
-    */
-  def this(
-      logger: Logger,
-      cause: Throwable,
-      message: String,
-      a1: AnyRef,
-      a2: AnyRef,
-      a3: AnyRef) = {
-    this(formatN(message, a1, a2, a3), cause)
-    logger.error(getMessage, cause)
-  }
-
-  /** Constructs a new index exception with the specified formatted detail message.
-    *
-    * @param logger  a logger to log the message with ERROR level
-    * @param cause   the cause
-    * @param message the detail message
-    * @param a1      first argument
-    * @param a2      second argument
-    * @param a3      third argument
-    * @param a4      fourth argument
-    */
-  def this(
-      logger: Logger,
-      cause: Throwable,
-      message: String,
-      a1: AnyRef,
-      a2: AnyRef,
-      a3: AnyRef,
-      a4: AnyRef) = {
     this(formatN(message, a1, a2, a3, a4), cause)
-    logger.error(getMessage, cause)
-  }
-
 }
 
+/** Companion object for [[IndexException]]. */
 object IndexException {
 
   private def format1(message: String, arg: AnyRef): String = {
@@ -227,5 +146,4 @@ object IndexException {
   private def formatN(message: String, as: AnyRef*): String = {
     MessageFormatter.arrayFormat(message, as.toArray).getMessage
   }
-
 }

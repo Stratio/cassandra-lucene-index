@@ -254,19 +254,6 @@ public final class SearchBuilders {
     }
 
     /**
-     * Returns a new {@link GeoShapeConditionBuilder} with the specified field reference point.
-     *
-     * /** Constructor receiving the name of the field and the shape.
-     *
-     * @param field the name of the field
-     * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
-     * @return a new geo shape condition builder
-     */
-    public static GeoShapeConditionBuilder geoShape(String field, String shape) {
-        return new GeoShapeConditionBuilder(field, new GeoShape.WKT(shape));
-    }
-
-    /**
      * Returns a new {@link DateRangeConditionBuilder} with the specified field reference point.
      *
      * @param field the name of the field to be matched

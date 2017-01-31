@@ -19,10 +19,10 @@ import com.google.common.base.MoreObjects;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.GeospatialUtils;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.SpatialStrategy;
@@ -30,7 +30,7 @@ import org.apache.lucene.spatial.SpatialStrategy;
 import java.util.Collections;
 import java.util.Set;
 
-import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
+import static com.stratio.cassandra.lucene.common.GeospatialUtils.CONTEXT;
 
 /**
  * {@link SortField} to sort geo points by their distance to a fixed reference point.

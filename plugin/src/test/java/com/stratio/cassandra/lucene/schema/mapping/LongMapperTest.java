@@ -100,7 +100,7 @@ public class LongMapperTest extends AbstractMapperTest {
     @Test
     public void testValueLong() {
         LongMapper mapper = longMapper().boost(1f).build("field");
-        Long parsed = mapper.base("test", 3l);
+        Long parsed = mapper.base("test", 3L);
         assertEquals("Base for long is wrong", Long.valueOf(3), parsed);
     }
 

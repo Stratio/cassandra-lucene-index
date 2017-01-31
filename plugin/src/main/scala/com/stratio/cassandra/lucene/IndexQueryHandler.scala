@@ -15,11 +15,12 @@
  */
 package com.stratio.cassandra.lucene
 
+import java.lang.reflect.{Field, Modifier}
 import java.nio.ByteBuffer
-import java.{util => java}
 
 import com.stratio.cassandra.lucene.IndexQueryHandler._
-import com.stratio.cassandra.lucene.util.TimeCounter
+import com.stratio.cassandra.lucene.partitioning.Partitioner
+import com.stratio.cassandra.lucene.util.{Logging, TimeCounter}
 import org.apache.cassandra.cql3._
 import org.apache.cassandra.cql3.statements.RequestValidations.checkNotNull
 import org.apache.cassandra.cql3.statements.{BatchStatement, IndexTarget, ParsedStatement, SelectStatement}
@@ -28,22 +29,22 @@ import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.RowFilter.{CustomExpression, Expression}
 import org.apache.cassandra.db.partitions.PartitionIterator
 import org.apache.cassandra.exceptions.InvalidRequestException
-import org.apache.cassandra.service.{LuceneStorageProxy, QueryState}
+import org.apache.cassandra.service.{ClientState, LuceneStorageProxy, QueryState}
 import org.apache.cassandra.transport.messages.ResultMessage
 import org.apache.cassandra.transport.messages.ResultMessage.{Prepared, Rows}
 import org.apache.cassandra.utils.{FBUtilities, MD5Digest}
-import org.slf4j.LoggerFactory
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 
 /** [[QueryHandler]] to be used with Lucene searches.
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class IndexQueryHandler extends QueryHandler {
+class IndexQueryHandler extends QueryHandler with Logging {
 
-  type Payload = java.Map[String, ByteBuffer]
+  type Payload = java.util.Map[String, ByteBuffer]
 
   /** @inheritdoc */
   override def prepare(query: String, state: QueryState, payload: Payload): Prepared = {
@@ -111,14 +112,14 @@ class IndexQueryHandler extends QueryHandler {
     statement match {
       case select: SelectStatement =>
         val expressions = luceneExpressions(select, options)
-        if (!expressions.isEmpty) {
-          val time = TimeCounter.create.start
+        if (expressions.nonEmpty) {
+          val time = TimeCounter.start
           try {
             return executeLuceneQuery(select, state, options, expressions)
           } catch {
             case e: ReflectiveOperationException => throw new IndexException(e)
           } finally {
-            logger.debug(s"Lucene search total time: ${time.stop}\n")
+            logger.debug(s"Lucene search total time: $time\n")
           }
         }
       case _ =>
@@ -128,22 +129,22 @@ class IndexQueryHandler extends QueryHandler {
 
   def luceneExpressions(
       select: SelectStatement,
-      options: QueryOptions): java.Map[Expression, Index] = {
-    val map = new java.LinkedHashMap[Expression, Index]
+      options: QueryOptions): Map[Expression, Index] = {
+    val map = mutable.LinkedHashMap.empty[Expression, Index]
     val expressions = select.getRowFilter(options).getExpressions
     val cfs = Keyspace.open(select.keyspace).getColumnFamilyStore(select.columnFamily)
-    val indexes = cfs.indexManager.listIndexes.collect { case index: Index => index }
-    expressions.foreach {
+    val indexes = cfs.indexManager.listIndexes.asScala.collect { case index: Index => index }
+    expressions.forEach {
       case expression: CustomExpression =>
         val clazz = expression.getTargetIndex.options.get(IndexTarget.CUSTOM_INDEX_OPTION_NAME)
         if (clazz == classOf[Index].getCanonicalName) {
           val index = cfs.indexManager.getIndex(expression.getTargetIndex).asInstanceOf[Index]
-          map.put(expression, index)
+          map += expression -> index
         }
-      case expr =>
+      case expr: Expression =>
         indexes.filter(_.supportsExpression(expr.column, expr.operator)).foreach(map.put(expr, _))
     }
-    map
+    map.toMap
   }
 
   def execute(statement: CQLStatement, state: QueryState, options: QueryOptions): ResultMessage = {
@@ -151,12 +152,11 @@ class IndexQueryHandler extends QueryHandler {
     if (result == null) new ResultMessage.Void else result
   }
 
-  @throws[ReflectiveOperationException]
   def executeLuceneQuery(
       select: SelectStatement,
       state: QueryState,
       options: QueryOptions,
-      expressions: java.Map[Expression, Index]): ResultMessage = {
+      expressions: Map[Expression, Index]): ResultMessage = {
 
     if (expressions.size > 1) {
       throw new InvalidRequestException(
@@ -168,9 +168,11 @@ class IndexQueryHandler extends QueryHandler {
     }
 
     // Validate expression
-    val expression = expressions.keys.head
-    val index = expressions.get(expression)
+    val (expression, index) = expressions.head
     val search = index.validate(expression)
+
+    // Get partitioner
+    val partitioner = index.service.partitioner
 
     // Get paging info
     val limit = select.getLimit(options)
@@ -178,17 +180,17 @@ class IndexQueryHandler extends QueryHandler {
 
     // Take control of paging if there is paging and the query requires post processing
     if (search.requiresPostProcessing && page > 0 && page < limit) {
-      executeSortedLuceneQuery(select, state, options)
+      executeSortedLuceneQuery(select, state, options, partitioner)
     } else {
       execute(select, state, options)
     }
   }
 
-  @throws[ReflectiveOperationException]
   def executeSortedLuceneQuery(
       select: SelectStatement,
       state: QueryState,
-      options: QueryOptions): Rows = {
+      options: QueryOptions,
+      partitioner: Partitioner): Rows = {
 
     // Check consistency level
     val consistency = options.getConsistency
@@ -214,7 +216,7 @@ class IndexQueryHandler extends QueryHandler {
 
     // Process data updating paging state
     try {
-      val processedData = pagingState.update(query, data, consistency)
+      val processedData = pagingState.update(query, data, consistency, partitioner)
       val rows = processResults.invoke(
         select,
         processedData,
@@ -229,9 +231,8 @@ class IndexQueryHandler extends QueryHandler {
   }
 }
 
+/** Companion object for [[IndexQueryHandler]]. */
 object IndexQueryHandler {
-
-  val logger = LoggerFactory.getLogger(classOf[IndexQueryHandler])
 
   val getPageSize = classOf[SelectStatement].getDeclaredMethod("getPageSize", classOf[QueryOptions])
   getPageSize.setAccessible(true)
@@ -240,4 +241,21 @@ object IndexQueryHandler {
     "processResults", classOf[PartitionIterator], classOf[QueryOptions], classOf[Int], classOf[Int])
   processResults.setAccessible(true)
 
+  /** Sets this query handler as the Cassandra CQL query handler, replacing the previous one. */
+  def activate(): Unit = {
+    this.synchronized {
+      if (!ClientState.getCQLQueryHandler.isInstanceOf[IndexQueryHandler]) {
+        try {
+          val field = classOf[ClientState].getDeclaredField("cqlQueryHandler")
+          field.setAccessible(true)
+          val modifiersField = classOf[Field].getDeclaredField("modifiers")
+          modifiersField.setAccessible(true)
+          modifiersField.setInt(field, field.getModifiers & ~Modifier.FINAL)
+          field.set(null, new IndexQueryHandler)
+        } catch {
+          case e: Exception => throw new IndexException("Unable to set Lucene CQL query handler", e)
+        }
+      }
+    }
+  }
 }

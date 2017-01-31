@@ -20,6 +20,7 @@ import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.stratio.cassandra.lucene.builder.index.Index;
+import com.stratio.cassandra.lucene.builder.index.Partitioner;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.builder.search.Search;
@@ -62,6 +63,7 @@ public class CassandraUtils {
     private final String indexBean;
     private final String clusteringOrderColumn;
     private final boolean clusteringOrderAscending;
+    private final Partitioner partitioner;
 
     public static CassandraUtilsBuilder builder(String name) {
         return new CassandraUtilsBuilder(name);
@@ -79,7 +81,8 @@ public class CassandraUtils {
                           List<String> clusteringKey,
                           Map<String, Map<String, String>> udts,
                           String clusteringOrderColumn,
-                          boolean clusteringOrderAscending) {
+                          boolean clusteringOrderAscending,
+                          Partitioner partitioner) {
 
         this.keyspace = keyspace;
         this.table = table;
@@ -94,6 +97,7 @@ public class CassandraUtils {
         this.udts = udts;
         this.clusteringOrderColumn = clusteringOrderColumn;
         this.clusteringOrderAscending = clusteringOrderAscending;
+        this.partitioner = partitioner;
 
         qualifiedTable = keyspace + "." + table;
 
@@ -256,7 +260,8 @@ public class CassandraUtils {
     public CassandraUtils createIndex() {
         Index index = index(keyspace, table, indexName).column(indexColumn)
                                                        .refreshSeconds(REFRESH)
-                                                       .indexingThreads(THREADS);
+                                                       .indexingThreads(THREADS)
+                                                       .partitioner(partitioner);
         mappers.forEach(index::mapper);
         analyzers.forEach(index::analyzer);
         execute(index.build());
@@ -414,15 +419,16 @@ public class CassandraUtils {
         return this;
     }
 
-    public int getIndexNumDocs() {
-        return getJMXAttribute(indexBean, "NumDocs").stream().mapToInt(o -> ((Number) o).intValue()).sum() / REPLICATION;
+    public void checkNumDocsInIndex(Integer expectedNumDocs) {
+        List<Long> numDocsInEachNode = getJMXAttribute(indexBean, "NumDocs");
+        Long totalNumDocs = numDocsInEachNode.stream().reduce(0L, (l, r) -> l + r) / (long) REPLICATION;
+        assertEquals("NumDocs in index is not correct", new Long(expectedNumDocs), totalNumDocs);
     }
 
     @SuppressWarnings("unchecked")
     private boolean isIndexBuilt() {
         String bean = String.format("org.apache.cassandra.db:type=%s,keyspace=%s,table=%s", "Tables", keyspace, table);
-        return getJMXAttribute(bean, "BuiltIndexes").stream()
-                                                    .map(o -> (List<String>) o)
-                                                    .allMatch(l -> l.contains(indexName));
+        List<List<String>> builtIndexes = getJMXAttribute(bean, "BuiltIndexes");
+        return builtIndexes.stream().allMatch(l -> l.contains(indexName));
     }
 }

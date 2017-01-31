@@ -73,23 +73,25 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
         this.base = base;
     }
 
-    public String getColumn() {
-        return column;
+    /** {@inheritDoc} */
+    @Override
+    public List<IndexableField> bestEffortIndexableFields(Columns columns) {
+        List<IndexableField> fields = new LinkedList<>();
+        columns.foreachWithMapper(column, c -> fields.addAll(bestEffort(c, this::indexableFields)));
+        return fields;
     }
 
     /** {@inheritDoc} */
     @Override
     public List<IndexableField> indexableFields(Columns columns) {
         List<IndexableField> fields = new LinkedList<>();
-        for (Column c : columns.withMapperName(column)) {
-            fields.addAll(indexableFields(c));
-        }
+        columns.foreachWithMapper(column, c -> fields.addAll(indexableFields(c)));
         return fields;
     }
 
-    private <K> List<IndexableField> indexableFields(Column<?> c) {
-        String name = column.equals(field) ? c.fieldName() : c.fieldName(field);
-        K value = c.value().getOrElse(null);
+    private List<IndexableField> indexableFields(Column c) {
+        String name = column.equals(field) ? c.field() : c.fieldName(field);
+        Object value = c.valueOrNull();
         if (value != null) {
             T base = base(c);
             return indexableFields(name, base);
@@ -121,17 +123,16 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      * Returns the {@link Column} query value resulting from the mapping of the specified object.
      *
      * @param column the column
-     * @param <K> the base type of the column
      * @return the {@link Column} index value resulting from the mapping of the specified object
      */
-    public final <K> T base(Column<K> column) {
-        return column == null ? null : column.value().getOrElse(null) == null ? null : doBase(column);
+    public final T base(Column column) {
+        return column == null ? null : column.valueOrNull() == null ? null : doBase(column);
     }
 
     protected abstract T doBase(@NotNull String field, @NotNull Object value);
 
-    protected final <K> T doBase(Column<K> column) {
-        return doBase(column.fieldName(field), column.value().getOrElse(null));
+    protected final T doBase(Column column) {
+        return doBase(column.fieldName(field), column.valueOrNull());
     }
 
     /** {@inheritDoc} */

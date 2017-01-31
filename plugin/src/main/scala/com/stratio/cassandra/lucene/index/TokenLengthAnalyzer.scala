@@ -16,13 +16,12 @@
 package com.stratio.cassandra.lucene.index
 
 import com.google.common.base.MoreObjects
-import com.stratio.cassandra.lucene.index.TokenLengthAnalyzer._
+import com.stratio.cassandra.lucene.util.Logging
 import org.apache.lucene.analysis.Analyzer.TokenStreamComponents
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 import org.apache.lucene.analysis.util.FilteringTokenFilter
 import org.apache.lucene.analysis.{Analyzer, AnalyzerWrapper}
 import org.apache.lucene.index.IndexWriter
-import org.slf4j.LoggerFactory
 
 /** [[AnalyzerWrapper]] that discards too large tokens.
   *
@@ -30,7 +29,7 @@ import org.slf4j.LoggerFactory
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 class TokenLengthAnalyzer(val analyzer: Analyzer)
-  extends AnalyzerWrapper(analyzer.getReuseStrategy) {
+  extends AnalyzerWrapper(analyzer.getReuseStrategy) with Logging {
 
   /** inheritdoc */
   override protected def getWrappedAnalyzer(fieldName: String): Analyzer = analyzer
@@ -63,9 +62,5 @@ class TokenLengthAnalyzer(val analyzer: Analyzer)
   override def toString: String = {
     MoreObjects.toStringHelper(this).add("analyzer", analyzer).toString
   }
-
 }
 
-object TokenLengthAnalyzer {
-  val logger = LoggerFactory.getLogger(classOf[TokenLengthAnalyzer])
-}

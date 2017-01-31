@@ -207,11 +207,6 @@ public class FuzzySearchIT extends AbstractSearchIT {
     }
 
     @Test
-    public void testFuzzyVarcharFieldWith1MaxExpansions() {
-        filter(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga").maxExpansions(1)).check(2);
-    }
-
-    @Test
     public void testFuzzyVarcharFieldWith10MaxExpansions() {
         filter(fuzzy("varchar_1", "frasesencillasnespaciosperomaslarga").maxExpansions(10)).check(3);
     }

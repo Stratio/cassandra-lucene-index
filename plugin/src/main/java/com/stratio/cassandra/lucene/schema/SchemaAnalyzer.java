@@ -35,6 +35,7 @@ import java.util.Map;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
+
     private final TokenLengthAnalyzer defaultAnalyzer;
     private final Map<String, TokenLengthAnalyzer> fieldAnalyzers;
 
@@ -88,15 +89,6 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
     }
 
     /**
-     * Returns the default {@link Analyzer}.
-     *
-     * @return the default analyzer
-     */
-    public TokenLengthAnalyzer getDefaultAnalyzer() {
-        return defaultAnalyzer;
-    }
-
-    /**
      * Returns the {@link Analyzer} identified by the specified field name.
      *
      * @param fieldName the name of the {@link Analyzer} to be returned
@@ -107,7 +99,7 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
         if (StringUtils.isBlank(fieldName)) {
             throw new IllegalArgumentException("Not empty analyzer name required");
         }
-        String name = Column.parse(fieldName).mapperName();
+        String name = Column.parseMapperName(fieldName);
         TokenLengthAnalyzer analyzer = fieldAnalyzers.get(name);
         if (analyzer != null) {
             return analyzer;

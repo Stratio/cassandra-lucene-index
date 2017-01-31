@@ -21,8 +21,6 @@ import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.NumericUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -37,8 +35,6 @@ import java.util.Set;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class Condition {
-
-    protected static final Logger logger = LoggerFactory.getLogger(Condition.class);
 
     /** The boost to be used. */
     public final Float boost;

@@ -16,15 +16,12 @@
 package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.MoreObjects;
-import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.search.Search;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexableField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.util.LinkedList;
@@ -40,13 +37,14 @@ import java.util.stream.Collectors;
  */
 public class Schema implements Closeable {
 
-    private static final Logger logger = LoggerFactory.getLogger(Schema.class);
-
     /** The {@link Columns} {@link Mapper}s. */
     public final Map<String, Mapper> mappers;
 
     /** The wrapping all-in-one {@link Analyzer}. */
-    private final SchemaAnalyzer analyzer;
+    public final SchemaAnalyzer analyzer;
+
+    /** The default {@link Analyzer}. */
+    public final Analyzer defaultAnalyzer;
 
     /** The names of the mapped cells. */
     private final Set<String> mappedCells;
@@ -60,30 +58,13 @@ public class Schema implements Closeable {
      */
     public Schema(Analyzer defaultAnalyzer, Map<String, Mapper> mappers, Map<String, Analyzer> analyzers) {
         this.mappers = mappers;
+        this.defaultAnalyzer = defaultAnalyzer;
         this.analyzer = new SchemaAnalyzer(defaultAnalyzer, analyzers, mappers);
         mappedCells = mappers.values()
                              .stream()
                              .flatMap(x -> x.mappedColumns.stream())
-                             .map(x -> Column.parse(x).cellName())
+                             .map(Column::parseCellName)
                              .collect(Collectors.toSet());
-    }
-
-    /**
-     * Returns the used {@link Analyzer}.
-     *
-     * @return the used {@link Analyzer}
-     */
-    public Analyzer analyzer() {
-        return analyzer;
-    }
-
-    /**
-     * Returns the default {@link Analyzer}.
-     *
-     * @return the default {@link Analyzer}
-     */
-    public Analyzer defaultAnalyzer() {
-        return analyzer.getDefaultAnalyzer().analyzer();
     }
 
     /**
@@ -103,7 +84,7 @@ public class Schema implements Closeable {
      * @return the mapper, or {@code null} if not found.
      */
     public Mapper mapper(String field) {
-        String mapperName = Column.parse(field).mapperName();
+        String mapperName = Column.parseMapperName(field);
         return mappers.get(mapperName);
     }
 
@@ -136,16 +117,7 @@ public class Schema implements Closeable {
      */
     public List<IndexableField> indexableFields(Columns columns) {
         List<IndexableField> fields = new LinkedList<>();
-        for (Mapper mapper : mappers.values()) {
-            try {
-                fields.addAll(mapper.indexableFields(columns));
-            } catch (IndexException e) {
-                logger.warn("Error in Lucene index:\n\t" +
-                            "while mapping : {}\n\t" +
-                            "with mapper   : {}\n\t" +
-                            "caused by     : {}", columns, mapper, e.getMessage());
-            }
-        }
+        mappers.values().forEach(mapper -> fields.addAll(mapper.bestEffortIndexableFields(columns)));
         return fields;
     }
 
