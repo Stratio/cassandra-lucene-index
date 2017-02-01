@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link MapperBuilder} to build a new {@link DateRangeMapper}.
@@ -25,20 +25,23 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateRangeMapperBuilder> {
 
+    /** The column containing the start date. */
     @JsonProperty("from")
     private final String from;
 
+    /** The column containing the stop date. */
     @JsonProperty("to")
     private final String to;
 
+    /** The date pattern */
     @JsonProperty("pattern")
     private String pattern;
 
     /**
      * Returns a new {@link DateRangeMapperBuilder}.
      *
-     * @param from he column containing the from date
-     * @param to the column containing the to date
+     * @param from the column containing the start date
+     * @param to the column containing the stop date
      */
     public DateRangeMapperBuilder(@JsonProperty("from") String from, @JsonProperty("to") String to) {
         this.from = from;
@@ -46,9 +49,9 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateR
     }
 
     /**
-     * Sets the date pattern to be used.
+     * Sets the date pattern to be used both for columns and fields.
      *
-     * @param pattern the date pattern to be used
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern
      * @return this
      */
     public DateRangeMapperBuilder pattern(String pattern) {

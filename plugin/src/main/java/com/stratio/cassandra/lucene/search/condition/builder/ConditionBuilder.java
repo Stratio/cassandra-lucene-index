@@ -15,11 +15,11 @@
  */
 package com.stratio.cassandra.lucene.search.condition.builder;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.stratio.cassandra.lucene.common.Builder;
 import com.stratio.cassandra.lucene.search.condition.Condition;
-import com.stratio.cassandra.lucene.util.Builder;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 /**
  * {@link Builder} for creating new {@link Condition}s.
@@ -28,7 +28,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
  * @param <K> The specific type of the {@link ConditionBuilder}.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", defaultImpl = BooleanConditionBuilder.class)
 @JsonSubTypes({@JsonSubTypes.Type(value = AllConditionBuilder.class, name = "all"),
                @JsonSubTypes.Type(value = BitemporalConditionBuilder.class, name = "bitemporal"),
                @JsonSubTypes.Type(value = BooleanConditionBuilder.class, name = "boolean"),
@@ -50,7 +50,7 @@ public abstract class ConditionBuilder<T extends Condition, K extends ConditionB
 
     /** The boost for the {@link Condition} to be built. */
     @JsonProperty("boost")
-    protected Float boost;
+    Float boost;
 
     /**
      * Sets the boost for the {@link Condition} to be built. Documents matching this condition will (in addition to the

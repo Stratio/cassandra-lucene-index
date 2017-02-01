@@ -32,8 +32,6 @@ import static org.junit.Assert.*;
  */
 public class BitemporalConditionTest extends AbstractConditionTest {
 
-    private static final String TIMESTAMP_PATTERN = "timestamp";
-
     @Test
     public void testBuildLong() {
         BitemporalCondition condition = new BitemporalConditionBuilder("field").boost(0.7)
@@ -45,10 +43,10 @@ public class BitemporalConditionTest extends AbstractConditionTest {
         assertNotNull("Condition is not built", condition);
         assertEquals("Boost is not set", 0.7f, condition.boost, 0);
         assertEquals("Field is not set", "field", condition.field);
-        assertEquals("tt_from is not set", 1l, condition.ttFrom);
-        assertEquals("tt_to is not set", 2l, condition.ttTo);
-        assertEquals("vt_from is not set", 3l, condition.vtFrom);
-        assertEquals("vt_to is not set", 4l, condition.vtTo);
+        assertEquals("tt_from is not set", 1L, condition.ttFrom);
+        assertEquals("tt_to is not set", 2L, condition.ttTo);
+        assertEquals("vt_from is not set", 3L, condition.vtFrom);
+        assertEquals("vt_to is not set", 4L, condition.vtTo);
     }
 
     @Test
@@ -95,10 +93,9 @@ public class BitemporalConditionTest extends AbstractConditionTest {
     @Test
     public void testQuery() {
 
-        MapperBuilder<?, ?> mapperBuilder = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern(
-                TIMESTAMP_PATTERN);
+        MapperBuilder<?, ?> mapperBuilder = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("yyyy");
         Schema schema = schema().mapper("name", mapperBuilder).build();
-        BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4);
+        BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 2001, 2002, 2003, 2004);
 
         Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);

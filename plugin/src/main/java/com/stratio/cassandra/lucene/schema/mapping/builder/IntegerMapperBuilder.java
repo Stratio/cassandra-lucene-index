@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link SingleColumnMapperBuilder} to build a new {@link IntegerMapper}.
@@ -31,8 +31,8 @@ public class IntegerMapperBuilder extends SingleColumnMapperBuilder<IntegerMappe
     /**
      * Sets the boost to be used.
      *
-     * @param boost The boost to be used.
-     * @return This.
+     * @param boost the boost to be used
+     * @return this
      */
     public IntegerMapperBuilder boost(Float boost) {
         this.boost = boost;

@@ -144,7 +144,7 @@ public class FuzzyCondition extends SingleColumnCondition {
             Term term = new Term(field, value);
             return new FuzzyQuery(term, maxEdits, prefixLength, maxExpansions, transpositions);
         } else {
-            throw new IndexException("Fuzzy queries are not supported by mapper %s", mapper);
+            throw new IndexException("Fuzzy queries are not supported by mapper {}", mapper);
         }
     }
 

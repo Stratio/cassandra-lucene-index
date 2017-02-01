@@ -15,10 +15,10 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
-import com.stratio.cassandra.lucene.builder.Builder;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.stratio.cassandra.lucene.builder.JSONBuilder;
 
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
@@ -44,7 +44,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = GeoShapeMapper.class, name = "geo_shape"),
                @JsonSubTypes.Type(value = DateRangeMapper.class, name = "date_range"),
                @JsonSubTypes.Type(value = BitemporalMapper.class, name = "bitemporal")})
-public abstract class Mapper<T extends Mapper> extends Builder {
+public abstract class Mapper<T extends Mapper> extends JSONBuilder {
 
     /** If the field must be validated. */
     @JsonProperty("validated")

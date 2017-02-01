@@ -15,6 +15,8 @@
  */
 package com.stratio.cassandra.lucene.testsAT.util;
 
+import com.stratio.cassandra.lucene.builder.index.Partitioner;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.SingleColumnMapper;
 
@@ -28,22 +30,27 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
  */
 public class CassandraUtilsBuilder {
 
-    private final String name;
+    private final String keyspace;
     private String table = TABLE;
     private String indexName = INDEX;
     private String indexColumn = COLUMN;
     private Boolean useNewQuerySyntax = USE_NEW_QUERY_SYNTAX;
     private Map<String, String> columns;
     private Map<String, Mapper> mappers;
+    private Map<String, Analyzer> analyzers;
     private List<String> partitionKey;
     private List<String> clusteringKey;
+    private String clusteringOrderColumn;
+    private boolean clusteringOrderAscending;
+    private Partitioner partitioner = PARTITIONER;
+
     private final Map<String, Map<String, String>> udts;
 
-    CassandraUtilsBuilder(String name) {
-        super();
-        this.name = name;
+    CassandraUtilsBuilder(String keyspacePrefix) {
+        this.keyspace = keyspacePrefix + "_" + Math.abs(new Random().nextLong());
         this.columns = new HashMap<>();
         this.mappers = new HashMap<>();
+        this.analyzers = new HashMap<>();
         this.partitionKey = new ArrayList<>();
         this.clusteringKey = new ArrayList<>();
         this.udts = new LinkedHashMap<>();
@@ -122,7 +129,23 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
-    public SingleColumnMapper<?> defaultMapper(String name) {
+    public CassandraUtilsBuilder withAnalyzer(String name, Analyzer analyzer) {
+        analyzers.put(name, analyzer);
+        return this;
+    }
+
+    public CassandraUtilsBuilder withClusteringOrder(String columnName, boolean ascending) {
+        clusteringOrderColumn = columnName;
+        clusteringOrderAscending = ascending;
+        return this;
+    }
+
+    public CassandraUtilsBuilder withPartitioner(Partitioner partitioner) {
+        this.partitioner = partitioner;
+        return this;
+    }
+
+    private SingleColumnMapper<?> defaultMapper(String name) {
         switch (name) {
             case "ascii":
                 return stringMapper();
@@ -149,7 +172,7 @@ public class CassandraUtilsBuilder {
             case "text":
                 return textMapper();
             case "timestamp":
-                return dateMapper().pattern("yyyy/MM/dd");
+                return dateMapper().pattern("yyyy/MM/dd HH:mm:ss.SSS");
             case "timeuuid":
                 return uuidMapper();
             case "tinyint":
@@ -166,7 +189,6 @@ public class CassandraUtilsBuilder {
     }
 
     public CassandraUtils build() {
-        String keyspace = name + "_" + Math.abs(new Random().nextLong());
         return new CassandraUtils(keyspace,
                                   table,
                                   indexName,
@@ -174,8 +196,12 @@ public class CassandraUtilsBuilder {
                                   useNewQuerySyntax,
                                   columns,
                                   mappers,
+                                  analyzers,
                                   partitionKey,
                                   clusteringKey,
-                                  udts);
+                                  udts,
+                                  clusteringOrderColumn,
+                                  clusteringOrderAscending,
+                                  partitioner);
     }
 }

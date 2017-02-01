@@ -18,8 +18,6 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.builder.TextMapperBuilder;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.index.DocValuesType;
-import org.apache.lucene.search.SortField;
 import org.junit.Test;
 
 import java.util.UUID;
@@ -92,7 +90,7 @@ public class TextMapperTest extends AbstractMapperTest {
     @Test
     public void testValueLong() {
         TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
-        String parsed = mapper.base("test", 3l);
+        String parsed = mapper.base("test", 3L);
         assertEquals("Base for longs is wrong", "3", parsed);
     }
 
@@ -200,7 +198,7 @@ public class TextMapperTest extends AbstractMapperTest {
     @Test
     public void testExtractAnalyzers() {
         TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
-        assertEquals("Method #getAnalyzer is wrong", "org.apache.lucene.analysis.en.EnglishAnalyzer", mapper.analyzer);
+        assertEquals("Method #analyzer is wrong", "org.apache.lucene.analysis.en.EnglishAnalyzer", mapper.analyzer);
     }
 
     @Test

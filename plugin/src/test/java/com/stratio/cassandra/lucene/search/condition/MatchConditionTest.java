@@ -21,7 +21,6 @@ import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.search.condition.builder.MatchConditionBuilder;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
@@ -30,11 +29,12 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
-import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
+import static com.stratio.cassandra.lucene.search.SearchBuilders.match;
 import static org.junit.Assert.*;
 
 /**
@@ -248,7 +248,7 @@ public class MatchConditionTest extends AbstractConditionTest {
     private class MockedMapper extends SingleColumnMapper.SingleFieldMapper<UUID> {
 
         MockedMapper() {
-            super("field", null, true, true, null, UUID.class, UUIDType.instance);
+            super("field", null, true, true, null, UUID.class, Collections.singletonList(UUID.class));
         }
 
         @Override
@@ -274,7 +274,7 @@ public class MatchConditionTest extends AbstractConditionTest {
 
     private class MockedMapperBuilder extends MapperBuilder<MockedMapper, MockedMapperBuilder> {
 
-        private MockedMapper mapper;
+        private final MockedMapper mapper;
 
         MockedMapperBuilder(MockedMapper mapper) {
             this.mapper = mapper;

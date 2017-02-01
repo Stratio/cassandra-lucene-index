@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigInteger;
@@ -42,21 +41,14 @@ public class BigIntegerMapper extends KeywordMapper {
 
     /**
      * Builds a new {@link BigDecimalMapper} using the specified max number of digits.
-     *  @param field the name of the field
+     *
+     * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
-     * @param digits The max number of digits. If {@code null}, the {@link #DEFAULT_DIGITS} will be used.
+     * @param digits the max number of digits, defaults to {@link #DEFAULT_DIGITS}
      */
     public BigIntegerMapper(String field, String column, Boolean validated, Integer digits) {
-        super(field,
-              column,
-              validated,
-              ByteType.instance,
-              IntegerType.instance,
-              Int32Type.instance,
-              LongType.instance,
-              ShortType.instance,
-              UTF8Type.instance);
+        super(field, column, validated, INTEGER_TYPES);
 
         if (digits != null && digits <= 0) {
             throw new IndexException("Positive digits required");
@@ -88,12 +80,12 @@ public class BigIntegerMapper extends KeywordMapper {
         try {
             bi = new BigInteger(svalue);
         } catch (NumberFormatException e) {
-            throw new IndexException("Field '%s' requires a base 10 integer, but found '%s'", name, svalue);
+            throw new IndexException("Field '{}' requires a base 10 integer, but found '{}'", name, svalue);
         }
 
         // Check size
         if (bi.abs().toString().length() > digits) {
-            throw new IndexException("Field '%s' with value '%s' has more than %d digits", name, value, digits);
+            throw new IndexException("Field '{}' with value '{}' has more than %d digits", name, value, digits);
         }
 
         // Map

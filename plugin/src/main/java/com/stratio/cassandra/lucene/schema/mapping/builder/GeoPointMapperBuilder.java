@@ -15,9 +15,9 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link MapperBuilder} to build a new {@link GeoPointMapper}.

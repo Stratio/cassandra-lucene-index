@@ -16,8 +16,8 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import org.apache.cassandra.db.marshal.BooleanType;
-import org.apache.cassandra.db.marshal.UTF8Type;
+
+import java.util.Arrays;
 
 /**
  * A {@link Mapper} to map a boolean field.
@@ -34,12 +34,13 @@ public class BooleanMapper extends KeywordMapper {
 
     /**
      * Builds a new {@link BooleanMapper}.
-     *  @param field the name of the field
+     *
+     * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
      */
     public BooleanMapper(String field, String column, Boolean validated) {
-        super(field, column, validated, UTF8Type.instance, BooleanType.instance);
+        super(field, column, validated, Arrays.asList(String.class, Boolean.class));
     }
 
     /** {@inheritDoc} */
@@ -50,7 +51,7 @@ public class BooleanMapper extends KeywordMapper {
         } else if (value instanceof String) {
             return base(name, (String) value);
         }
-        throw new IndexException("Field '%s' requires a boolean, but found '%s'", name, value);
+        throw new IndexException("Field '{}' requires a boolean, but found '{}'", name, value);
     }
 
     private String base(String name, String value) {
@@ -59,7 +60,7 @@ public class BooleanMapper extends KeywordMapper {
         } else if (value.equalsIgnoreCase(FALSE)) {
             return FALSE;
         } else {
-            throw new IndexException("Boolean field '%s' requires either '%s' or '%s', but found '%s'",
+            throw new IndexException("Boolean field '{}' requires either '{}' or '{}', but found '{}'",
                                      name, TRUE, FALSE, value);
         }
     }

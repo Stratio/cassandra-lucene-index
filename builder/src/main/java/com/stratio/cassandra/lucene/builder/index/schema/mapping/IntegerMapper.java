@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * A {@link Mapper} to map an integer field.

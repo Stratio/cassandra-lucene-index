@@ -21,8 +21,8 @@ import com.spatial4j.core.shape.Circle;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.common.GeoDistanceUnit;
+import com.stratio.cassandra.lucene.common.GeospatialUtils;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -30,9 +30,9 @@ import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 
+import static com.stratio.cassandra.lucene.common.GeospatialUtils.CONTEXT;
 import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST_NOT;
-import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
 
 /**
  * A {@link Condition} that matches documents containing a shape contained between two certain circles.
@@ -90,7 +90,7 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
     /** {@inheritDoc} */
     @Override
     public Query doQuery(GeoPointMapper mapper, Analyzer analyzer) {
-        SpatialStrategy spatialStrategy = mapper.distanceStrategy;
+        SpatialStrategy spatialStrategy = mapper.strategy;
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         builder.add(query(maxGeoDistance, spatialStrategy), FILTER);
         if (minGeoDistance != null) {

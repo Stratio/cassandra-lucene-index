@@ -16,19 +16,16 @@
 package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.MoreObjects;
-import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.config.ColumnDefinition;
+import com.stratio.cassandra.lucene.search.Search;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.document.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.lucene.index.IndexableField;
 
 import java.io.Closeable;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,13 +37,14 @@ import java.util.stream.Collectors;
  */
 public class Schema implements Closeable {
 
-    private static final Logger logger = LoggerFactory.getLogger(Schema.class);
-
     /** The {@link Columns} {@link Mapper}s. */
-    private final Map<String, Mapper> mappers;
+    public final Map<String, Mapper> mappers;
 
     /** The wrapping all-in-one {@link Analyzer}. */
-    private final SchemaAnalyzer analyzer;
+    public final SchemaAnalyzer analyzer;
+
+    /** The default {@link Analyzer}. */
+    public final Analyzer defaultAnalyzer;
 
     /** The names of the mapped cells. */
     private final Set<String> mappedCells;
@@ -60,30 +58,13 @@ public class Schema implements Closeable {
      */
     public Schema(Analyzer defaultAnalyzer, Map<String, Mapper> mappers, Map<String, Analyzer> analyzers) {
         this.mappers = mappers;
+        this.defaultAnalyzer = defaultAnalyzer;
         this.analyzer = new SchemaAnalyzer(defaultAnalyzer, analyzers, mappers);
         mappedCells = mappers.values()
                              .stream()
                              .flatMap(x -> x.mappedColumns.stream())
-                             .map(x -> x.contains(Column.UDT_SEPARATOR) ? x.split(Column.UDT_PATTERN)[0] : x)
+                             .map(Column::parseCellName)
                              .collect(Collectors.toSet());
-    }
-
-    /**
-     * Returns the used {@link Analyzer}.
-     *
-     * @return the used {@link Analyzer}
-     */
-    public Analyzer getAnalyzer() {
-        return analyzer;
-    }
-
-    /**
-     * Returns the default {@link Analyzer}.
-     *
-     * @return the default {@link Analyzer}
-     */
-    public Analyzer getDefaultAnalyzer() {
-        return analyzer.getDefaultAnalyzer().getAnalyzer();
     }
 
     /**
@@ -92,8 +73,8 @@ public class Schema implements Closeable {
      * @param fieldName a field name
      * @return an {@link Analyzer}
      */
-    public Analyzer getAnalyzer(String fieldName) {
-        return analyzer.getAnalyzer(fieldName).getAnalyzer();
+    public Analyzer analyzer(String fieldName) {
+        return analyzer.getAnalyzer(fieldName).analyzer();
     }
 
     /**
@@ -102,20 +83,9 @@ public class Schema implements Closeable {
      * @param field a field name
      * @return the mapper, or {@code null} if not found.
      */
-    public Mapper getMapper(String field) {
-        String mapperName = Column.getMapperName(field);
+    public Mapper mapper(String field) {
+        String mapperName = Column.parseMapperName(field);
         return mappers.get(mapperName);
-    }
-
-    /**
-     * Returns the {@link SingleColumnMapper} identified by the specified field name.
-     *
-     * @param field the field name
-     * @return the mapper, or {@code null} if not found
-     */
-    public SingleColumnMapper getSingleColumnMapper(String field) {
-        Mapper mapper = getMapper(field);
-        return mapper == null ? null : (SingleColumnMapper) mapper;
     }
 
     /**
@@ -123,7 +93,7 @@ public class Schema implements Closeable {
      *
      * @return the names of the mapped cells
      */
-    public Set<String> getMappedCells() {
+    public Set<String> mappedCells() {
         return mappedCells;
     }
 
@@ -139,45 +109,45 @@ public class Schema implements Closeable {
     }
 
     /**
-     * Adds to the specified {@link Document} the Lucene fields representing the specified {@link Columns}.
+     * Returns the Lucene {@link IndexableField}s resulting from the mapping of the specified {@link Columns}. <p> This
+     * is done in a best-effort way, so each mapper errors are logged and ignored.
      *
-     * This is done in a best-effort way, so each mapper errors are logged and ignored.
-     *
-     * @param document the Lucene {@link Document} where the fields are going to be added
      * @param columns the {@link Columns} to be added
+     * @return a list of indexable fields
      */
-    public void addFields(Document document, Columns columns) {
-        for (Mapper mapper : mappers.values()) {
-            try {
-                mapper.addFields(document, columns);
-            } catch (IndexException e) {
-                logger.error("Error in Lucene index:\n\t" +
-                             "while mapping : {}\n\t" +
-                             "with mapper   : {}\n\t" +
-                             "caused by     : {}", columns, mapper, e.getMessage());
+    public List<IndexableField> indexableFields(Columns columns) {
+        List<IndexableField> fields = new LinkedList<>();
+        mappers.values().forEach(mapper -> fields.addAll(mapper.bestEffortIndexableFields(columns)));
+        return fields;
+    }
+
+    /**
+     * Returns the Lucene {@link IndexableField}s resulting from the mapping of the specified {@link Columns} only if
+     * they are required by the post processing phase of the specified {@link Search}.
+     *
+     * @param columns the {@link Columns} to be added
+     * @param search a search
+     * @return a list of indexable fields
+     */
+    public List<IndexableField> postProcessingIndexableFields(Columns columns, Search search) {
+        List<IndexableField> fields = new LinkedList<>();
+        search.postProcessingFields().forEach(field -> {
+            Mapper mapper = mapper(field);
+            if (mapper != null) {
+                fields.addAll(mapper.indexableFields(columns));
             }
-        }
+        });
+        return fields;
     }
 
     /**
-     * Checks if this is consistent with the specified column family metadata.
+     * Returns if this has any mapping for the specified cell.
      *
-     * @param metadata the column family metadata to be validated
+     * @param cell the cell name
+     * @return {@code true} if there is any mapping for the cell, {@code false} otherwise
      */
-    public void validate(CFMetaData metadata) {
-        for (Mapper mapper : mappers.values()) {
-            mapper.validate(metadata);
-        }
-    }
-
-    /**
-     * Returns if this has any mapping for the specified column definition.
-     *
-     * @param column the column definition
-     * @return {@code true} if there is any mapping for the column, {@code false} otherwise
-     */
-    public boolean maps(ColumnDefinition column) {
-        return mappers.values().stream().anyMatch(mapper -> mapper.maps(column));
+    public boolean mapsCell(String cell) {
+        return mappers.values().stream().anyMatch(mapper -> mapper.mapsCell(cell));
     }
 
     /** {@inheritDoc} */

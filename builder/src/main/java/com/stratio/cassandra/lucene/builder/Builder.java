@@ -15,8 +15,10 @@
  */
 package com.stratio.cassandra.lucene.builder;
 
+import com.stratio.cassandra.lucene.builder.common.GeoShape;
 import com.stratio.cassandra.lucene.builder.common.GeoTransformation;
 import com.stratio.cassandra.lucene.builder.index.Index;
+import com.stratio.cassandra.lucene.builder.index.Partitioner;
 import com.stratio.cassandra.lucene.builder.index.schema.Schema;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.ClasspathAnalyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.SnowballAnalyzer;
@@ -25,53 +27,17 @@ import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.*;
 import com.stratio.cassandra.lucene.builder.search.sort.GeoDistanceSortField;
 import com.stratio.cassandra.lucene.builder.search.sort.SimpleSortField;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 
-import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * Abstract builder.
+ * Utility class for creating Lucene index statements.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class Builder {
-
-    /** The embedded JSON serializer. */
-    private static final ObjectMapper jsonMapper = new ObjectMapper();
-
-    static {
-        jsonMapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, true);
-        jsonMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        jsonMapper.configure(SerializationConfig.Feature.AUTO_DETECT_IS_GETTERS, false);
-        jsonMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
-    }
-
-    /**
-     * Returns the JSON {@code String} representation of the specified object.
-     *
-     * @return the JSON {@code String}
-     */
-    @Override
-    public String toString() {
-        return build();
-    }
-
-    /**
-     * Returns the JSON representation of this {@link Builder}.
-     *
-     * @return a JSON representing this
-     */
-    public String build() {
-        try {
-            return jsonMapper.writeValueAsString(this);
-        } catch (IOException e) {
-            throw new BuilderException(e, "Error formatting JSON");
-        }
-    }
 
     /**
      * Returns a new index creation statement using the session's keyspace.
@@ -280,8 +246,7 @@ public abstract class Builder {
      * Returns a new {@link SnowballAnalyzer} for the specified language and stopwords.
      *
      * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
-     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
-     * Basque and Catalan.
+     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Hungarian and Turkish.
      * @return a new snowball analyzer
      */
     public static SnowballAnalyzer snowballAnalyzer(String language) {
@@ -326,11 +291,41 @@ public abstract class Builder {
     }
 
     /**
+     * Returns a new {@link BooleanCondition} with the specified mandatory conditions participating in scoring.
+     *
+     * @param conditions the mandatory conditions
+     * @return a new boolean condition with the specified mandatory conditions
+     */
+    public static BooleanCondition must(Condition<?>... conditions) {
+        return bool().must(conditions);
+    }
+
+    /**
+     * Returns a new {@link BooleanCondition} with the specified optional conditions participating in scoring.
+     *
+     * @param conditions the optional conditions
+     * @return a new boolean condition with the specified optional conditions
+     */
+    public static BooleanCondition should(Condition<?>... conditions) {
+        return bool().should(conditions);
+    }
+
+    /**
+     * Returns a new {@link BooleanCondition} with the specified mandatory not conditions not participating in scoring.
+     *
+     * @param conditions the mandatory not conditions
+     * @return a new boolean condition with the specified mandatory not conditions
+     */
+    public static BooleanCondition not(Condition<?>... conditions) {
+        return bool().not(conditions);
+    }
+
+    /**
      * Returns a new {@link ContainsCondition}.
      *
      * @param field the name of the field to be matched
      * @param values the values of the field to be matched
-     * @return a new conatins condition
+     * @return a new contains condition
      */
     public static ContainsCondition contains(String field, Object... values) {
         return new ContainsCondition(field, values);
@@ -442,10 +437,10 @@ public abstract class Builder {
      * @return a new geo bounding box condition
      */
     public static GeoBBoxCondition geoBBox(String field,
-                                           double minLongitude,
-                                           double maxLongitude,
                                            double minLatitude,
-                                           double maxLatitude) {
+                                           double maxLatitude,
+                                           double minLongitude,
+                                           double maxLongitude) {
         return new GeoBBoxCondition(field, minLatitude, maxLatitude, minLongitude, maxLongitude);
     }
 
@@ -453,93 +448,38 @@ public abstract class Builder {
      * Returns a new {@link GeoDistanceCondition} with the specified field reference point.
      *
      * @param field the name of the field to be matched
-     * @param longitude the longitude of the reference point
      * @param latitude the latitude of the reference point
+     * @param longitude the longitude of the reference point
      * @param maxDistance the max allowed distance
      * @return a new geo distance condition
      */
     public static GeoDistanceCondition geoDistance(String field,
-                                                   double longitude,
                                                    double latitude,
+                                                   double longitude,
                                                    String maxDistance) {
         return new GeoDistanceCondition(field, latitude, longitude, maxDistance);
     }
 
     /**
-     * Returns a new {@link GeoShapeCondition} with the specified field reference point.
+     * Returns a new {@link GeoShapeCondition} with the specified shape.
      *
      * @param field the name of the field
-     * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
-     * @return a new geos hape condition
+     * @param shape the shape
+     * @return a new geo shape condition
      */
-    public static GeoShapeCondition geoShape(String field, String shape) {
+    public static GeoShapeCondition geoShape(String field, GeoShape shape) {
         return new GeoShapeCondition(field, shape);
     }
 
     /**
-     * Returns a new {@link GeoTransformation.BBox}.
+     * Returns a new {@link GeoShapeCondition} with the specified shape.
      *
-     * @return a new bbox transformation
+     * @param field the name of the field
+     * @param shape the shape in WKT format
+     * @return a new geo shape condition
      */
-    public static GeoTransformation.BBox bboxGeoTransformation() {
-        return new GeoTransformation.BBox();
-    }
-
-    /**
-     * Returns a new {@link GeoTransformation.Buffer}.
-     *
-     * @return a new buffer transformation
-     */
-    public static GeoTransformation.Buffer bufferGeoTransformation() {
-        return new GeoTransformation.Buffer();
-    }
-
-    /**
-     * Returns a new {@link GeoTransformation.Centroid}.
-     *
-     * @return a new centroid transformation
-     */
-    public static GeoTransformation.Centroid centroidGeoTransformation() {
-        return new GeoTransformation.Centroid();
-    }
-
-    /**
-     * Returns a new {@link GeoTransformation.Centroid}.
-     *
-     * @return a new convex hull transformation
-     */
-    public static GeoTransformation.ConvexHull convexHullGeoTransformation() {
-        return new GeoTransformation.ConvexHull();
-    }
-
-    /**
-     * Returns a new {@link GeoTransformation.Difference}.
-     *
-     * @param shape the shape to be subtracted
-     * @return a new difference transformation
-     */
-    public static GeoTransformation.Difference differenceGeoTransformation(String shape) {
-        return new GeoTransformation.Difference(shape);
-    }
-
-    /**
-     * Returns a new {@link GeoTransformation.Intersection}.
-     *
-     * @param shape the shape to be intersected
-     * @return a new intersection transformation
-     */
-    public static GeoTransformation.Intersection intersectionGeoTransformation(String shape) {
-        return new GeoTransformation.Intersection(shape);
-    }
-
-    /**
-     * Returns a new {@link GeoTransformation.Union}.
-     *
-     * @param shape the shape to be added
-     * @return a new union transformation
-     */
-    public static GeoTransformation.Union unionGeoTransformation(String shape) {
-        return new GeoTransformation.Union(shape);
+    public static GeoShapeCondition geoShape(String field, String shape) {
+        return geoShape(field, wkt(shape));
     }
 
     /**
@@ -565,12 +505,319 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoDistanceSortField} for the specified field.
      *
-     * @param mapper the name of the field to be used for sort
-     * @param longitude the longitude in degrees of the point to min distance sort by
+     * @param field the name of the geo point field mapper to be used for sorting
      * @param latitude the latitude in degrees of the point to min distance sort by
+     * @param longitude the longitude in degrees of the point to min distance sort by
      * @return a new geo distance sort field
      */
-    public static GeoDistanceSortField geoDistanceField(String mapper, double longitude, double latitude) {
-        return new GeoDistanceSortField(mapper, longitude, latitude);
+    public static GeoDistanceSortField geoDistance(String field, double latitude, double longitude) {
+        return new GeoDistanceSortField(field, latitude, longitude);
     }
+
+    /**
+     * Returns a new {@link GeoTransformation.BBox} transformation to be applied to {@link GeoShapeMapper}s.
+     *
+     * @return a new bbox transformation
+     */
+    public static GeoTransformation.BBox bbox() {
+        return new GeoTransformation.BBox();
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Buffer} transformation to be applied to {@link GeoShapeMapper}s.
+     *
+     * @return a new buffer transformation
+     */
+    public static GeoTransformation.Buffer buffer() {
+        return new GeoTransformation.Buffer();
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Centroid} transformation to be applied to {@link GeoShapeMapper}s.
+     *
+     * @return a new centroid transformation
+     */
+    public static GeoTransformation.Centroid centroid() {
+        return new GeoTransformation.Centroid();
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Centroid} transformation to be applied to {@link GeoShapeMapper}s.
+     *
+     * @return a new convex hull transformation
+     */
+    public static GeoTransformation.ConvexHull convexHull() {
+        return new GeoTransformation.ConvexHull();
+    }
+
+    /**
+     * Returns a new {@link GeoShape.WKT}.
+     *
+     * @param value the WKT string value
+     * @return a new bbox transformation
+     */
+    public static GeoShape.WKT wkt(String value) {
+        return new GeoShape.WKT(value);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.BBox}, representing the bounding box around the specified {@link GeoShape}.
+     *
+     * @param shape the base shape
+     * @return a new bbox transformation
+     */
+    public static GeoShape.BBox bbox(GeoShape shape) {
+        return new GeoShape.BBox(shape);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.BBox}, representing the bounding box around the specified WKT shape.
+     *
+     * @param shape the base shape in WKT format
+     * @return a new bbox transformation
+     */
+    public static GeoShape.BBox bbox(String shape) {
+        return bbox(wkt(shape));
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Buffer}, representing a buffer around the specified {@link GeoShape}.
+     *
+     * @param shape the base shape
+     * @return a new buffer transformation
+     */
+    public static GeoShape.Buffer buffer(GeoShape shape) {
+        return new GeoShape.Buffer(shape);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Buffer}, representing a buffer around the specified WKT shape.
+     *
+     * @param shape the base shape in WKT format
+     * @return a new buffer transformation
+     */
+    public static GeoShape.Buffer buffer(String shape) {
+        return buffer(wkt(shape));
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Centroid}, representing the centroid of the specified {@link GeoShape}.
+     *
+     * @param shape the base shape
+     * @return a new centroid transformation
+     */
+    public static GeoShape.Centroid centroid(GeoShape shape) {
+        return new GeoShape.Centroid(shape);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Centroid}, representing the centroid of the specified WKT shape.
+     *
+     * @param shape the base shape in WKT format
+     * @return a new centroid transformation
+     */
+    public static GeoShape.Centroid centroid(String shape) {
+        return centroid(wkt(shape));
+    }
+
+    /**
+     * Returns a new {@link GeoShape.ConvexHull}, representing the convex hull of the specified {@link GeoShape}.
+     *
+     * @param shape the base shape
+     * @return a new convex hull transformation
+     */
+    public static GeoShape.ConvexHull convexHull(GeoShape shape) {
+        return new GeoShape.ConvexHull(shape);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.ConvexHull}, representing the convex hull of the specified WKT shape.
+     *
+     * @param shape the base shape in WKT format
+     * @return a new convex hull transformation
+     */
+    public static GeoShape.ConvexHull convexHull(String shape) {
+        return convexHull(wkt(shape));
+    }
+
+    /**
+     * Returns a new empty {@link GeoShape.Difference}.
+     *
+     * @return a new difference transformation
+     */
+    public static GeoShape.Difference difference() {
+        return new GeoShape.Difference();
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Difference}, representing the difference of the specified {@link GeoShape}s.
+     *
+     * @param shapes the shapes to be subtracted
+     * @return a new difference transformation
+     */
+    public static GeoShape.Difference difference(GeoShape... shapes) {
+        return new GeoShape.Difference(shapes);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Difference}, representing the difference of the specified {@link GeoShape}s.
+     *
+     * @param shapes the shapes to be subtracted
+     * @return a new difference transformation
+     */
+    public static GeoShape.Difference difference(List<GeoShape> shapes) {
+        return new GeoShape.Difference(shapes);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Difference}, representing the difference of the specified WKT shapes.
+     *
+     * @param shapes the shapes to be subtracted in WKT format
+     * @return a new difference transformation
+     */
+    public static GeoShape.Difference difference(String... shapes) {
+        return difference(Stream.of(shapes).map(Builder::wkt).collect(Collectors.toList()));
+    }
+
+    /**
+     * Returns a new empty {@link GeoShape.Intersection}.
+     *
+     * @return a new intersection transformation
+     */
+    public static GeoShape.Intersection intersection() {
+        return new GeoShape.Intersection();
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Intersection}, representing the intersection of the specified {@link GeoShape}s.
+     *
+     * @param shapes the shapes to be intersected
+     * @return a new intersection transformation
+     */
+    public static GeoShape.Intersection intersection(GeoShape... shapes) {
+        return new GeoShape.Intersection(shapes);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Intersection}, representing the intersection of the specified {@link GeoShape}s.
+     *
+     * @param shapes the shapes to be intersected
+     * @return a new intersection transformation
+     */
+    public static GeoShape.Intersection intersection(List<GeoShape> shapes) {
+        return new GeoShape.Intersection(shapes);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Intersection}, representing the intersection of the specified WKT shapes.
+     *
+     * @param shapes the shapes to be intersected
+     * @return a new intersection transformation
+     */
+    public static GeoShape.Intersection intersection(String... shapes) {
+        return intersection(Stream.of(shapes).map(Builder::wkt).collect(Collectors.toList()));
+    }
+
+    /**
+     * Returns a new empty {@link GeoShape.Union}.
+     *
+     * @return a new union transformation
+     */
+    public static GeoShape.Union union() {
+        return new GeoShape.Union();
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Union}, representing the union of the specified {@link GeoShape}s.
+     *
+     * @param shapes the shapes to be added
+     * @return a new union transformation
+     */
+    public static GeoShape.Union union(GeoShape... shapes) {
+        return new GeoShape.Union(shapes);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Union}, representing the union of the specified {@link GeoShape}s.
+     *
+     * @param shapes the shapes to be added
+     * @return a new union transformation
+     */
+    public static GeoShape.Union union(List<GeoShape> shapes) {
+        return new GeoShape.Union(shapes);
+    }
+
+    /**
+     * Returns a new {@link GeoShape.Union}, representing the union of the specified WKT shapes.
+     *
+     * @param shapes the shapes to be subtracted in WKT format
+     * @return a new difference transformation
+     */
+    public static GeoShape.Union union(String... shapes) {
+        return union(Stream.of(shapes).map(Builder::wkt).collect(Collectors.toList()));
+    }
+
+    /**
+     * Returns a new {@link Partitioner.None} to not partitioning the index.
+     *
+     * Index partitioning is useful to speed up some queries to the detriment of others, depending on the
+     * implementation. It is also useful to overcome the Lucene's hard limit of 2147483519 documents per index.
+     *
+     * @return a new no-action partitioning, equivalent to just don't partitioning the index
+     */
+    public static Partitioner.None nonePartitioner() {
+        return new Partitioner.None();
+    }
+
+    /**
+     * Returns a new {@link Partitioner.OnToken} based on the partition key token. Rows will be stored in an index
+     * partition determined by the hash of the partition key token. Partition-directed searches will be routed to a
+     * single partition, increasing performance. However, token range searches will be routed to all the partitions,
+     * with a slightly lower performance.
+     *
+     * This partitioner guarantees an excellent load balancing between index partitions.
+     *
+     * @param partitions the number of index partitions per node
+     * @return a new partitioner based on Cassandra's partitioning token
+     */
+    public static Partitioner.OnToken partitionerOnToken(int partitions) {
+        return new Partitioner.OnToken(partitions);
+    }
+
+    /**
+     * Returns a new {@link Partitioner.OnColumn} based on the specified partition key column. Rows will be stored in an
+     * index partition determined by the hash of the specified partition key column. Both partition-directed as well as
+     * token range searches containing an CQL equality filter over the selected partition key column will be routed to a
+     * single partition, increasing performance. However, token range searches without filters over the partitioning
+     * column will be routed to all the partitions, with a slightly lower performance.
+     *
+     * Load balancing depends on the cardinality and distribution of the values of the partitioning column. Both high
+     * cardinalities and uniform distributions will provide better load balancing between partitions.
+     *
+     * @param partitions the number of index partitions per node
+     * @param column the name of the partition key column
+     * @return a new partitioner based on a partitioning key column
+     */
+    public static Partitioner.OnColumn partitionerOnColumn(int partitions, String column) {
+        return new Partitioner.OnColumn(partitions, column);
+    }
+
+    /**
+     * Returns a new {@link Partitioner.OnVirtualNode} based on the partition key token. Rows will be stored in an index
+     * partition determined by the virtual nodes token range. Partition-directed searches will be routed to a single
+     * partition, increasing performance. However, unbounded token range searches will be routed to all the partitions,
+     * with a slightly lower performance. Virtual node token range queries will be routed to only one partition which
+     * increase performance in spark queries with vnodes rather than partitioning on token.
+     *
+     * This partitioner load balance depends on virtual node token ranges assignation. The more virtual nodes, the
+     * better distribution (more similarity in number of tokens that falls inside any virtual node) between virtual
+     * nodes, the better load balance with this partitioner.
+     *
+     * @param virtualNodesPerPartition the number of virtual nodes per each partition
+     * @return a new partitioner based on Cassandra's vnode partitioning token ranges
+     */
+    public static Partitioner.OnVirtualNode partitionerOnVirtualNodes(int virtualNodesPerPartition) {
+        return new Partitioner.OnVirtualNode(virtualNodesPerPartition);
+    }
+
 }

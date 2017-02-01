@@ -21,6 +21,9 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collections;
+import java.util.Set;
+
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**
@@ -65,14 +68,19 @@ public class SimpleSortField extends SortField {
         if (field.equalsIgnoreCase("score")) {
             return FIELD_SCORE;
         }
-        Mapper mapper = schema.getMapper(field);
+        Mapper mapper = schema.mapper(field);
         if (mapper == null) {
-            throw new IndexException("No mapper found for sortFields field '%s'", field);
+            throw new IndexException("No mapper found for sortFields field '{}'", field);
         } else if (!mapper.docValues) {
-            throw new IndexException("Field '%s' does not support sorting", field);
+            throw new IndexException("Field '{}' does not support sorting", field);
         } else {
             return mapper.sortField(field, reverse);
         }
+    }
+
+    /** {@inheritDoc} */
+    public Set<String> postProcessingFields() {
+        return Collections.singleton(field);
     }
 
     /** {@inheritDoc} */

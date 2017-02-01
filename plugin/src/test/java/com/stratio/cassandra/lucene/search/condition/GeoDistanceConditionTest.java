@@ -20,9 +20,8 @@ import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;
+import org.apache.lucene.spatial.composite.IntersectsRPTVerifyQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
@@ -137,11 +136,8 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         BooleanClause maxClause = booleanQuery.clauses().get(0);
         assertEquals("Query occur is wrong", BooleanClause.Occur.FILTER, maxClause.getOccur());
         query = maxClause.getQuery();
-        assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
-        assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
-                     "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)",
-                     query.toString());
+        assertEquals("Query type is wrong", IntersectsRPTVerifyQuery.class, query.getClass());
+        assertEquals("Query is wrong", "IntersectsVerified(fieldName=)", query.toString());
     }
 
     @Test(expected = IndexException.class)
@@ -167,21 +163,15 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         BooleanClause minClause = booleanQuery.clauses().get(1);
         assertEquals("Query is wrong", BooleanClause.Occur.MUST_NOT, minClause.getOccur());
         query = minClause.getQuery();
-        assertEquals("Query is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
-        IntersectsPrefixTreeQuery minFilter = (IntersectsPrefixTreeQuery) query;
-        assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
-                     "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)",
-                     minFilter.toString());
+        assertEquals("Query is wrong", IntersectsRPTVerifyQuery.class, query.getClass());
+        IntersectsRPTVerifyQuery minFilter = (IntersectsRPTVerifyQuery) query;
+        assertEquals("Query is wrong", "IntersectsVerified(fieldName=)", minFilter.toString());
 
         BooleanClause maxClause = booleanQuery.clauses().get(0);
         assertEquals("Query is wrong", BooleanClause.Occur.FILTER, maxClause.getOccur());
         query = maxClause.getQuery();
-        assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
-        assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
-                     "d=0.0° 3.00km),detailLevel=8,prefixGridScanLevel=4)",
-                     query.toString());
+        assertEquals("Query type is wrong", IntersectsRPTVerifyQuery.class, query.getClass());
+        assertEquals("Query is wrong", "IntersectsVerified(fieldName=)", query.toString());
     }
 
     @Test(expected = IndexException.class)
@@ -196,7 +186,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         GeoDistanceCondition condition = geoDistance("name", -1D, 9, "3km").setMinDistance("1km").boost(0.4f).build();
         assertEquals("Method #toString is wrong",
                      "GeoDistanceCondition{boost=0.4, field=name, " +
-                     "latitude=9.0, longitude=-1.0, " +
+                     "latitude=-1.0, longitude=9.0, " +
                      "minGeoDistance=GeoDistance{value=1.0, unit=KILOMETRES}, " +
                      "maxGeoDistance=GeoDistance{value=3.0, unit=KILOMETRES}}",
                      condition.toString());

@@ -17,10 +17,13 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.builder.IntegerMapperBuilder;
+import org.apache.cassandra.serializers.SimpleDateSerializer;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
+
+import java.util.Date;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.integerMapper;
 import static org.junit.Assert.*;
@@ -98,7 +101,7 @@ public class IntegerMapperTest extends AbstractMapperTest {
     @Test
     public void testValueLong() {
         IntegerMapper mapper = integerMapper().boost(1f).build("field");
-        Integer parsed = mapper.base("test", 3l);
+        Integer parsed = mapper.base("test", 3L);
         assertEquals("Base for longs is wrong", Integer.valueOf(3), parsed);
     }
 
@@ -128,7 +131,6 @@ public class IntegerMapperTest extends AbstractMapperTest {
         IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", 3.5f);
         assertEquals("Base for floats is wrong", Integer.valueOf(3), parsed);
-
     }
 
     @Test
@@ -174,7 +176,6 @@ public class IntegerMapperTest extends AbstractMapperTest {
         IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", "3.2");
         assertEquals("Base for strings is wrong", Integer.valueOf(3), parsed);
-
     }
 
     @Test
@@ -182,7 +183,14 @@ public class IntegerMapperTest extends AbstractMapperTest {
         IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", "3.2");
         assertEquals("Base for strings is wrong", Integer.valueOf(3), parsed);
+    }
 
+    @Test
+    public void testValueWithDate() {
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
+        Integer parsed = mapper.base("test", new Date(10));
+        Integer expected = SimpleDateSerializer.timeInMillisToDay(10);
+        assertEquals("Base for dates is wrong", expected, parsed);
     }
 
     @Test

@@ -24,6 +24,9 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * A {@link Condition} implementation that matches documents satisfying a Lucene Query Syntax.
  *
@@ -58,16 +61,30 @@ public class LuceneCondition extends Condition {
     }
 
     /** {@inheritDoc} */
+    public Set<String> postProcessingFields() {
+        Set<String> fields = new LinkedHashSet<>();
+        if (!StringUtils.isBlank(defaultField)) {
+            fields.add(defaultField);
+        }
+        for (String term : query.split("[ ]")) {
+            if (term.contains(":")) {
+                fields.add(term.split(":")[0]);
+            }
+        }
+        return fields;
+    }
+
+    /** {@inheritDoc} */
     @Override
     public Query doQuery(Schema schema) {
         try {
-            Analyzer analyzer = schema.getAnalyzer();
+            Analyzer analyzer = schema.analyzer;
             QueryParser queryParser = new QueryParser(defaultField, analyzer);
             queryParser.setAllowLeadingWildcard(true);
             queryParser.setLowercaseExpandedTerms(false);
             return queryParser.parse(query);
         } catch (ParseException e) {
-            throw new IndexException("Error while parsing lucene syntax query: %s", e.getMessage());
+            throw new IndexException("Error while parsing lucene syntax query: {}", e.getMessage());
         }
     }
 

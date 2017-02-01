@@ -115,7 +115,7 @@ public class UUIDMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testValueLong() {
         UUIDMapper mapper = uuidMapper().build("field");
-        String parsed = mapper.base("test", 3l);
+        String parsed = mapper.base("test", 3L);
         assertEquals("Base value is wrong", "3", parsed);
     }
 
@@ -300,22 +300,10 @@ public class UUIDMapperTest extends AbstractMapperTest {
         Collections.shuffle(uuids);
 
         List<UUID> expectedList = new ArrayList<>(uuids);
-        Collections.sort(expectedList, new Comparator<UUID>() {
-            @Override
-            public int compare(UUID o1, UUID o2) {
-                return type.compare(type.decompose(o1), type.decompose(o2));
-            }
-        });
+        expectedList.sort((UUID o1, UUID o2) -> type.compare(type.decompose(o1), type.decompose(o2)));
 
         List<UUID> actualList = new ArrayList<>(uuids);
-        Collections.sort(actualList, new Comparator<UUID>() {
-            @Override
-            public int compare(UUID o1, UUID o2) {
-                String s1 = UUIDMapper.serialize(o1);
-                String s2 = UUIDMapper.serialize(o2);
-                return s1.compareTo(s2);
-            }
-        });
+        actualList.sort(Comparator.comparing(UUIDMapper::serialize));
 
         assertEquals("Native and term comparisons are different", expectedList.size(), actualList.size());
         for (int i = 0; i < expectedList.size(); i++) {

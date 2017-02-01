@@ -17,13 +17,12 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.NumericUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.Set;
 
 /**
  * The abstract base class for queries.
@@ -37,15 +36,13 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class Condition {
 
-    protected static final Logger logger = LoggerFactory.getLogger(Condition.class);
-
     /** The boost to be used. */
     public final Float boost;
 
     /**
      * Abstract {@link Condition} builder receiving the boost to be used.
      *
-     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
+     * @param boost the boost for this query clause. Documents matching this clause will (in addition to the normal
      * weightings) have their score multiplied by {@code boost}.
      */
     public Condition(Float boost) {
@@ -56,7 +53,7 @@ public abstract class Condition {
      * Returns the Lucene {@link Query} representation of this condition.
      *
      * @param schema the schema to be used
-     * @return The Lucene query
+     * @return the Lucene query
      */
     public final Query query(Schema schema) {
         Query query = doQuery(schema);
@@ -67,9 +64,16 @@ public abstract class Condition {
      * Returns the Lucene {@link Query} representation of this condition without boost.
      *
      * @param schema the schema to be used
-     * @return The Lucene query
+     * @return the Lucene query
      */
     protected abstract Query doQuery(Schema schema);
+
+    /**
+     * Returns the names of the involved fields.
+     *
+     * @return the names of the involved fields
+     */
+    public abstract Set<String> postProcessingFields();
 
     static BytesRef docValue(String value) {
         return value == null ? null : new BytesRef(value);

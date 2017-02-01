@@ -98,7 +98,7 @@ public class DoubleMapperTest extends AbstractMapperTest {
     @Test
     public void testValueLong() {
         DoubleMapper mapper = doubleMapper().boost(1f).build("field");
-        Double parsed = mapper.base("test", 3l);
+        Double parsed = mapper.base("test", 3L);
         assertEquals("Base for longs is wrong", Double.valueOf(3), parsed);
     }
 
@@ -130,7 +130,6 @@ public class DoubleMapperTest extends AbstractMapperTest {
         DoubleMapper mapper = doubleMapper().boost(1f).build("field");
         Double parsed = mapper.base("test", 3.5f);
         assertEquals("Base for floats is wrong", Double.valueOf(3.5d), parsed);
-
     }
 
     @Test
@@ -152,7 +151,6 @@ public class DoubleMapperTest extends AbstractMapperTest {
         DoubleMapper mapper = doubleMapper().boost(1f).build("field");
         Double parsed = mapper.base("test", 3.5d);
         assertEquals("Base for doubles is wrong", Double.valueOf(3.5d), parsed);
-
     }
 
     @Test
@@ -160,7 +158,6 @@ public class DoubleMapperTest extends AbstractMapperTest {
         DoubleMapper mapper = doubleMapper().boost(1f).build("field");
         Double parsed = mapper.base("test", 3.6d);
         assertEquals("Base for doubles is wrong", Double.valueOf(3.6d), parsed);
-
     }
 
     @Test

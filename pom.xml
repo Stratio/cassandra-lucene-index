@@ -81,7 +81,7 @@
         <coverage.data.dir>${project.build.outputDirectory}</coverage.data.dir>
         <skipTests>false</skipTests>
         <skipITs>false</skipITs>
-        <jacoco-IT-argline> </jacoco-IT-argline>
+        <jacoco-IT-argline></jacoco-IT-argline>
     </properties>
 
     <build>
@@ -135,5 +135,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
