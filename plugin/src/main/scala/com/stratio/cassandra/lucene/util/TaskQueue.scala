@@ -76,8 +76,8 @@ private class TaskQueueAsync(numThreads: Int, queuesSize: Int) extends TaskQueue
 
   private val lock = new ReentrantReadWriteLock(true)
   private val pools = (1 to numThreads)
-    .map(index => new ArrayBlockingQueue[Runnable](queuesSize, true))
-    .map(queue => new ThreadPoolExecutor(1, 1, 1, DAYS, queue,
+    .map(_ => new ArrayBlockingQueue[Runnable](queuesSize, true))
+    .map(q => new ThreadPoolExecutor(1, 1, 1, DAYS, q,
       new BasicThreadFactory.Builder().namingPattern("lucene-indexer-%d").build(),
       (task, executor) => if (!executor.isShutdown) executor.getQueue.put(task)))
 

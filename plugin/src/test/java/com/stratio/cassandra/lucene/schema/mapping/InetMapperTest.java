@@ -75,7 +75,7 @@ public class InetMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testValueLong() {
         InetMapper mapper = inetMapper().build("field");
-        mapper.base("test", 3l);
+        mapper.base("test", 3L);
     }
 
     @Test(expected = IndexException.class)

@@ -77,7 +77,7 @@ public class BlobMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testValueLong() {
         BlobMapper mapper = blobMapper().build("field");
-        mapper.base("test", 3l);
+        mapper.base("test", 3L);
     }
 
     @Test(expected = IndexException.class)

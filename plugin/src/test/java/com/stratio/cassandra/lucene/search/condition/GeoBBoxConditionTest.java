@@ -81,7 +81,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     }
 
     @Test(expected = IndexException.class)
-    public void testBuildTooBiglMinLongitude() {
+    public void testBuildTooBigMinLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, 181D, 1D);
     }
 
@@ -150,7 +150,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     }
 
     @Test(expected = IndexException.class)
-    public void testQueryoutValidMapper() {
+    public void testQueryInvalidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         condition.query(schema);

@@ -73,10 +73,6 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
         this.base = base;
     }
 
-    public String getColumn() {
-        return column;
-    }
-
     /** {@inheritDoc} */
     @Override
     public List<IndexableField> bestEffortIndexableFields(Columns columns) {

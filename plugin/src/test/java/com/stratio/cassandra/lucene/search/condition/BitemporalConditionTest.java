@@ -43,10 +43,10 @@ public class BitemporalConditionTest extends AbstractConditionTest {
         assertNotNull("Condition is not built", condition);
         assertEquals("Boost is not set", 0.7f, condition.boost, 0);
         assertEquals("Field is not set", "field", condition.field);
-        assertEquals("tt_from is not set", 1l, condition.ttFrom);
-        assertEquals("tt_to is not set", 2l, condition.ttTo);
-        assertEquals("vt_from is not set", 3l, condition.vtFrom);
-        assertEquals("vt_to is not set", 4l, condition.vtTo);
+        assertEquals("tt_from is not set", 1L, condition.ttFrom);
+        assertEquals("tt_to is not set", 2L, condition.ttTo);
+        assertEquals("vt_from is not set", 3L, condition.vtFrom);
+        assertEquals("vt_to is not set", 4L, condition.vtTo);
     }
 
     @Test

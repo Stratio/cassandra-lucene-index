@@ -131,7 +131,7 @@ object ByteBufferUtils {
     */
   @varargs
   def compose(bbs: ByteBuffer*): ByteBuffer = {
-    val totalLength = (2 /: bbs.map(_ remaining)) (_ + _ + 2)
+    val totalLength = (2 /: bbs.map(_.remaining)) (_ + _ + 2)
     val out = ByteBuffer.allocate(totalLength)
     writeShortLength(out, bbs.length)
     for (bb <- bbs) {
@@ -150,10 +150,9 @@ object ByteBufferUtils {
   def decompose(bb: ByteBuffer): Array[ByteBuffer] = {
     val duplicate = bb.duplicate
     val numComponents = readShortLength(duplicate)
-    (1 to numComponents).map(
-      i => {
-        val componentLength = readShortLength(duplicate)
-        ByteBufferUtil.readBytes(duplicate, componentLength)
-      }).toArray
+    (1 to numComponents).map(_ => {
+      val componentLength = readShortLength(duplicate)
+      ByteBufferUtil.readBytes(duplicate, componentLength)
+    }).toArray
   }
 }

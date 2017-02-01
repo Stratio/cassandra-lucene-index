@@ -90,7 +90,7 @@ public class TextMapperTest extends AbstractMapperTest {
     @Test
     public void testValueLong() {
         TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
-        String parsed = mapper.base("test", 3l);
+        String parsed = mapper.base("test", 3L);
         assertEquals("Base for longs is wrong", "3", parsed);
     }
 

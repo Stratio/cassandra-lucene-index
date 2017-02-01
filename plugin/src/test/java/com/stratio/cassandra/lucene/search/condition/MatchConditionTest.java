@@ -274,7 +274,7 @@ public class MatchConditionTest extends AbstractConditionTest {
 
     private class MockedMapperBuilder extends MapperBuilder<MockedMapper, MockedMapperBuilder> {
 
-        private MockedMapper mapper;
+        private final MockedMapper mapper;
 
         MockedMapperBuilder(MockedMapper mapper) {
             this.mapper = mapper;

@@ -13,31 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.partitioning
+package com.stratio.cassandra.lucene.index
 
 import com.stratio.cassandra.lucene.BaseScalaTest
-import com.stratio.cassandra.lucene.BaseScalaTest.int32
-import org.apache.cassandra.db.DecoratedKey
-import org.apache.cassandra.dht.Murmur3Partitioner
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
-/** Tests for [[Partitioner]].
+/** Tests for [[NoIDFSimilarity]].
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class PartitionerTest extends BaseScalaTest {
+@RunWith(classOf[JUnitRunner])
+class NoIDFSimilarityTest extends BaseScalaTest {
 
-  test("parse default") {
-    Partitioner.fromJson(null, "{}") shouldBe PartitionerOnNone()
+  test("neutral IDF score") {
+    val similarity = new NoIDFSimilarity
+    similarity.idf(0l, 0l) shouldBe 1.0f
+    similarity.idf(1l, 5l) shouldBe 1.0f
+    similarity.idf(10000l, 10943l) shouldBe 1.0f
+    similarity.idf(-45667l, 2132189l) shouldBe 1.0f
+    similarity.idf(367423794l, -394612l) shouldBe 1.0f
+    similarity.idf(-2147294213l, 15264214l) shouldBe 1.0f
   }
-
-  test("num partitions with none partitioner") {
-    PartitionerOnNone().allPartitions shouldBe List(0)
-  }
-
-  test("num partitions with token partitioner") {
-    PartitionerOnToken(4).allPartitions shouldBe List(0, 1, 2, 3)
-  }
-
-  def key(n: Int): DecoratedKey = Murmur3Partitioner.instance.decorateKey(int32.decompose(n))
-
 }

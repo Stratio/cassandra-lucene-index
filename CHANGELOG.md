@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.8.4 (Upcoming)
+
+* Ignore tombstones during read before write (#255)
+* Fix deletion of ranges of rows in a partition
+* Add virtual node based partitioner
+
+
 ## 3.8.3 (December 15, 2016)
 
 * Upgrade to Apache Lucene 5.5.3
@@ -112,10 +119,6 @@
 ## 3.0.3.1 (March 04, 2016)
 
 * Fix performance issues with ClusteringIndexNamesFilter
-<<<<<<< HEAD
-=======
-
->>>>>>> branch-3.9
 * Add indexing of WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add search by WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add API for search-time transformation of WKT geographical shapes
