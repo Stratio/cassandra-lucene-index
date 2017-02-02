@@ -2,6 +2,7 @@
 
 ## 3.7.6 (Upcoming)
 
+* Fix mutual exclusion on partition key during read before write (#261)
 * Ignore tombstones during read before write (#255)
 * Fix deletion of ranges of rows in a partition
 * Add virtual node based partitioner
