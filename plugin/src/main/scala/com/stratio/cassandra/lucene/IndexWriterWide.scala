@@ -15,10 +15,11 @@
  */
 package com.stratio.cassandra.lucene
 
+
+import org.apache.cassandra.db.filter.{ClusteringIndexNamesFilter, ColumnFilter}
 import org.apache.cassandra.db.rows.Row
-import org.apache.cassandra.db.{Clustering, DecoratedKey, RangeTombstone, SinglePartitionReadCommand}
+import org.apache.cassandra.db._
 import org.apache.cassandra.index.transactions.IndexTransaction
-import org.apache.cassandra.index.transactions.IndexTransaction.Type._
 import org.apache.cassandra.utils.concurrent.OpOrder
 
 import scala.collection.JavaConverters._
@@ -62,6 +63,10 @@ class IndexWriterWide(
     rows.keySet.removeIf(slice.includes(metadata.comparator, _))
   }
 
+  def bound(clustering: Clustering): ClusteringBound = {
+    ClusteringBound.create(clustering.clustering().kind(), clustering.getRawValues)
+  }
+
   /** @inheritdoc */
   override def index(row: Row) {
     if (!row.isStatic) {
@@ -77,14 +82,13 @@ class IndexWriterWide(
   }
 
   /** @inheritdoc */
-  override def finish() {
-
-    // Skip on cleanups
-    if (transactionType == CLEANUP) return
+  override def commit() {
 
     // Read required rows from storage engine
     if (!clusterings.isEmpty) {
-      val command = SinglePartitionReadCommand.create(metadata, nowInSec, key, clusterings)
+      val filter = new ClusteringIndexNamesFilter(clusterings, false)
+      val columns = ColumnFilter.all(metadata)
+      val command = SinglePartitionReadCommand.create(metadata, nowInSec, key, columns, filter)
       read(command).asScala.foreach(row => rows.put(row.clustering(), row))
     }
 
