@@ -16,12 +16,11 @@
 package com.stratio.cassandra.lucene
 
 
-import org.apache.cassandra.db.filter.{ClusteringIndexNamesFilter, ColumnFilter, DataLimits, RowFilter}
-import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.db._
+import org.apache.cassandra.db.filter.{ClusteringIndexNamesFilter, ColumnFilter}
+import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
-import org.apache.cassandra.index.transactions.IndexTransaction.Type._
 
 import scala.collection.JavaConverters._
 
@@ -49,14 +48,14 @@ class IndexWriterWide(
   /** The rows ready to be written. */
   private val rows = new java.util.TreeMap[Clustering, Row](metadata.comparator)
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def delete() {
     service.delete(key)
     clusterings.clear()
     rows.clear()
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def delete(tombstone: RangeTombstone): Unit = {
     val slice = tombstone.deletedSlice
     service.delete(key, slice)
@@ -66,10 +65,11 @@ class IndexWriterWide(
   }
 
 
-  def bound(clustering: Clustering ): Slice.Bound = {
-    Slice.Bound.create(clustering.clustering().kind(),clustering.getRawValues)
+  def bound(clustering: Clustering): Slice.Bound = {
+    Slice.Bound.create(clustering.clustering().kind(), clustering.getRawValues)
   }
-  /** @inheritdoc*/
+
+  /** @inheritdoc */
   override def index(row: Row) {
     if (!row.isStatic) {
       val clustering = row.clustering
@@ -83,24 +83,14 @@ class IndexWriterWide(
     }
   }
 
-  /** @inheritdoc*/
-  override def finish() {
-
-    // Skip on cleanups
-    if (transactionType == CLEANUP) return
+  /** @inheritdoc */
+  override def commit() {
 
     // Read required rows from storage engine
     if (!clusterings.isEmpty) {
-      val filter: ClusteringIndexNamesFilter = new ClusteringIndexNamesFilter(clusterings, false)
-      val command = SinglePartitionReadCommand
-        .create(metadata,
-          nowInSec,
-          ColumnFilter
-            .all(metadata),
-          RowFilter.NONE,
-          DataLimits.NONE,
-          key,
-          filter)
+      val filter = new ClusteringIndexNamesFilter(clusterings, false)
+      val columns = ColumnFilter.all(metadata)
+      val command = SinglePartitionReadCommand.create(metadata, nowInSec, key, columns, filter)
       read(command).asScala.foreach(row => rows.put(row.clustering(), row))
     }
 
