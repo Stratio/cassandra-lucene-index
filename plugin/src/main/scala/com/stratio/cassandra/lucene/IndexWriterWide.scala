@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.db.{Clustering, DecoratedKey, RangeTombstone, SinglePartitionReadCommand}
 import org.apache.cassandra.index.transactions.IndexTransaction
-import org.apache.cassandra.index.transactions.IndexTransaction.Type._
 import org.apache.cassandra.utils.concurrent.OpOrder
 
 import scala.collection.JavaConverters._
@@ -77,10 +76,7 @@ class IndexWriterWide(
   }
 
   /** @inheritdoc */
-  override def finish() {
-
-    // Skip on cleanups
-    if (transactionType == CLEANUP) return
+  override def commit() {
 
     // Read required rows from storage engine
     if (!clusterings.isEmpty) {
