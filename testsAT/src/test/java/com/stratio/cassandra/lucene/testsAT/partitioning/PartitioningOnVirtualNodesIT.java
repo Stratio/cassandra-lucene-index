@@ -40,12 +40,12 @@ public class PartitioningOnVirtualNodesIT {
 
     private static Integer numTokens;
     private static CassandraUtilsBuilder cassandraUtilsBuilder;
-    private static final String namTokensAttribute = "org.apache.cassandra.db:type=StorageService";
+    private static final String numTokensAttribute = "org.apache.cassandra.db:type=StorageService";
 
     @BeforeClass
     public static void beforeClass() {
         CassandraConnection.connect();
-        List<List<String>> tokens = CassandraConnection.getJMXAttribute(namTokensAttribute, "Tokens");
+        List<List<String>> tokens = CassandraConnection.getJMXAttribute(numTokensAttribute, "Tokens");
         numTokens = tokens.get(0).size();
         cassandraUtilsBuilder = builder("virtual_nodes_partitioning")
                 .withTable("test")
