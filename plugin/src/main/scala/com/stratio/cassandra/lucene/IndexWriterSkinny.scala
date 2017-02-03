@@ -18,7 +18,7 @@ package com.stratio.cassandra.lucene
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.db.{DecoratedKey, RangeTombstone, SinglePartitionReadCommand}
 import org.apache.cassandra.index.transactions.IndexTransaction
-import org.apache.cassandra.index.transactions.IndexTransaction.Type._
+import org.apache.cassandra.index.transactions.IndexTransaction.Type.COMPACTION
 import org.apache.cassandra.utils.concurrent.OpOrder
 
 /** [[IndexWriter]] for skinny rows.
@@ -57,11 +57,7 @@ class IndexWriterSkinny(
   }
 
   /** @inheritdoc */
-  override def finish() {
-
-    // Skip on cleanups
-    if (transactionType == CLEANUP) return
-
+  override def commit() {
     row.map(
       row => {
         if (transactionType == COMPACTION || service.needsReadBeforeWrite(key, row)) {
