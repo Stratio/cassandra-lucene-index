@@ -22,7 +22,7 @@ import com.stratio.cassandra.lucene.index.{DocumentIterator, PartitionedIndex}
 import com.stratio.cassandra.lucene.mapping._
 import com.stratio.cassandra.lucene.search.Search
 import com.stratio.cassandra.lucene.util._
-import org.apache.cassandra.config.ColumnDefinition
+import org.apache.cassandra.config.{ColumnDefinition, DatabaseDescriptor}
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter._
 import org.apache.cassandra.db.partitions._
@@ -83,6 +83,9 @@ abstract class IndexService(
 
   // Delay JMX MBean creation
   var mBean: ObjectName = _
+
+  // Setup indexing read-before-write lock provider
+  val readBeforeWriteLocker = new Locker(DatabaseDescriptor.getConcurrentWriters * 128)
 
   def init() {
 
