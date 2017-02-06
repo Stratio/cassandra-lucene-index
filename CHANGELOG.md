@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.7.6 (Upcoming)
+## 3.7.6 (February 06, 2017)
 
 * Fix mutual exclusion on partition key during read before write (#261)
 * Ignore tombstones during read before write (#255)
