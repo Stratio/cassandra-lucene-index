@@ -24,7 +24,7 @@ import org.apache.cassandra.db.marshal._
 import org.apache.cassandra.db.rows.{Cell, ComplexColumnData, Row}
 import org.apache.cassandra.db.{Clustering, DecoratedKey}
 import org.apache.cassandra.serializers.CollectionSerializer
-import org.apache.cassandra.transport.Server._
+import org.apache.cassandra.transport.ProtocolVersion
 import org.apache.cassandra.utils.ByteBufferUtil
 
 import scala.collection.JavaConverters._
@@ -238,9 +238,9 @@ object ColumnsMapper {
   }
 
   private[this] def frozenCollectionSize(bb: ByteBuffer): Int =
-    CollectionSerializer.readCollectionSize(bb, CURRENT_VERSION)
+    CollectionSerializer.readCollectionSize(bb, ProtocolVersion.CURRENT)
 
   private[this] def frozenCollectionValue(bb: ByteBuffer): ByteBuffer =
-    CollectionSerializer.readValue(bb, CURRENT_VERSION)
+    CollectionSerializer.readValue(bb, ProtocolVersion.CURRENT)
 
 }

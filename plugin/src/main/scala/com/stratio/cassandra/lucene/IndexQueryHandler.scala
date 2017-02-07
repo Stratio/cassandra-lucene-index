@@ -66,8 +66,9 @@ class IndexQueryHandler extends QueryHandler with Logging {
       statement: BatchStatement,
       state: QueryState,
       options: BatchQueryOptions,
-      payload: Payload): ResultMessage = {
-    QueryProcessor.instance.processBatch(statement, state, options, payload)
+      payload: Payload,
+      queryStartNanoTime: Long): ResultMessage = {
+    QueryProcessor.instance.processBatch(statement, state, options, payload, queryStartNanoTime)
   }
 
   /** @inheritdoc */
@@ -75,9 +76,10 @@ class IndexQueryHandler extends QueryHandler with Logging {
       statement: CQLStatement,
       state: QueryState,
       options: QueryOptions,
-      payload: Payload): ResultMessage = {
+      payload: Payload,
+      queryStartNanoTime: Long): ResultMessage = {
     QueryProcessor.metrics.preparedStatementsExecuted.inc()
-    processStatement(statement, state, options)
+    processStatement(statement, state, options, queryStartNanoTime)
   }
 
   /** @inheritdoc */
@@ -85,7 +87,8 @@ class IndexQueryHandler extends QueryHandler with Logging {
       query: String,
       state: QueryState,
       options: QueryOptions,
-      payload: Payload): ResultMessage = {
+      payload: Payload,
+      queryStartNanoTime: Long): ResultMessage = {
     val p = QueryProcessor.getStatement(query, state.getClientState)
     options.prepare(p.boundNames)
     val prepared = p.statement
@@ -95,13 +98,14 @@ class IndexQueryHandler extends QueryHandler with Logging {
     if (!state.getClientState.isInternal) {
       QueryProcessor.metrics.regularStatementsExecuted.inc()
     }
-    processStatement(prepared, state, options)
+    processStatement(prepared, state, options, queryStartNanoTime)
   }
 
   def processStatement(
       statement: CQLStatement,
       state: QueryState,
-      options: QueryOptions): ResultMessage = {
+      options: QueryOptions,
+      queryStartNanoTime: Long): ResultMessage = {
 
     logger.trace(s"Process $statement @CL.${options.getConsistency}")
     val clientState = state.getClientState
@@ -115,7 +119,7 @@ class IndexQueryHandler extends QueryHandler with Logging {
         if (expressions.nonEmpty) {
           val time = TimeCounter.start
           try {
-            return executeLuceneQuery(select, state, options, expressions)
+            return executeLuceneQuery(select, state, options, expressions, queryStartNanoTime)
           } catch {
             case e: ReflectiveOperationException => throw new IndexException(e)
           } finally {
@@ -124,7 +128,7 @@ class IndexQueryHandler extends QueryHandler with Logging {
         }
       case _ =>
     }
-    execute(statement, state, options)
+    execute(statement, state, options, queryStartNanoTime)
   }
 
   def luceneExpressions(
@@ -147,8 +151,12 @@ class IndexQueryHandler extends QueryHandler with Logging {
     map.toMap
   }
 
-  def execute(statement: CQLStatement, state: QueryState, options: QueryOptions): ResultMessage = {
-    val result = statement.execute(state, options)
+  def execute(
+      statement: CQLStatement,
+      state: QueryState,
+      options: QueryOptions,
+      queryStartNanoTime: Long): ResultMessage = {
+    val result = statement.execute(state, options, queryStartNanoTime)
     if (result == null) new ResultMessage.Void else result
   }
 
@@ -156,7 +164,8 @@ class IndexQueryHandler extends QueryHandler with Logging {
       select: SelectStatement,
       state: QueryState,
       options: QueryOptions,
-      expressions: Map[Expression, Index]): ResultMessage = {
+      expressions: Map[Expression, Index],
+      queryStartNanoTime: Long): ResultMessage = {
 
     if (expressions.size > 1) {
       throw new InvalidRequestException(
@@ -176,13 +185,14 @@ class IndexQueryHandler extends QueryHandler with Logging {
 
     // Get paging info
     val limit = select.getLimit(options)
-    val page = getPageSize.invoke(select, options).asInstanceOf[Int]
+    val page = if (select.getSelection.isAggregate && options.getPageSize <= 0)
+      SelectStatement.DEFAULT_PAGE_SIZE else options.getPageSize
 
     // Take control of paging if there is paging and the query requires post processing
     if (search.requiresPostProcessing && page > 0 && page < limit) {
-      executeSortedLuceneQuery(select, state, options, partitioner)
+      executeSortedLuceneQuery(select, state, options, partitioner, queryStartNanoTime)
     } else {
-      execute(select, state, options)
+      execute(select, state, options, queryStartNanoTime)
     }
   }
 
@@ -190,7 +200,8 @@ class IndexQueryHandler extends QueryHandler with Logging {
       select: SelectStatement,
       state: QueryState,
       options: QueryOptions,
-      partitioner: Partitioner): Rows = {
+      partitioner: Partitioner,
+      queryStartNanoTime: Long): Rows = {
 
     // Check consistency level
     val consistency = options.getConsistency
@@ -205,13 +216,14 @@ class IndexQueryHandler extends QueryHandler with Logging {
     // Read paging state and write it to query
     val pagingState = IndexPagingState.build(options.getPagingState, limit)
     val remaining = Math.min(page, pagingState.remaining)
-    val query = select.getQuery(options, now, remaining, userPerPartitionLimit)
+    val query = select.getQuery(options, now, remaining, userPerPartitionLimit, page)
     pagingState.rewrite(query)
 
     // Read data
     val data = query match {
-      case group: Group if group.commands.size > 1 => LuceneStorageProxy.read(group, consistency)
-      case _ => query.execute(consistency, state.getClientState)
+      case group: Group if group.commands.size > 1 =>
+        LuceneStorageProxy.read(group, consistency, queryStartNanoTime)
+      case _ => query.execute(consistency, state.getClientState, queryStartNanoTime)
     }
 
     // Process data updating paging state
@@ -233,9 +245,6 @@ class IndexQueryHandler extends QueryHandler with Logging {
 
 /** Companion object for [[IndexQueryHandler]]. */
 object IndexQueryHandler {
-
-  val getPageSize = classOf[SelectStatement].getDeclaredMethod("getPageSize", classOf[QueryOptions])
-  getPageSize.setAccessible(true)
 
   val processResults = classOf[SelectStatement].getDeclaredMethod(
     "processResults", classOf[PartitionIterator], classOf[QueryOptions], classOf[Int], classOf[Int])

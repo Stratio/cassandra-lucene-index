@@ -50,7 +50,7 @@ public class LuceneStorageProxy {
         try {
             systemKeyspaceQuery = StorageProxy.class.getDeclaredMethod("systemKeyspaceQuery", List.class);
             systemKeyspaceQuery.setAccessible(true);
-            fetchRows = StorageProxy.class.getDeclaredMethod("fetchRows", List.class, ConsistencyLevel.class);
+            fetchRows = StorageProxy.class.getDeclaredMethod("fetchRows", List.class, ConsistencyLevel.class, long.class);
             fetchRows.setAccessible(true);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
@@ -61,13 +61,14 @@ public class LuceneStorageProxy {
         return (boolean) systemKeyspaceQuery.invoke(null, cmds);
     }
 
-    private static PartitionIterator fetchRows(List<SinglePartitionReadCommand> commands, ConsistencyLevel cl)
+    private static PartitionIterator fetchRows(List<SinglePartitionReadCommand> commands, ConsistencyLevel cl, long queryStartNanoTime)
     throws ReflectiveOperationException {
-        return (PartitionIterator) fetchRows.invoke(null, commands, cl);
+        return (PartitionIterator) fetchRows.invoke(null, commands, cl, queryStartNanoTime);
     }
 
     public static PartitionIterator read(SinglePartitionReadCommand.Group group,
-                                         ConsistencyLevel consistencyLevel)
+                                         ConsistencyLevel consistencyLevel,
+                                         long queryStartNanoTime)
     throws UnavailableException, IsBootstrappingException, ReadFailureException, ReadTimeoutException,
            InvalidRequestException, ReflectiveOperationException {
 
@@ -76,15 +77,16 @@ public class LuceneStorageProxy {
             throw new IsBootstrappingException();
         }
 
-        return readRegular(group, consistencyLevel);
+        return readRegular(group, consistencyLevel, queryStartNanoTime);
     }
 
     private static PartitionIterator readRegular(SinglePartitionReadCommand.Group group,
-                                                 ConsistencyLevel consistencyLevel)
+                                                 ConsistencyLevel consistencyLevel,
+                                                 long queryStartNanoTime)
     throws UnavailableException, ReadFailureException, ReadTimeoutException, ReflectiveOperationException {
         long start = System.nanoTime();
         try {
-            PartitionIterator result = fetchRows(group.commands, consistencyLevel);
+            PartitionIterator result = fetchRows(group.commands, consistencyLevel, queryStartNanoTime);
             // If we have more than one command, then despite each read command honoring the limit, the total result
             // might not honor it and so we should enforce it
             if (group.commands.size() > 1) {
