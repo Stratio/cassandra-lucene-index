@@ -18,8 +18,6 @@ package com.stratio.cassandra.lucene.testsAT.partitioning;
 import com.stratio.cassandra.lucene.builder.index.Partitioner;
 import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraConnection;
-import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
-import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,18 +39,16 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 public class PartitioningOnVirtualNodeIT extends BaseIT {
 
     private static Integer numTokens = 1;
-    private static CassandraUtils cassandraUtils;
-    private static final String namTokensAttribute = "org.apache.cassandra.db:type=StorageService";
+    private static final String storageServiceMBean = "org.apache.cassandra.db:type=StorageService";
 
     @BeforeClass
     public static void beforeClass() {
-        CassandraConnection.connect();
-        List<List<String>> tokens = CassandraConnection.getJMXAttribute(namTokensAttribute, "Tokens");
+        List<List<String>> tokens = CassandraConnection.getJMXAttribute(storageServiceMBean, "Tokens");
         numTokens = tokens.get(0).size();
     }
 
-    public static void createTestAndDeleteContext(String indexName, int vNodesPerPartition) {
-        cassandraUtils = builder("virtual_nodes_partitioning")
+    public static void createTestAndDeleteContext(int vNodesPerPartition) {
+        builder("virtual_nodes_partitioning")
                 .withTable("test")
                 .withIndexName("idx")
                 .withColumn("pk1", "int")
@@ -63,7 +59,6 @@ public class PartitioningOnVirtualNodeIT extends BaseIT {
                 .withPartitionKey("pk1", "pk2")
                 .withClusteringKey("ck")
                 .withPartitioner(new Partitioner.OnVirtualNode(vNodesPerPartition))
-                .withIndexName(indexName)
                 .build()
                 .createKeyspace()
                 .createTable()
@@ -88,7 +83,7 @@ public class PartitioningOnVirtualNodeIT extends BaseIT {
 
     @Test
     public void testVNodesWithOneVNodePerPartition() {
-        createTestAndDeleteContext("idx_test_vnodes_with_one_vnode_per_partition", 1);
+        createTestAndDeleteContext(1);
     }
 
     @Test
@@ -96,7 +91,7 @@ public class PartitioningOnVirtualNodeIT extends BaseIT {
         if (numTokens == 1) {
             logger.debug("[IGNORED] testVNodesWithNumTokensVNodePerPartition because target cassandra cluster is not configured with virtual tokens.");
         } else {
-            createTestAndDeleteContext("idx_test_vnodes_with_num_tokens_vnode_per_partition", numTokens);
+            createTestAndDeleteContext(numTokens);
         }
     }
 
@@ -105,8 +100,7 @@ public class PartitioningOnVirtualNodeIT extends BaseIT {
         if (numTokens == 1) {
             logger.debug("[IGNORED] testVNodesWithOneAndAHalfNumTokensVNodePerPartition because target cassandra cluster is not configured with virtual tokens.");
         } else {
-            createTestAndDeleteContext("idx_test_vnodes_with_one_and_a_half_num_tokens_vnode_per_partition",
-                    Math.round(numTokens * 1.5f));
+            createTestAndDeleteContext(Math.round(numTokens * 1.5f));
         }
     }
 
@@ -115,8 +109,7 @@ public class PartitioningOnVirtualNodeIT extends BaseIT {
         if (numTokens == 1) {
             logger.debug("[IGNORED] testVNodesWithFloorNumTokensDiv2VNodePerPartition because target cassandra cluster is not configured with virtual tokens.");
         } else {
-            createTestAndDeleteContext("idx_test_vnodes_with_floor_num_tokens_div_2_vnode_per_partition",
-                    Math.floorDiv(Math.round(numTokens), 2));
+            createTestAndDeleteContext(Math.floorDiv(Math.round(numTokens), 2));
         }
     }
 
@@ -125,8 +118,7 @@ public class PartitioningOnVirtualNodeIT extends BaseIT {
         if (numTokens == 1) {
             logger.debug("[IGNORED] testVNodesWithFloorNumTokensDiv3VNodePerPartition because target cassandra cluster is not configured with virtual tokens.");
         } else {
-            createTestAndDeleteContext("idx_test_vnodes_with_floor_num_tokens_div_3_vnode_per_partition",
-                    Math.floorDiv(Math.round(numTokens), 3));
+            createTestAndDeleteContext(Math.floorDiv(Math.round(numTokens), 3));
         }
     }
 }
