@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.testsAT.partitioning;
 
 import com.stratio.cassandra.lucene.builder.index.Partitioner;
+import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraConnection;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.After;
@@ -37,7 +38,7 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(JUnit4.class)
-public class PartitioningOnVirtualNodeIT {
+public class PartitioningOnVirtualNodeIT extends BaseIT {
 
     private static Integer numTokens = 1;
     private static CassandraUtils cassandraUtils;
@@ -50,7 +51,7 @@ public class PartitioningOnVirtualNodeIT {
         numTokens = tokens.get(0).size();
     }
 
-    public static void buildContextAndTest(String indexName, int vNodesPerPartition) {
+    public static void createTestAndDeleteContext(String indexName, int vNodesPerPartition) {
         cassandraUtils = builder("virtual_nodes_partitioning")
                 .withTable("test")
                 .withIndexName("idx")
@@ -81,39 +82,51 @@ public class PartitioningOnVirtualNodeIT {
                 .filter(all()).andEq("pk1", 0).andEq("pk2", 0).andEq("ck", 0).fetchSize(2).check(1)
                 .filter(all()).andEq("pk1", 0).allowFiltering(true).fetchSize(2).check(4)
                 .filter(all()).andEq("pk1", 1).allowFiltering(true).fetchSize(2).check(4)
-                .dropIndex();
-    }
-
-    @After
-    public void after() {
-        cassandraUtils.dropKeyspace();
+                .dropIndex()
+                .dropKeyspace();
     }
 
     @Test
     public void testVNodesWithOneVNodePerPartition() {
-        buildContextAndTest("idx_test_vnodes_with_one_vnode_per_partition", 1);
+        createTestAndDeleteContext("idx_test_vnodes_with_one_vnode_per_partition", 1);
     }
 
     @Test
     public void testVNodesWithNumTokensVNodePerPartition() {
-        buildContextAndTest("idx_test_vnodes_with_num_tokens_vnode_per_partition", numTokens);
+        if (numTokens == 1) {
+            logger.debug("[IGNORED] testVNodesWithNumTokensVNodePerPartition because target cassandra cluster is not configured with virtual tokens.");
+        } else {
+            createTestAndDeleteContext("idx_test_vnodes_with_num_tokens_vnode_per_partition", numTokens);
+        }
     }
 
     @Test
     public void testVNodesWithOneAndAHalfNumTokensVNodePerPartition() {
-        buildContextAndTest("idx_test_vnodes_with_one_and_a_half_num_tokens_vnode_per_partition",
-                Math.round(numTokens * 1.5f));
+        if (numTokens == 1) {
+            logger.debug("[IGNORED] testVNodesWithOneAndAHalfNumTokensVNodePerPartition because target cassandra cluster is not configured with virtual tokens.");
+        } else {
+            createTestAndDeleteContext("idx_test_vnodes_with_one_and_a_half_num_tokens_vnode_per_partition",
+                    Math.round(numTokens * 1.5f));
+        }
     }
 
     @Test
     public void testVNodesWithFloorNumTokensDiv2VNodePerPartition() {
-        buildContextAndTest("idx_test_vnodes_with_floor_num_tokens_div_2_vnode_per_partition",
-                Math.floorDiv(Math.round(numTokens), 2));
+        if (numTokens == 1) {
+            logger.debug("[IGNORED] testVNodesWithFloorNumTokensDiv2VNodePerPartition because target cassandra cluster is not configured with virtual tokens.");
+        } else {
+            createTestAndDeleteContext("idx_test_vnodes_with_floor_num_tokens_div_2_vnode_per_partition",
+                    Math.floorDiv(Math.round(numTokens), 2));
+        }
     }
 
     @Test
     public void testVNodesWithFloorNumTokensDiv3VNodePerPartition() {
-        buildContextAndTest("idx_test_vnodes_with_floor_num_tokens_div_3_vnode_per_partition",
-                Math.floorDiv(Math.round(numTokens), 3));
+        if (numTokens == 1) {
+            logger.debug("[IGNORED] testVNodesWithFloorNumTokensDiv3VNodePerPartition because target cassandra cluster is not configured with virtual tokens.");
+        } else {
+            createTestAndDeleteContext("idx_test_vnodes_with_floor_num_tokens_div_3_vnode_per_partition",
+                    Math.floorDiv(Math.round(numTokens), 3));
+        }
     }
 }
