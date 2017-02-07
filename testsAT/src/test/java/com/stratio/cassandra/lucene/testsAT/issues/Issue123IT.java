@@ -35,7 +35,6 @@ public class Issue123IT extends BaseIT {
 
     @BeforeClass
     public static void before() {
-
         utils = CassandraUtils.builder("issue_123")
                               .withPartitionKey("partition")
                               .withClusteringKey("id")

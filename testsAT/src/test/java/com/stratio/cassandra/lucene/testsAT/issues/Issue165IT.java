@@ -83,7 +83,6 @@ public class Issue165IT extends BaseIT {
 
     @Test
     public void testWithDescendingOrderInClusteringKey() {
-
         builder("issue_165").withTable("test")
                             .withIndexName("idx")
                             .withColumn("login", "text", stringMapper())

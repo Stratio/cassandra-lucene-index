@@ -127,5 +127,4 @@ public class RangeTombstoneIT extends BaseIT {
     public void testRangeTombstoneInfiniteClose() {
         test("ck <= 4", 1);
     }
-
 }

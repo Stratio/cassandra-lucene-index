@@ -310,7 +310,6 @@ public class BitemporalSearchIT extends BaseIT {
     @SuppressWarnings("unchecked")
     @Test
     public void testBitemporalSearchWithTTToSmallerThanTTFrom() {
-
         // testing with long value 1456876800 == 2016/03/02 00:00:00
         Map<String, String> data = new LinkedHashMap<>();
         data.put("integer_1", "5");

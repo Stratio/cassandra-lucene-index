@@ -35,7 +35,6 @@ public class SearchWithLongSkinnyRowsIT extends BaseIT {
 
     @BeforeClass
     public static void before() {
-
         utils = CassandraUtils.builder("search_with_long_skinny_rows")
                               .withPartitionKey("id")
                               .withColumn("id", "int")

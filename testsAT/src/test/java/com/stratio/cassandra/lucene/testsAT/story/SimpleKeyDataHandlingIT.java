@@ -72,7 +72,6 @@ public class SimpleKeyDataHandlingIT extends BaseIT {
 
     @Test
     public void testSingleInsertion() {
-
         // Data4 insertion
         utils.insert(data4).refresh();
 
@@ -130,7 +129,6 @@ public class SimpleKeyDataHandlingIT extends BaseIT {
 
     @Test
     public void testMultipleInsertion() {
-
         // Data4 and data5 insertion
         List<Row> rows = utils.insert(data4, data5).refresh().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 5 results!", 5, rows.size());

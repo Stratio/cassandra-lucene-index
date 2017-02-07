@@ -35,7 +35,6 @@ public class Issue18IT extends BaseIT {
 
     @Test
     public void test() {
-
         Map<String, String> data1 = Maps.newHashMap();
         data1.put("idcol", "1");
         data1.put("testtextcol", "'row1'");
