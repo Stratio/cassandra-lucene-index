@@ -305,5 +305,4 @@ public class FuzzySearchIT extends AbstractSearchIT {
     public void testFuzzyMapFieldTestWithAlias4() {
         filter(fuzzy("string_map$k1", "v1")).check(2);
     }
-
 }
