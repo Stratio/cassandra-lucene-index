@@ -24,6 +24,7 @@ import com.stratio.cassandra.lucene.IndexException
 import com.stratio.cassandra.lucene.column.Column
 import com.stratio.cassandra.lucene.schema.Schema
 import org.apache.cassandra.config.CFMetaData
+import org.apache.cassandra.cql3.Duration
 import org.apache.cassandra.db.marshal._
 
 import scala.annotation.tailrec
@@ -131,6 +132,7 @@ object SchemaValidator {
     case _: BooleanType => classOf[java.lang.Boolean]
     case _: BytesType => classOf[ByteBuffer]
     case _: InetAddressType => classOf[InetAddress]
+    case _: DurationType => classOf[Duration]
     case _ => throw new IndexException(s"Unsupported Cassandra data type: ${validator.getClass}")
   }
 

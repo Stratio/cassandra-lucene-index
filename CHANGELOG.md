@@ -2,6 +2,7 @@
 
 ## 3.10.0 (Upcoming)
 
+* Add support for indexing CQL durations
 * Upgrade to Apache Cassandra 3.10
 
 ## 3.9.6 (February 06, 2017)
@@ -134,7 +135,6 @@
 ## 3.0.3.1 (March 04, 2016)
 
 * Fix performance issues with ClusteringIndexNamesFilter
-
 * Add indexing of WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add search by WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add API for search-time transformation of WKT geographical shapes

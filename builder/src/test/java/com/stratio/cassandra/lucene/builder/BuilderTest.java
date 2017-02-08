@@ -242,6 +242,21 @@ public class BuilderTest {
     }
 
     @Test
+    public void testDurationMapperDefaults() {
+        String actual = durationMapper().build();
+        String expected = "{\"type\":\"duration\"}";
+        assertEquals("duration mapper serialization is wrong", expected, actual);
+    }
+
+    @Test
+    public void testDurationMapperFull() {
+        String actual = durationMapper().validated(true).column("column").nanosInDay(1L).nanosInMonth(2L).build();
+        String expected = "{\"type\":\"duration\",\"validated\":true,\"column\":\"column\"," +
+                          "\"nanoseconds_in_day\":1,\"nanoseconds_in_month\":2}";
+        assertEquals("duration mapper serialization is wrong", expected, actual);
+    }
+
+    @Test
     public void testFloatMapperDefaults() {
         String actual = floatMapper().build();
         String expected = "{\"type\":\"float\"}";

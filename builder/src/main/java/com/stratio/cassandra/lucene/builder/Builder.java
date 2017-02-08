@@ -150,6 +150,15 @@ public abstract class Builder {
     }
 
     /**
+     * Returns a new {@link DurationMapper}.
+     *
+     * @return a new duration mapper
+     */
+    public static DurationMapper durationMapper() {
+        return new DurationMapper();
+    }
+
+    /**
      * Returns a new {@link FloatMapper}.
      *
      * @return a new float mapper

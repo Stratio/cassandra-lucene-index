@@ -114,6 +114,7 @@ public class SchemaBuilderTest {
                               .mapper("bool", booleanMapper())
                               .mapper("date", dateMapper())
                               .mapper("date_range", dateRangeMapper("from", "to"))
+                              .mapper("duration", durationMapper())
                               .mapper("double", doubleMapper())
                               .mapper("float", floatMapper())
                               .mapper("geo", geoPointMapper("lat", "lon"))
@@ -137,6 +138,7 @@ public class SchemaBuilderTest {
                               "bool:{type:\"boolean\"}," +
                               "date:{type:\"date\"}," +
                               "date_range:{type:\"date_range\",from:\"from\",to:\"to\"}," +
+                              "duration:{type:\"duration\"}," +
                               "double:{type:\"double\"}," +
                               "float:{type:\"float\"}," +
                               "geo:{type:\"geo_point\",latitude:\"lat\",longitude:\"lon\"}," +

@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.schema;
 
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.SnowballAnalyzerBuilder;
+import com.stratio.cassandra.lucene.schema.mapping.DurationMapper;
 import com.stratio.cassandra.lucene.schema.mapping.builder.*;
 
 import java.util.LinkedHashMap;
@@ -108,6 +109,15 @@ public final class SchemaBuilders {
      */
     public static DateRangeMapperBuilder dateRangeMapper(String from, String to) {
         return new DateRangeMapperBuilder(from, to);
+    }
+
+    /**
+     * Returns a new {@link DateMapperBuilder}.
+     *
+     * @return a new decimal mapper builder
+     */
+    public static DurationMapperBuilder durationMapper() {
+        return new DurationMapperBuilder();
     }
 
     /**

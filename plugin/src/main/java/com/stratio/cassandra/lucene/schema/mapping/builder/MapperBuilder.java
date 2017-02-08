@@ -31,6 +31,7 @@ import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 @JsonSubTypes({@JsonSubTypes.Type(value = BlobMapperBuilder.class, name = "bytes"),
                @JsonSubTypes.Type(value = BooleanMapperBuilder.class, name = "boolean"),
                @JsonSubTypes.Type(value = DateMapperBuilder.class, name = "date"),
+               @JsonSubTypes.Type(value = DurationMapperBuilder.class, name = "duration"),
                @JsonSubTypes.Type(value = DoubleMapperBuilder.class, name = "double"),
                @JsonSubTypes.Type(value = FloatMapperBuilder.class, name = "float"),
                @JsonSubTypes.Type(value = InetMapperBuilder.class, name = "inet"),
