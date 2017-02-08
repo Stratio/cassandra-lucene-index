@@ -99,9 +99,9 @@ public class UDTPartialUpdateIT extends BaseIT {
              .insert(insertData1)
              .insert(insertData2)
              .insert(insertData3)
-             .insert(insertData4);
-
-        utils.filter(match("address.address", "fifth avenue")).refresh(true).checkUnorderedColumns("id", 1L)
+             .insert(insertData4)
+             .refresh()
+             .filter(match("address.address", "fifth avenue")).refresh(true).checkUnorderedColumns("id", 1L)
              .filter(match("address.number", 2)).checkUnorderedColumns("id", 1L)
              .filter(match("address.postal_code", 10021)).check(0);
 
@@ -109,9 +109,8 @@ public class UDTPartialUpdateIT extends BaseIT {
 
         utils.filter(match("address.address", "fifth avenue")).refresh(true).checkUnorderedColumns("id", 1L)
              .filter(match("address.number", 2)).checkUnorderedColumns("id", 1L)
-             .filter(match("address.postal_code", 10021)).checkUnorderedColumns("id", 1L);
-
-        utils.filter(match("address.address", "eliot ave")).refresh(true).checkUnorderedColumns("id", 2L)
+             .filter(match("address.postal_code", 10021)).checkUnorderedColumns("id", 1L)
+             .filter(match("address.address", "eliot ave")).refresh(true).checkUnorderedColumns("id", 2L)
              .filter(match("address.number", 45)).checkUnorderedColumns("id", 2L, 3L)
              .filter(match("address.postal_code", 50004)).check(0)
              .filter(match("address.address", "69th Ln")).refresh(true).checkUnorderedColumns("id", 3L)
@@ -119,8 +118,7 @@ public class UDTPartialUpdateIT extends BaseIT {
              .filter(match("address.postal_code", 558)).check(0)
              .filter(match("address.address", "HoneyWell st")).refresh(true).checkUnorderedColumns("id", 4L)
              .filter(match("address.number", 105)).checkUnorderedColumns("id", 4L)
-             .filter(match("address.postal_code", 10020)).check(0);
-
-        utils.dropTable().dropKeyspace();
+             .filter(match("address.postal_code", 10020)).check(0)
+             .dropTable().dropKeyspace();
     }
 }

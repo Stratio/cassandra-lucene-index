@@ -88,13 +88,13 @@ public class MatchSearchIT extends AbstractSearchIT {
     @Test
     public void testMatchBlobField3() {
         filter(match("blob_1", "3E0A161")).check(InvalidQueryException.class,
-                                                 "Field 'blob_1' requires an hex string, but found '3E0A161'");
+                "Field 'blob_1' requires an hex string, but found '3E0A161'");
     }
 
     @Test
     public void testMatchBlobField4() {
         filter(match("blob_1", "3E0A1")).check(InvalidQueryException.class,
-                                               "Field 'blob_1' requires an hex string, but found '3E0A1'");
+                "Field 'blob_1' requires an hex string, but found '3E0A1'");
     }
 
     @Test
@@ -105,7 +105,7 @@ public class MatchSearchIT extends AbstractSearchIT {
     @Test
     public void testMatchBooleanField1() {
         filter(match("boolean_1", "")).check(InvalidQueryException.class,
-                                             "Boolean field 'boolean_1' requires either 'true' or 'false', but found ''");
+                "Boolean field 'boolean_1' requires either 'true' or 'false', but found ''");
     }
 
     @Test
@@ -121,7 +121,7 @@ public class MatchSearchIT extends AbstractSearchIT {
     @Test
     public void testMatchBooleanField5() {
         filter(match("boolean_1", "else")).check(InvalidQueryException.class,
-                                                 "Boolean field 'boolean_1' requires either 'true' or 'false', but found 'else'");
+                "Boolean field 'boolean_1' requires either 'true' or 'false', but found 'else'");
     }
 
     @Test
@@ -146,7 +146,6 @@ public class MatchSearchIT extends AbstractSearchIT {
 
     @Test
     public void testMatchDateField1() {
-
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
         Date date = new Date();
 
@@ -239,7 +238,7 @@ public class MatchSearchIT extends AbstractSearchIT {
     @Test
     public void testMatchUUIDField1() {
         filter(match("uuid_1", "0")).check(InvalidQueryException.class,
-                                           "Field 'uuid_1' with value '0' can not be parsed as UUID");
+                "Field 'uuid_1' with value '0' can not be parsed as UUID");
     }
 
     @Test
@@ -268,8 +267,7 @@ public class MatchSearchIT extends AbstractSearchIT {
     @Test
     public void testMatchTimeUUIDField3() {
         String msg = "Field 'timeuuid_1' with value 'a4a70900-24e1-11df-001ff3591711' can not be parsed as UUID";
-        filter(match("timeuuid_1",
-                     "a4a70900-24e1-11df-001ff3591711")).check(InvalidQueryException.class, msg);
+        filter(match("timeuuid_1", "a4a70900-24e1-11df-001ff3591711")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -285,13 +283,13 @@ public class MatchSearchIT extends AbstractSearchIT {
     @Test
     public void testMatchInetField3() {
         filter(match("inet_1", "127.1.1.")).check(InvalidQueryException.class,
-                                                  "Field 'inet_1' with value '127.1.1.' can not be parsed as an inet address");
+                "Field 'inet_1' with value '127.1.1.' can not be parsed as an inet address");
     }
 
     @Test
     public void testMatchInetField4() {
         filter(match("inet_1", "")).check(InvalidQueryException.class,
-                                          "Field 'inet_1' with value '' can not be parsed as an inet address");
+                "Field 'inet_1' with value '' can not be parsed as an inet address");
     }
 
     @Test
@@ -306,8 +304,7 @@ public class MatchSearchIT extends AbstractSearchIT {
 
     @Test
     public void testMatchTextField3() {
-        filter(match("text_1",
-                     "Frasesinespaciosconarticulosylaspalabrassuficientesperomaslarga")).check(1);
+        filter(match("text_1", "Frasesinespaciosconarticulosylaspalabrassuficientesperomaslarga")).check(1);
     }
 
     @Test

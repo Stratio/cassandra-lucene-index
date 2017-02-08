@@ -100,7 +100,6 @@ public class GeoShapeSearchSpatialOperationsIT extends BaseIT {
         data9.put("search_case", "5");
         data9.put("identity", "'5'");
         data9.put("shape", "'" + shape_5 + "'");
-
     }
 
     @BeforeClass
