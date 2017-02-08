@@ -30,11 +30,11 @@ import static com.stratio.cassandra.lucene.builder.Builder.stringMapper;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class SelectPartialExpiredTTLSkinnyRowsIT extends BaseIT {
+
     private static CassandraUtils utils;
 
     @BeforeClass
     public static void before() {
-
         utils = CassandraUtils.builder("test_ttl_partial_skinny")
                               .withPartitionKey("a")
                               .withColumn("a", "int")
@@ -48,35 +48,34 @@ public class SelectPartialExpiredTTLSkinnyRowsIT extends BaseIT {
 
     @Test
     public void testSkinnyRowsPartialExpiredRows() throws InterruptedException {
-        utils.insert(new String[]{"a", "b"}, new Object[]{1, "a"}, 5);
-        utils.insert(new String[]{"a", "c"}, new Object[]{1, "b"});
-        utils.insert(new String[]{"a", "c"}, new Object[]{2, "b"}, 10);
-        utils.insert(new String[]{"a", "b"}, new Object[]{2, "a"});
-        utils.insert(new String[]{"a", "b"}, new Object[]{3, "a"}, 12);
-        utils.insert(new String[]{"a", "c"}, new Object[]{3, "c"});
-        utils.insert(new String[]{"a", "b", "c"}, new Object[]{4, "a", "c"});
-        utils.insert(new String[]{"a", "b", "c"}, new Object[]{5, "a", "c"});
-        utils.insert(new String[]{"a", "b", "c"}, new Object[]{6, "a", "c"});
+        utils.insert(new String[]{"a", "b"}, new Object[]{1, "a"}, 5)
+             .insert(new String[]{"a", "c"}, new Object[]{1, "b"})
+             .insert(new String[]{"a", "c"}, new Object[]{2, "b"}, 10)
+             .insert(new String[]{"a", "b"}, new Object[]{2, "a"})
+             .insert(new String[]{"a", "b"}, new Object[]{3, "a"}, 12)
+             .insert(new String[]{"a", "c"}, new Object[]{3, "c"})
+             .insert(new String[]{"a", "b", "c"}, new Object[]{4, "a", "c"})
+             .insert(new String[]{"a", "b", "c"}, new Object[]{5, "a", "c"})
+             .insert(new String[]{"a", "b", "c"}, new Object[]{6, "a", "c"})
+             .flush()
+             .insert(new String[]{"a", "b"}, new Object[]{11, "a"}, 5)
+             .insert(new String[]{"a", "c"}, new Object[]{11, "b"})
+             .insert(new String[]{"a", "b"}, new Object[]{12, "a"}, 10)
+             .insert(new String[]{"a", "c"}, new Object[]{12, "b"})
+             .insert(new String[]{"a", "b"}, new Object[]{13, "a"}, 12)
+             .insert(new String[]{"a", "c"}, new Object[]{13, "c"})
+             .insert(new String[]{"a", "b", "c"}, new Object[]{14, "a", "c"})
+             .insert(new String[]{"a", "b", "c"}, new Object[]{15, "a", "c"})
+             .insert(new String[]{"a", "b", "c"}, new Object[]{16, "a", "c"})
+             .insert(new String[]{"a", "b", "c"}, new Object[]{17, "a", "c"})
+             .flush();
 
-        utils.flush();
-
-        utils.insert(new String[]{"a", "b"}, new Object[]{11, "a"}, 5);
-        utils.insert(new String[]{"a", "c"}, new Object[]{11, "b"});
-        utils.insert(new String[]{"a", "b"}, new Object[]{12, "a"}, 10);
-        utils.insert(new String[]{"a", "c"}, new Object[]{12, "b"});
-        utils.insert(new String[]{"a", "b"}, new Object[]{13, "a"}, 12);
-        utils.insert(new String[]{"a", "c"}, new Object[]{13, "c"});
-        utils.insert(new String[]{"a", "b", "c"}, new Object[]{14, "a", "c"});
-        utils.insert(new String[]{"a", "b", "c"}, new Object[]{15, "a", "c"});
-        utils.insert(new String[]{"a", "b", "c"}, new Object[]{16, "a", "c"});
-        utils.insert(new String[]{"a", "b", "c"}, new Object[]{17, "a", "c"});
-
-        utils.flush();
         TimeUnit.SECONDS.sleep(15);
-        utils.compact(false).refresh();
-        utils.filter(match("b", "a")).checkUnorderedColumns("a", 2, 4, 5, 6, 14, 15, 16, 17)
-             .checkNumDocsInIndex(13);
 
+        utils.compact(false)
+             .refresh()
+             .filter(match("b", "a")).checkUnorderedColumns("a", 2, 4, 5, 6, 14, 15, 16, 17)
+             .checkNumDocsInIndex(13);
     }
 
     @AfterClass

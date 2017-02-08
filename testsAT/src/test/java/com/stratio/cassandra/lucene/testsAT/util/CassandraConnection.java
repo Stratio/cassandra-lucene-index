@@ -106,5 +106,4 @@ public class CassandraConnection {
             throw new RuntimeException("Error while invoking JMX method " + operation, e);
         }
     }
-
 }

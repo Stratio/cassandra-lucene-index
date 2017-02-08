@@ -77,13 +77,13 @@ public class GeoBBoxSearchIT extends BaseIT {
 
     @Test
     public void testGeoBBoxSearchBasicSuccess() {
-        utils.query(geoBBox("location", 0.0, 0.0, 0.0, 0.0)).check(1);
-        utils.query(geoBBox("location", 0.0, 1.0, 0.0, 1.0)).check(1);
-        utils.query(geoBBox("location", 0.0, 1.0, -1.0, 0.0)).check(1);
-        utils.query(geoBBox("location", 0.0, 0.0, 1.0, 2.0)).check(0);
-        utils.query(geoBBox("location", 1.0, 2.0, 0.0, 0.0)).check(0);
-        utils.query(geoBBox("location", -0000.1, 0.0001, -0.0001, 0.0001)).check(1);
-        utils.query(geoBBox("location", 50.000001, 50.000003, 50.000001, 50.000003)).check(1);
+        utils.query(geoBBox("location", 0.0, 0.0, 0.0, 0.0)).check(1)
+             .query(geoBBox("location", 0.0, 1.0, 0.0, 1.0)).check(1)
+             .query(geoBBox("location", 0.0, 1.0, -1.0, 0.0)).check(1)
+             .query(geoBBox("location", 0.0, 0.0, 1.0, 2.0)).check(0)
+             .query(geoBBox("location", 1.0, 2.0, 0.0, 0.0)).check(0)
+             .query(geoBBox("location", -0000.1, 0.0001, -0.0001, 0.0001)).check(1)
+             .query(geoBBox("location", 50.000001, 50.000003, 50.000001, 50.000003)).check(1);
     }
 
 }

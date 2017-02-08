@@ -40,7 +40,7 @@ public class UDTIndexingIT extends BaseIT {
     private static CassandraUtils utils;
     private static Map<String, String> data1 = Collections.unmodifiableMap(
             new HashMap<String, String>() {{
-                put("login", "'USER1'");
+                put("login", "'U1'");
                 put("first_name", "'Tom'");
                 put("last_name", "'Smith'");
                 put("address", "{ street: '1021 West 4th St. #202'," +
@@ -59,11 +59,10 @@ public class UDTIndexingIT extends BaseIT {
                                "longitude : -1.0" +
                                "}  " +
                                "}");
-
             }});
     private static Map<String, String> data2 = Collections.unmodifiableMap(
             new HashMap<String, String>() {{
-                put("login", "'USER2'");
+                put("login", "'U2'");
                 put("first_name", "'Tom'");
                 put("last_name", "'Smith'");
                 put("address", "{ street: '1021 West 4th St. #202'," +
@@ -82,11 +81,10 @@ public class UDTIndexingIT extends BaseIT {
                                "longitude : -2.0" +
                                "}  " +
                                "}");
-
             }});
     private static Map<String, String> data3 = Collections.unmodifiableMap(
             new HashMap<String, String>() {{
-                put("login", "'USER3'");
+                put("login", "'U3'");
                 put("first_name", "'Tom'");
                 put("last_name", "'Smith'");
                 put("address", "{  street: '1021 West 4th St. #202'," +
@@ -105,11 +103,10 @@ public class UDTIndexingIT extends BaseIT {
                                "longitude : -3.0" +
                                "}  " +
                                "}");
-
             }});
     private static Map<String, String> data4 = Collections.unmodifiableMap(
             new HashMap<String, String>() {{
-                put("login", "'USER4'");
+                put("login", "'U4'");
                 put("first_name", "'Tom'");
                 put("last_name", "'Smith'");
                 put("address", "{ street: '1021 West 4th St. #202'," +
@@ -128,11 +125,10 @@ public class UDTIndexingIT extends BaseIT {
                                "longitude : -4.0" +
                                "}  " +
                                "}");
-
             }});
     private static Map<String, String> data5 = Collections.unmodifiableMap(
             new HashMap<String, String>() {{
-                put("login", "'USER5'");
+                put("login", "'U5'");
                 put("first_name", "'Tom'");
                 put("last_name", "'Smith'");
                 put("address", "{ " +
@@ -152,11 +148,10 @@ public class UDTIndexingIT extends BaseIT {
                                "longitude : -5.0" +
                                "}  " +
                                "}");
-
             }});
     private static Map<String, String> data6 = Collections.unmodifiableMap(
             new HashMap<String, String>() {{
-                put("login", "'USER6'");
+                put("login", "'U6'");
                 put("first_name", "'Tom'");
                 put("last_name", "'Smith'");
                 put("address", "{  street: '1021 West 4th St. #202'," +
@@ -175,11 +170,10 @@ public class UDTIndexingIT extends BaseIT {
                                "longitude : -6.0" +
                                "}  " +
                                "}");
-
             }});
     private static Map<String, String> data7 = Collections.unmodifiableMap(
             new HashMap<String, String>() {{
-                put("login", "'USER7'");
+                put("login", "'U7'");
                 put("first_name", "'Tom'");
                 put("last_name", "'Smith'");
                 put("address", "{ street: '1021 West 4th St. #202'," +
@@ -198,11 +192,10 @@ public class UDTIndexingIT extends BaseIT {
                                "longitude : -7.0" +
                                "}  " +
                                "}");
-
             }});
     private static Map<String, String> data8 = Collections.unmodifiableMap(
             new HashMap<String, String>() {{
-                put("login", "'USER8'");
+                put("login", "'U8'");
                 put("first_name", "'Tom'");
                 put("last_name", "'Smith'");
                 put("address", "{ city: 'Madrid' }");
@@ -251,14 +244,10 @@ public class UDTIndexingIT extends BaseIT {
 
     @Test
     public void testUDTInternal() {
-        utils.filter(match("address.city", "Paris"))
-             .checkUnorderedColumns("login", "USER4", "USER5", "USER6", "USER7");
-        utils.filter(match("address.city", "San Francisco"))
-             .checkUnorderedColumns("login", "USER1", "USER2", "USER3");
-        utils.filter(match("address.bool", true))
-             .checkUnorderedColumns("login", "USER1", "USER3", "USER5", "USER7");
-        utils.filter(match("address.bool", false))
-             .checkUnorderedColumns("login", "USER2", "USER4", "USER6");
+        utils.filter(match("address.city", "Paris")).checkUnorderedColumns("login", "U4", "U5", "U6", "U7")
+             .filter(match("address.city", "San Francisco")).checkUnorderedColumns("login", "U1", "U2", "U3")
+             .filter(match("address.bool", true)).checkUnorderedColumns("login", "U1", "U3", "U5", "U7")
+             .filter(match("address.bool", false)).checkUnorderedColumns("login", "U2", "U4", "U6");
     }
 
     @Test
@@ -269,36 +258,22 @@ public class UDTIndexingIT extends BaseIT {
 
     @Test
     public void testUDTList() {
-        utils.filter(match("address.zips", 10))
-             .checkUnorderedColumns("login", "USER3", "USER4", "USER5");
-        utils.filter(match("address.zips", 12))
-             .checkUnorderedColumns("login", "USER4", "USER5", "USER6");
-        utils.filter(match("address.zips", 14))
-             .checkUnorderedColumns("login", "USER5", "USER6", "USER7");
-        utils.filter(match("address.zips", 15)).check(0);
-        utils.filter(match("address.zips", 16))
-             .checkUnorderedColumns("login", "USER6", "USER7");
-        utils.filter(match("address.zips", 18)).checkUnorderedColumns("login", "USER7");
+        utils.filter(match("address.zips", 10)).checkUnorderedColumns("login", "U3", "U4", "U5")
+             .filter(match("address.zips", 12)).checkUnorderedColumns("login", "U4", "U5", "U6")
+             .filter(match("address.zips", 14)).checkUnorderedColumns("login", "U5", "U6", "U7")
+             .filter(match("address.zips", 15)).check(0)
+             .filter(match("address.zips", 16)).checkUnorderedColumns("login", "U6", "U7")
+             .filter(match("address.zips", 18)).checkUnorderedColumns("login", "U7");
     }
 
     @Test
     public void testUDTMap() {
-        utils.filter(match("address.zips_map$1", "1A")).refresh(true)
-             .checkUnorderedColumns("login",
-                                    "USER1",
-                                    "USER3",
-                                    "USER5",
-                                    "USER7");
-        utils.filter(match("address.zips_map$1", "1B"))
-             .checkUnorderedColumns("login", "USER2", "USER4", "USER6");
-        utils.filter(match("address.zips_map$2", "2A"))
-             .checkUnorderedColumns("login", "USER1", "USER3", "USER5", "USER7");
-        utils.filter(match("address.zips_map$2", "2B"))
-             .checkUnorderedColumns("login", "USER2", "USER4", "USER6");
-        utils.filter(match("address.zips_map$3", "3A"))
-             .checkUnorderedColumns("login", "USER1", "USER3", "USER5", "USER7");
-        utils.filter(match("address.zips_map$3", "3B"))
-             .checkUnorderedColumns("login", "USER2", "USER4", "USER6");
+        utils.filter(match("address.zips_map$1", "1A")).checkUnorderedColumns("login", "U1", "U3", "U5", "U7")
+             .filter(match("address.zips_map$1", "1B")).checkUnorderedColumns("login", "U2", "U4", "U6")
+             .filter(match("address.zips_map$2", "2A")).checkUnorderedColumns("login", "U1", "U3", "U5", "U7")
+             .filter(match("address.zips_map$2", "2B")).checkUnorderedColumns("login", "U2", "U4", "U6")
+             .filter(match("address.zips_map$3", "3A")).checkUnorderedColumns("login", "U1", "U3", "U5", "U7")
+             .filter(match("address.zips_map$3", "3B")).checkUnorderedColumns("login", "U2", "U4", "U6");
     }
 
     @Test
@@ -308,113 +283,104 @@ public class UDTIndexingIT extends BaseIT {
 
     @Test
     public void testUDTSet() {
-        utils.filter(match("address.zips_set", 5)).checkUnorderedColumns("login", "USER1");
-        utils.filter(match("address.zips_set", 7))
-             .checkUnorderedColumns("login", "USER1", "USER2");
-        utils.filter(match("address.zips_set", 9))
-             .checkUnorderedColumns("login", "USER1", "USER2", "USER3");
-        utils.filter(match("address.zips_set", 11))
-             .checkUnorderedColumns("login", "USER2", "USER3", "USER4");
-        utils.filter(match("address.zips_set", 12)).check(0);
-        utils.filter(match("address.zips_set", 13))
-             .checkUnorderedColumns("login", "USER3", "USER4", "USER5");
-        utils.filter(match("address.zips_set", 14)).check(0);
-        utils.filter(match("address.zips_set", 15))
-             .checkUnorderedColumns("login", "USER4", "USER5", "USER6");
-        utils.filter(match("address.zips_set", 17))
-             .checkUnorderedColumns("login", "USER5", "USER6", "USER7");
-        utils.filter(match("address.zips_set", 19))
-             .checkUnorderedColumns("login", "USER6", "USER7");
-        utils.filter(match("address.zips_set", 20)).check(0);
-        utils.filter(match("address.zips_set", 21)).checkUnorderedColumns("login", "USER7");
+        utils.filter(match("address.zips_set", 5)).checkUnorderedColumns("login", "U1")
+             .filter(match("address.zips_set", 7)).checkUnorderedColumns("login", "U1", "U2")
+             .filter(match("address.zips_set", 9)).checkUnorderedColumns("login", "U1", "U2", "U3")
+             .filter(match("address.zips_set", 11)).checkUnorderedColumns("login", "U2", "U3", "U4")
+             .filter(match("address.zips_set", 12)).check(0)
+             .filter(match("address.zips_set", 13)).checkUnorderedColumns("login", "U3", "U4", "U5")
+             .filter(match("address.zips_set", 14)).check(0)
+             .filter(match("address.zips_set", 15)).checkUnorderedColumns("login", "U4", "U5", "U6")
+             .filter(match("address.zips_set", 17)).checkUnorderedColumns("login", "U5", "U6", "U7")
+             .filter(match("address.zips_set", 19)).checkUnorderedColumns("login", "U6", "U7")
+             .filter(match("address.zips_set", 20)).check(0)
+             .filter(match("address.zips_set", 21)).checkUnorderedColumns("login", "U7");
     }
 
     @Test
     public void testUDTOverUDT() {
-        utils.filter(match("address.point.latitude", 1.0))
-             .checkUnorderedColumns("login", "USER1");
-        utils.filter(match("address.point.latitude", 2.0))
-             .checkUnorderedColumns("login", "USER2");
-        utils.filter(match("address.point.latitude", 3.0))
-             .checkUnorderedColumns("login", "USER3");
-        utils.filter(match("address.point.latitude", 4.0))
-             .checkUnorderedColumns("login", "USER4");
-        utils.filter(match("address.point.latitude", 5.0))
-             .checkUnorderedColumns("login", "USER5");
-        utils.filter(match("address.point.latitude", 6.0))
-             .checkUnorderedColumns("login", "USER6");
-        utils.filter(match("address.point.latitude", 7.0))
-             .checkUnorderedColumns("login", "USER7");
-        utils.filter(match("address.point.longitude", -1.0))
-             .checkUnorderedColumns("login", "USER1");
-        utils.filter(match("address.point.longitude", -2.0))
-             .checkUnorderedColumns("login", "USER2");
-        utils.filter(match("address.point.longitude", -3.0))
-             .checkUnorderedColumns("login", "USER3");
-        utils.filter(match("address.point.longitude", -4.0))
-             .checkUnorderedColumns("login", "USER4");
-        utils.filter(match("address.point.longitude", -5.0))
-             .checkUnorderedColumns("login", "USER5");
-        utils.filter(match("address.point.longitude", -6.0))
-             .checkUnorderedColumns("login", "USER6");
-        utils.filter(match("address.point.longitude", -7.0))
-             .checkUnorderedColumns("login", "USER7");
-        utils.filter(range("address.point.latitude").lower(1.0)
+        utils.filter(match("address.point.latitude", 1.0)).checkUnorderedColumns("login", "U1")
+             .filter(match("address.point.latitude", 2.0)).checkUnorderedColumns("login", "U2")
+             .filter(match("address.point.latitude", 3.0))
+             .checkUnorderedColumns("login", "U3")
+             .filter(match("address.point.latitude", 4.0))
+             .checkUnorderedColumns("login", "U4")
+             .filter(match("address.point.latitude", 5.0))
+             .checkUnorderedColumns("login", "U5")
+             .filter(match("address.point.latitude", 6.0))
+             .checkUnorderedColumns("login", "U6")
+             .filter(match("address.point.latitude", 7.0))
+             .checkUnorderedColumns("login", "U7")
+             .filter(match("address.point.longitude", -1.0))
+             .checkUnorderedColumns("login", "U1")
+             .filter(match("address.point.longitude", -2.0))
+             .checkUnorderedColumns("login", "U2")
+             .filter(match("address.point.longitude", -3.0))
+             .checkUnorderedColumns("login", "U3")
+             .filter(match("address.point.longitude", -4.0))
+             .checkUnorderedColumns("login", "U4")
+             .filter(match("address.point.longitude", -5.0))
+             .checkUnorderedColumns("login", "U5")
+             .filter(match("address.point.longitude", -6.0))
+             .checkUnorderedColumns("login", "U6")
+             .filter(match("address.point.longitude", -7.0))
+             .checkUnorderedColumns("login", "U7")
+             .filter(range("address.point.latitude").lower(1.0)
                                                     .upper(3.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedColumns("login", "USER1", "USER2", "USER3");
-        utils.filter(range("address.point.latitude").lower(2.0)
+             .checkUnorderedColumns("login", "U1", "U2", "U3")
+             .filter(range("address.point.latitude").lower(2.0)
                                                     .upper(5.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedColumns("login", "USER2", "USER3", "USER4", "USER5");
-        utils.filter(range("address.point.latitude").lower(1.0)
+             .checkUnorderedColumns("login", "U2", "U3", "U4", "U5")
+             .filter(range("address.point.latitude").lower(1.0)
                                                     .upper(7.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
              .checkUnorderedColumns("login",
-                                    "USER1",
-                                    "USER2",
-                                    "USER3",
-                                    "USER4",
-                                    "USER5",
-                                    "USER6",
-                                    "USER7");
-        utils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
-             .checkUnorderedColumns("login", "USER2");
-        utils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
-             .checkUnorderedColumns("login", "USER3", "USER4");
-        utils.filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
-             .checkUnorderedColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6");
-        utils.filter(range("address.point.latitude").lower(1.0)
+                                    "U1",
+                                    "U2",
+                                    "U3",
+                                    "U4",
+                                    "U5",
+                                    "U6",
+                                    "U7")
+             .filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
+             .checkUnorderedColumns("login", "U2")
+             .filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
+             .checkUnorderedColumns("login", "U3", "U4")
+             .filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
+             .checkUnorderedColumns("login", "U2", "U3", "U4", "U5", "U6")
+             .filter(range("address.point.latitude").lower(1.0)
                                                     .upper(3.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedColumns("login", "USER1", "USER2", "USER3");
-        utils.filter(range("address.point.latitude").lower(2.0)
+             .checkUnorderedColumns("login", "U1", "U2", "U3")
+             .filter(range("address.point.latitude").lower(2.0)
                                                     .upper(5.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedColumns("login", "USER2", "USER3", "USER4", "USER5");
-        utils.filter(range("address.point.latitude").lower(1.0)
+             .checkUnorderedColumns("login", "U2", "U3", "U4", "U5")
+             .filter(range("address.point.latitude").lower(1.0)
                                                     .upper(7.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
              .checkUnorderedColumns("login",
-                                    "USER1",
-                                    "USER2",
-                                    "USER3",
-                                    "USER4",
-                                    "USER5",
-                                    "USER6",
-                                    "USER7");
-        utils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
-             .checkUnorderedColumns("login", "USER2");
-        utils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
-             .checkUnorderedColumns("login", "USER3", "USER4");
-        utils.filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
-             .checkUnorderedColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6");
+                                    "U1",
+                                    "U2",
+                                    "U3",
+                                    "U4",
+                                    "U5",
+                                    "U6",
+                                    "U7")
+             .filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
+             .checkUnorderedColumns("login", "U2")
+             .filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
+             .checkUnorderedColumns("login", "U3", "U4")
+             .filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
+             .checkUnorderedColumns("login", "U2", "U3", "U4", "U5", "U6");
     }
 
     @Test
@@ -428,6 +394,6 @@ public class UDTIndexingIT extends BaseIT {
         utils.insert(data8)
              .refresh()
              .filter(match("address.city", "Madrid"))
-             .checkUnorderedColumns("login", "USER8");
+             .checkUnorderedColumns("login", "U8");
     }
 }

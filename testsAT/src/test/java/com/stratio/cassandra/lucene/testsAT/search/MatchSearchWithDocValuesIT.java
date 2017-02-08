@@ -149,7 +149,6 @@ public class MatchSearchWithDocValuesIT extends AbstractSearchIT {
 
     @Test
     public void testMatchDate1() {
-
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
         Date date = new Date();
 
@@ -158,7 +157,6 @@ public class MatchSearchWithDocValuesIT extends AbstractSearchIT {
 
     @Test
     public void testMatchDate2() {
-
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, -1);
@@ -174,7 +172,6 @@ public class MatchSearchWithDocValuesIT extends AbstractSearchIT {
 
     @Test
     public void testMatchDate4() {
-
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, -1);
