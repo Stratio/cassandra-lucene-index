@@ -89,5 +89,4 @@ public class PerPartitionLimitIT extends BaseIT {
             utils.dropKeyspace();
         }
     }
-
 }

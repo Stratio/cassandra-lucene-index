@@ -32,7 +32,6 @@ public class MultiMappingIT extends BaseIT {
 
     @BeforeClass
     public static void before() {
-
         utils = CassandraUtils.builder("sort_alias")
                               .withPartitionKey("key")
                               .withColumn("key", "int")
@@ -87,6 +86,5 @@ public class MultiMappingIT extends BaseIT {
         utils.select()
              .sort(field("alias_text"))
              .checkOrderedColumns("text", "04-01-2011", "03-01-2012", "02-01-2013", "01-01-2014");
-
     }
 }
