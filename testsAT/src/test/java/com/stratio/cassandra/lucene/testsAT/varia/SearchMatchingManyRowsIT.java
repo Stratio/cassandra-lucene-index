@@ -38,7 +38,6 @@ public class SearchMatchingManyRowsIT extends BaseIT {
 
     @BeforeClass
     public static void before() {
-
         utils = CassandraUtils.builder("search_matching_many_rows")
                               .withPartitionKey("pk")
                               .withClusteringKey("ck")

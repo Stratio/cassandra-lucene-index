@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.testsAT.story;
 
-import com.datastax.driver.core.Row;
 import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.After;
@@ -24,12 +23,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.util.List;
-
 import static com.stratio.cassandra.lucene.builder.Builder.wildcard;
 import static com.stratio.cassandra.lucene.testsAT.story.DataHelper.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 @RunWith(JUnit4.class)
 public class SimpleKeyDataHandlingIT extends BaseIT {
@@ -72,150 +67,61 @@ public class SimpleKeyDataHandlingIT extends BaseIT {
 
     @Test
     public void testSingleInsertion() {
-
         // Data4 insertion
-        utils.insert(data4).refresh();
-
-        List<Row> rows = utils.query(wildcard("ascii_1", "*")).get();
-
-        assertEquals("Expected 4 results!", 4, rows.size());
-
-        // Data5 insertion
-        utils.insert(data5).refresh();
-
-        rows = utils.query(wildcard("ascii_1", "*")).get();
-
-        assertEquals("Expected 5 results!", 5, rows.size());
-
-        // Data4 removal
-        utils.delete().where("integer_1", 4).refresh();
-
-        rows = utils.query(wildcard("ascii_1", "*")).get();
-
-        assertEquals("Expected 4 results!", 4, rows.size());
-        assertFalse("Element not expected!", containsElementByIntegerKey(rows, 4));
-
-        // Data5 removal
-        utils.delete().where("integer_1", 5).refresh();
-
-        rows = utils.query(wildcard("ascii_1", "*")).get();
-
-        assertEquals("Expected 3 results!", 3, rows.size());
-        assertFalse("Element not expected!", containsElementByIntegerKey(rows, 5));
-
-        // Data2 removal
-        utils.delete().where("integer_1", 2).refresh();
-
-        rows = utils.query(wildcard("ascii_1", "*")).get();
-
-        assertEquals("Expected 2 results!", 2, rows.size());
-        assertFalse("Element not expected!", containsElementByIntegerKey(rows, 2));
-
-        // Data3 removal
-        utils.delete().where("integer_1", 3).refresh();
-
-        rows = utils.query(wildcard("ascii_1", "*")).get();
-
-        assertEquals("Expected 1 result!", 1, rows.size());
-        assertFalse("Element not expected!", containsElementByIntegerKey(rows, 3));
-
-        // Data1 removal
-        utils.delete().where("integer_1", 1).refresh();
-
-        rows = utils.query(wildcard("ascii_1", "*")).get();
-
-        assertEquals("Expected 0 results!", 0, rows.size());
-        assertFalse("Element not expected!", containsElementByIntegerKey(rows, 1));
+        utils.insert(data4).refresh()
+             .query(wildcard("ascii_1", "*")).check(4)
+             .insert(data5).refresh()
+             .query(wildcard("ascii_1", "*")).check(5)
+             .delete().where("integer_1", 4).refresh()
+             .query(wildcard("ascii_1", "*")).checkUnorderedColumns("integer_1", 1, 2, 3, 5)
+             .delete().where("integer_1", 5).refresh()
+             .query(wildcard("ascii_1", "*")).checkUnorderedColumns("integer_1", 1, 2, 3)
+             .delete().where("integer_1", 2).refresh()
+             .query(wildcard("ascii_1", "*")).checkUnorderedColumns("integer_1", 1, 3)
+             .delete().where("integer_1", 3).refresh()
+             .query(wildcard("ascii_1", "*")).checkUnorderedColumns("integer_1", 1)
+             .delete().where("integer_1", 1).refresh()
+             .query(wildcard("ascii_1", "*")).check(0);
     }
 
     @Test
     public void testMultipleInsertion() {
-
         // Data4 and data5 insertion
-        List<Row> rows = utils.insert(data4, data5).refresh().query(wildcard("ascii_1", "*")).get();
-        assertEquals("Expected 5 results!", 5, rows.size());
-
-        // Data4 removal
-        rows = utils.delete().where("integer_1", 4).refresh().query(wildcard("ascii_1", "*")).get();
-        assertEquals("Expected 4 results!", 4, rows.size());
-        assertFalse("Element not expected!", containsElementByIntegerKey(rows, 4));
-
-        // Data5 removal
-        rows = utils.delete().where("integer_1", 5).refresh().query(wildcard("ascii_1", "*")).get();
-        assertEquals("Expected 3 results!", 3, rows.size());
-        assertFalse("Element not expected!", containsElementByIntegerKey(rows, 5));
-
-        // Data2 removal
-        rows = utils.delete().where("integer_1", 2).refresh().query(wildcard("ascii_1", "*")).get();
-        assertEquals("Expected 2 results!", 2, rows.size());
-        assertFalse("Element not expected!", containsElementByIntegerKey(rows, 2));
-
-        // Data3 removal
-        rows = utils.delete().where("integer_1", 3).refresh().query(wildcard("ascii_1", "*")).get();
-        assertEquals("Expected 1 result!", 1, rows.size());
-        assertFalse("Element not expected!", containsElementByIntegerKey(rows, 3));
-
-        // Data1 removal
-        rows = utils.delete().where("integer_1", 1).refresh().query(wildcard("ascii_1", "*")).get();
-        assertEquals("Expected 0 results!", 0, rows.size());
-        assertFalse("Element not expected!", containsElementByIntegerKey(rows, 1));
+        utils.insert(data4, data5).refresh()
+             .query(wildcard("ascii_1", "*")).check(5)
+             .delete().where("integer_1", 4).refresh()
+             .query(wildcard("ascii_1", "*")).checkUnorderedColumns("integer_1", 1, 2, 3, 5)
+             .delete().where("integer_1", 5).refresh()
+             .query(wildcard("ascii_1", "*")).checkUnorderedColumns("integer_1", 1, 2, 3)
+             .delete().where("integer_1", 2).refresh()
+             .query(wildcard("ascii_1", "*")).checkUnorderedColumns("integer_1", 1, 3)
+             .delete().where("integer_1", 3).refresh()
+             .query(wildcard("ascii_1", "*")).checkUnorderedColumns("integer_1", 1)
+             .delete().where("integer_1", 1).refresh()
+             .query(wildcard("ascii_1", "*")).check(0);
     }
 
     @Test
     public void testMultipleDeletion() {
-        List<Row> rows = utils.delete()
-                              .where("integer_1", 2)
-                              .delete()
-                              .where("integer_1", 3)
-                              .refresh()
-                              .query(wildcard("ascii_1", "*"))
-                              .get();
-        assertEquals("Expected 1 result!", 1, rows.size());
-        assertFalse("Element not expected!", containsElementByIntegerKey(rows, 3));
-
-        rows = utils.delete().where("integer_1", 1).refresh().query(wildcard("ascii_1", "*")).get();
-        assertEquals("Expected 0 results!", 0, rows.size());
-        assertFalse("Element not expected!", containsElementByIntegerKey(rows, 1));
+        utils.delete().where("integer_1", 2)
+             .delete().where("integer_1", 3).refresh()
+             .query(wildcard("ascii_1", "*")).checkUnorderedColumns("integer_1", 1)
+             .delete().where("integer_1", 1).refresh()
+             .query(wildcard("ascii_1", "*")).check(0);
     }
 
     @Test
     public void testUpdate() {
-        utils.query(wildcard("text_1", "text"))
-             .check(3)
-             .update()
-             .set("text_1", "other")
-             .where("integer_1", 2)
-             .refresh()
-             .query(wildcard("text_1", "text"))
-             .check(2)
-             .query(wildcard("text_1", "other"))
-             .check(1);
+        utils.query(wildcard("text_1", "text")).check(3)
+             .update().set("text_1", "other").where("integer_1", 2).refresh()
+             .query(wildcard("text_1", "text")).check(2)
+             .query(wildcard("text_1", "other")).check(1);
     }
 
     @Test
     public void testInsertWithUpdate() {
-        utils.query(wildcard("text_1", "text"))
-             .check(3)
-             .update()
-             .set("text_1", "new")
-             .where("integer_1", 1000)
-             .refresh()
-             .query(wildcard("text_1", "new"))
-             .check(1);
-    }
-
-    private static boolean containsElementByIntegerKey(List<Row> resultList, int key) {
-
-        boolean isContained = false;
-        int elementKey;
-        for (Row resultElement : resultList) {
-            elementKey = resultElement.getInt("integer_1");
-
-            if (elementKey == key) {
-                isContained = true;
-            }
-        }
-
-        return isContained;
+        utils.query(wildcard("text_1", "text")).check(3)
+             .update().set("text_1", "new").where("integer_1", 1000).refresh()
+             .query(wildcard("text_1", "new")).check(1);
     }
 }
