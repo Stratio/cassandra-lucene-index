@@ -72,7 +72,6 @@ public class ComposedKeyDataDeletionIT extends BaseIT {
 
     @Test
     public void testColumnDeletion() {
-
         List<Row> rows = utils.delete("bigint_1")
                               .where("integer_1", 1)
                               .and("ascii_1", "ascii")
@@ -97,7 +96,6 @@ public class ComposedKeyDataDeletionIT extends BaseIT {
 
     @Test
     public void testMapElementDeletion() {
-
         List<Row> rows = utils.delete("map_1['k1']")
                               .where("integer_1", 1)
                               .and("ascii_1", "ascii")
@@ -126,7 +124,6 @@ public class ComposedKeyDataDeletionIT extends BaseIT {
 
     @Test
     public void testListElementDeletion() {
-
         List<Row> rows = utils.delete("list_1[0]")
                               .where("integer_1", 1)
                               .and("ascii_1", "ascii")

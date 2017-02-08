@@ -25,12 +25,12 @@ import java.util.concurrent.TimeUnit;
 
 import static com.stratio.cassandra.lucene.builder.Builder.match;
 import static com.stratio.cassandra.lucene.builder.Builder.stringMapper;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class SelectTotalExpiredTTLWideRowsIT extends BaseIT {
+
     private static CassandraUtils utils;
 
     @BeforeClass
@@ -50,37 +50,33 @@ public class SelectTotalExpiredTTLWideRowsIT extends BaseIT {
 
     @Test
     public void testSkinnyRowsTotalExpiredRows() throws InterruptedException {
-
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{1, 1, "a", "b"}, 5);
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{2, 2, "a", "b"}, 10);
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{3, 3, "a", "c"}, 11);
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{4, 4, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{5, 5, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{6, 6, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{7, 7, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{8, 8, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{9, 9, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{10, 10, "a", "c"});
-
-        utils.flush();
-
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{11, 11, "a", "b"}, 5);
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{12, 12, "a", "b"}, 10);
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{13, 13, "a", "c"}, 11);
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{14, 14, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{15, 15, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{16, 16, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{17, 17, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{18, 18, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{19, 19, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{20, 20, "a", "c"});
-
-        utils.flush();
+        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{1, 1, "a", "b"}, 5)
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{2, 2, "a", "b"}, 10)
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{3, 3, "a", "c"}, 11)
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{4, 4, "a", "c"})
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{5, 5, "a", "c"})
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{6, 6, "a", "c"})
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{7, 7, "a", "c"})
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{8, 8, "a", "c"})
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{9, 9, "a", "c"})
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{10, 10, "a", "c"})
+             .flush()
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{11, 11, "a", "b"}, 5)
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{12, 12, "a", "b"}, 10)
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{13, 13, "a", "c"}, 11)
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{14, 14, "a", "c"})
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{15, 15, "a", "c"})
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{16, 16, "a", "c"})
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{17, 17, "a", "c"})
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{18, 18, "a", "c"})
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{19, 19, "a", "c"})
+             .insert(new String[]{"a", "a2", "b", "c"}, new Object[]{20, 20, "a", "c"})
+             .flush();
 
         TimeUnit.SECONDS.sleep(13);
-        utils.compact(false);
 
-        utils.refresh()
+        utils.compact(false)
+             .refresh()
              .filter(match("c", "b")).check(0)
              .filter(match("c", "c")).checkUnorderedColumns("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20)
              .filter(match("b", "a")).checkUnorderedColumns("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20)

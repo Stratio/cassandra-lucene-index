@@ -103,5 +103,4 @@ public class WildcardSearchIT extends AbstractSearchIT {
     public void testWildcardVarcharField4() {
         filter(wildcard("varchar_1", "")).check(0);
     }
-
 }
