@@ -75,5 +75,4 @@ public class ReadStaticColumnsIT extends BaseIT {
         select.checkUnorderedColumns("cluster_key", 16, 17);
         select.checkUnorderedColumns("name", "Name15-2", "Name15-2");
     }
-
 }

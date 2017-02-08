@@ -38,7 +38,6 @@ public class UDFsIT extends BaseIT {
 
     @BeforeClass
     public static void before() {
-
         utils = CassandraUtils.builder("udfs")
                               .withPartitionKey("key")
                               .withColumn("key", "uuid")
@@ -63,7 +62,6 @@ public class UDFsIT extends BaseIT {
 
     @Test
     public void testUDF() {
-
         utils.execute("CREATE OR REPLACE FUNCTION %s.double (input int)\n" +
                       "RETURNS NULL ON NULL INPUT\n" +
                       "RETURNS bigint\n" +
@@ -87,7 +85,6 @@ public class UDFsIT extends BaseIT {
 
     @Test
     public void testUDAF() {
-
         utils.execute("CREATE FUNCTION %s.averageState ( state tuple<int,bigint>, val int )\n" +
                       "  CALLED ON NULL INPUT\n" +
                       "  RETURNS tuple<int,bigint>\n" +

@@ -165,7 +165,6 @@ public class GeoShapeSearchOverGeoPointsIT extends BaseIT {
                               "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
                              .operation("intersects"))
              .checkUnorderedColumns("place", "POINT_3", "POINT_4", "POINT_5", "POINT_6");
-
     }
 
     @Test
@@ -192,7 +191,6 @@ public class GeoShapeSearchOverGeoPointsIT extends BaseIT {
                               "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
                               "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
                              .operation("contains")).check(0);
-
     }
 
     @Test
@@ -228,7 +226,6 @@ public class GeoShapeSearchOverGeoPointsIT extends BaseIT {
                               "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
                              .operation("is_within"))
              .checkUnorderedColumns("place", "POINT_3", "POINT_4", "POINT_5", "POINT_6");
-
     }
 
     @Test

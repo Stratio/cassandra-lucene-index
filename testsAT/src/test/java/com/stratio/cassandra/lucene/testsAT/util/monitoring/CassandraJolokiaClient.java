@@ -63,7 +63,6 @@ public class CassandraJolokiaClient implements CassandraMonitoringClient {
         } catch (J4pException e) {
             throw new RuntimeException("J4pException: " + e.getMessage(), e);
         }
-
     }
 
     /** {@inheritDoc} */
@@ -75,6 +74,5 @@ public class CassandraJolokiaClient implements CassandraMonitoringClient {
         } catch (Exception e) {
             throw new RuntimeException(e.getLocalizedMessage(), e);
         }
-
     }
 }

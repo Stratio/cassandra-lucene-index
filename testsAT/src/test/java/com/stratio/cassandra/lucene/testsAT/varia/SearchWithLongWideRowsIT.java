@@ -36,7 +36,6 @@ public class SearchWithLongWideRowsIT extends BaseIT {
 
     @BeforeClass
     public static void before() {
-
         utils = CassandraUtils.builder("search_with_long_wide_rows")
                               .withPartitionKey("partition")
                               .withClusteringKey("id")

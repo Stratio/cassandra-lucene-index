@@ -95,7 +95,6 @@ public class MatchSearchIT extends AbstractSearchIT {
     public void testMatchBlobField4() {
         filter(match("blob_1", "3E0A1")).check(InvalidQueryException.class,
                                                "Field 'blob_1' requires an hex string, but found '3E0A1'");
-
     }
 
     @Test
@@ -147,7 +146,6 @@ public class MatchSearchIT extends AbstractSearchIT {
 
     @Test
     public void testMatchDateField1() {
-
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
         Date date = new Date();
 
@@ -156,7 +154,6 @@ public class MatchSearchIT extends AbstractSearchIT {
 
     @Test
     public void testMatchDateField2() {
-
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, -1);
@@ -172,7 +169,6 @@ public class MatchSearchIT extends AbstractSearchIT {
 
     @Test
     public void testMatchDateField4() {
-
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, -1);
@@ -273,11 +269,8 @@ public class MatchSearchIT extends AbstractSearchIT {
 
     @Test
     public void testMatchTimeUUIDField3() {
-        String
-                msg
-                = "Field 'timeuuid_1' with value 'a4a70900-24e1-11df-001ff3591711' can not be parsed as UUID";
-        filter(match("timeuuid_1",
-                     "a4a70900-24e1-11df-001ff3591711")).check(InvalidQueryException.class, msg);
+        String msg = "Field 'timeuuid_1' with value 'a4a70900-24e1-11df-001ff3591711' can not be parsed as UUID";
+        filter(match("timeuuid_1", "a4a70900-24e1-11df-001ff3591711")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -314,8 +307,7 @@ public class MatchSearchIT extends AbstractSearchIT {
 
     @Test
     public void testMatchTextField3() {
-        filter(match("text_1",
-                     "Frasesinespaciosconarticulosylaspalabrassuficientesperomaslarga")).check(1);
+        filter(match("text_1", "Frasesinespaciosconarticulosylaspalabrassuficientesperomaslarga")).check(1);
     }
 
     @Test

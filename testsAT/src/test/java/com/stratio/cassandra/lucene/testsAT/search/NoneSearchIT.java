@@ -28,5 +28,4 @@ public class NoneSearchIT extends AbstractSearchIT {
     public void testNone() {
         filter(none()).check(0);
     }
-
 }

@@ -58,11 +58,25 @@ public class Issue143IT extends BaseIT {
                                     .withClusteringKey("year", "month", "day", "hour", "minute", "second")
                                     .build()
                                     .createKeyspace()
-                                    .createTable();
-        utils.insert(new String[]{"id", "year", "month", "day", "hour", "minute", "second", "speed"},
-                     new Object[]{1, 2, 3, 4, 5, 6, 7, 0});
-        utils.insert(new String[]{"id", "year", "month", "day", "hour", "minute", "second", "speed"},
-                     new Object[]{1, 2, 3, 4, 5, 6, 8, 10});
+                                    .createTable()
+                                    .insert(new String[]{"id",
+                                                         "year",
+                                                         "month",
+                                                         "day",
+                                                         "hour",
+                                                         "minute",
+                                                         "second",
+                                                         "speed"},
+                                            new Object[]{1, 2, 3, 4, 5, 6, 7, 0})
+                                    .insert(new String[]{"id",
+                                                         "year",
+                                                         "month",
+                                                         "day",
+                                                         "hour",
+                                                         "minute",
+                                                         "second",
+                                                         "speed"},
+                                            new Object[]{1, 2, 3, 4, 5, 6, 8, 10});
     }
 
     @AfterClass
