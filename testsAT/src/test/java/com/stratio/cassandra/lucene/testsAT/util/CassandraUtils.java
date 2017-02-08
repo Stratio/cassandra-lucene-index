@@ -284,7 +284,6 @@ public class CassandraUtils {
 
     @SafeVarargs
     public final CassandraUtils insert(Map<String, String>... paramss) {
-
         Batch batch = QueryBuilder.unloggedBatch();
         for (Map<String, String> params : paramss) {
             String columns = "";
