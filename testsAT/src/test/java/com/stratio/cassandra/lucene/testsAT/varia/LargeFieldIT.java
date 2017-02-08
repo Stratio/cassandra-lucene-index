@@ -32,7 +32,6 @@ public class LargeFieldIT extends BaseIT {
 
     @Test
     public void testLargeField() throws IOException {
-
         CassandraUtils utils = CassandraUtils.builder("large_field")
                                              .withPartitionKey("k")
                                              .withColumn("k", "int", null)

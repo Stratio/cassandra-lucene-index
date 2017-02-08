@@ -44,7 +44,6 @@ public class StatelessSearchWithWideRowsIT extends BaseIT {
 
     @BeforeClass
     public static void before() {
-
         utils = CassandraUtils.builder("stateless_search_wide")
                               .withPartitionKey("pk")
                               .withClusteringKey("ck")
@@ -83,7 +82,6 @@ public class StatelessSearchWithWideRowsIT extends BaseIT {
     public void testQuery() throws Exception {
         assertPure("Search with must is not a pure function",
                    () -> utils.query(all()).fetchSize(10).limit(40).getLast().get("rc", int.class));
-
     }
 
     @Test
