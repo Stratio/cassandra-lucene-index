@@ -31,7 +31,6 @@ public class Issue64IT extends BaseIT {
 
     @Test
     public void test() {
-
         builder("issue_64").withTable("flights")
                            .withIndexName("flights_index")
                            .withPartitionKey("id")

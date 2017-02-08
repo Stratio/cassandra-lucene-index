@@ -46,5 +46,4 @@ public class BaseIT {
     protected <T> void assertPure(String msg, Callable<T> callable) throws Exception {
         assertPure(msg, 10, callable.call(), callable);
     }
-
 }
