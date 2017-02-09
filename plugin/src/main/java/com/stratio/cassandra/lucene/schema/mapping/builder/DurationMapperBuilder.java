@@ -25,7 +25,7 @@ import com.stratio.cassandra.lucene.schema.mapping.DurationMapper;
  */
 public class DurationMapperBuilder extends SingleColumnMapperBuilder<DurationMapper, DurationMapperBuilder> {
 
-    @JsonProperty("nanoseconds_per_month")
+    @JsonProperty("nanos_per_month")
     private Long nanosPerMonth;
 
     /**

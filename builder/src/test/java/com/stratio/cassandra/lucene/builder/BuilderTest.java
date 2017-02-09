@@ -251,7 +251,7 @@ public class BuilderTest {
     @Test
     public void testDurationMapperFull() {
         String actual = durationMapper().validated(true).column("col").nanosecondsPerMonth(2L).build();
-        String expected = "{\"type\":\"duration\",\"validated\":true,\"column\":\"col\",\"nanoseconds_per_month\":2}";
+        String expected = "{\"type\":\"duration\",\"validated\":true,\"column\":\"col\",\"nanos_per_month\":2}";
         assertEquals("duration mapper serialization is wrong", expected, actual);
     }
 

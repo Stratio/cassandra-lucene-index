@@ -148,7 +148,7 @@ public class DurationMapperTest extends AbstractMapperTest {
     @Test
     public void testJsonSerialization() {
         testJson(durationMapper().validated(true).column("column").nanosPerMonth(2L),
-                 "{type:\"duration\",validated:true,column:\"column\",nanoseconds_per_month:2}");
+                 "{type:\"duration\",validated:true,column:\"column\",nanos_per_month:2}");
     }
 
     @Test

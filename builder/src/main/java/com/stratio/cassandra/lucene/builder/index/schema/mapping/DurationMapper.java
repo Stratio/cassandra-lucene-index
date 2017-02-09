@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class DurationMapper extends SingleColumnMapper<DurationMapper> {
 
-    @JsonProperty("nanoseconds_per_month")
+    @JsonProperty("nanos_per_month")
     Long nanosPerMonth;
 
     /**
