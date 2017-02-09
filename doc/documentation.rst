@@ -27,6 +27,7 @@ Stratio's Cassandra Lucene Index
         - `Boolean mapper <#boolean-mapper>`__
         - `Date mapper <#date-mapper>`__
         - `Date range mapper <#date-range-mapper>`__
+        - `Duration mapper <#duration-mapper>`__
         - `Double mapper <#double-mapper>`__
         - `Float mapper <#float-mapper>`__
         - `Geo point mapper <#geo-point-mapper>`__
@@ -873,6 +874,12 @@ Details and default values are listed in the table below.
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
+| `duration <#duration>`__            | validated       | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | column          | string          | mapper_name of the schema      | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | nanos_per_month | integer         |                                | No        |
++-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `double <#double-mapper>`__         | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | column          | string          | mapper_name of the schema      | No        |
@@ -1226,6 +1233,73 @@ precision of minutes:
                 from: "start",
                 to: "stop",
                 pattern: "yyyy/MM/dd HH:mm"
+             }
+          }
+       }'
+    };
+
+
+Duration mapper
+_______________
+
+Maps a CQL `duration<https://issues.apache.org/jira/browse/CASSANDRA-11873>`__. CQL durations are internally represented
+as a tuple composed by months, days and nanoseconds. Note that there is an ambiguity between time units from year to
+month and time units from day to nanoseconds. For example, how many days are in a month? And in a year? Is 30d greater
+or lesser than 1mo? This mapper allows to specify the assumed number of nanoseconds in a month to do the conversion in a
+best effort basis. However, we encourage you to either don't mix time units from year to with month and time units from
+day to nanoseconds in the same index, or normalize the value to a fixed time unit in an integer column indexed by a
+regular numeric mapper, or use a `date range mapper <#date-range-mapper>`__ instead.
+
+**Parameters:**
+
+-  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
+-  **column** (default = name of the mapper): the name of the column storing the date to be indexed.
+-  **nanos_per_month** (default = 2629800000000000): the assumed number of nanoseconds in a month. The default value is
+   based on the number of nanoseconds in a year with 365.75 days divided by 12 months per year.
+
+**Supported CQL types:**
+
+-  ascii, varchar, duration
+
+**Example 1:** Index the duration defined by the column *interval* and run some searches:
+
+.. code-block:: sql
+
+    CREATE TABLE test (id int PRIMARY KEY, interval duration);
+
+    INSERT INTO test(id, interval) VALUES (1, 1h32m);
+    INSERT INTO test(id, interval) VALUES (2, 2h10m);
+    INSERT INTO test(id, interval) VALUES (3, 57m);
+
+    CREATE CUSTOM INDEX test_idx ON test()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             interval: { type: "duration" }
+          }
+       }'
+    };
+
+    SELECT * FROM test WHERE expr(test_idx, '{filter: {type: "match", field: "interval", value: "57m"}}');
+    SELECT * FROM test WHERE expr(test_idx, '{filter: {type: "range", field: "interval", lower: "1h"}}');
+    SELECT * FROM test WHERE expr(test_idx, '{sort: {field:"interval", reverse: true}}');
+
+**Example 2:** Index the duration defined by the column *interval*:, validating values, and assuming months of 30 days:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX test_idx ON test()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             interval: {
+                type: "duration",
+                validated: true,
+                nanos_per_month: 2592000000000000
              }
           }
        }'
