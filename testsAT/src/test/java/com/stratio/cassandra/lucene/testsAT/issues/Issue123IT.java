@@ -70,5 +70,4 @@ public class Issue123IT extends BaseIT {
     public static void after() {
         utils.dropIndex().dropTable().dropKeyspace();
     }
-
 }

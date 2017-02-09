@@ -28,11 +28,11 @@ import static org.junit.Assert.assertEquals;
  */
 public class Issue69IT extends BaseIT {
 
-    private static CassandraUtils cu;
+    private static CassandraUtils utils;
 
     @BeforeClass
     public static void before() {
-        cu = CassandraUtils.builder("distinct")
+        utils = CassandraUtils.builder("distinct")
                            .withPartitionKey("make")
                            .withClusteringKey("model")
                            .withColumn("make", "text")
@@ -50,14 +50,14 @@ public class Issue69IT extends BaseIT {
 
     @AfterClass
     public static void after() {
-        cu.dropKeyspace();
+        utils.dropKeyspace();
     }
 
     @Test
     public void testUDF() {
-        int n1 = cu.execute("SELECT make FROM %s;", cu.getQualifiedTable()).all().size();
+        int n1 = utils.execute("SELECT make FROM %s;", utils.getQualifiedTable()).all().size();
         assertEquals("Basic count is wrong", n1, 3);
-        int n2 = cu.execute("SELECT DISTINCT make FROM %s;", cu.getQualifiedTable()).all().size();
+        int n2 = utils.execute("SELECT DISTINCT make FROM %s;", utils.getQualifiedTable()).all().size();
         assertEquals("Basic count is wrong", n2, 2);
     }
 }

@@ -433,8 +433,7 @@ public class BitemporalSearchIT extends BaseIT {
                 .createIndex()
                 .insert(data1, data2, data3)
                 .refresh()
-                .query(bitemporal("bitemporal").ttFrom(
-                        "2015/01/14 00:00:00.000+0000")
+                .query(bitemporal("bitemporal").ttFrom("2015/01/14 00:00:00.000+0000")
                                                .ttTo("2015/04/02 00:00:00.000+0000"))
                 .checkUnorderedColumns("integer_1", 1, 2, 3)
                 .dropIndex().dropTable().dropKeyspace();
@@ -562,18 +561,15 @@ public class BitemporalSearchIT extends BaseIT {
                             bitemporalMapper("vt_from",
                                              "vt_to",
                                              "tt_from",
-                                             "tt_to").pattern(
-                                    "yyyy/MM/dd HH:mm:ss.SSS")
-                                                     .nowValue(
-                                                             "2200/01/01 00:00:00.000+0000"))
+                                             "tt_to").pattern("yyyy/MM/dd HH:mm:ss.SSS")
+                                                     .nowValue("2200/01/01 00:00:00.000+0000"))
                 .build()
                 .createKeyspace()
                 .createTable()
                 .createIndex()
                 .insert(data12, data13, data14)
                 .refresh()
-                .filter(bitemporal("bitemporal").ttFrom(
-                        "2015/01/02 12:00:00.001+0000")
+                .filter(bitemporal("bitemporal").ttFrom("2015/01/02 12:00:00.001+0000")
                                                 .ttTo("2015/01/02 12:00:00.001+0000"))
                 .refresh(true)
                 .checkUnorderedColumns("integer_1", 1)
@@ -596,18 +592,15 @@ public class BitemporalSearchIT extends BaseIT {
                             bitemporalMapper("vt_from",
                                              "vt_to",
                                              "tt_from",
-                                             "tt_to").pattern(
-                                    "yyyy/MM/dd HH:mm:ss.SSS")
-                                                     .nowValue(
-                                                             "2200/01/01 00:00:00.000+0000"))
+                                             "tt_to").pattern("yyyy/MM/dd HH:mm:ss.SSS")
+                                                     .nowValue("2200/01/01 00:00:00.000+0000"))
                 .build()
                 .createKeyspace()
                 .createTable()
                 .createIndex()
                 .insert(data12, data13, data14)
                 .refresh()
-                .filter(bitemporal("bitemporal").ttFrom(
-                        "2015/01/06 12:00:00.001+0000")
+                .filter(bitemporal("bitemporal").ttFrom("2015/01/06 12:00:00.001+0000")
                                                 .ttTo("2015/01/06 12:00:00.001+0000"))
                 .refresh(true)
                 .checkUnorderedColumns("integer_1", 2)
@@ -630,18 +623,15 @@ public class BitemporalSearchIT extends BaseIT {
                             bitemporalMapper("vt_from",
                                              "vt_to",
                                              "tt_from",
-                                             "tt_to").pattern(
-                                    "yyyy/MM/dd HH:mm:ss.SSS")
-                                                     .nowValue(
-                                                             "2200/01/01 00:00:00.000+0000"))
+                                             "tt_to").pattern("yyyy/MM/dd HH:mm:ss.SSS")
+                                                     .nowValue("2200/01/01 00:00:00.000+0000"))
                 .build()
                 .createKeyspace()
                 .createTable()
                 .createIndex()
                 .insert(data12, data13, data14)
                 .refresh()
-                .filter(bitemporal("bitemporal").ttFrom(
-                        "2015/01/15 12:00:00.001+0000")
+                .filter(bitemporal("bitemporal").ttFrom("2015/01/15 12:00:00.001+0000")
                                                 .ttTo("2015/01/15 12:00:00.001+0000"))
                 .refresh(true)
                 .checkUnorderedColumns("integer_1", 3)
@@ -664,18 +654,15 @@ public class BitemporalSearchIT extends BaseIT {
                             bitemporalMapper("vt_from",
                                              "vt_to",
                                              "tt_from",
-                                             "tt_to").pattern(
-                                    "yyyy/MM/dd HH:mm:ss.SSS")
-                                                     .nowValue(
-                                                             "2200/01/01 00:00:00.000+0000"))
+                                             "tt_to").pattern("yyyy/MM/dd HH:mm:ss.SSS")
+                                                     .nowValue("2200/01/01 00:00:00.000+0000"))
                 .build()
                 .createKeyspace()
                 .createTable()
                 .createIndex()
                 .insert(data12, data13, data14)
                 .refresh()
-                .filter(bitemporal("bitemporal").vtFrom(
-                        "2016/01/15 12:00:00.001+0000")
+                .filter(bitemporal("bitemporal").vtFrom("2016/01/15 12:00:00.001+0000")
                                                 .vtTo("2016/01/15 12:00:00.001+0000"))
                 .refresh(true)
                 .checkUnorderedColumns("integer_1", 1, 3)
@@ -698,18 +685,15 @@ public class BitemporalSearchIT extends BaseIT {
                             bitemporalMapper("vt_from",
                                              "vt_to",
                                              "tt_from",
-                                             "tt_to").pattern(
-                                    "yyyy/MM/dd HH:mm:ss.SSS")
-                                                     .nowValue(
-                                                             "2200/01/01 00:00:00.000+0000"))
+                                             "tt_to").pattern("yyyy/MM/dd HH:mm:ss.SSS")
+                                                     .nowValue("2200/01/01 00:00:00.000+0000"))
                 .build()
                 .createKeyspace()
                 .createTable()
                 .createIndex()
                 .insert(data12, data13, data14)
                 .refresh()
-                .filter(bitemporal("bitemporal").vtFrom(
-                        "2015/06/15 12:00:00.001+0000")
+                .filter(bitemporal("bitemporal").vtFrom("2015/06/15 12:00:00.001+0000")
                                                 .vtTo("2015/07/15 12:00:00.001+0000")
                                                 .ttFrom("2015/01/02 12:00:00.001+0000")
                                                 .ttTo("2015/01/02 12:00:00.001+0000"))
@@ -732,18 +716,15 @@ public class BitemporalSearchIT extends BaseIT {
                             bitemporalMapper("vt_from",
                                              "vt_to",
                                              "tt_from",
-                                             "tt_to").pattern(
-                                    "yyyy/MM/dd HH:mm:ss.SSS")
-                                                     .nowValue(
-                                                             "2200/01/01 00:00:00.000+0000"))
+                                             "tt_to").pattern("yyyy/MM/dd HH:mm:ss.SSS")
+                                                     .nowValue("2200/01/01 00:00:00.000+0000"))
                 .build()
                 .createKeyspace()
                 .createTable()
                 .createIndex()
                 .insert(data12, data13, data14)
                 .refresh()
-                .filter(bitemporal("bitemporal").ttFrom(
-                        "2200/01/01 00:00:00.000+0000")
+                .filter(bitemporal("bitemporal").ttFrom("2200/01/01 00:00:00.000+0000")
                                                 .ttTo("2200/01/01 00:00:00.000+0000"))
                 .refresh(true)
                 .checkUnorderedColumns("integer_1", 3)
