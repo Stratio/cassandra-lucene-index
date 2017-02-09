@@ -25,31 +25,17 @@ import com.stratio.cassandra.lucene.schema.mapping.DurationMapper;
  */
 public class DurationMapperBuilder extends SingleColumnMapperBuilder<DurationMapper, DurationMapperBuilder> {
 
-    @JsonProperty("nanoseconds_in_day")
-    private Long nanosInDay;
-
-    @JsonProperty("nanoseconds_in_month")
-    private Long nanosInMonth;
-
-    /**
-     * Sets the number of nanoseconds in a day.
-     *
-     * @param nanosInDay the number of nanoseconds in a day
-     * @return this
-     */
-    public DurationMapperBuilder nanosInDay(Long nanosInDay) {
-        this.nanosInDay = nanosInDay;
-        return this;
-    }
+    @JsonProperty("nanoseconds_per_month")
+    private Long nanosPerMonth;
 
     /**
      * Sets the number of nanoseconds in a month.
      *
-     * @param nanosInMonth the number of nanoseconds in a month
+     * @param nanosPerMonth the number of nanoseconds in a month
      * @return this
      */
-    public DurationMapperBuilder nanosInMonth(Long nanosInMonth) {
-        this.nanosInMonth = nanosInMonth;
+    public DurationMapperBuilder nanosPerMonth(Long nanosPerMonth) {
+        this.nanosPerMonth = nanosPerMonth;
         return this;
     }
 
@@ -61,6 +47,6 @@ public class DurationMapperBuilder extends SingleColumnMapperBuilder<DurationMap
      */
     @Override
     public DurationMapper build(String field) {
-        return new DurationMapper(field, column, validated, nanosInDay, nanosInMonth);
+        return new DurationMapper(field, column, validated, nanosPerMonth);
     }
 }

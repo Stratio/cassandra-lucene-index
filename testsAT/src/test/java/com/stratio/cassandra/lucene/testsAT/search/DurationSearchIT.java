@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.testsAT.search;
 
 import com.datastax.driver.core.exceptions.InvalidQueryException;
+import com.stratio.cassandra.lucene.builder.index.schema.mapping.DurationMapper;
 import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -39,13 +40,14 @@ public class DurationSearchIT extends BaseIT {
 
     @BeforeClass
     public static void before() {
+        DurationMapper mapper = durationMapper().validated(true).nanosecondsPerMonth(2592000000000000L);
         utils = CassandraUtils.builder("duration_search")
                               .withPartitionKey("pk")
                               .withClusteringKey("ck")
                               .withColumn("pk", "int", null)
                               .withColumn("ck", "int", null)
-                              .withColumn("duration", "duration", durationMapper().validated(true))
-                              .withColumn("text", "text", durationMapper().validated(true))
+                              .withColumn("duration", "duration", mapper)
+                              .withColumn("text", "text", mapper)
                               .build()
                               .createKeyspace()
                               .createTable()

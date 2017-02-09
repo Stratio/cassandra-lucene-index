@@ -33,11 +33,10 @@ public class DurationMapper extends KeywordMapper {
 
     private static final List<Class<?>> SUPPORTED_TYPES = Arrays.asList(String.class, Duration.class);
 
-    static final BigInteger DEFAULT_NANOS_IN_DAY = BigInteger.valueOf(86400000000000L);
-    static final BigInteger DEFAULT_NANOS_IN_MONTH = BigInteger.valueOf(2592000000000000L);
+    private static final BigInteger NANOS_PER_DAY = BigInteger.valueOf(86400000000000L);
+    static final BigInteger DEFAULT_NANOS_PER_MONTH = BigInteger.valueOf(2629800000000000L); // Average
 
-    final BigInteger nanosInDay;
-    final BigInteger nanosInMonth;
+    final BigInteger nanosPerMonth;
 
     private final BigInteger minNanos;
     private final int numDigits;
@@ -48,15 +47,13 @@ public class DurationMapper extends KeywordMapper {
      * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
-     * @param nanosInDay the number on nanoseconds in a day
-     * @param nanosInMonth the number on nanoseconds in a month
+     * @param nanosPerMonth the number on nanoseconds in a month
      */
-    public DurationMapper(String field, String column, Boolean validated, Long nanosInDay, Long nanosInMonth) {
+    public DurationMapper(String field, String column, Boolean validated, Long nanosPerMonth) {
         super(field, column, validated, SUPPORTED_TYPES);
-        this.nanosInDay = nanosInDay == null ? DEFAULT_NANOS_IN_DAY : BigInteger.valueOf(nanosInDay);
-        this.nanosInMonth = nanosInDay == null ? DEFAULT_NANOS_IN_MONTH : BigInteger.valueOf(nanosInMonth);
-        minNanos = bigInteger(Integer.MIN_VALUE, Integer.MIN_VALUE, Long.MIN_VALUE);
-        numDigits = minNanos.toString(Character.MAX_RADIX).length();
+        this.nanosPerMonth = nanosPerMonth == null ? DEFAULT_NANOS_PER_MONTH : BigInteger.valueOf(nanosPerMonth);
+        minNanos = nanos(Integer.MIN_VALUE, Integer.MIN_VALUE, Long.MIN_VALUE);
+        numDigits = serialize(minNanos).length();
     }
 
     /** {@inheritDoc} */
@@ -79,33 +76,37 @@ public class DurationMapper extends KeywordMapper {
     }
 
     String serialize(Duration duration) {
-        BigInteger bi = bigInteger(duration);
-        BigInteger complement = bi.subtract(minNanos);
-        return StringUtils.leftPad(complement.toString(Character.MAX_RADIX), numDigits, '0');
+        BigInteger nanos = nanos(duration);
+        BigInteger complement = nanos.subtract(minNanos);
+        return StringUtils.leftPad(serialize(complement), numDigits, '0');
     }
 
-    BigInteger bigInteger(String string) {
-        return bigInteger(Duration.from(string));
+    private static String serialize(BigInteger number) {
+        return number.toString(Character.MAX_RADIX);
     }
 
-    private BigInteger bigInteger(Duration duration) {
-        return bigInteger(duration.getMonths(), duration.getDays(), duration.getNanoseconds());
+    BigInteger nanos(String string) {
+        return nanos(Duration.from(string));
     }
 
-    private BigInteger bigInteger(int months, int days, long nanos) {
-        BigInteger bi = nanos == 0 ? BigInteger.ZERO : BigInteger.valueOf(nanos);
+    private BigInteger nanos(Duration duration) {
+        return nanos(duration.getMonths(), duration.getDays(), duration.getNanoseconds());
+    }
+
+    private BigInteger nanos(int months, int days, long nanos) {
+        BigInteger result = nanos == 0 ? BigInteger.ZERO : BigInteger.valueOf(nanos);
         if (days != 0) {
-            bi = bi.add(BigInteger.valueOf(days).multiply(nanosInDay));
+            result = result.add(BigInteger.valueOf(days).multiply(NANOS_PER_DAY));
         }
         if (months != 0) {
-            bi = bi.add(BigInteger.valueOf(months).multiply(nanosInMonth));
+            result = result.add(BigInteger.valueOf(months).multiply(nanosPerMonth));
         }
-        return bi;
+        return result;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return toStringHelper(this).add("nanosInDay", nanosInDay).add("nanosInMonth", nanosInMonth).toString();
+        return toStringHelper(this).add("nanosPerMonth", nanosPerMonth).toString();
     }
 }

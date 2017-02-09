@@ -24,31 +24,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class DurationMapper extends SingleColumnMapper<DurationMapper> {
 
-    @JsonProperty("nanoseconds_in_day")
-    Long nanosInDay;
-
-    @JsonProperty("nanoseconds_in_month")
-    Long nanosInMonth;
-
-    /**
-     * Sets the number of nanoseconds in a day.
-     *
-     * @param nanosInDay the number of nanoseconds in a day
-     * @return this
-     */
-    public DurationMapper nanosInDay(Long nanosInDay) {
-        this.nanosInDay = nanosInDay;
-        return this;
-    }
+    @JsonProperty("nanoseconds_per_month")
+    Long nanosPerMonth;
 
     /**
      * Sets the number of nanoseconds in a month.
      *
-     * @param nanosInMonth the number of nanoseconds in a month
+     * @param nanosPerMonth the number of nanoseconds in a month
      * @return this
      */
-    public DurationMapper nanosInMonth(Long nanosInMonth) {
-        this.nanosInMonth = nanosInMonth;
+    public DurationMapper nanosecondsPerMonth(Long nanosPerMonth) {
+        this.nanosPerMonth = nanosPerMonth;
         return this;
     }
 

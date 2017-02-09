@@ -21,7 +21,6 @@ import com.stratio.cassandra.lucene.schema.mapping.builder.DurationMapperBuilder
 import org.apache.cassandra.cql3.Duration;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedSetDocValuesField;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
@@ -42,48 +41,48 @@ import static org.junit.Assert.*;
 public class DurationMapperTest extends AbstractMapperTest {
 
     @Test
-    public void testBigInteger() {
+    public void testNanos() {
 
         DurationMapper mapper = durationMapper().build("f");
 
-        assertEquals(BigInteger.valueOf(-1), mapper.bigInteger("-1ns"));
-        assertEquals(BigInteger.valueOf(0), mapper.bigInteger("0ns"));
-        assertEquals(BigInteger.valueOf(1), mapper.bigInteger("1ns"));
+        assertEquals(BigInteger.valueOf(-1), mapper.nanos("-1ns"));
+        assertEquals(BigInteger.valueOf(0), mapper.nanos("0ns"));
+        assertEquals(BigInteger.valueOf(1), mapper.nanos("1ns"));
 
-        assertEquals(BigInteger.valueOf(-86400000000000L), mapper.bigInteger("-1d"));
-        assertEquals(BigInteger.valueOf(0), mapper.bigInteger("0d"));
-        assertEquals(BigInteger.valueOf(86400000000000L), mapper.bigInteger("1d"));
+        assertEquals(BigInteger.valueOf(-86400000000000L), mapper.nanos("-1d"));
+        assertEquals(BigInteger.valueOf(0), mapper.nanos("0d"));
+        assertEquals(BigInteger.valueOf(86400000000000L), mapper.nanos("1d"));
 
-        assertEquals(BigInteger.valueOf(-2592000000000000L), mapper.bigInteger("-1mo"));
-        assertEquals(BigInteger.valueOf(0), mapper.bigInteger("0mo"));
-        assertEquals(BigInteger.valueOf(2592000000000000L), mapper.bigInteger("1mo"));
+        assertEquals(BigInteger.valueOf(-2629800000000000L), mapper.nanos("-1mo"));
+        assertEquals(BigInteger.valueOf(0), mapper.nanos("0mo"));
+        assertEquals(BigInteger.valueOf(2629800000000000L), mapper.nanos("1mo"));
 
-        assertEquals(BigInteger.valueOf(-31276803000000000L), mapper.bigInteger("-1y2d3s"));
-        assertEquals(BigInteger.valueOf(0), mapper.bigInteger("0y0d0s"));
-        assertEquals(BigInteger.valueOf(31276803000000000L), mapper.bigInteger("1y2d3s"));
+        assertEquals(BigInteger.valueOf(-31730403000000000L), mapper.nanos("-1y2d3s"));
+        assertEquals(BigInteger.valueOf(0), mapper.nanos("0y0d0s"));
+        assertEquals(BigInteger.valueOf(31730403000000000L), mapper.nanos("1y2d3s"));
     }
 
     @Test
-    public void testSerializeDuration() {
+    public void testSerialize() {
 
         DurationMapper mapper = durationMapper().build("f");
 
         assertEquals("00000000000000000",
                      mapper.serialize(Duration.newInstance(Integer.MIN_VALUE, Integer.MIN_VALUE, Long.MIN_VALUE)));
-        assertEquals("1g19taw1i7mv000sf",
+        assertEquals("1grpk0a7hy2oo8wsf",
                      mapper.serialize(Duration.newInstance(Integer.MAX_VALUE, Integer.MAX_VALUE, Long.MAX_VALUE)));
 
-        assertEquals("0q0mwngdxt9f0vpq7", mapper.serialize("-1ns"));
-        assertEquals("0q0mwngdxt9f0vpq8", mapper.serialize("0ns"));
-        assertEquals("0q0mwngdxt9f0vpq9", mapper.serialize("1ns"));
+        assertEquals("0qdus05h4dnvb0r27", mapper.serialize("-1ns"));
+        assertEquals("0qdus05h4dnvb0r28", mapper.serialize("0ns"));
+        assertEquals("0qdus05h4dnvb0r29", mapper.serialize("1ns"));
 
-        assertEquals("0q0mwngd36psznv28", mapper.serialize("-1d"));
-        assertEquals("0q0mwngdxt9f0vpq8", mapper.serialize("0d"));
-        assertEquals("0q0mwngesft123ke8", mapper.serialize("1d"));
+        assertEquals("0qdus05g9r499swe8", mapper.serialize("-1d"));
+        assertEquals("0qdus05h4dnvb0r28", mapper.serialize("0d"));
+        assertEquals("0qdus05hz07hc8lq8", mapper.serialize("1d"));
 
-        assertEquals("0q0mwnfof0x20c5q8", mapper.serialize("-1mo"));
-        assertEquals("0q0mwngdxt9f0vpq8", mapper.serialize("0mo"));
-        assertEquals("0q0mwnh3glls1f9q8", mapper.serialize("1mo"));
+        assertEquals("0qdus04r86yfeg0e8", mapper.serialize("-1mo"));
+        assertEquals("0qdus05h4dnvb0r28", mapper.serialize("0mo"));
+        assertEquals("0qdus0670kdb7lhq8", mapper.serialize("1mo"));
     }
 
     @Test
@@ -111,17 +110,17 @@ public class DurationMapperTest extends AbstractMapperTest {
         assertTrue(mapper.serialize("1mo3d").compareTo(mapper.serialize("2mo1d")) < 0);
         assertTrue(mapper.serialize("2mo1d").compareTo(mapper.serialize("1mo3d")) > 0);
 
-        assertTrue(mapper.serialize("1mo").compareTo(mapper.serialize("30d")) == 0);
+        assertTrue(mapper.serialize("1mo").compareTo(mapper.serialize("30d")) > 0);
         assertTrue(mapper.serialize("1mo").compareTo(mapper.serialize("31d")) < 0);
         assertTrue(mapper.serialize("1mo").compareTo(mapper.serialize("100d")) < 0);
 
-        assertTrue(mapper.serialize("1y").compareTo(mapper.serialize("365d")) < 0);
+        assertTrue(mapper.serialize("1y").compareTo(mapper.serialize("364d")) > 0);
+        assertTrue(mapper.serialize("1y").compareTo(mapper.serialize("365d")) > 0);
         assertTrue(mapper.serialize("1y").compareTo(mapper.serialize("366d")) < 0);
-        assertTrue(mapper.serialize("1y").compareTo(mapper.serialize("364d")) < 0);
 
+        assertTrue(mapper.serialize("1y").compareTo(mapper.serialize("11mo")) > 0);
         assertTrue(mapper.serialize("1y").compareTo(mapper.serialize("12mo")) == 0);
         assertTrue(mapper.serialize("1y").compareTo(mapper.serialize("13mo")) < 0);
-        assertTrue(mapper.serialize("1y").compareTo(mapper.serialize("11mo")) > 0);
     }
 
     @Test
@@ -132,33 +131,24 @@ public class DurationMapperTest extends AbstractMapperTest {
         assertEquals("Column is not set to default value", "field", mapper.column);
         assertEquals("Mapped columns are not set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("field"));
-        assertEquals("Nanos in day is not default", DurationMapper.DEFAULT_NANOS_IN_DAY, mapper.nanosInDay);
-        assertEquals("Nanos in month is not default", DurationMapper.DEFAULT_NANOS_IN_MONTH, mapper.nanosInMonth);
+        assertEquals("Nanos in month is not default", DurationMapper.DEFAULT_NANOS_PER_MONTH, mapper.nanosPerMonth);
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        DurationMapper mapper = durationMapper().validated(true)
-                                                .column("column")
-                                                .nanosInDay(2L)
-                                                .nanosInMonth(3L)
-                                                .build("field");
+        DurationMapper mapper = durationMapper().validated(true).column("column").nanosPerMonth(3L).build("field");
         assertEquals("Field is not set", "field", mapper.field);
         assertTrue("Validated is not properly set", mapper.validated);
         assertEquals("Column is not set", "column", mapper.column);
         assertEquals("Mapped columns are not set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("column"));
-        assertEquals("Nanos in day is not default", BigInteger.valueOf(2), mapper.nanosInDay);
-        assertEquals("Nanos in month is not default", BigInteger.valueOf(3), mapper.nanosInMonth);
+        assertEquals("Nanos in month is not default", BigInteger.valueOf(3), mapper.nanosPerMonth);
     }
 
     @Test
     public void testJsonSerialization() {
-        testJson(durationMapper().validated(true)
-                                 .column("column")
-                                 .nanosInDay(1L)
-                                 .nanosInMonth(2L),
-                 "{type:\"duration\",validated:true,column:\"column\",nanoseconds_in_day:1,nanoseconds_in_month:2}");
+        testJson(durationMapper().validated(true).column("column").nanosPerMonth(2L),
+                 "{type:\"duration\",validated:true,column:\"column\",nanoseconds_per_month:2}");
     }
 
     @Test
@@ -189,14 +179,14 @@ public class DurationMapperTest extends AbstractMapperTest {
     public void testBaseDuration() {
         DurationMapper mapper = durationMapper().build("field");
         String base = mapper.base("name", Duration.from("1y2mo3d4h5m6s"));
-        assertEquals("Base case sensitiveness is wrong", "0q0mwnqdxxd5ouby8", base);
+        assertEquals("Base case sensitiveness is wrong", "0qdus0fmc2uqffym8", base);
     }
 
     @Test
     public void testBaseString() {
         DurationMapper mapper = durationMapper().build("field");
         String base = mapper.base("name", "1y2mo3d4h5m6s");
-        assertEquals("Base case sensitiveness is wrong", "0q0mwnqdxxd5ouby8", base);
+        assertEquals("Base case sensitiveness is wrong", "0qdus0fmc2uqffym8", base);
     }
 
     @Test(expected = IndexException.class)
@@ -284,9 +274,9 @@ public class DurationMapperTest extends AbstractMapperTest {
 
     @Test
     public void testToString() {
-        DurationMapper mapper = durationMapper().validated(true).nanosInDay(1l).nanosInMonth(2L).build("f");
+        DurationMapper mapper = durationMapper().validated(true).nanosPerMonth(2L).build("f");
         assertEquals("Method #toString is wrong",
-                     "DurationMapper{field=f, validated=true, column=f, nanosInDay=1, nanosInMonth=2}",
+                     "DurationMapper{field=f, validated=true, column=f, nanosPerMonth=2}",
                      mapper.toString());
     }
 }
