@@ -29,8 +29,8 @@ import static com.stratio.cassandra.lucene.builder.Builder.all;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 
 /**
- * Test index partitioning on virtual node. This test class ignores some tests if cassandra target
- * cluster is not configured with virtual tokens (numTokens in cassandra.yaml).
+ * Test index partitioning on virtual node. This test class ignores some tests if cassandra target cluster is not
+ * configured with virtual tokens (numTokens in cassandra.yaml).
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
@@ -47,7 +47,7 @@ public class PartitioningOnVirtualNodeIT extends BaseIT {
     }
 
     public static void test(int vNodesPerPartition) {
-        if ((numTokens == 1) && (vNodesPerPartition > 1)) {
+        if ((numTokens == 1) && ((vNodesPerPartition > 1) || (vNodesPerPartition < 1))) {
             logger.debug("[IGNORED] vnode test because target cassandra cluster is not configured with virtual tokens.");
         } else {
             builder("virtual_nodes_partitioning")
