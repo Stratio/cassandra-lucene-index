@@ -146,11 +146,12 @@ object ColumnsMapper {
         val itemComparator = listType.valueComparator
         columns(column, itemComparator, value)
       case mapType: MapType[_, _] if !mapType.isFrozenCollection =>
-        val itemComparator = mapType.valueComparator
+        val valueType = mapType.valueComparator
         val keyValue = cell.path.get(0)
-        val keyComparator = mapType.nameComparator
-        val nameSuffix = keyComparator.compose(keyValue).toString
-        columns(column.withMapName(nameSuffix), itemComparator, value)
+        val keyType = mapType.nameComparator
+        val keyName = keyType.compose(keyValue).toString
+        val keyColumn = column.withUDTName(Column.MAP_KEYS_SUFFIX).withValue(keyValue, keyType)
+        keyColumn + columns(column.withMapName(keyName), valueType, value)
       case userType: UserType =>
         val cellPath = cell.path
         if (cellPath == null) {
@@ -203,7 +204,8 @@ object ColumnsMapper {
       val itemKey = frozenCollectionValue(bb)
       val itemValue = frozenCollectionValue(bb)
       val itemName = itemKeysType.compose(itemKey).toString
-      this.columns(column.withMapName(itemName), itemValuesType, itemValue) ++ columns
+      val keyColumn = column.withUDTName(Column.MAP_KEYS_SUFFIX).withValue(itemKey, itemKeysType)
+      keyColumn + this.columns(column.withMapName(itemName), itemValuesType, itemValue)  ++ columns
     })
   }
 

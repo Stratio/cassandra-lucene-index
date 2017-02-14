@@ -86,6 +86,8 @@ case class Column(cell: String,
 /** Companion object for [[Column]]. */
 object Column {
 
+  val MAP_KEYS_SUFFIX: String = "_key"
+
   private val UDT_SEPARATOR = "."
   private val MAP_SEPARATOR = "$"
 

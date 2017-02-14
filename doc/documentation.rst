@@ -4233,6 +4233,43 @@ For searching map values under a certain key you should use '$' as field-key sep
 
 Please don't use map keys containing the separator chars, which are '.' and '$'.
 
+Map keys can also indexed by adding the suffix '._key' to the mapped column/field name:
+
+.. code-block:: sql
+
+    CREATE TABLE user_profiles (
+       login text PRIMARY KEY,
+       first_name text,
+       last_name text,
+       addresses map<text,text>
+    );
+
+    CREATE CUSTOM INDEX user_profiles_idx ON user_profiles()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             addresses: {type: "string"},
+             "addresses._key": {type: "string"}
+          }
+       }'
+    };
+
+    INSERT INTO user_profiles (login, first_name, last_name, addresses)
+    VALUES('jsmith', 'John', 'Smith', {'London': 'Camden Road', 'Madrid': 'Buenavista'});
+
+    SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
+       filter: {
+          type: "match",
+          field: "addresses._key",
+          value: "London"
+       }
+    }');
+
+Please note that the usage of the '._key' suffix requires you to strictly use double quotes just
+because of JSON format syntax rules.
+
 UDTs can be indexed even while being inside collections:
 
 .. code-block:: sql
@@ -4256,14 +4293,15 @@ UDTs can be indexed even while being inside collections:
        'schema': '{
           fields: {
              "addresses.city" : {type: "string"},
-             "addresses.zip"  : {type: "integer"}
+             "addresses.zip"  : {type: "integer"},
+             "addresses._key" : {type: "string"}
           }
        }'
     };
 
     INSERT INTO user_profiles (login, first_name, last_name, addresses)
     VALUES('jsmith', 'John', 'Smith',
-       {'Illinois':{city: 'Chicago', zip: 60601}, 'Colorado':{city: 'Denver', zip: 80012}});
+       {'Illinois': {city: 'Chicago', zip: 60601}, 'Colorado':{city: 'Denver', zip: 80012}});
 
     SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
        filter: {
@@ -4278,6 +4316,14 @@ UDTs can be indexed even while being inside collections:
           type: "match",
           field: "addresses.zip$Illinois",
           value: 60601
+       }
+    }');
+
+    SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
+       filter: {
+          type: "match",
+          field: "addresses._key",
+          value: "Colorado"
        }
     }');
 
