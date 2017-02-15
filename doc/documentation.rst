@@ -4194,7 +4194,8 @@ Searches are also done in the same way as with regular columns:
        }
     }');
 
-Maps values are indexed using their keys as field name suffixes:
+Maps values are indexed by default using their keys as field name suffixes. For searching map values under a certain key
+you should use '$' as field-key separator:
 
 .. code-block:: sql
 
@@ -4216,10 +4217,6 @@ Maps values are indexed using their keys as field name suffixes:
        }'
     };
 
-For searching map values under a certain key you should use '$' as field-key separator:
-
-.. code-block:: sql
-
     INSERT INTO user_profiles (login, first_name, last_name, addresses)
     VALUES('jsmith', 'John', 'Smith', {'London': 'Camden Road', 'Madrid': 'Buenavista'});
 
@@ -4233,7 +4230,7 @@ For searching map values under a certain key you should use '$' as field-key sep
 
 Please don't use map keys containing the separator chars, which are '.' and '$'.
 
-Map keys can also indexed by adding the suffix '._key' to the mapped column/field name:
+Map keys and values can also be indexed by adding the suffixes '._key' or '._value' to the mapped column name:
 
 .. code-block:: sql
 
@@ -4251,7 +4248,8 @@ Map keys can also indexed by adding the suffix '._key' to the mapped column/fiel
        'schema': '{
           fields: {
              addresses: {type: "string"},
-             "addresses._key": {type: "string"}
+             "addresses._key": {type: "string"},
+             "addresses._value": {type: "string"}
           }
        }'
     };
@@ -4267,8 +4265,13 @@ Map keys can also indexed by adding the suffix '._key' to the mapped column/fiel
        }
     }');
 
-Please note that the usage of the '._key' suffix requires you to strictly use double quotes just
-because of JSON format syntax rules.
+    SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
+       filter: {
+          type: "match",
+          field: "addresses._value",
+          value: "Buenavista"
+       }
+    }');
 
 UDTs can be indexed even while being inside collections:
 

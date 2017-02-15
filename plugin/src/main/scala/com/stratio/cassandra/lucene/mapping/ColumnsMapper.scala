@@ -150,8 +150,10 @@ object ColumnsMapper {
         val keyValue = cell.path.get(0)
         val keyType = mapType.nameComparator
         val keyName = keyType.compose(keyValue).toString
-        val keyColumn = column.withUDTName(Column.MAP_KEYS_SUFFIX).withValue(keyValue, keyType)
-        keyColumn + columns(column.withMapName(keyName), valueType, value)
+        val keyColumn = column.withUDTName(Column.MAP_KEY_SUFFIX).withValue(keyValue, keyType)
+        val valueColumn = columns(column.withUDTName(Column.MAP_VALUE_SUFFIX), valueType, value)
+        val entryColumn = columns(column.withMapName(keyName), valueType, value)
+        keyColumn + valueColumn ++ entryColumn
       case userType: UserType =>
         val cellPath = cell.path
         if (cellPath == null) {
@@ -204,8 +206,10 @@ object ColumnsMapper {
       val itemKey = frozenCollectionValue(bb)
       val itemValue = frozenCollectionValue(bb)
       val itemName = itemKeysType.compose(itemKey).toString
-      val keyColumn = column.withUDTName(Column.MAP_KEYS_SUFFIX).withValue(itemKey, itemKeysType)
-      keyColumn + this.columns(column.withMapName(itemName), itemValuesType, itemValue)  ++ columns
+      val keyColumn = column.withUDTName(Column.MAP_KEY_SUFFIX).withValue(itemKey, itemKeysType)
+      val valueColumn = this.columns(column.withUDTName(Column.MAP_VALUE_SUFFIX), itemValuesType, itemValue)
+      val entryColumn = this.columns(column.withMapName(itemName), itemValuesType, itemValue)
+      keyColumn + valueColumn ++ entryColumn  ++ columns
     })
   }
 

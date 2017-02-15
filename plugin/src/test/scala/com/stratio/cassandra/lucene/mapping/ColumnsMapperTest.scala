@@ -80,9 +80,11 @@ class ColumnsMapperTest extends BaseScalaTest {
     val bb = `type`.decompose(Map("k1" -> "v1", "k2" -> "v2").asJava)
     columns(column, `type`, bb) shouldBe
       Columns(
-        column.withUDTName(Column.MAP_KEYS_SUFFIX).withValue("k2"),
+        column.withUDTName(Column.MAP_KEY_SUFFIX).withValue("k2"),
+        column.withUDTName(Column.MAP_VALUE_SUFFIX).withValue("v2"),
         column.withMapName("k2").withValue("v2"),
-        column.withUDTName(Column.MAP_KEYS_SUFFIX).withValue("k1"),
+        column.withUDTName(Column.MAP_KEY_SUFFIX).withValue("k1"),
+        column.withUDTName(Column.MAP_VALUE_SUFFIX).withValue("v1"),
         column.withMapName("k1").withValue("v1"))
   }
 

@@ -97,7 +97,8 @@ object SchemaValidator {
       case t: ReversedType[_] => childType(t.baseType, child)
       case t: SetType[_] => childType(t.nameComparator, child)
       case t: ListType[_] => childType(t.valueComparator, child)
-      case t: MapType[_, _] if child == Column.MAP_KEYS_SUFFIX => Some(t.getKeysType)
+      case t: MapType[_, _] if child == Column.MAP_KEY_SUFFIX => Some(t.getKeysType)
+      case t: MapType[_, _] if child == Column.MAP_VALUE_SUFFIX => Some(t.valueComparator)
       case t: MapType[_, _] => childType(t.valueComparator, child)
       case t: UserType =>
         (0 until t.fieldNames.size).find(t.fieldNameAsString(_) == child).map(t.fieldType)
