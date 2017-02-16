@@ -42,7 +42,7 @@ object SchemaValidator {
     */
   def validate(schema: Schema, metadata: CFMetaData): Unit = {
     for (mapper <- schema.mappers.values.asScala; column <- mapper.mappedColumns.asScala) {
-      validate(metadata, column, mapper.field, mapper.supportedTypes.asScala.toList, mapper.acceptCollections)
+      validate(metadata, column, mapper.field, mapper.supportedTypes.asScala.toList, mapper.allowCollections)
     }
   }
 
@@ -60,7 +60,7 @@ object SchemaValidator {
       throw new IndexException("No column definition '{}' for mapper '{}'", cellName, field)
     }
     if (cellDefinition.isStatic) {
-      throw new IndexException("Lucene indexes are not allowed on static columns as '{}'", column)
+      throw new IndexException("Lucene indexes are not allowed o  n static columns as '{}'", column)
     }
 
     def checkSupported(t: AbstractType[_], mapper: String) {
