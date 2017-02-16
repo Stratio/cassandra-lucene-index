@@ -42,7 +42,7 @@ object SchemaValidator {
     */
   def validate(schema: Schema, metadata: CFMetaData): Unit = {
     for (mapper <- schema.mappers.values.asScala; column <- mapper.mappedColumns.asScala) {
-      validate(metadata, column, mapper.field, mapper.supportedTypes.asScala.toList, mapper.allowCollections)
+      validate(metadata, column, mapper.field, mapper.supportedTypes.asScala.toList, mapper.supportsCollections)
     }
   }
 
@@ -51,7 +51,7 @@ object SchemaValidator {
       column: String,
       field: String,
       supportedTypes: List[Class[_]],
-      allowsCollections: Boolean) {
+      supportsCollections: Boolean) {
 
     val cellName = Column.parseCellName(column)
     val cellDefinition = metadata.getColumnDefinition(UTF8Type.instance.decompose(cellName))
@@ -60,11 +60,11 @@ object SchemaValidator {
       throw new IndexException("No column definition '{}' for mapper '{}'", cellName, field)
     }
     if (cellDefinition.isStatic) {
-      throw new IndexException("Lucene indexes are not allowed o  n static columns as '{}'", column)
+      throw new IndexException("Lucene indexes are not allowed on static columns as '{}'", column)
     }
 
     def checkSupported(t: AbstractType[_], mapper: String) {
-      if (!supports(t, supportedTypes, allowsCollections)) {
+      if (!supports(t, supportedTypes, supportsCollections)) {
         throw new IndexException(
           "Type '{}' in column '{}' is not supported by mapper '{}'",
           t,
@@ -109,11 +109,11 @@ object SchemaValidator {
   def supports(
       candidateType: AbstractType[_],
       supportedTypes: Seq[Class[_]],
-      allowsCollections: Boolean): Boolean = candidateType match {
-    case t: ReversedType[_] => supports(t.baseType, supportedTypes, allowsCollections)
-    case t: SetType[_] => if (allowsCollections) supports(t.getElementsType, supportedTypes, allowsCollections) else false
-    case t: ListType[_] => if (allowsCollections) supports(t.getElementsType, supportedTypes, allowsCollections) else false
-    case t: MapType[_, _] => if (allowsCollections) supports(t.getValuesType, supportedTypes, allowsCollections) else false
+      supportsCollections: Boolean): Boolean = candidateType match {
+    case t: ReversedType[_] => supports(t.baseType, supportedTypes, supportsCollections)
+    case t: SetType[_] => if (supportsCollections) supports(t.getElementsType, supportedTypes, supportsCollections) else false
+    case t: ListType[_] => if (supportsCollections) supports(t.getElementsType, supportedTypes, supportsCollections) else false
+    case t: MapType[_, _] => if (supportsCollections) supports(t.getValuesType, supportedTypes, supportsCollections) else false
     case _ =>
       val native = nativeType(candidateType)
       supportedTypes.exists(_ isAssignableFrom native)
@@ -136,5 +136,4 @@ object SchemaValidator {
     case _: InetAddressType => classOf[InetAddress]
     case _ => throw new IndexException(s"Unsupported Cassandra data type: ${validator.getClass}")
   }
-
 }

@@ -29,7 +29,7 @@ import com.stratio.cassandra.lucene.util.SchemaValidator._
 class SchemaValidatorTest extends BaseScalaTest {
 
   test("supports regular") {
-    supports(utf8, List(classOf[String]), allowsCollections = true) shouldBe true
+    supports(utf8, List(classOf[String]), true) shouldBe true
     supports(utf8, List(classOf[Number]), true) shouldBe false
     supports(utf8, List(classOf[String], classOf[Number]), true) shouldBe true
     supports(utf8, List(classOf[Number], classOf[String]), true) shouldBe true
