@@ -4197,7 +4197,8 @@ Searches are also done in the same way as with regular columns:
        }
     }');
 
-Maps values are indexed using their keys as field name suffixes:
+Maps values are indexed by default using their keys as field name suffixes. For searching map values under a certain key
+you should use '$' as field-key separator:
 
 .. code-block:: sql
 
@@ -4219,10 +4220,6 @@ Maps values are indexed using their keys as field name suffixes:
        }'
     };
 
-For searching map values under a certain key you should use '$' as field-key separator:
-
-.. code-block:: sql
-
     INSERT INTO user_profiles (login, first_name, last_name, addresses)
     VALUES('jsmith', 'John', 'Smith', {'London': 'Camden Road', 'Madrid': 'Buenavista'});
 
@@ -4235,6 +4232,49 @@ For searching map values under a certain key you should use '$' as field-key sep
     }');
 
 Please don't use map keys containing the separator chars, which are '.' and '$'.
+
+Map keys and values can also be indexed by adding the suffixes '._key' or '._value' to the mapped column name:
+
+.. code-block:: sql
+
+    CREATE TABLE user_profiles (
+       login text PRIMARY KEY,
+       first_name text,
+       last_name text,
+       addresses map<text,text>
+    );
+
+    CREATE CUSTOM INDEX user_profiles_idx ON user_profiles()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             addresses: {type: "string"},
+             "addresses._key": {type: "string"},
+             "addresses._value": {type: "string"}
+          }
+       }'
+    };
+
+    INSERT INTO user_profiles (login, first_name, last_name, addresses)
+    VALUES('jsmith', 'John', 'Smith', {'London': 'Camden Road', 'Madrid': 'Buenavista'});
+
+    SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
+       filter: {
+          type: "match",
+          field: "addresses._key",
+          value: "London"
+       }
+    }');
+
+    SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
+       filter: {
+          type: "match",
+          field: "addresses._value",
+          value: "Buenavista"
+       }
+    }');
 
 UDTs can be indexed even while being inside collections:
 
@@ -4259,14 +4299,15 @@ UDTs can be indexed even while being inside collections:
        'schema': '{
           fields: {
              "addresses.city" : {type: "string"},
-             "addresses.zip"  : {type: "integer"}
+             "addresses.zip"  : {type: "integer"},
+             "addresses._key" : {type: "string"}
           }
        }'
     };
 
     INSERT INTO user_profiles (login, first_name, last_name, addresses)
     VALUES('jsmith', 'John', 'Smith',
-       {'Illinois':{city: 'Chicago', zip: 60601}, 'Colorado':{city: 'Denver', zip: 80012}});
+       {'Illinois': {city: 'Chicago', zip: 60601}, 'Colorado':{city: 'Denver', zip: 80012}});
 
     SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
        filter: {
@@ -4281,6 +4322,14 @@ UDTs can be indexed even while being inside collections:
           type: "match",
           field: "addresses.zip$Illinois",
           value: 60601
+       }
+    }');
+
+    SELECT * FROM user_profiles WHERE expr(user_profiles_idx, '{
+       filter: {
+          type: "match",
+          field: "addresses._key",
+          value: "Colorado"
        }
     }');
 

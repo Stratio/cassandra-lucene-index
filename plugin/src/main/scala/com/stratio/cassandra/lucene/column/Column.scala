@@ -86,6 +86,12 @@ case class Column(cell: String,
 /** Companion object for [[Column]]. */
 object Column {
 
+  /** The name suffix for CQL map keys. */
+  val MAP_KEY_SUFFIX: String = "_key"
+
+  /** The name suffix for CQL map values. */
+  val MAP_VALUE_SUFFIX: String = "_value"
+
   private val UDT_SEPARATOR = "."
   private val MAP_SEPARATOR = "$"
 
