@@ -90,6 +90,9 @@ public abstract class Mapper {
     /** The supported column value data types. */
     public final List<Class<?>> supportedTypes;
 
+    /** The supported column value data types. */
+    public final Boolean acceptCollections;
+
     /**
      * Builds a new {@link Mapper} supporting the specified types for indexing.
      *
@@ -105,7 +108,8 @@ public abstract class Mapper {
                      Boolean validated,
                      String analyzer,
                      List<String> mappedColumns,
-                     List<Class<?>> supportedTypes) {
+                     List<Class<?>> supportedTypes,
+                     Boolean acceptCollections) {
         if (StringUtils.isBlank(field)) {
             throw new IndexException("Field name is required");
         }
@@ -116,6 +120,7 @@ public abstract class Mapper {
         this.mappedColumns = mappedColumns.stream().filter(Objects::nonNull).collect(toList()); // Remove nulls
         this.mappedCells = this.mappedColumns.stream().map(Column::parseCellName).collect(toList());
         this.supportedTypes = supportedTypes;
+        this.acceptCollections= acceptCollections;
     }
 
     /**

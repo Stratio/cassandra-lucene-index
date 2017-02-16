@@ -42,7 +42,7 @@ object SchemaValidator {
     */
   def validate(schema: Schema, metadata: CFMetaData): Unit = {
     for (mapper <- schema.mappers.values.asScala; column <- mapper.mappedColumns.asScala) {
-      validate(metadata, column, mapper.field, mapper.supportedTypes.asScala.toList)
+      validate(metadata, column, mapper.field, mapper.supportedTypes.asScala.toList, mapper.acceptCollections)
     }
   }
 
@@ -50,7 +50,8 @@ object SchemaValidator {
       metadata: CFMetaData,
       column: String,
       field: String,
-      supportedTypes: List[Class[_]]) {
+      supportedTypes: List[Class[_]],
+      allowsCollections: Boolean) {
 
     val cellName = Column.parseCellName(column)
     val cellDefinition = metadata.getColumnDefinition(UTF8Type.instance.decompose(cellName))
@@ -63,7 +64,7 @@ object SchemaValidator {
     }
 
     def checkSupported(t: AbstractType[_], mapper: String) {
-      if (!supports(t, supportedTypes)) {
+      if (!supports(t, supportedTypes, allowsCollections)) {
         throw new IndexException(
           "Type '{}' in column '{}' is not supported by mapper '{}'",
           t,
@@ -73,6 +74,7 @@ object SchemaValidator {
     }
 
     val cellType = cellDefinition.`type`
+    cellType.isCollection
     val udtNames = Column.parseUdtNames(column)
     if (udtNames.isEmpty) {
       checkSupported(cellType, cellName)
@@ -106,11 +108,12 @@ object SchemaValidator {
   @tailrec
   def supports(
       candidateType: AbstractType[_],
-      supportedTypes: Seq[Class[_]]): Boolean = candidateType match {
-    case t: ReversedType[_] => supports(t.baseType, supportedTypes)
-    case t: SetType[_] => supports(t.getElementsType, supportedTypes)
-    case t: ListType[_] => supports(t.getElementsType, supportedTypes)
-    case t: MapType[_, _] => supports(t.getValuesType, supportedTypes)
+      supportedTypes: Seq[Class[_]],
+      allowsCollections: Boolean): Boolean = candidateType match {
+    case t: ReversedType[_] => supports(t.baseType, supportedTypes, allowsCollections)
+    case t: SetType[_] => if (allowsCollections) supports(t.getElementsType, supportedTypes, allowsCollections) else false
+    case t: ListType[_] => if (allowsCollections) supports(t.getElementsType, supportedTypes, allowsCollections) else false
+    case t: MapType[_, _] => if (allowsCollections) supports(t.getValuesType, supportedTypes, allowsCollections) else false
     case _ =>
       val native = nativeType(candidateType)
       supportedTypes.exists(_ isAssignableFrom native)

@@ -69,7 +69,7 @@ public class GeoPointMapper extends Mapper {
      * post-filtered, at the expense of creating more terms in the search index.
      */
     public GeoPointMapper(String field, Boolean validated, String latitude, String longitude, Integer maxLevels) {
-        super(field, false, validated, null, Arrays.asList(latitude, longitude), NUMERIC_TYPES);
+        super(field, false, validated, null, Arrays.asList(latitude, longitude), NUMERIC_TYPES, false);
 
         if (StringUtils.isBlank(latitude)) {
             throw new IndexException("latitude column name is required");
