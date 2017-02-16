@@ -3,6 +3,10 @@
 ## 3.10.0 (Upcoming)
 
 * Upgrade to Apache Cassandra 3.10
+* Add support for indexing map values
+* Add support for indexing map keys (#253)
+* Fix mutual exclusion on partition key during read before write (#261)
+
 
 ## 3.9.6 (February 06, 2017)
 
