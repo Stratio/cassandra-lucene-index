@@ -2,6 +2,7 @@
 
 ## 3.0.10.4 (Upcoming)
 
+* Avoid unsupported usage of multicolumn mappers with collections
 * Fix mutual exclusion on partition key during read before write (#261)
 
 ## 3.0.10.3 (January 31, 2017)
