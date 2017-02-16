@@ -37,12 +37,17 @@ object SchemaValidator {
 
   /** Validates the specified [[Schema]] against the specified [[CFMetaData]].
     *
-    * @param schema a schema
+    * @param schema   a schema
     * @param metadata a table metadata
     */
   def validate(schema: Schema, metadata: CFMetaData): Unit = {
     for (mapper <- schema.mappers.values.asScala; column <- mapper.mappedColumns.asScala) {
-      validate(metadata, column, mapper.field, mapper.supportedTypes.asScala.toList, mapper.supportsCollections)
+      validate(
+        metadata,
+        column,
+        mapper.field,
+        mapper.supportedTypes.asScala.toList,
+        mapper.supportsCollections)
     }
   }
 
@@ -111,9 +116,10 @@ object SchemaValidator {
       supportedTypes: Seq[Class[_]],
       supportsCollections: Boolean): Boolean = candidateType match {
     case t: ReversedType[_] => supports(t.baseType, supportedTypes, supportsCollections)
-    case t: SetType[_] => if (supportsCollections) supports(t.getElementsType, supportedTypes, supportsCollections) else false
-    case t: ListType[_] => if (supportsCollections) supports(t.getElementsType, supportedTypes, supportsCollections) else false
-    case t: MapType[_, _] => if (supportsCollections) supports(t.getValuesType, supportedTypes, supportsCollections) else false
+    case _: CollectionType[_] if !supportsCollections => false
+    case t: SetType[_] => supports(t.getElementsType, supportedTypes, supportsCollections)
+    case t: ListType[_] => supports(t.getElementsType, supportedTypes, supportsCollections)
+    case t: MapType[_, _] => supports(t.getValuesType, supportedTypes, supportsCollections)
     case _ =>
       val native = nativeType(candidateType)
       supportedTypes.exists(_ isAssignableFrom native)

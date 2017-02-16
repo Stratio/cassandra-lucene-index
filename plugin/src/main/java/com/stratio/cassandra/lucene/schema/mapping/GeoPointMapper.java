@@ -147,7 +147,9 @@ public class GeoPointMapper extends Mapper {
      * @return the latitude
      */
     private static <T> Double readLatitude(Object o) {
-        if (o == null) return null;
+        if (o == null) {
+            return null;
+        }
         Double value;
         if (o instanceof Number) {
             value = ((Number) o).doubleValue();
@@ -170,7 +172,9 @@ public class GeoPointMapper extends Mapper {
      * @return the longitude
      */
     private static <T> Double readLongitude(Object o) {
-        if (o == null) return null;
+        if (o == null) {
+            return null;
+        }
         Double value;
         if (o instanceof Number) {
             value = ((Number) o).doubleValue();

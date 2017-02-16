@@ -121,7 +121,7 @@ public abstract class Mapper {
         this.mappedColumns = mappedColumns.stream().filter(Objects::nonNull).collect(toList()); // Remove nulls
         this.mappedCells = this.mappedColumns.stream().map(Column::parseCellName).collect(toList());
         this.supportedTypes = supportedTypes;
-        this.supportsCollections= supportsCollections;
+        this.supportsCollections = supportsCollections;
     }
 
     /**
