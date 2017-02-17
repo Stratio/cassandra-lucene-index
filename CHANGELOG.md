@@ -2,6 +2,7 @@
 
 ## 3.0.10.4 (Upcoming)
 
+* Avoid unsupported usage of multicolumn mappers with collections
 * Add support for indexing map values
 * Add support for indexing map keys (#253)
 * Fix mutual exclusion on partition key during read before write (#261)

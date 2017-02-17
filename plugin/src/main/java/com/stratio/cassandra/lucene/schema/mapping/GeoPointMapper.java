@@ -69,7 +69,7 @@ public class GeoPointMapper extends Mapper {
      * post-filtered, at the expense of creating more terms in the search index.
      */
     public GeoPointMapper(String field, Boolean validated, String latitude, String longitude, Integer maxLevels) {
-        super(field, false, validated, null, Arrays.asList(latitude, longitude), NUMERIC_TYPES);
+        super(field, false, validated, null, Arrays.asList(latitude, longitude), NUMERIC_TYPES, false);
 
         if (StringUtils.isBlank(latitude)) {
             throw new IndexException("latitude column name is required");
@@ -147,7 +147,9 @@ public class GeoPointMapper extends Mapper {
      * @return the latitude
      */
     private static <T> Double readLatitude(Object o) {
-        if (o == null) return null;
+        if (o == null) {
+            return null;
+        }
         Double value;
         if (o instanceof Number) {
             value = ((Number) o).doubleValue();
@@ -170,7 +172,9 @@ public class GeoPointMapper extends Mapper {
      * @return the longitude
      */
     private static <T> Double readLongitude(Object o) {
-        if (o == null) return null;
+        if (o == null) {
+            return null;
+        }
         Double value;
         if (o instanceof Number) {
             value = ((Number) o).doubleValue();
