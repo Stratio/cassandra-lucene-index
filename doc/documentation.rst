@@ -556,16 +556,16 @@ where <options> is a JSON object:
 .. code-block:: sql
 
     <options>:= {
-       ('refresh_seconds': '<int_value>',)?
-       ('ram_buffer_mb': '<int_value>',)?
-       ('max_merge_mb': '<int_value>',)?
-       ('max_cached_mb': '<int_value>',)?
-       ('indexing_threads': '<int_value>',)?
-       ('indexing_queues_size': '<int_value>',)?
-       ('directory_path': '<string_value>',)?
-       ('excluded_data_centers': '<string_value>',)?
-       ('partitioner': '<partitioner_definition>',)?
        'schema': '<schema_definition>'
+       (, 'refresh_seconds': '<int_value>')?
+       (, 'ram_buffer_mb': '<int_value>')?
+       (, 'max_merge_mb': '<int_value>')?
+       (, 'max_cached_mb': '<int_value>')?
+       (, 'indexing_threads': '<int_value>')?
+       (, 'indexing_queues_size': '<int_value>')?
+       (, 'directory_path': '<string_value>')?
+       (, 'excluded_data_centers': '<string_value>')?
+       (, 'partitioner': '<partitioner_definition>')?
     };
 
 All options take a value enclosed in single quotes:
@@ -594,9 +594,9 @@ All options take a value enclosed in single quotes:
 .. code-block:: sql
 
     <schema_definition>:= {
-       (analyzers: { <analyzer_definition> (, <analyzer_definition>)* } ,)?
-       (default_analyzer: "<analyzer_name>",)?
        fields: { <mapper_definition> (, <mapper_definition>)* }
+       (, analyzers: { <analyzer_definition> (, <analyzer_definition>)* })?
+       (, default_analyzer: "<analyzer_name>")?
     }
 
 Where default\_analyzer defaults to ‘org.apache.lucene.analysis.standard.StandardAnalyzer’.
@@ -659,7 +659,7 @@ rows will fail. The number of partitions per node should be specified.
        month INT,
        date TIMESTAMP,
        id INT,
-       body TEXT
+       body TEXT,
        PRIMARY KEY ((user, month), date, id)
     );
 
@@ -667,7 +667,7 @@ rows will fail. The number of partitions per node should be specified.
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
        'schema': '{...}',
-       'partitioner': '{type: "token", partitions: 4}',
+       'partitioner': '{type: "token", partitions: 4}'
     };
 
     SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' AND month = 5; -- Fetches 1 node, 1 partition
@@ -695,7 +695,7 @@ cardinalities and uniform distributions will provide better load balancing betwe
        month INT,
        date TIMESTAMP,
        id INT,
-       body TEXT
+       body TEXT,
        PRIMARY KEY ((user, month), date, id)
     );
 
@@ -730,7 +730,7 @@ similarity in number of tokens that falls inside any virtual node) between virtu
        month INT,
        date TIMESTAMP,
        id INT,
-       body TEXT
+       body TEXT,
        PRIMARY KEY ((user, month), date, id)
     );
 
@@ -738,7 +738,7 @@ similarity in number of tokens that falls inside any virtual node) between virtu
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
        'schema': '{...}',
-       'partitioner': '{type: "vnode", vnodes_per_partition: 4}',
+       'partitioner': '{type: "vnode", vnodes_per_partition: 4}'
     };
 
     SELECT * FROM tweets WHERE expr(idx, '{...}') AND user = 'jsmith' AND month = 5; -- Fetches 1 node, 1 partition
@@ -1780,7 +1780,7 @@ Maps a language-aware text value analyzed according to the specified analyzer.
                 column: "message_body",
                 analyzer: "English"
              }
-         }
+          }
        }'
     };
 
@@ -1877,7 +1877,7 @@ Lucene indexes are queried using a custom JSON syntax defining the kind of searc
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table_name> WHERE expr(<index_name>, '{
-       (  filter: ( <filter> )* )?
+       (filter: ( <filter> )* )?
        (, query: ( <query>  )* )?
        (, sort: ( <sort>   )* )?
        (, refresh: ( true | false ) )?
@@ -1894,19 +1894,19 @@ and <sort> is another JSON object:
 
 .. code-block:: sql
 
-        <sort>:= <simple_sort_field> | <geo_distance_sort_field>
-        <simple_sort_field>:= {
-           (type: "simple",)?
-           field: <field>
-           (, reverse: <reverse> )?
-        }
-        <geo_distance_sort_field>:= {
-           type: "geo_distance",
-           field: <field>,
-           latitude: <Double>,
-           longitude: <Double>
-           (, reverse: <reverse> )?
-        }
+    <sort>:= <simple_sort_field> | <geo_distance_sort_field>
+    <simple_sort_field>:= {
+       field: <field>
+       (, type: "simple" )?
+       (, reverse: <reverse> )?
+    }
+    <geo_distance_sort_field>:= {
+       type: "geo_distance",
+       field: <field>,
+       latitude: <Double>,
+       longitude: <Double>
+       (, reverse: <reverse> )?
+    }
 
 When searching by ``filter``, without any ``query`` or ``sort`` defined,
 then the results are returned in the Cassandra’s natural order, which is
@@ -2343,10 +2343,10 @@ Searches for rows matching boolean combinations of other searches.
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
        (filter | query): {
-         ( type: "boolean" , )?
-         ( must: [(search,)?] , )?
-         ( should: [(search,)?] , )?
-         ( not: [(search,)?] , )?
+         ( type: "boolean" )?
+         (, must: [(search,)?] )?
+         (, should: [(search,)?] )?
+         (, not: [(search,)?] )?
        }
     }');
 
@@ -2566,8 +2566,8 @@ Searches for rows matching one or more of the specified terms.
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
        ( filter | query ): {
           type: "contains",
-          field: <field_name> ,
-          values: <value_list> }
+          field: <field_name>,
+          values: <value_list>
           (, doc_values: <doc_values> )?
        }
     }');
@@ -2959,13 +2959,14 @@ within a distance range from a specified point.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query): {
-            type: "geo_distance",
-            field: <field_name> ,
-            latitude: <latitude> ,
-            longitude: <longitude> ,
-            max_distance: <max_distance>
-            (, min_distance: <min_distance> )? }
+       (filter | query): {
+          type: "geo_distance",
+          field: <field_name> ,
+          latitude: <latitude> ,
+          longitude: <longitude> ,
+          max_distance: <max_distance>
+          (, min_distance: <min_distance> )?
+       }
     }');
 
 where:
@@ -3276,7 +3277,7 @@ Searches for rows with columns containing a particular sequence of terms.
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
        (filter | query): {
           type: "phrase",
-          field: <field_name> ,
+          field: <field_name>,
           value: <value>
           (, slop: <slop> )?
        }
@@ -3715,7 +3716,8 @@ Buffer transformation returns a buffer around a shape.
 
 .. code-block:: sql
 
-    {type: "buffer"
+    {
+       type: "buffer"
        (, min_distance: <distance> )?
        (, max_distance: <distance> )?
     }
@@ -3891,7 +3893,7 @@ Buffer transformation returns a buffer around a shape.
 .. code-block:: sql
 
     {
-       type: "buffer"
+       type: "buffer",
        shape: <shape>
        (, min_distance: <distance> )?
        (, max_distance: <distance> )?
