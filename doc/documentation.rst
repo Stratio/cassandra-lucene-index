@@ -994,9 +994,9 @@ Maps arbitrary precision signed decimal values.
              bigdecimal: {
                 type: "bigdec",
                 integer_digits: 2,
-                 decimal_digits: 2,
-                 validated: true,
-                 column: "column_name"
+                decimal_digits: 2,
+                validated: true,
+                column: "column_name"
              }
           }
        }'
@@ -1029,9 +1029,9 @@ Maps arbitrary precision signed integer values.
           fields: {
              biginteger: {
                 type: "bigint",
-                 digits: 10,
-                 validated: true,
-                 column: "column_name"
+                digits: 10,
+                validated: true,
+                column: "column_name"
              }
           }
        }'
@@ -1076,7 +1076,7 @@ Maps four columns containing the four dates defining a bitemporal fact.
                 tt_to: "tt_to",
                 validated: true,
                 pattern: "yyyy/MM/dd HH:mm:ss.SSS",
-                now_value: "3000/01/01 00:00:00.000",
+                now_value: "3000/01/01 00:00:00.000"
              }
           }
        }'
@@ -1142,8 +1142,8 @@ Maps a boolean value.
           fields: {
              bool: {
                 type: "boolean",
-                 validated: true,
-                 column: "column_name"
+                validated: true,
+                column: "column_name"
              }
           }
        }'
@@ -1178,7 +1178,7 @@ Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
           fields: {
              creation: {
                 type: "date",
-                pattern: "yyyy/MM/dd HH:mm",
+                pattern: "yyyy/MM/dd HH:mm"
              }
           }
        }'
@@ -1271,9 +1271,9 @@ Maps a 64-bit decimal number.
           fields: {
              double: {
                 type: "double",
-                 boost: 2.0,
-                 validated: true,
-                 column: "column_name"
+                boost: 2.0,
+                validated: true,
+                column: "column_name"
              }
           }
        }'
@@ -1653,8 +1653,8 @@ Maps a 32-bit integer number.
              integer: {
                 type: "integer",
                 validated: true,
-                column: "column_name"
-                boost: 2.0,
+                column: "column_name",
+                boost: 2.0
              }
           }
        }'
@@ -1689,8 +1689,8 @@ Maps a 64-bit integer number.
              long: {
                 type: "long",
                 validated: true,
-                column: "column_name"
-                 boost: 2.0
+                column: "column_name",
+                boost: 2.0
              }
           }
        }'
@@ -1725,7 +1725,7 @@ Maps a not-analyzed text value.
              string: {
                 type: "string",
                 validated: true,
-                column: "column_name"
+                column: "column_name",
                 case_sensitive: false
              }
           }
@@ -1763,22 +1763,22 @@ Maps a language-aware text value analyzed according to the specified analyzer.
        'schema': '{
           analyzers: {
              my_custom_analyzer: {
-                 type: "snowball",
-                 language: "Spanish",
-                 stopwords: "el,la,lo,los,las,a,ante,bajo,cabe,con,contra"
+                type: "snowball",
+                language: "Spanish",
+                stopwords: "el,la,lo,los,las,a,ante,bajo,cabe,con,contra"
              }
           },
           fields: {
              spanish_text: {
-                 type: "text",
-                 validated: true,
-                 column: "message_body",
-                 analyzer: "my_custom_analyzer"
+                type: "text",
+                validated: true,
+                column: "message_body",
+                analyzer: "my_custom_analyzer"
              },
              english_text: {
-                 type: "text",
-                 column: "message_body",
-                 analyzer: "English"
+                type: "text",
+                column: "message_body",
+                analyzer: "English"
              }
          }
        }'
@@ -1845,25 +1845,25 @@ Cassandra shell:
                 language: "Spanish",
                 stopwords: "el,la,lo,los,las,a,ante,bajo,cabe,con,contra"
              }
-         },
-         default_analyzer: "english",
-         fields: {
-            name: {type: "string"},
-            gender: {type: "string", validated: true},
-            animal: {type: "string"},
-            age: {type: "integer"},
-            food: {type: "string"},
-            number: {type: "integer"},
-            bool: {type: "boolean"},
-            date: {type: "date", validated: true, pattern: "yyyy/MM/dd"},
-            duration: {type: "date_range", from: "start_date", to: "stop_date"},
-            place: {type: "geo_point", latitude: "latitude", longitude: "longitude"},
-            mapz: {type: "string"},
-            setz: {type: "string"},
-            listz: {type: "string"},
-            phrase: {type: "text", analyzer: "my_custom_analyzer"}
-         }
-      }'
+          },
+          default_analyzer: "english",
+          fields: {
+             name: {type: "string"},
+             gender: {type: "string", validated: true},
+             animal: {type: "string"},
+             age: {type: "integer"},
+             food: {type: "string"},
+             number: {type: "integer"},
+             bool: {type: "boolean"},
+             date: {type: "date", validated: true, pattern: "yyyy/MM/dd"},
+             duration: {type: "date_range", from: "start_date", to: "stop_date"},
+             place: {type: "geo_point", latitude: "latitude", longitude: "longitude"},
+             mapz: {type: "string"},
+             setz: {type: "string"},
+             listz: {type: "string"},
+             phrase: {type: "text", analyzer: "my_custom_analyzer"}
+          }
+       }'
     };
 
 ---------
@@ -2836,9 +2836,9 @@ contained in the specified bounding box.
        (filter | query): {
           type: "geo_bbox",
           field: <field_name>,
-          min_latitude: <min_latitude> ,
-          max_latitude: <max_latitude> ,
-          min_longitude: <min_longitude> ,
+          min_latitude: <min_latitude>,
+          max_latitude: <max_latitude>,
+          min_longitude: <min_longitude>,
           max_longitude: <max_longitude>
        }
     }');
@@ -2895,7 +2895,8 @@ between -90.0 and 90.0, and a longitude between 0.0 and
           min_latitude: -90.0,
           max_latitude: 90.0,
           min_longitude: 0.0,
-          max_longitude: 10.0 }
+          max_longitude: 10.0
+       }
     }');
 
 
@@ -2923,13 +2924,15 @@ between 0.0 and 10.0, and a longitude between -180.0 and
           min_latitude: 0.0,
           max_latitude: 10.0,
           min_longitude: -180.0,
-          max_longitude: 180.0 },
+          max_longitude: 180.0
+       },
        sort: {
           type: "geo_distance",
           field: "geo_point",
           reverse: false,
           latitude: 0.0,
-          longitude: 0.0 }
+          longitude: 0.0
+       }
     }');
 
 
@@ -3010,7 +3013,7 @@ yards from the geo point (40.225479, -3.999278) sorted by min distance to point 
           field: "place",
           latitude: 40.225479,
           longitude: -3.999278,
-          max_distance: "10yd" ,
+          max_distance: "10yd",
           min_distance: "1yd"
        },
        sort: {
@@ -3078,13 +3081,13 @@ where:
 .. code-block:: sql
 
     SELECT * FROM test WHERE expr(test_index, '{
-        filter: {
-            type: "geo_shape",
-            field: "place",
-            shape: {
-               type: "wkt",
-               value: "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))"
-            }
+       filter: {
+          type: "geo_shape",
+          field: "place",
+          shape: {
+             type: "wkt",
+             value: "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))"
+          }
         }
     }');
 
@@ -3096,8 +3099,8 @@ Using the `Java query builder <#query-builder>`__:
     (...)
     String shape = "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))";
     ResultSet rs = session.execute(
-      "SELECT * FROM TABLE test WHERE expr(test_index, ?)",
-      search().filter(geoShape("place", wkt(shape))).build());
+       "SELECT * FROM TABLE test WHERE expr(test_index, ?)",
+       search().filter(geoShape("place", wkt(shape))).build());
 
 **Example 2:** search for shapes intersecting with a shape defined by a buffer 10 kilometers around a segment of the
 Florida's coastline:
@@ -3110,19 +3113,19 @@ Florida's coastline:
 .. code-block:: sql
 
     SELECT * FROM test WHERE expr(test_index, '{
-        filter: {
-            type: "geo_shape",
-            field: "place",
-            operation: "intersects",
-            shape: {
-               type: "buffer",
-               max_distance: "10km",
-               shape: {
-                  type: "wkt",
-                  value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
-               }
-            }
-        }
+       filter: {
+          type: "geo_shape",
+          field: "place",
+          operation: "intersects",
+          shape: {
+             type: "buffer",
+             max_distance: "10km",
+             shape: {
+                type: "wkt",
+                value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
+             }
+          }
+       }
     }');
 
 Using the `Java query builder <#query-builder>`__:
@@ -3150,7 +3153,7 @@ Searches for rows with columns containing the specified term. The matching depen
        (filter | query): {
           type: "match",
           field: <field_name>,
-          value: <value>,
+          value: <value>
           (, doc_values: <doc_values> )?
        }
     }');
@@ -3275,7 +3278,8 @@ Searches for rows with columns containing a particular sequence of terms.
           type: "phrase",
           field: <field_name> ,
           value: <value>
-          (, slop: <slop> )? }
+          (, slop: <slop> )?
+       }
     }');
 
 where:
@@ -3303,8 +3307,8 @@ Using the `Java query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(phrase("phrase", "camisa manchada")).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(phrase("phrase", "camisa manchada")).build());
 
 **Example 2:** search for rows where “phrase” contains the word “mancha”
 followed by the word “camisa” having 0 to 2 words in between:
@@ -3327,8 +3331,8 @@ Using the `Java query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(phrase("phrase", "camisa manchada").slop(2)).build());
+       "SELECT * FROM users WHERE expr(users_index, ?)",
+       search().filter(phrase("phrase", "camisa manchada").slop(2)).build());
 
 Prefix search
 =============
@@ -3341,7 +3345,7 @@ Searches for rows with columns with terms starting with the specified prefix.
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
        (filter | query): {
-           type: "prefix",
+          type: "prefix",
           field: <field_name> ,
           value: <value>
        }
@@ -3572,8 +3576,8 @@ Searches for rows with columns with terms satisfying the specified wildcard patt
 
     SELECT * FROM users WHERE expr(users_index, '{
        (filter | query): {
-          type: "wildcard" ,
-          field: <field_name> ,
+          type: "wildcard",
+          field: <field_name>,
           value: <wildcard_exp>
        }
     }');
@@ -3696,7 +3700,7 @@ contained in the indexed column:
              shape: {
                 type: "geo_shape",
                 max_levels: 8,
-                 transformations: [{type: "bbox"}]
+                transformations: [{type: "bbox"}]
              }
           }
        }'
@@ -3712,8 +3716,8 @@ Buffer transformation returns a buffer around a shape.
 .. code-block:: sql
 
     {type: "buffer"
-      (, min_distance: <distance> )?
-      (, max_distance: <distance> )?
+       (, min_distance: <distance> )?
+       (, max_distance: <distance> )?
     }
 
 where:
@@ -3735,7 +3739,7 @@ shape contained in the indexed column:
              shape: {
                 type: "geo_shape",
                 max_levels: 8,
-                 transformations: [{type: "buffer", max_distance: "10km"}]
+                transformations: [{type: "buffer", max_distance: "10km"}]
              }
           }
        }'
@@ -4048,8 +4052,8 @@ You can index, search and sort tuples this way:
 .. code-block:: sql
 
     CREATE TABLE collect_things (
-      k int PRIMARY KEY,
-      v tuple<int, text, float>
+       k int PRIMARY KEY,
+       v tuple<int, text, float>
     );
 
     INSERT INTO collect_things (k, v) VALUES(0, (1, 'bar', 2.1));
@@ -4058,13 +4062,15 @@ You can index, search and sort tuples this way:
 
 
     CREATE CUSTOM INDEX idx ON  collect_things() USING 'com.stratio.cassandra.lucene.Index' WITH OPTIONS = {
-    'refresh_seconds':'1',
-    'schema':'{
-        fields:{
-            "v.0": {type: "integer"},
-            "v.1": {type: "string"},
-            "v.2": {type: "float"} }
-     }'};
+       'refresh_seconds':'1',
+       'schema':'{
+          fields:{
+             "v.0": {type: "integer"},
+             "v.1": {type: "string"},
+             "v.2": {type: "float"}
+          }
+       }'
+    };
 
     SELECT * FROM collect_things WHERE expr(idx, '{
        filter: {
@@ -4079,11 +4085,11 @@ You can index, search and sort tuples this way:
           type: "match",
           field: "v.1",
           value: "bar"
-        }
+       }
     }');
 
     SELECT * FROM collect_things WHERE expr(idx, '{
-        sort: {field: "v.2"}
+       sort: {field: "v.2"}
     }');
 
 
@@ -4095,16 +4101,16 @@ Since Cassandra 2.1.X users can declare `User Defined Types <http://docs.datasta
 .. code-block:: sql
 
     CREATE TYPE address_udt (
-        street text,
-        city text,
-        zip int
+       street text,
+       city text,
+       zip int
     );
 
     CREATE TABLE user_profiles (
-        login text PRIMARY KEY,
-        first_name text,
-        last_name text,
-        address frozen<address_udt>
+       login text PRIMARY KEY,
+       first_name text,
+       last_name text,
+       address frozen<address_udt>
     );
 
 The components of UDTs can be indexed, searched and sorted this way:
@@ -4169,9 +4175,9 @@ Lists ans sets are indexed in the same way as regular columns, using their base 
     WITH OPTIONS = {
        'refresh_seconds': '1',
        'schema': '{
-           fields: {
-              cities: {type: "string"}
-           }
+          fields: {
+             cities: {type: "string"}
+          }
        }'
     };
 
@@ -4439,11 +4445,11 @@ For example, the following search could be more efficiently addressed using a de
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(tweets_index, '{
-        filter: {
-           type: "match",
-           field: "name",
-           value: "Alice"
-        }
+       filter: {
+          type: "match",
+          field: "name",
+          value: "Alice"
+       }
     }');
 
 However, this search could be a good use case for Lucene just because there is no easy counterpart:
@@ -4451,14 +4457,14 @@ However, this search could be a good use case for Lucene just because there is n
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(tweets_index, '{
-        filter: [
-            {type: "regexp", field: "name", value: "[J][aeiou]{2}.*"},
-            {type: "range", field: "birthday", lower: "2014/04/25"}
-        ],
-        sort: [
-            {field: "birthday", reverse: true },
-            {field: "name"}
-        ]
+       filter: [
+          {type: "regexp", field: "name", value: "[J][aeiou]{2}.*"},
+          {type: "range", field: "birthday", lower: "2014/04/25"}
+       ],
+       sort: [
+          {field: "birthday", reverse: true },
+          {field: "name"}
+       ]
     }') LIMIT 20;
 
 Lucene indexes are intended to be used in those cases that can't be efficiently addressed
@@ -4493,8 +4499,8 @@ You can set the place where the index will be stored using the `directory_path` 
     CREATE CUSTOM INDEX tweets_index ON tweets ()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'directory_path': '<lucene_disk>',
-        ...
+       'directory_path': '<lucene_disk>',
+       ...
     };
 
 Disregard the first query
