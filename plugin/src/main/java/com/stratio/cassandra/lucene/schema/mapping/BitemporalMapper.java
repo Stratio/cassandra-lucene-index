@@ -84,7 +84,7 @@ public class BitemporalMapper extends Mapper {
                             String pattern,
                             Object nowValue) {
 
-        super(field, false, validated, null, Arrays.asList(vtFrom, vtTo, ttFrom, ttTo), DATE_TYPES);
+        super(field, false, validated, null, Arrays.asList(vtFrom, vtTo, ttFrom, ttTo), DATE_TYPES, false);
 
         if (StringUtils.isBlank(vtFrom)) {
             throw new IndexException("vt_from column name is required");

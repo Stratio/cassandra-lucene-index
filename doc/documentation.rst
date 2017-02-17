@@ -1029,7 +1029,8 @@ Maps arbitrary precision signed integer values.
 Bitemporal mapper
 _________________
 
-Maps four columns containing the four dates defining a bitemporal fact.
+Maps four columns containing the four dates defining a bitemporal fact. The mapped columns shouldn't
+be collections.
 
 **Parameters:**
 
@@ -1176,7 +1177,8 @@ Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
 Date range mapper
 _________________
 
-Maps a time duration/period defined by a start date and a stop date.
+Maps a time duration/period defined by a start date and a stop date. The mapped columns shouldn't be
+collections.
 
 **Parameters:**
 
@@ -1311,7 +1313,8 @@ Maps a geospatial location (point) defined by two columns containing a latitude 
 Indexing is based on a `composite spatial strategy <https://eng.climate.com/2014/04/16/polygons-in-lucene/>`__ that
 stores points in a doc values field and also indexes them into a geohash recursive prefix tree with a certain precision
 level. The low-accuracy prefix tree is used to quickly find results, maybe producing some false positives,
-and the doc values field is used to discard these false positives.
+and the doc values field is used to discard these false positives. The mapped columns shouldn't be
+collections.
 
 **Parameters:**
 

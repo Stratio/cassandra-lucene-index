@@ -63,7 +63,8 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
               validated,
               analyzer,
               Collections.singletonList(column == null ? field : column),
-              supportedTypes);
+              supportedTypes,
+              true);
 
         if (StringUtils.isWhitespace(column)) {
             throw new IndexException("Column must not be whitespace, but found '{}'", column);

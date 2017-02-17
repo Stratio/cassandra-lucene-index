@@ -3,6 +3,7 @@
 ## 3.10.0 (Upcoming)
 
 * Upgrade to Apache Cassandra 3.10
+* Avoid unsupported usage of multicolumn mappers with collections
 * Add support for indexing map values
 * Add support for indexing map keys (#253)
 * Fix mutual exclusion on partition key during read before write (#261)
