@@ -31,7 +31,7 @@ import java.util.*;
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class BitemporalMapper extends MultipleColumnMapper.MultipleFieldMapper {
+public class BitemporalMapper extends MultipleColumnMapper {
 
     /** The lucene Field suffix for vt_from */
     public static final String VT_FROM_FIELD_SUFFIX = ".vtFrom";

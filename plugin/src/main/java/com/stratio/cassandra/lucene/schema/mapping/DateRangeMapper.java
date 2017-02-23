@@ -35,7 +35,7 @@ import java.util.*;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DateRangeMapper extends MultipleColumnMapper.MultipleFieldMapper {
+public class DateRangeMapper extends MultipleColumnMapper {
 
     /** The name of the column containing the from date. */
     public final String from;

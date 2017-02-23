@@ -56,28 +56,4 @@ public abstract class MultipleColumnMapper<T extends Comparable<T>> extends Mapp
     @Override
     public abstract String toString();
 
-
-    /**
-     * {@link SingleColumnMapper} that produces just a single field.
-     *
-     * @param <T> the base type
-     */
-    public abstract static class MultipleFieldMapper<T extends Comparable<T>> extends MultipleColumnMapper<T> {
-
-        /**
-         * Builds a new {@link MultipleColumnMapper} supporting the specified types for indexing and clustering.
-         *
-         * @param field the name of the field
-         * @param validated if the field must be validated
-         * @param mappedColumns the names of the columns to be mapped
-         * @param supportedTypes the supported column value data types
-         */
-        public MultipleFieldMapper(String field,
-                                   Boolean validated,
-                                   List<String> mappedColumns,
-                                   List<Class<?>> supportedTypes) {
-            super(field, validated, mappedColumns, supportedTypes);
-        }
-    }
-
 }
