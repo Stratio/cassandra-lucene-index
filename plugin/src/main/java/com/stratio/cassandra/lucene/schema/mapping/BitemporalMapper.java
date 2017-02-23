@@ -31,7 +31,7 @@ import java.util.*;
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class BitemporalMapper extends Mapper {
+public class BitemporalMapper extends MultipleColumnMapper.MultipleFieldMapper {
 
     /** The lucene Field suffix for vt_from */
     public static final String VT_FROM_FIELD_SUFFIX = ".vtFrom";
@@ -84,7 +84,7 @@ public class BitemporalMapper extends Mapper {
                             String pattern,
                             Object nowValue) {
 
-        super(field, false, validated, null, Arrays.asList(vtFrom, vtTo, ttFrom, ttTo), DATE_TYPES);
+        super(field, validated, Arrays.asList(vtFrom, vtTo, ttFrom, ttTo), DATE_TYPES);
 
         if (StringUtils.isBlank(vtFrom)) {
             throw new IndexException("vt_from column name is required");
@@ -216,6 +216,7 @@ public class BitemporalMapper extends Mapper {
                           .add("nowValue", nowValue)
                           .toString();
     }
+
 
     public static class BitemporalDateTime implements Comparable<BitemporalDateTime> {
 

@@ -21,6 +21,7 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.common.GeospatialUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.composite.CompositeSpatialStrategy;
@@ -32,6 +33,7 @@ import org.apache.lucene.spatial.serialized.SerializedDVStrategy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.stratio.cassandra.lucene.common.GeospatialUtils.CONTEXT;
 
@@ -40,7 +42,7 @@ import static com.stratio.cassandra.lucene.common.GeospatialUtils.CONTEXT;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoPointMapper extends Mapper {
+public class GeoPointMapper extends MultipleColumnMapper.MultipleFieldMapper {
 
     /** The default max number of levels for geohash search trees. */
     public static final int DEFAULT_MAX_LEVELS = 11;
@@ -69,7 +71,7 @@ public class GeoPointMapper extends Mapper {
      * post-filtered, at the expense of creating more terms in the search index.
      */
     public GeoPointMapper(String field, Boolean validated, String latitude, String longitude, Integer maxLevels) {
-        super(field, false, validated, null, Arrays.asList(latitude, longitude), NUMERIC_TYPES);
+        super(field, validated, Arrays.asList(latitude, longitude), NUMERIC_TYPES);
 
         if (StringUtils.isBlank(latitude)) {
             throw new IndexException("latitude column name is required");
