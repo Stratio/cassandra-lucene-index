@@ -43,6 +43,7 @@ public class CassandraUtilsBuilder {
     private String clusteringOrderColumn;
     private boolean clusteringOrderAscending;
     private Partitioner partitioner = PARTITIONER;
+    private boolean sparse = SPARSE;
 
     private final Map<String, Map<String, String>> udts;
 
@@ -145,6 +146,11 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
+    public CassandraUtilsBuilder withSparse(boolean sparse) {
+        this.sparse = sparse;
+        return this;
+    }
+
     private SingleColumnMapper<?> defaultMapper(String name) {
         switch (name) {
             case "ascii":
@@ -202,6 +208,7 @@ public class CassandraUtilsBuilder {
                                   udts,
                                   clusteringOrderColumn,
                                   clusteringOrderAscending,
-                                  partitioner);
+                                  partitioner,
+                                  sparse);
     }
 }

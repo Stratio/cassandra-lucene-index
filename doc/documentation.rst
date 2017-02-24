@@ -577,6 +577,12 @@ All options take a value enclosed in single quotes:
 -  **partitioner**: The optional index `partitioner <#partitioners>`__. Index partitioning is useful
    to speed up some searches to the detriment of others, depending on the implementation. It is also
    useful to overcome the Lucene's hard limit of 2147483519 documents per index.
+-  **sparse**: If true, the update to the index is omitted unless the CQL statement includes a column
+   that could affect the index. By default it is false, and any insert or update will trigger an index
+   modification, even if the cql statement does not contain any relevant column for the index.
+   The cost of this optimization is an extra comparison performed each time a row must be indexed.
+   This flag helps in reducing lucene calls when the row is updated partially, and the columns
+   that affect the index are updated less frequently then the rest of the row.
 -  **schema**: see below
 
 .. code-block:: sql

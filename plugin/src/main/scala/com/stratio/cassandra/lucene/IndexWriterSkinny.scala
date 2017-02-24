@@ -58,7 +58,13 @@ class IndexWriterSkinny(
 
   /** @inheritdoc */
   override def commit() {
-    row.map(
+    row.filter(
+      row => {
+        if (!service.doesAffectIndex(row)) {
+          tracer.trace("Lucene index skipping row")
+          false
+        } else true
+      }).map(
       row => {
         if (transactionType == COMPACTION || service.needsReadBeforeWrite(key, row)) {
           tracer.trace("Lucene index reading before write")
