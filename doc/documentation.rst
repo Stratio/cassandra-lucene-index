@@ -1056,7 +1056,7 @@ Maps four columns containing the four dates defining a bitemporal fact.
 
 **Supported CQL types:**
 
--  ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
+-  ascii, bigint, date, int, text, timestamp, timeuuid, uuid, varchar, varint
 
 **Example:**
 
@@ -1164,7 +1164,7 @@ Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
 
 **Supported CQL types:**
 
--  ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
+-  ascii, bigint, date, int, text, timestamp, timeuuid, uuid, varchar, varint
 
 **Example:** Index the column *creation* with a precision of minutes using the date format pattern *yyyy/MM/dd HH:mm*:
 
@@ -1200,7 +1200,7 @@ Maps a time duration/period defined by a start date and a stop date.
 
 **Supported CQL types:**
 
--  ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
+-  ascii, bigint, date, int, text, timestamp, timeuuid, uuid, varchar, varint
 
 **Example 1:** Index the column time period defined by the columns *start* and *stop*, using the default date pattern:
 
@@ -1293,7 +1293,7 @@ Maps a 32-bit decimal number.
 
 **Supported CQL types:**
 
--  ascii, bigint, decimal, double, float, int, smallint, tinyint, varchar, varint
+-  ascii, bigint, decimal, double, float, int, smallint, text, tinyint, varchar, varint
 
 **Example:**
 
@@ -1336,7 +1336,7 @@ and the doc values field is used to discard these false positives.
 
 **Supported CQL types:**
 
--  ascii, bigint, decimal, double, float, int, smallint, text, timestamp, varchar, varint
+-  ascii, bigint, decimal, double, float, int, smallint, text, varchar, varint
 
 **Example:**
 
@@ -1710,7 +1710,7 @@ Maps a not-analyzed text value.
 
 **Supported CQL types:**
 
--  ascii, bigint, blob, boolean, double, float, inet, int, smallint, text, timestamp, timeuuid, tinyint, uuid, varchar, varint
+-  ascii, bigint, boolean, decimal, double, float, inet, int, smallint, text, timeuuid, tinyint, uuid, varchar, varint
 
 **Example:**
 
@@ -1750,7 +1750,7 @@ Maps a language-aware text value analyzed according to the specified analyzer.
 
 **Supported CQL types:**
 
--  ascii, bigint, blob, boolean, double, float, inet, int, smallint, text, timestamp, timeuuid, tinyint, uuid, varchar, varint
+-  ascii, bigint, boolean, decimal, double, float, inet, int, smallint, text, timeuuid, tinyint, uuid, varchar, varint
 
 **Example:**
 

@@ -49,7 +49,8 @@ public abstract class MultipleColumnMapper<T extends Comparable<T>> extends Mapp
               validated,
               null,
               mappedColumns,
-              supportedTypes);
+              supportedTypes,
+              false);
     }
 
     /** {@inheritDoc} */

@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2014 Stratio (http://stratio.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.stratio.cassandra.lucene.testsAT.type_validation;
 
 import com.google.common.collect.Sets;
@@ -21,16 +36,16 @@ public final class DataHelper {
         singleColumnMappersAcceptedTypes.put(bigDecimalMapper(), Sets.newHashSet("ascii", "bigint", "decimal", "double", "float", "int", "smallint", "text", "tinyint", "varchar", "varint"));
         singleColumnMappersAcceptedTypes.put(bigIntegerMapper(), Sets.newHashSet("ascii", "bigint", "int", "smallint", "text", "tinyint", "varchar", "varint"));
         singleColumnMappersAcceptedTypes.put(blobMapper(), Sets.newHashSet("ascii", "blob", "text", "varchar"));
-        singleColumnMappersAcceptedTypes.put(booleanMapper(), Sets.newHashSet("ascii", "boolean ", "text", "varchar"));
-        singleColumnMappersAcceptedTypes.put(dateMapper(), Sets.newHashSet("ascii", "bigint", "date", "int", "text", "timestamp", "timeuuid", "varchar", "varint"));
+        singleColumnMappersAcceptedTypes.put(booleanMapper(), Sets.newHashSet("ascii", "boolean", "text", "varchar"));
+        singleColumnMappersAcceptedTypes.put(dateMapper(), Sets.newHashSet("ascii", "bigint", "date", "int", "text", "timestamp", "timeuuid", "uuid", "varchar", "varint"));
         singleColumnMappersAcceptedTypes.put(doubleMapper(), Sets.newHashSet("ascii", "bigint", "decimal", "double", "float", "int", "smallint", "text", "tinyint", "varchar", "varint"));
-        singleColumnMappersAcceptedTypes.put(floatMapper(), Sets.newHashSet("ascii", "bigint", "decimal", "double", "float", "int", "smallint", "tinyint", "varchar", "varint"));
+        singleColumnMappersAcceptedTypes.put(floatMapper(), Sets.newHashSet("ascii", "bigint", "decimal", "double", "float", "int", "smallint", "text", "tinyint", "varchar", "varint"));
         singleColumnMappersAcceptedTypes.put(geoShapeMapper(), Sets.newHashSet("ascii", "text", "varchar"));
         singleColumnMappersAcceptedTypes.put(inetMapper(), Sets.newHashSet("ascii", "inet", "text", "varchar"));
         singleColumnMappersAcceptedTypes.put(integerMapper(), Sets.newHashSet("ascii", "bigint", "date", "decimal", "double", "float", "int", "smallint", "text", "timestamp", "tinyint", "varchar", "varint"));
         singleColumnMappersAcceptedTypes.put(longMapper(), Sets.newHashSet("ascii", "bigint", "date", "decimal", "double", "float", "int", "smallint", "text", "timestamp", "tinyint", "varchar", "varint"));
-        singleColumnMappersAcceptedTypes.put(stringMapper(), Sets.newHashSet("ascii", "bigint", "blob", "boolean", "double", "float", "inet", "int", "smallint", "text", "timestamp", "timeuuid", "tinyint", "uuid", "varchar", "varint"));
-        singleColumnMappersAcceptedTypes.put(textMapper(), Sets.newHashSet("ascii", "bigint", "blob", "boolean", "double", "float", "inet", "int", "smallint", "text", "timestamp", "timeuuid", "tinyint", "uuid", "varchar", "varint"));
+        singleColumnMappersAcceptedTypes.put(stringMapper(), Sets.newHashSet("ascii", "bigint", "boolean", "decimal", "double", "float", "inet", "int", "smallint", "text", "timeuuid", "tinyint", "uuid", "varchar", "varint"));
+        singleColumnMappersAcceptedTypes.put(textMapper(), Sets.newHashSet("ascii", "bigint", "boolean", "decimal", "double", "float", "inet", "int", "smallint", "text", "timeuuid", "tinyint", "uuid", "varchar", "varint"));
         singleColumnMappersAcceptedTypes.put(uuidMapper(), Sets.newHashSet("ascii", "text", "timeuuid", "uuid", "varchar"));
     }
 
@@ -39,9 +54,9 @@ public final class DataHelper {
     protected static final Map<Mapper, Set<String>> multipleColumnMappersAcceptedTypes = new HashMap<>();
 
     static {
-        multipleColumnMappersAcceptedTypes.put(bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to"), Sets.newHashSet("ascii", "bigint", "date", "int", "text", "timestamp", "timeuuid", "varchar", "varint"));
-        multipleColumnMappersAcceptedTypes.put(dateRangeMapper("from_", "to_"), Sets.newHashSet("ascii", "bigint", "date", "int", "text", "timestamp", "timeuuid", "varchar", "varint"));
-        multipleColumnMappersAcceptedTypes.put(geoPointMapper("latitude", "longitude"), Sets.newHashSet("ascii", "bigint", "decimal", "double", "float", "int", "smallint", "text", "timestamp", "varchar", "varint"));
+        multipleColumnMappersAcceptedTypes.put(bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to"), Sets.newHashSet("ascii", "bigint", "date", "int", "text", "timestamp", "timeuuid", "uuid", "varchar", "varint"));
+        multipleColumnMappersAcceptedTypes.put(dateRangeMapper("from_", "to_"), Sets.newHashSet("ascii", "bigint", "date", "int", "text", "timestamp", "timeuuid", "uuid", "varchar", "varint"));
+        multipleColumnMappersAcceptedTypes.put(geoPointMapper("latitude", "longitude"), Sets.newHashSet("ascii", "bigint", "decimal", "double", "float", "int", "smallint", "text", "varchar", "varint"));
     }
 
     protected static final Map<String, Set<String>> multipleColumnMapperRequiredColumnNames = new HashMap<>();
@@ -65,5 +80,8 @@ public final class DataHelper {
     }
     protected static String mapComposedType(String type) {
         return new StringBuilder().append("map<bigint,").append(type).append(">").toString();
+    }
+    protected static String buildTableName(String mapperName, String cqlType) {
+        return (mapperName + "_" + cqlType.replace("<","_").replace(">","_").replace(",","_")).toLowerCase();
     }
 }
