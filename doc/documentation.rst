@@ -4337,9 +4337,7 @@ UDTs can be indexed even while being inside collections:
        }
     }');
 
-Using collections can result in misleading results. This is a lucene constraint. It is produced by how lucene flattens its Fields inside a Document and how queries are execute against this structure.
-Lets see an example
-
+Using collections may produce surprising results. Queries are evaluated document per document, checking if any of the document values matches the query.
 
 .. code-block:: sql
 
@@ -4367,64 +4365,44 @@ Lets see an example
     INSERT INTO tweets(id, author, raw_text, tags) VALUES(4, 'Oscar', 'cassandra is awesome', ['cassandra', 'testing'])
     INSERT INTO tweets(id, author, raw_text, tags) VALUES(5, 'Mike', 'cassandra is awesome', ['cassandra', 'management', 'development', 'testing'])
 
-    SELECT * FROM users WHERE expr(tweets_index, '{
+
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
        filter: {
           type: "boolean",
           must: [
-             {type: "match", field: "tags", value: "cassandra"},
-             {type: "match", field: "tags", value: "testing"}
+             {type: "match", field: "tags", value: "cassandra"}
           ]
        }
     }');
 
-These cassandra cells are translated to lucene Documents filled with some Fields
+     id | author | raw_text                                                        | tags
+    ----+--------+-----------------------------------------------------------------+-------------------------------------------------------
+      2 |   Hugo | priam is the leader application in cassandra cluster management |                           ['cassandra', 'management']
+      3 | Andres |                             Checkout the new cassandra releases |                          ['cassandra', 'development']
+      4 |  Oscar |                                            cassandra is awesome |                              ['cassandra', 'testing']
+      5 |   Mike |                                            cassandra is awesome | ['cassandra', 'management', 'development', 'testing']
+      1 |    Edu |                                            Cassandra is awesome |                                         ['cassandra']
+
+    (5 rows)
 
 
-these 5 inserts translates to :;
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+       filter: {
+          type: "boolean",
+          must: [
+             {type: "match", field: "tags", value: "cassandra"},
+             {type: "match", field: "tags", value: "management"}
 
+          ]
+       }
+    }');
 
-Document
-    Field (key=_token, value=token(1))
-    Field (key=_partition, value=bytes(1))
-    Field (key=tags, value='cassandra')
+     id | author | raw_text                                                        | tags
+    ----+--------+-----------------------------------------------------------------+-------------------------------------------------------
+      2 |   Hugo | priam is the leader application in cassandra cluster management |                           ['cassandra', 'management']
+      5 |   Mike |                                            cassandra is awesome | ['cassandra', 'management', 'development', 'testing']
 
-Document
-    Field (key=_token, value=token(2))
-    Field (key=_partition, value=bytes(2))
-    Field (key=tags, value='cassandra')
-    Field (key=tags, value='management')
-
-Document
-    Field (key=_token, value=token(3))
-    Field (key=_partition, value=bytes(3))
-    Field (key=tags, value='cassandra')
-    Field (key=tags, value='development')
-
-Document
-    Field (key=_token, value=token(4))
-    Field (key=_partition, value=bytes(4))
-    Field (key=tags, value='cassandra')
-    Field (key=tags, value='testing')
-
-Document
-    Field (key=_token, value=token(5))
-    Field (key=_partition, value=bytes(5))
-    Field (key=tags, value='cassandra')
-    Field (key=tags, value='management')
-    Field (key=tags, value='development')
-    Field (key=tags, value='testing')
-
-
-The select statement is this use case means literary: Give me the rows where in column tags there is cassandra and testing
-
-Query is targeted to the document
-
-
-
-Queries are executed against every Document, not every Field, so completely opposite queries can be satisfied by the same Document if any of its internal Fields match the query.
-Ussualy , with single-value fields when you perform a query over it
-
-Q1 ^ Q2 ^ Q3 ^ Q4
+    (2 rows)
 
 -------------
 Query Builder
