@@ -4341,7 +4341,8 @@ Using collections may produce surprising results. Queries are evaluated document
 
 .. code-block:: sql
 
-    CREATE KEYSPACE IF NOT EXISTS k_test WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 1};
+    CREATE KEYSPACE IF NOT EXISTS k_test
+        WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 1};
     USE k_test;
 
     CREATE TABLE tweets (
@@ -4363,10 +4364,14 @@ Using collections may produce surprising results. Queries are evaluated document
     };
 
     INSERT INTO tweets(id, author, raw_text, tags) VALUES(1, 'Edu', 'Cassandra is awesome', ['cassandra']);
-    INSERT INTO tweets(id, author, raw_text, tags) VALUES(2, 'Hugo', 'Cassandra priam app is great', ['cassandra', 'management']);
-    INSERT INTO tweets(id, author, raw_text, tags) VALUES(3, 'Andres', 'New cassandra 3.0.11 has been released', ['cassandra', 'development']);
-    INSERT INTO tweets(id, author, raw_text, tags) VALUES(4, 'Oscar', 'Is there any embedded cassandra service for tests?', ['cassandra', 'testing']);
-    INSERT INTO tweets(id, author, raw_text, tags) VALUES(5, 'Mike', 'Cassandra materialized views is a surprising feature.', ['cassandra', 'management', 'development', 'testing']);
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(2, 'Hugo', 'Cassandra priam app is great',
+                                                        ['cassandra', 'management']);
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(3, 'Andres', 'New cassandra 3.0.11 has been released',
+                                                        ['cassandra', 'development']);
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(4, 'Oscar', 'Is there any embedded cassandra service for tests?',
+                                                        ['cassandra', 'testing']);
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(5, 'Mike', 'Cassandra materialized views is a surprising feature.',
+                                                        ['cassandra', 'management', 'development', 'testing']);
 
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
@@ -4398,7 +4403,7 @@ Using collections may produce surprising results. Queries are evaluated document
           ]
        }
     }');
-    
+
      id | author | raw_text                                              | tags
     ----+--------+-------------------------------------------------------+-------------------------------------------------------
       2 |   Hugo |                          Cassandra priam app is great |                           ['cassandra', 'management']
