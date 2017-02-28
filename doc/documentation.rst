@@ -4337,6 +4337,95 @@ UDTs can be indexed even while being inside collections:
        }
     }');
 
+Using collections can result in misleading results. This is a lucene constraint. It is produced by how lucene flattens its Fields inside a Document and how queries are execute against this structure.
+Lets see an example
+
+
+.. code-block:: sql
+
+    CREATE TABLE tweets (
+       id bigint PRIMARY KEY,
+       author text,
+       raw_text text,
+       tags list<text>
+    );
+
+    CREATE CUSTOM INDEX tweets_index ON tweets()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             "tags" : {type: "string"}
+          }
+       }'
+    };
+
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(1, 'Edu', 'Cassandra is awesome', ['cassandra'])
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(2, 'Hugo', 'priam is the leader application in cassandra cluster management', ['cassandra', 'management'])
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(3, 'Andres', 'Checkout the new cassandra releases', ['cassandra', 'development'])
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(4, 'Oscar', 'cassandra is awesome', ['cassandra', 'testing'])
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(5, 'Mike', 'cassandra is awesome', ['cassandra', 'management', 'development', 'testing'])
+
+    SELECT * FROM users WHERE expr(tweets_index, '{
+       filter: {
+          type: "boolean",
+          must: [
+             {type: "match", field: "tags", value: "cassandra"},
+             {type: "match", field: "tags", value: "testing"}
+          ]
+       }
+    }');
+
+These cassandra cells are translated to lucene Documents filled with some Fields
+
+
+these 5 inserts translates to :;
+
+
+Document
+    Field (key=_token, value=token(1))
+    Field (key=_partition, value=bytes(1))
+    Field (key=tags, value='cassandra')
+
+Document
+    Field (key=_token, value=token(2))
+    Field (key=_partition, value=bytes(2))
+    Field (key=tags, value='cassandra')
+    Field (key=tags, value='management')
+
+Document
+    Field (key=_token, value=token(3))
+    Field (key=_partition, value=bytes(3))
+    Field (key=tags, value='cassandra')
+    Field (key=tags, value='development')
+
+Document
+    Field (key=_token, value=token(4))
+    Field (key=_partition, value=bytes(4))
+    Field (key=tags, value='cassandra')
+    Field (key=tags, value='testing')
+
+Document
+    Field (key=_token, value=token(5))
+    Field (key=_partition, value=bytes(5))
+    Field (key=tags, value='cassandra')
+    Field (key=tags, value='management')
+    Field (key=tags, value='development')
+    Field (key=tags, value='testing')
+
+
+The select statement is this use case means literary: Give me the rows where in column tags there is cassandra and testing
+
+Query is targeted to the document
+
+
+
+Queries are executed against every Document, not every Field, so completely opposite queries can be satisfied by the same Document if any of its internal Fields match the query.
+Ussualy , with single-value fields when you perform a query over it
+
+Q1 ^ Q2 ^ Q3 ^ Q4
+
 -------------
 Query Builder
 -------------
