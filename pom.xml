@@ -39,6 +39,7 @@
     <modules>
         <module>builder</module>
         <module>plugin</module>
+        <module>dist</module>
     </modules>
 
     <licenses>
@@ -83,7 +84,6 @@
         <coverage.data.dir>${project.build.outputDirectory}</coverage.data.dir>
         <skipITs>false</skipITs>
     </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -135,5 +135,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
