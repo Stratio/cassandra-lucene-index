@@ -8,7 +8,7 @@ hose {
     FOSS = true
     REPOSITORY = 'cassandra-lucene-index'    
     LANG = 'java'
-    PKGMODULES = ['plugin']
+    PKGMODULES = ['dist']
     PKGMODULESNAMES = ['stratio-cassandra-lucene-index']
     DEBARCH = 'all'
     RPMARCH = 'noarch'
