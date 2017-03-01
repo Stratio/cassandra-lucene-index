@@ -42,12 +42,7 @@ object SchemaValidator {
     */
   def validate(schema: Schema, metadata: CFMetaData): Unit = {
     for (mapper <- schema.mappers.values.asScala; column <- mapper.mappedColumns.asScala) {
-      validate(
-        metadata,
-        column,
-        mapper.field,
-        mapper.supportedTypes.asScala.toList,
-        mapper.supportsCollections)
+      validate(metadata, column, mapper.field, mapper.supportedTypes.asScala.toList, mapper.supportsCollections)
     }
   }
 
@@ -57,6 +52,7 @@ object SchemaValidator {
       field: String,
       supportedTypes: List[Class[_]],
       supportsCollections: Boolean) {
+
 
     val cellName = Column.parseCellName(column)
     val cellDefinition = metadata.getColumnDefinition(UTF8Type.instance.decompose(cellName))
@@ -68,7 +64,7 @@ object SchemaValidator {
       throw new IndexException("Lucene indexes are not allowed on static columns as '{}'", column)
     }
 
-    def checkSupported(t: AbstractType[_], mapper: String) {
+    def checkSupported(t: AbstractType[_], mapper: String, supportsCollections: Boolean) {
       if (!supports(t, supportedTypes, supportsCollections)) {
         throw new IndexException(
           "Type '{}' in column '{}' is not supported by mapper '{}'",
@@ -82,7 +78,7 @@ object SchemaValidator {
     cellType.isCollection
     val udtNames = Column.parseUdtNames(column)
     if (udtNames.isEmpty) {
-      checkSupported(cellType, cellName)
+      checkSupported(cellType, cellName, supportsCollections)
     } else {
       var column = Column.apply(cellName)
       var currentType = cellType
@@ -91,7 +87,7 @@ object SchemaValidator {
         childType(currentType, udtNames(i)) match {
           case None => throw new IndexException(
             s"No column definition '${column.mapper}' for field '$field'")
-          case Some(n) if i == udtNames.indices.last => checkSupported(n, column.mapper)
+          case Some(n) if i == udtNames.indices.last => checkSupported(n, column.mapper, supportsCollections)
           case Some(n) => currentType = n
         }
       }
@@ -120,10 +116,9 @@ object SchemaValidator {
       supportedTypes: Seq[Class[_]],
       supportsCollections: Boolean): Boolean = candidateType match {
     case t: ReversedType[_] => supports(t.baseType, supportedTypes, supportsCollections)
-    case _: CollectionType[_] if !supportsCollections => false
-    case t: SetType[_] => supports(t.getElementsType, supportedTypes, supportsCollections)
-    case t: ListType[_] => supports(t.getElementsType, supportedTypes, supportsCollections)
-    case t: MapType[_, _] => supports(t.getValuesType, supportedTypes, supportsCollections)
+    case t: SetType[_] => if (supportsCollections) supports(t.getElementsType, supportedTypes, supportsCollections) else false
+    case t: ListType[_] => if (supportsCollections)  supports(t.getElementsType, supportedTypes, supportsCollections) else false
+    case t: MapType[_, _] =>  if (supportsCollections) supports(t.getValuesType, supportedTypes, supportsCollections) else false
     case _ =>
       val native = nativeType(candidateType)
       supportedTypes.exists(_ isAssignableFrom native)

@@ -1057,7 +1057,7 @@ be collections.
 
 **Supported CQL types:**
 
--  ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
+-  ascii, bigint, date, int, text, timestamp, timeuuid, uuid, varchar, varint
 
 **Example:**
 
@@ -1165,7 +1165,7 @@ Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
 
 **Supported CQL types:**
 
--  ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
+-  ascii, bigint, date, int, text, timestamp, timeuuid, uuid, varchar, varint
 
 **Example:** Index the column *creation* with a precision of minutes using the date format pattern *yyyy/MM/dd HH:mm*:
 
@@ -1202,7 +1202,7 @@ collections.
 
 **Supported CQL types:**
 
--  ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
+-  ascii, bigint, date, int, text, timestamp, timeuuid, uuid, varchar, varint
 
 **Example 1:** Index the column time period defined by the columns *start* and *stop*, using the default date pattern:
 
@@ -1295,7 +1295,7 @@ Maps a 32-bit decimal number.
 
 **Supported CQL types:**
 
--  ascii, bigint, decimal, double, float, int, smallint, tinyint, varchar, varint
+-  ascii, bigint, decimal, double, float, int, smallint, text, tinyint, varchar, varint
 
 **Example:**
 
@@ -1339,7 +1339,7 @@ collections.
 
 **Supported CQL types:**
 
--  ascii, bigint, decimal, double, float, int, smallint, text, timestamp, varchar, varint
+-  ascii, bigint, decimal, double, float, int, smallint, text, varchar, varint
 
 **Example:**
 
@@ -1713,7 +1713,7 @@ Maps a not-analyzed text value.
 
 **Supported CQL types:**
 
--  ascii, bigint, blob, boolean, double, float, inet, int, smallint, text, timestamp, timeuuid, tinyint, uuid, varchar, varint
+-  ascii, bigint, boolean, decimal, double, float, inet, int, smallint, text, timeuuid, tinyint, uuid, varchar, varint
 
 **Example:**
 
@@ -1753,7 +1753,7 @@ Maps a language-aware text value analyzed according to the specified analyzer.
 
 **Supported CQL types:**
 
--  ascii, bigint, blob, boolean, double, float, inet, int, smallint, text, timestamp, timeuuid, tinyint, uuid, varchar, varint
+-  ascii, bigint, boolean, decimal, double, float, inet, int, smallint, text, timeuuid, tinyint, uuid, varchar, varint
 
 **Example:**
 
