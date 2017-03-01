@@ -4337,6 +4337,80 @@ UDTs can be indexed even while being inside collections:
        }
     }');
 
+Using collections may produce surprising results. Queries are evaluated document per document, checking if any of the document values matches the query.
+
+.. code-block:: sql
+
+    CREATE KEYSPACE IF NOT EXISTS k_test
+        WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 1};
+    USE k_test;
+
+    CREATE TABLE tweets (
+       id bigint PRIMARY KEY,
+       author text,
+       raw_text text,
+       tags list<text>
+    );
+
+    CREATE CUSTOM INDEX tweets_index ON tweets()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             "tags" : {type: "string"}
+          }
+       }'
+    };
+
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(1, 'Edu', 'Cassandra is awesome', ['cassandra']);
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(2, 'Hugo', 'Cassandra priam app is great',
+                                                        ['cassandra', 'management']);
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(3, 'Andres', 'New cassandra 3.0.11 has been released',
+                                                        ['cassandra', 'development']);
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(4, 'Oscar', 'Is there any embedded cassandra service for tests?',
+                                                        ['cassandra', 'testing']);
+    INSERT INTO tweets(id, author, raw_text, tags) VALUES(5, 'Mike', 'Cassandra materialized views is a surprising feature.',
+                                                        ['cassandra', 'management', 'development', 'testing']);
+
+
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+       filter: {
+          type: "boolean",
+          must: [
+             {type: "match", field: "tags", value: "cassandra"}
+          ]
+       }
+    }');
+
+    id | author | raw_text                                              | tags
+    ----+--------+-------------------------------------------------------+-------------------------------------------------------
+      2 |   Hugo |                          Cassandra priam app is great |                           ['cassandra', 'management']
+      3 | Andres |                New cassandra 3.0.11 has been released |                          ['cassandra', 'development']
+      4 |  Oscar |    Is there any embedded cassandra service for tests? |                              ['cassandra', 'testing']
+      5 |   Mike | Cassandra materialized views is a surprising feature. | ['cassandra', 'management', 'development', 'testing']
+      1 |    Edu |                                  Cassandra is awesome |                                         ['cassandra']
+
+    (5 rows)
+
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+       filter: {
+          type: "boolean",
+          must: [
+             {type: "match", field: "tags", value: "cassandra"},
+             {type: "match", field: "tags", value: "management"}
+
+          ]
+       }
+    }');
+
+     id | author | raw_text                                              | tags
+    ----+--------+-------------------------------------------------------+-------------------------------------------------------
+      2 |   Hugo |                          Cassandra priam app is great |                           ['cassandra', 'management']
+      5 |   Mike | Cassandra materialized views is a surprising feature. | ['cassandra', 'management', 'development', 'testing']
+
+    (2 rows)
+
 -------------
 Query Builder
 -------------
