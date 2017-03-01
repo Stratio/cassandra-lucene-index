@@ -39,6 +39,7 @@
     <modules>
         <module>builder</module>
         <module>plugin</module>
+        <module>dist</module>
     </modules>
 
     <licenses>
@@ -83,7 +84,6 @@
         <skipITs>false</skipITs>
         <jacoco-IT-argline></jacoco-IT-argline>
     </properties>
-
     <build>
         <plugins>
             <plugin>
