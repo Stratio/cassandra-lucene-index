@@ -2,6 +2,7 @@
 
 ## 3.0.10.4 (Upcoming)
 
+* Fix collection columns indexing being part of clustering key (#286)
 * Avoid unsupported usage of multicolumn mappers with collections
 * Add support for indexing map values
 * Add support for indexing map keys (#253)
