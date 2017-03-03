@@ -72,12 +72,8 @@ class ColumnsMapper(schema: Schema, metadata: CFMetaData) {
 
   /** Returns the mapped [[Columns]] contained in the specified clustering key. */
   private[mapping] def columns(clustering: Clustering): Columns = {
-    (clusteringColumns :\ Columns()) ((definition, columns) => {
-      val name = definition.name.toString
-      val position = definition.position
-      val value = clustering.get(position)
-      val valueType = definition.cellValueType
-      Column(name).withValue(value, valueType) :: columns
+    (clusteringColumns :\ Columns()) ((definition, columns_s) => {
+       columns_s ++ ColumnsMapper.columns(Column(definition.name.toString), definition.`type`, clustering.get(definition.position))
     })
   }
 
