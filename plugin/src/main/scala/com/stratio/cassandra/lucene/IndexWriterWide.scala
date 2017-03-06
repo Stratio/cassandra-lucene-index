@@ -63,21 +63,13 @@ class IndexWriterWide(
 
   /** @inheritdoc */
   override def index(row: Row) {
-    def doesAffectIndex =
-      if (service.doesAffectIndex(row)) {
-        tracer.trace("Lucene index skipping row")
-        true
-      } else false
-
-    if (!row.isStatic && doesAffectIndex) {
-      val clustering = row.clustering
-      if (service.needsReadBeforeWrite(key, row)) {
-        tracer.trace("Lucene index doing read before write")
-        clusterings.add(clustering)
-      } else {
-        tracer.trace("Lucene index skipping read before write")
-        rows.put(clustering, row)
-      }
+    val clustering = row.clustering
+    if (service.needsReadBeforeWrite(key, row)) {
+      tracer.trace("Lucene index doing read before write")
+      clusterings.add(clustering)
+    } else {
+      tracer.trace("Lucene index skipping read before write")
+      rows.put(clustering, row)
     }
   }
 
