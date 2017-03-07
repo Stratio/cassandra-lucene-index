@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.11.0 (March 7, 2017)
+
+* Upgrade to Apache Cassandra 3.0.11
+
 ## 3.0.10.4 (Upcoming)
 
 * Fix collection columns indexing being part of clustering key (#286)
