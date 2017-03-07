@@ -83,6 +83,7 @@ abstract class IndexWriter(
   /** Deletes all the rows in the specified tombstone. */
   protected def delete(tombstone: RangeTombstone)
 
+  /** Try indexing the row. If the row does not affect index it is not indexed */
   private[this] def tryIndex(row: Row): Unit = {
     if (service.doesAffectIndex(row)) {
       index(row)
