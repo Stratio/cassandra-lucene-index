@@ -19,9 +19,7 @@ import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsBuilder;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -43,7 +41,7 @@ public class MultipleColumnValidTypesIndexCreationIT extends BaseIT {
     private final Set<String> requiredColumnNames;
     private final String cqlType;
     private static CassandraUtils utils;
-    private static CassandraUtilsBuilder builder;
+    private CassandraUtilsBuilder builder;
 
     public MultipleColumnValidTypesIndexCreationIT(String mapperName,
                                                    Mapper mapper,
@@ -55,32 +53,32 @@ public class MultipleColumnValidTypesIndexCreationIT extends BaseIT {
         this.cqlType = cqlType;
     }
 
+    @Before
+    public void before() {
+        builder = CassandraUtils.builder(buildTableName(mapperName, cqlType))
+                                .withIndexColumn(null)
+                                .withUseNewQuerySyntax(true)
+                                .withPartitionKey("pk")
+                                .withColumn("pk", "int", null);
+    }
+
     @Test
     public void test() {
         for (String columnName : requiredColumnNames) {
-            builder = builder.withColumn(columnName, cqlType);
+            builder = builder.withColumn(columnName, cqlType, null);
         }
 
         utils = builder.withTable(buildTableName(mapperName, cqlType))
                        .withIndexName(buildTableName(mapperName, cqlType))
                        .withMapper(mapperName, mapper)
                        .build()
+                       .createKeyspace()
                        .createTable()
                        .createIndex();
     }
 
-    @BeforeClass
-    public static void beforeClass() {
-        builder = CassandraUtils.builder(KEYSPACE_NAME)
-                                .withIndexColumn(null)
-                                .withUseNewQuerySyntax(true)
-                                .withPartitionKey("pk")
-                                .withColumn("pk", "int");
-        builder.build().createKeyspace();
-    }
-
-    @AfterClass
-    public static void afterClass() {
+    @After
+    public void after() {
         utils.dropKeyspace();
     }
 

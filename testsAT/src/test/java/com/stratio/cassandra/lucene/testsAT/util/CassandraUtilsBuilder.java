@@ -48,13 +48,21 @@ public class CassandraUtilsBuilder {
     private final Map<String, Map<String, String>> udts;
 
     CassandraUtilsBuilder(String keyspacePrefix) {
-        this.keyspace = keyspacePrefix + "_" + Math.abs(new Random().nextLong());
+        this.keyspace = truncateKeyspaceName((keyspacePrefix + "_" + Math.abs(new Random().nextLong())), 48);
         this.columns = new HashMap<>();
         this.mappers = new HashMap<>();
         this.analyzers = new HashMap<>();
         this.partitionKey = new ArrayList<>();
         this.clusteringKey = new ArrayList<>();
         this.udts = new LinkedHashMap<>();
+    }
+
+    private static String truncateKeyspaceName(String input, int limit) {
+        if (input.length()>limit) {
+             return input.substring(0, limit-1);
+        } else {
+             return input;
+        }
     }
 
     public CassandraUtilsBuilder withTable(String table) {

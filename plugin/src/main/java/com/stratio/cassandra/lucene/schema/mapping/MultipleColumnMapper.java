@@ -50,6 +50,31 @@ public abstract class MultipleColumnMapper<T extends Comparable<T>> extends Mapp
               null,
               mappedColumns,
               supportedTypes,
+              EMPTY_TYPE_LIST,
+              false);
+    }
+
+    /**
+     * Builds a new {@link SingleColumnMapper} supporting the specified types for indexing and clustering.
+     *
+     * @param field the name of the field
+     * @param validated if the field must be validated
+     * @param mappedColumns the names of the columns to be mapped
+     * @param supportedTypes the supported column value data types
+     * @param excludedTypes the explicitly excluded value data types
+     */
+    public MultipleColumnMapper(String field,
+                                Boolean validated,
+                                List<String> mappedColumns,
+                                List<Class<?>> supportedTypes,
+                                List<Class<?>> excludedTypes ) {
+        super(field,
+              false,
+              validated,
+              null,
+              mappedColumns,
+              supportedTypes,
+              excludedTypes,
               false);
     }
 
