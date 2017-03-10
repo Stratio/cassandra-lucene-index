@@ -23,8 +23,10 @@ import java.util.{Date, UUID}
 import com.stratio.cassandra.lucene.IndexException
 import com.stratio.cassandra.lucene.column.Column
 import com.stratio.cassandra.lucene.schema.Schema
+import com.typesafe.scalalogging.Logger
 import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db.marshal._
+import org.slf4j.LoggerFactory
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -35,6 +37,8 @@ import scala.collection.JavaConverters._
   */
 object SchemaValidator {
 
+  protected val logger: Logger = Logger(LoggerFactory.getLogger(getClass.getName))
+
   /** Validates the specified [[Schema]] against the specified [[CFMetaData]].
     *
     * @param schema   a schema
@@ -42,7 +46,7 @@ object SchemaValidator {
     */
   def validate(schema: Schema, metadata: CFMetaData): Unit = {
     for (mapper <- schema.mappers.values.asScala; column <- mapper.mappedColumns.asScala) {
-      validate(metadata, column, mapper.field, mapper.supportedTypes.asScala.toList, mapper.supportsCollections)
+      validate(metadata, column, mapper.field, mapper.supportedTypes.asScala.toList, mapper.excludedTypes.asScala.toList, mapper.supportsCollections)
     }
   }
 
@@ -51,6 +55,7 @@ object SchemaValidator {
       column: String,
       field: String,
       supportedTypes: List[Class[_]],
+      excludedTypes: List[Class[_]],
       supportsCollections: Boolean) {
 
 
@@ -65,7 +70,7 @@ object SchemaValidator {
     }
 
     def checkSupported(t: AbstractType[_], mapper: String, supportsCollections: Boolean) {
-      if (!supports(t, supportedTypes, supportsCollections)) {
+      if (!supports(t, supportedTypes, excludedTypes, supportsCollections)) {
         throw new IndexException(
           "Type '{}' in column '{}' is not supported by mapper '{}'",
           t,
@@ -114,13 +119,15 @@ object SchemaValidator {
   def supports(
       candidateType: AbstractType[_],
       supportedTypes: Seq[Class[_]],
+      excludedTypes: List[Class[_]],
       supportsCollections: Boolean): Boolean = candidateType match {
-    case t: ReversedType[_] => supports(t.baseType, supportedTypes, supportsCollections)
-    case t: SetType[_] => if (supportsCollections) supports(t.getElementsType, supportedTypes, supportsCollections) else false
-    case t: ListType[_] => if (supportsCollections)  supports(t.getElementsType, supportedTypes, supportsCollections) else false
-    case t: MapType[_, _] =>  if (supportsCollections) supports(t.getValuesType, supportedTypes, supportsCollections) else false
+    case t: ReversedType[_] => supports(t.baseType, supportedTypes, excludedTypes, supportsCollections)
+    case t: SetType[_] => if (supportsCollections) supports(t.getElementsType, supportedTypes, excludedTypes, supportsCollections) else false
+    case t: ListType[_] => if (supportsCollections)  supports(t.getElementsType, supportedTypes, excludedTypes, supportsCollections) else false
+    case t: MapType[_, _] =>  if (supportsCollections) supports(t.getValuesType, supportedTypes, excludedTypes, supportsCollections) else false
     case _ =>
       val native = nativeType(candidateType)
+      if (excludedTypes.contains(native)) return false
       supportedTypes.exists(_ isAssignableFrom native)
   }
 
