@@ -58,12 +58,35 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
                               String analyzer,
                               Class<T> base,
                               List<Class<?>> supportedTypes) {
+        this(field, column, docValues, validated, analyzer, base, supportedTypes, EMPTY_TYPE_LIST);
+    }
+    /**
+     * Builds a new {@link SingleColumnMapper} supporting the specified types for indexing and clustering.
+     *
+     * @param field the name of the field
+     * @param column the name of the column to be mapped
+     * @param docValues if the mapper supports doc values
+     * @param validated if the field must be validated
+     * @param analyzer the name of the analyzer to be used
+     * @param base the Lucene type for this mapper
+     * @param supportedTypes the supported column value data types
+     * @param excludedTypes the explicitly excluded value data types
+     */
+    public SingleColumnMapper(String field,
+                              String column,
+                              Boolean docValues,
+                              Boolean validated,
+                              String analyzer,
+                              Class<T> base,
+                              List<Class<?>> supportedTypes,
+                              List<Class<?>> excludedTypes) {
         super(field,
               docValues,
               validated,
               analyzer,
               Collections.singletonList(column == null ? field : column),
               supportedTypes,
+              excludedTypes,
               true);
 
         if (StringUtils.isWhitespace(column)) {

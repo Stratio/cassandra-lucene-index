@@ -21,7 +21,6 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.common.GeospatialUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.composite.CompositeSpatialStrategy;
@@ -33,7 +32,6 @@ import org.apache.lucene.spatial.serialized.SerializedDVStrategy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static com.stratio.cassandra.lucene.common.GeospatialUtils.CONTEXT;
 
@@ -71,7 +69,7 @@ public class GeoPointMapper extends MultipleColumnMapper {
      * post-filtered, at the expense of creating more terms in the search index.
      */
     public GeoPointMapper(String field, Boolean validated, String latitude, String longitude, Integer maxLevels) {
-        super(field, validated, Arrays.asList(latitude, longitude), NUMERIC_TYPES);
+        super(field, validated, Arrays.asList(latitude, longitude), NUMERIC_TYPES, Collections.singletonList(Byte.class));
 
         if (StringUtils.isBlank(latitude)) {
             throw new IndexException("latitude column name is required");
@@ -148,7 +146,7 @@ public class GeoPointMapper extends MultipleColumnMapper {
      * @param o the {@link Object} containing the latitude
      * @return the latitude
      */
-    private static <T> Double readLatitude(Object o) {
+    private static Double readLatitude(Object o) {
         if (o == null) {
             return null;
         }
@@ -173,7 +171,7 @@ public class GeoPointMapper extends MultipleColumnMapper {
      * @param o the {@link Object} containing the latitude
      * @return the longitude
      */
-    private static <T> Double readLongitude(Object o) {
+    private static Double readLongitude(Object o) {
         if (o == null) {
             return null;
         }

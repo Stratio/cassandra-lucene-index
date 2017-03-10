@@ -67,9 +67,87 @@ public final class DataHelper {
         multipleColumnMapperRequiredColumnNames.put(geoPointMapper("latitude", "longitude").toString(), Sets.newHashSet("latitude", "longitude"));
     }
 
+    protected static final Map<String, String> multipleColumnMapperInvalidColumnName = new HashMap<>();
 
-    protected static String buildIndexMessage(Mapper mapper, String cqlType) {
-        return new StringBuilder().toString();
+    static {
+        multipleColumnMapperInvalidColumnName.put("DateRangeMapper", "from_");
+        multipleColumnMapperInvalidColumnName.put("GeoPointMapper", "latitude");
+        multipleColumnMapperInvalidColumnName.put("BitemporalMapper", "vt_from");
+    }
+
+    protected static final Map<String, String> typePackageByName =  new LinkedHashMap<>();
+
+    static {
+        typePackageByName.put("bigint","org.apache.cassandra.db.marshal.LongType");
+        typePackageByName.put("varint","org.apache.cassandra.db.marshal.IntegerType");
+        typePackageByName.put("tinyint","org.apache.cassandra.db.marshal.ByteType");
+        typePackageByName.put("smallint","org.apache.cassandra.db.marshal.ShortType");
+        typePackageByName.put("int","org.apache.cassandra.db.marshal.Int32Type");
+        typePackageByName.put("ascii","org.apache.cassandra.db.marshal.AsciiType");
+        typePackageByName.put("boolean","org.apache.cassandra.db.marshal.BooleanType");
+        typePackageByName.put("blob","org.apache.cassandra.db.marshal.BytesType");
+        typePackageByName.put("decimal","org.apache.cassandra.db.marshal.DecimalType");
+        typePackageByName.put("double","org.apache.cassandra.db.marshal.DoubleType");
+        typePackageByName.put("float","org.apache.cassandra.db.marshal.FloatType");
+        typePackageByName.put("inet","org.apache.cassandra.db.marshal.InetAddressType");
+        typePackageByName.put("timeuuid","org.apache.cassandra.db.marshal.TimeUUIDType");
+        typePackageByName.put("uuid","org.apache.cassandra.db.marshal.UUIDType");
+        typePackageByName.put("date","org.apache.cassandra.db.marshal.SimpleDateType");
+        typePackageByName.put("timestamp","org.apache.cassandra.db.marshal.TimestampType");
+        typePackageByName.put("time","org.apache.cassandra.db.marshal.TimeType");
+        typePackageByName.put("text","org.apache.cassandra.db.marshal.UTF8Type");
+        typePackageByName.put("varchar","org.apache.cassandra.db.marshal.UTF8Type");
+        typePackageByName.put("list","org.apache.cassandra.db.marshal.ListType");
+        typePackageByName.put("set","org.apache.cassandra.db.marshal.SetType");
+        typePackageByName.put("map","org.apache.cassandra.db.marshal.MapType");
+    }
+
+    protected static final Map<String,String> unsupportedTypes= new HashMap<>();
+
+    static {
+        unsupportedTypes.put("time","org.apache.cassandra.db.marshal.TimeType");
+    }
+
+    protected static String buildIndexMessage(String mapperName, String cqlType) {
+        return buildIndexMessage(mapperName, cqlType,"column");
+    }
+
+    private static boolean isComplexType(String type) {
+        return type.contains("<");
+
+    }
+
+    private static String getTypePackage(String cqlType) {
+        if (isComplexType(cqlType)) {
+            String complexType = cqlType;
+            for (String typ : typePackageByName.keySet()) {
+                complexType = complexType.replace(typ, typePackageByName.get(typ));
+            }
+            complexType = complexType.replace("<", "(");
+            return complexType.replace(">", ")");
+        } else {
+            return typePackageByName.get(cqlType);
+        }
+    }
+
+    protected static String buildIndexMessage(String mapperName, String cqlType, String column) {
+        StringBuilder sb = new StringBuilder().append("'schema' is invalid : ");
+        String typePackage = unsupportedTypes.get(cqlType);
+        if (typePackage != null) {
+            sb.append("Unsupported Cassandra data type: class ");
+            sb.append(typePackage);
+        } else {
+            //'schema' is invalid : Type 'org.apache.cassandra.db.marshal.SimpleDateType' in column 'column' is not supported by mapper 'column'
+            sb.append("Type '");
+            sb.append(getTypePackage(cqlType));
+            sb.append("' in column '");
+            sb.append(column);
+            sb.append("' is not supported by mapper '");
+            sb.append(mapperName);
+            sb.append("'");
+        }
+
+        return sb.toString();
     }
 
     protected static String listComposedType(String type) {
@@ -85,3 +163,4 @@ public final class DataHelper {
         return (mapperName + "_" + cqlType.replace("<","_").replace(">","_").replace(",","_")).toLowerCase();
     }
 }
+

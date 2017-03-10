@@ -156,15 +156,15 @@ public class CassandraUtils {
         return execute(query.toString());
     }
 
-    <T extends Exception> CassandraUtils check(Runnable runnable, Class<T> expectedClass, String expectedMessage) {
+    <T extends Exception> CassandraUtils check(Runnable runnable, Class<T> expectedClass, ExceptionMessage expectedMessage) {
         try {
             runnable.run();
             fail(String.format("Should have produced %s with message '%s'",
                                expectedClass.getSimpleName(),
-                               expectedMessage));
+                               expectedMessage.getValue()));
         } catch (Exception e) {
             assertEquals("Received exception type is wrong", expectedClass, e.getClass());
-            assertTrue("Received exception message is wrong, expected:'" + expectedMessage + "' received: '"+e.getMessage()+"'", e.getMessage().contains(expectedMessage));
+            assertTrue("Received exception message is wrong, expected:'" + expectedMessage.getValue() + "' received: '"+e.getMessage()+"'", expectedMessage.match(e.getMessage()));
         }
         return this;
     }
@@ -228,6 +228,10 @@ public class CassandraUtils {
     }
 
     public <T extends Exception> CassandraUtils createTable(Class<T> expectedClass, String expectedMessage) {
+        return createTable(expectedClass, new ExactMessage(expectedMessage));
+    }
+
+    public <T extends Exception> CassandraUtils createTable(Class<T> expectedClass, ExceptionMessage expectedMessage) {
         return check(this::createTable, expectedClass, expectedMessage);
     }
 
@@ -270,6 +274,10 @@ public class CassandraUtils {
     }
 
     public <T extends Exception> CassandraUtils createIndex(Class<T> expectedClass, String expectedMessage) {
+        return createIndex(expectedClass, new ExactMessage(expectedMessage));
+    }
+
+    public <T extends Exception> CassandraUtils createIndex(Class<T> expectedClass, ExceptionMessage expectedMessage) {
         return check(this::createIndex, expectedClass, expectedMessage);
     }
 
@@ -307,6 +315,12 @@ public class CassandraUtils {
     public <T extends Exception> CassandraUtils insert(Class<T> expectedClass,
                                                        String expectedMessage,
                                                        final Map<String, String>... paramss) {
+        return insert(expectedClass,new ExactMessage(expectedMessage),paramss);
+    }
+
+    public <T extends Exception> CassandraUtils insert(Class<T> expectedClass,
+                                                       ExceptionMessage expectedMessage,
+                                                       final Map<String, String>... paramss) {
         return check(() -> insert(paramss), expectedClass, expectedMessage);
     }
 
@@ -331,7 +345,7 @@ public class CassandraUtils {
     public <T extends Exception> CassandraUtils insert(String[] names,
                                                        Object[] values,
                                                        Class<T> expectedClass,
-                                                       String expectedMessage) {
+                                                       ExceptionMessage expectedMessage) {
         return check(() -> insert(names, values), expectedClass, expectedMessage);
     }
 
@@ -429,5 +443,42 @@ public class CassandraUtils {
         String bean = String.format("org.apache.cassandra.db:type=%s,keyspace=%s,table=%s", "Tables", keyspace, table);
         List<List<String>> builtIndexes = getJMXAttribute(bean, "BuiltIndexes");
         return builtIndexes.stream().allMatch(l -> l.contains(indexName));
+    }
+
+    public static abstract class ExceptionMessage {
+
+        protected String value;
+
+        ExceptionMessage(String value) {
+            this.value=value;
+        }
+
+        abstract boolean match(String message);
+
+        public String getValue() { return this.value;}
+    }
+
+    public static class ContainsMessage extends ExceptionMessage {
+
+        public ContainsMessage(String value) {
+            super(value);
+        }
+
+        @Override
+        public boolean match(String message) {
+            return message.contains(this.value);
+        }
+    }
+
+    public static class ExactMessage extends ExceptionMessage {
+
+        public ExactMessage(String value) {
+            super(value);
+        }
+
+        @Override
+        public boolean match(String message) {
+            return message.equals(this.value);
+        }
     }
 }
