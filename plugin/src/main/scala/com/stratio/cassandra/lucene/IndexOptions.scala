@@ -67,6 +67,9 @@ class IndexOptions(tableMetadata: CFMetaData, indexMetadata: IndexMetadata) {
 
   /** The path of the directory where the index files will be stored */
   val path = parsePath(options, tableMetadata, Some(indexMetadata))
+
+  /** If the index is sparse or not */
+  val sparse = parseSparse(options, tableMetadata)
 }
 
 /** Companion object for [[IndexOptions]]. */
@@ -100,6 +103,9 @@ object IndexOptions {
 
   val PARTITIONER_OPTION = "partitioner"
   val DEFAULT_PARTITIONER = PartitionerOnNone()
+
+  val SPARSE_OPTION = "sparse"
+  val DEFAULT_SPARSE = false
 
   /** Validates the specified index options.
     *
@@ -184,6 +190,14 @@ object IndexOptions {
         case e: Exception => throw new IndexException(e,
           s"'$PARTITIONER_OPTION' is invalid : ${e.getMessage}")
       }).getOrElse(DEFAULT_PARTITIONER)
+  }
+
+  def parseSparse(options: Map[String, String], table: CFMetaData): Boolean = {
+    options.get(SPARSE_OPTION).map(
+      value => try value.toBoolean catch {
+        case e: Exception => throw new IndexException(e,
+          s"'$SPARSE_OPTION' is invalid : ${e.getMessage}")
+      }).getOrElse(DEFAULT_SPARSE)
   }
 
   private def parseInt(options: Map[String, String], name: String, default: Int): Int = {
