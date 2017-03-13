@@ -64,6 +64,7 @@ public class CassandraUtils {
     private final String clusteringOrderColumn;
     private final boolean clusteringOrderAscending;
     private final Partitioner partitioner;
+    private final boolean sparse;
 
     public static CassandraUtilsBuilder builder(String name) {
         return new CassandraUtilsBuilder(name);
@@ -82,7 +83,8 @@ public class CassandraUtils {
                           Map<String, Map<String, String>> udts,
                           String clusteringOrderColumn,
                           boolean clusteringOrderAscending,
-                          Partitioner partitioner) {
+                          Partitioner partitioner,
+                          boolean sparse) {
 
         this.keyspace = keyspace;
         this.table = table;
@@ -98,6 +100,7 @@ public class CassandraUtils {
         this.clusteringOrderColumn = clusteringOrderColumn;
         this.clusteringOrderAscending = clusteringOrderAscending;
         this.partitioner = partitioner;
+        this.sparse = sparse;
 
         qualifiedTable = keyspace + "." + table;
 
@@ -265,7 +268,8 @@ public class CassandraUtils {
         Index index = index(keyspace, table, indexName).column(indexColumn)
                                                        .refreshSeconds(REFRESH)
                                                        .indexingThreads(THREADS)
-                                                       .partitioner(partitioner);
+                                                       .partitioner(partitioner)
+                                                       .sparse(sparse);
         mappers.forEach(index::mapper);
         analyzers.forEach(index::analyzer);
         execute(index.build());
@@ -432,10 +436,18 @@ public class CassandraUtils {
         return this;
     }
 
-    public void checkNumDocsInIndex(Integer expectedNumDocs) {
+    public CassandraUtils checkNumDocsInIndex(Integer expectedNumDocs) {
         List<Long> numDocsInEachNode = getJMXAttribute(indexBean, "NumDocs");
         Long totalNumDocs = numDocsInEachNode.stream().reduce(0L, (l, r) -> l + r) / (long) REPLICATION;
         assertEquals("NumDocs in index is not correct", new Long(expectedNumDocs), totalNumDocs);
+        return this;
+    }
+
+    public CassandraUtils checkNumDeletedDocsInIndex(Integer expectedNumDeletedDocs) {
+        List<Long> numDeletedDocsInEachNode = getJMXAttribute(indexBean, "NumDeletedDocs");
+        Long totalNumDocs = numDeletedDocsInEachNode.stream().reduce(0L, (l, r) -> l + r) / (long) REPLICATION;
+        assertEquals("NumDeletedDocs in index is not correct", new Long(expectedNumDeletedDocs), totalNumDocs);
+        return this;
     }
 
     @SuppressWarnings("unchecked")
