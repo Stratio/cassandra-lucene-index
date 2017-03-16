@@ -774,10 +774,87 @@ default values are listed in the table below.
 |                 | stopwords   | string       | null            |
 +-----------------+-------------+--------------+-----------------+
 
-The analyzers defined in this section can by referenced by mappers. Additionally, there are prebuilt analyzers for
-Arabic, Bulgarian, Brazilian, Catalan, Sorani, Czech, Danish, German, Greek, English, Spanish, Basque, Persian, Finnish,
-French, Irish, Galician, Hindi, Hungarian, Armenian, Indonesian, Italian, Latvian, Dutch, Norwegian, Portuguese,
-Romanian, Russian, Swedish, Thai and Turkish.
+The analyzers defined in this section can by referenced by mappers. Additionally, there are prebuilt analyzers for:
+
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Analyzer name |                                                                          Analyzer full package name                                                                        |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| standard      | `org.apache.lucene.analysis.standard.StandardAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/standard/StandardAnalyzer.html>`__ |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| keyword       | `org.apache.lucene.analysis.core.KeywordAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/core/KeywordAnalyzer.html>`__           |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| stop          | `org.apache.lucene.analysis.core.StopAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/core/StopAnalyzer.html>`__                 |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| whitespace    | `org.apache.lucene.analysis.core.WhitespaceAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/core/WhitespaceAnalyzer.html>`__     |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| simple        | `org.apache.lucene.analysis.core.SimpleAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/core/SimpleAnalyzer.html>`__             |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| classic       | `org.apache.lucene.analysis.standard.ClassicAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/standard/ClassicAnalyzer.html>`__   |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| arabic        | `org.apache.lucene.analysis.ar.ArabicAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/ar/ArabicAnalyzer.html>`__                 |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| armenian      | `org.apache.lucene.analysis.hy.ArmenianAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/hy/ArmenianAnalyzer.html>`__             |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| basque        | `org.apache.lucene.analysis.eu.BasqueAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/eu/BasqueAnalyzer.html>`__                 |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| brazilian     | `org.apache.lucene.analysis.br.BrazilianAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/br/BrazilianAnalyzer.html>`__           |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| bulgarian     | `org.apache.lucene.analysis.bg.BulgarianAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/bg/BulgarianAnalyzer.html>`__           |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| catalan       | `org.apache.lucene.analysis.ca.CatalanAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/ca/CatalanAnalyzer.html>`__               |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| cjk           | `org.apache.lucene.analysis.cjk.CJKAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/cjk/CJKAnalyzer.html>`__                     |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| czech         | `org.apache.lucene.analysis.cz.CzechAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/cz/CzechAnalyzer.html>`__                   |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| dutch         | `org.apache.lucene.analysis.nl.DutchAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/nl/DutchAnalyzer.html>`__                   |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| danish        | `org.apache.lucene.analysis.da.DanishAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/da/DanishAnalyzer.html>`__                 |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| english       | `org.apache.lucene.analysis.en.EnglishAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/en/EnglishAnalyzer.html>`__               |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| finnish       | `org.apache.lucene.analysis.fi.FinnishAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/fi/FinnishAnalyzer.html>`__               |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| french        | `org.apache.lucene.analysis.fr.FrenchAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/fr/FrenchAnalyzer.html>`__                 |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| galician      | `org.apache.lucene.analysis.gl.GalicianAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/gl/GalicianAnalyzer.html>`__             |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| german        | `org.apache.lucene.analysis.de.GermanAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/de/GermanAnalyzer.html>`__                 |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| greek         | `org.apache.lucene.analysis.el.GreekAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/el/GreekAnalyzer.html>`__                   |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| hindi         | `org.apache.lucene.analysis.hi.HindiAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/hi/HindiAnalyzer.html>`__                   |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| hungarian     | `org.apache.lucene.analysis.hu.HungarianAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/hu/HungarianAnalyzer.html>`__           |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| indonesian    | `org.apache.lucene.analysis.id.IndonesianAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/id/IndonesianAnalyzer.html>`__         |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| irish         | `org.apache.lucene.analysis.ga.IrishAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/ga/IrishAnalyzer.html>`__                   |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| italian       | `org.apache.lucene.analysis.it.ItalianAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/it/ItalianAnalyzer.html>`__               |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| latvian       | `org.apache.lucene.analysis.lv.LatvianAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/lv/LatvianAnalyzer.html>`__               |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| norwegian     | `org.apache.lucene.analysis.no.NorwegianAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/no/NorwegianAnalyzer.html>`__           |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| persian       | `org.apache.lucene.analysis.fa.PersianAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/fa/PersianAnalyzer.html>`__               |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| portuguese    | `org.apache.lucene.analysis.pt.PortugueseAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/pt/PortugueseAnalyzer.html>`__         |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| romanian      | `org.apache.lucene.analysis.ro.RomanianAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/ro/RomanianAnalyzer.html>`__             |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| russian       | `org.apache.lucene.analysis.ru.RussianAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/ru/RussianAnalyzer.html>`__               |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| sorani        | `org.apache.lucene.analysis.ckb.SoraniAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/ckb/SoraniAnalyzer.html>`__               |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| spanish       | `org.apache.lucene.analysis.es.SpanishAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/es/SpanishAnalyzer.html>`__               |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| swedish       | `org.apache.lucene.analysis.sv.SwedishAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/sv/SwedishAnalyzer.html>`__               |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| turkish       | `org.apache.lucene.analysis.tr.TurkishAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/tr/TurkishAnalyzer.html>`__               |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| thai          | `org.apache.lucene.analysis.th.ThaiAnalyzer <https://lucene.apache.org/core/5_5_3/analyzers-common/org/apache/lucene/analysis/th/ThaiAnalyzer.html>`__                     |
++---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 Classpath analyzer
 __________________
