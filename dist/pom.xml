@@ -12,6 +12,7 @@
     </parent>
 
     <artifactId>dist</artifactId>
+    <name>Cassandra Lucene Index distribution</name>
     <profiles>
         <profile>
             <id>package</id>
