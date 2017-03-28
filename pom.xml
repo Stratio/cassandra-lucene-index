@@ -26,7 +26,7 @@
     <parent>
         <groupId>com.stratio</groupId>
         <artifactId>parent</artifactId>
-        <version>0.7.1</version>
+        <version>0.9.0</version>
     </parent>
     <inceptionYear>2014</inceptionYear>
     <packaging>pom</packaging>
@@ -75,14 +75,21 @@
     </developers>
 
     <properties>
+        <cassandra.version>2.2.9</cassandra.version>
+        <coverage.data.dir>${project.build.outputDirectory}</coverage.data.dir>
+        <jacoco-IT-argline></jacoco-IT-argline>
+        <jts.version>1.14.0</jts.version>
+        <lucene.version>5.5.1</lucene.version>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cassandra.version>2.2.9</cassandra.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <lucene.version>5.5.1</lucene.version>
-        <coverage.data.dir>${project.build.outputDirectory}</coverage.data.dir>
+        <scala.binary.version>2.12</scala.binary.version>
+        <scala.logging.version>3.5.0</scala.logging.version>
+        <scala.version>2.12.0</scala.version>
+        <scalatest.version>3.0.1</scalatest.version>
         <skipITs>false</skipITs>
+        <skipTests>false</skipTests>
     </properties>
     <build>
         <plugins>
