@@ -20,12 +20,15 @@ import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
+@RunWith(JUnit4.class)
 public class Issue69IT extends BaseIT {
 
     private static CassandraUtils utils;
@@ -35,7 +38,7 @@ public class Issue69IT extends BaseIT {
         utils = CassandraUtils.builder("distinct")
                               .withPartitionKey("make")
                               .withClusteringKey("model")
-                              .withColumn("make", "text")s
+                              .withColumn("make", "text")
                               .withColumn("model", "text")
                               .withColumn("color", "text")
                               .build()
