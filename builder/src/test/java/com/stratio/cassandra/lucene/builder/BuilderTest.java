@@ -52,6 +52,7 @@ public class BuilderTest {
                                                    .indexingThreads(4)
                                                    .indexingQueuesSize(100)
                                                    .excludedDataCenters("DC1,DC2")
+                                                   .sparse(true)
                                                    .partitioner(partitionerOnToken(8))
                                                    .defaultAnalyzer("my_analyzer")
                                                    .analyzer("my_analyzer", classpathAnalyzer("my_class"))
@@ -71,6 +72,7 @@ public class BuilderTest {
                           "'indexing_queues_size':'100'," +
                           "'excluded_data_centers':'DC1,DC2'," +
                           "'partitioner':'{\"type\":\"token\",\"partitions\":8}'," +
+                          "'sparse':'true'," +
                           "'schema':'{" +
                           "\"default_analyzer\":\"my_analyzer\",\"analyzers\":{" +
                           "\"my_analyzer\":{\"type\":\"classpath\",\"class\":\"my_class\"}," +
@@ -905,12 +907,13 @@ public class BuilderTest {
                                                      .defaultAnalyzer("english")
                                                      .analyzer("danish", snowballAnalyzer("danish"))
                                                      .mapper("id", uuidMapper())
+                                                     .sparse(false)
                                                      .mapper("user", stringMapper().caseSensitive(false))
                                                      .mapper("message", textMapper().analyzer("danish"))
                                                      .mapper("date", dateMapper().pattern("yyyyMMdd"))
                                                      .build();
         String expected = "CREATE CUSTOM INDEX my_index ON messages() USING 'com.stratio.cassandra.lucene.Index' " +
-                          "WITH OPTIONS = {'refresh_seconds':'10','schema':'{\"default_analyzer\":\"english\"," +
+                          "WITH OPTIONS = {'refresh_seconds':'10','sparse':'false','schema':'{\"default_analyzer\":\"english\"," +
                           "\"analyzers\":{\"danish\":{\"type\":\"snowball\",\"language\":\"danish\"}},\"fields\":" +
                           "{\"id\":{\"type\":\"uuid\"},\"user\":" +
                           "{\"type\":\"string\",\"case_sensitive\":false}," +

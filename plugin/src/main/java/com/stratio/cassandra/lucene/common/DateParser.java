@@ -51,12 +51,7 @@ public class DateParser {
 
     private static ThreadLocal<DateFormat> formatter(final String pattern) {
         new SimpleDateFormat(pattern);
-        ThreadLocal<DateFormat> formatter = new ThreadLocal<DateFormat>() {
-            @Override
-            protected DateFormat initialValue() {
-                return new SimpleDateFormat(pattern);
-            }
-        };
+        ThreadLocal<DateFormat> formatter = ThreadLocal.withInitial(() -> new SimpleDateFormat(pattern));
         formatter.get().setLenient(false);
         return formatter;
     }

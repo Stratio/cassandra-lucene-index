@@ -334,7 +334,7 @@ public class BitemporalSearchIT extends BaseIT {
                 .createKeyspace()
                 .createTable()
                 .createIndex()
-                .insert(InvalidQueryException.class, "is after", data)
+                .insert(InvalidQueryException.class, new CassandraUtils.ContainsMessage("is after"), data)
                 .dropKeyspace();
     }
 
@@ -366,7 +366,7 @@ public class BitemporalSearchIT extends BaseIT {
                 .createKeyspace()
                 .createTable()
                 .createIndex()
-                .insert(InvalidQueryException.class, "is after", data)
+                .insert(InvalidQueryException.class, new CassandraUtils.ContainsMessage("is after"), data)
                 .dropKeyspace();
     }
 

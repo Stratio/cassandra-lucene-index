@@ -33,19 +33,19 @@ public class Issue69IT extends BaseIT {
     @BeforeClass
     public static void before() {
         utils = CassandraUtils.builder("distinct")
-                           .withPartitionKey("make")
-                           .withClusteringKey("model")
-                           .withColumn("make", "text")
-                           .withColumn("model", "text")
-                           .withColumn("color", "text")
-                           .build()
-                           .createKeyspace()
-                           .createTable()
-                           .createIndex()
-                           .insert(new String[]{"make", "model", "color"}, new Object[]{"Tesla", "Model X", "Red"})
-                           .insert(new String[]{"make", "model", "color"}, new Object[]{"Tesla", "Model S", "Red"})
-                           .insert(new String[]{"make", "model", "color"}, new Object[]{"Porsche", "Cayman S", "Red"})
-                           .refresh();
+                              .withPartitionKey("make")
+                              .withClusteringKey("model")
+                              .withColumn("make", "text")s
+                              .withColumn("model", "text")
+                              .withColumn("color", "text")
+                              .build()
+                              .createKeyspace()
+                              .createTable()
+                              .createIndex()
+                              .insert(new String[]{"make", "model", "color"}, new Object[]{"Tesla", "Model X", "Red"})
+                              .insert(new String[]{"make", "model", "color"}, new Object[]{"Tesla", "Model S", "Red"})
+                              .insert(new String[]{"make", "model", "color"}, new Object[]{"Porsche", "Cayman S", "Red"})
+                              .refresh();
     }
 
     @AfterClass
