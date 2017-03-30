@@ -235,6 +235,10 @@ public class CassandraUtilsSelect {
     }
 
     public <T extends Exception> CassandraUtils check(Class<T> expectedClass, String expectedMessage) {
+        return check(expectedClass, new CassandraUtils.ExactMessage(expectedMessage));
+    }
+
+    public <T extends Exception> CassandraUtils check(Class<T> expectedClass, CassandraUtils.ExceptionMessage expectedMessage) {
         return parent.check(this::get, expectedClass, expectedMessage);
     }
 }

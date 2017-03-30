@@ -1,7 +1,11 @@
 # Changelog
 
-## 3.0.7.5 (Upcoming)
+## 3.0.7.5 (upcoming)
 
+* Fix collection columns indexing being part of clustering key (#286)
+* Avoid unsupported usage of multicolumn mappers with collections
+* Add support for indexing map values
+* Add support for indexing map keys (#253)
 * Fix mutual exclusion on partition key during read before write (#261)
 
 ## 3.0.7.4 (January 31, 2017)

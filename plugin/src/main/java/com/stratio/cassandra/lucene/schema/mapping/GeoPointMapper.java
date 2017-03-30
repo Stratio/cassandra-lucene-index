@@ -40,7 +40,7 @@ import static com.stratio.cassandra.lucene.common.GeospatialUtils.CONTEXT;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoPointMapper extends Mapper {
+public class GeoPointMapper extends MultipleColumnMapper {
 
     /** The default max number of levels for geohash search trees. */
     public static final int DEFAULT_MAX_LEVELS = 11;
@@ -69,7 +69,7 @@ public class GeoPointMapper extends Mapper {
      * post-filtered, at the expense of creating more terms in the search index.
      */
     public GeoPointMapper(String field, Boolean validated, String latitude, String longitude, Integer maxLevels) {
-        super(field, false, validated, null, Arrays.asList(latitude, longitude), NUMERIC_TYPES);
+        super(field, validated, Arrays.asList(latitude, longitude), NUMERIC_TYPES, Collections.singletonList(Byte.class));
 
         if (StringUtils.isBlank(latitude)) {
             throw new IndexException("latitude column name is required");
@@ -146,8 +146,10 @@ public class GeoPointMapper extends Mapper {
      * @param option the {@link Object} containing the latitude
      * @return the latitude
      */
-    private static <T> Double readLatitude(Object o) {
-        if (o == null) return null;
+    private static Double readLatitude(Object o) {
+        if (o == null) {
+            return null;
+        }
         Double value;
         if (o instanceof Number) {
             value = ((Number) o).doubleValue();
@@ -169,8 +171,10 @@ public class GeoPointMapper extends Mapper {
      * @param o the {@link Object} containing the latitude
      * @return the longitude
      */
-    private static <T> Double readLongitude(Object o) {
-        if (o == null) return null;
+    private static Double readLongitude(Object o) {
+        if (o == null) {
+            return null;
+        }
         Double value;
         if (o instanceof Number) {
             value = ((Number) o).doubleValue();
