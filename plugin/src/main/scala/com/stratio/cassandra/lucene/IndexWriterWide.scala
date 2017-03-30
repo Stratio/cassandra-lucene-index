@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene
 
+
 import org.apache.cassandra.db.filter.{ClusteringIndexNamesFilter, ColumnFilter, DataLimits, RowFilter}
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.db.{Clustering, DecoratedKey, RangeTombstone, SinglePartitionReadCommand}
@@ -64,15 +65,14 @@ class IndexWriterWide(
 
   /** @inheritdoc */
   override def index(row: Row) {
-    if (!row.isStatic) {
-      val clustering = row.clustering
-      if (service.needsReadBeforeWrite(key, row)) {
-        tracer.trace("Lucene index doing read before write")
-        clusterings.add(clustering)
-      } else {
-        tracer.trace("Lucene index skipping read before write")
-        rows.put(clustering, row)
-      }
+    val clustering = row.clustering
+    if (service.needsReadBeforeWrite(key, row)) {
+      tracer.trace("Lucene index doing read before write")
+      clusterings.add(clustering)
+    } else {
+      tracer.trace("Lucene index skipping read before write")
+      rows.put(clustering, row)
+
     }
   }
 

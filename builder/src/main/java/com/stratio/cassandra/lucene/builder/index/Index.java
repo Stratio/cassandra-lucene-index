@@ -41,6 +41,7 @@ public class Index extends JSONBuilder {
     private Integer indexingQueuesSize;
     private String excludedDataCenters;
     private Partitioner partitioner;
+    private Boolean sparse;
 
     /**
      * Builds a new {@link Index} creation statement for the specified table and column.
@@ -224,6 +225,21 @@ public class Index extends JSONBuilder {
         return this;
     }
 
+    /**
+     * Sets if the index is sparse or not
+     *
+     * Any insert or update will trigger an index modification by default, even if the statement does not contain any column that could affect the index.
+     * When sparse is true, the index is updated only if the statement contains at least one column that could affect it.
+     * It is useful when the index schema contains only a small subset of the row columns and those columns are updated less frequently then the rest of the row.
+     *
+     * @param sparse true if the index is sparse, false otherwise
+     * @return this with the specified sparse flag set
+     */
+    public Index sparse(Boolean sparse) {
+        this.sparse = sparse;
+        return this;
+    }
+
     /** {@inheritDoc} */
     @Override
     public String build() {
@@ -242,6 +258,7 @@ public class Index extends JSONBuilder {
         option(sb, "indexing_queues_size", indexingQueuesSize);
         option(sb, "excluded_data_centers", excludedDataCenters);
         option(sb, "partitioner", partitioner);
+        option(sb, "sparse", sparse);
         sb.append(String.format("'schema':'%s'}", schema));
         return sb.toString();
     }

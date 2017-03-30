@@ -37,7 +37,7 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DateRangeMapper extends Mapper {
+public class DateRangeMapper extends MultipleColumnMapper {
 
     /** The name of the column containing the from date. */
     public final String from;
@@ -63,7 +63,7 @@ public class DateRangeMapper extends Mapper {
      * @param pattern the date pattern
      */
     public DateRangeMapper(String field, Boolean validated, String from, String to, String pattern) {
-        super(field, false, validated, null, Arrays.asList(from, to), DATE_TYPES);
+        super(field, validated, Arrays.asList(from, to), DATE_TYPES);
 
         if (StringUtils.isBlank(from)) {
             throw new IndexException("from column name is required");

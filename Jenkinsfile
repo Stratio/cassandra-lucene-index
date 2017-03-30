@@ -8,7 +8,7 @@ hose {
     FOSS = true
     REPOSITORY = 'cassandra-lucene-index'    
     LANG = 'java'
-    PKGMODULES = ['plugin']
+    PKGMODULES = ['dist']
     PKGMODULESNAMES = ['stratio-cassandra-lucene-index']
     DEBARCH = 'all'
     RPMARCH = 'noarch'
@@ -33,7 +33,6 @@ hose {
         | -Dit.monitor_service=jolokia
         | -Dit.monitor_services_url=%%CASSANDRA:8000
         | -DJACOCO_SERVER=%%CASSANDRA
-        | -Dit-embedded=false"""
     
     DEV = { config ->
     

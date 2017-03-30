@@ -159,5 +159,4 @@ public class SearchBuilder implements Builder<Search> {
             return SearchBuilderLegacy.fromJson(json);
         }
     }
-
 }

@@ -22,6 +22,7 @@ import com.stratio.cassandra.lucene.mapping.{ClusteringMapper, KeyMapper, Partit
 import org.apache.cassandra.db.PartitionPosition.Kind._
 import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter._
+import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.schema.IndexMetadata
 import org.apache.cassandra.utils.concurrent.OpOrder
@@ -88,6 +89,11 @@ class IndexServiceWide(table: ColumnFamilyStore, index: IndexMetadata)
   /** @inheritdoc */
   def term(key: DecoratedKey, clustering: Clustering): Term = {
     keyMapper.term(key, clustering)
+  }
+
+  /** @inheritdoc */
+  override def doesAffectIndex(row: Row): Boolean = {
+    !row.isStatic && super.doesAffectIndex(row)
   }
 
   /** @inheritdoc */
