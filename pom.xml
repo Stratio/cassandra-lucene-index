@@ -87,6 +87,7 @@
         <mockito.version>1.10.19</mockito.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <scala.binary.version>2.12</scala.binary.version>
         <skipITs>false</skipITs>
         <skipTests>false</skipTests>
     </properties>
