@@ -24,7 +24,7 @@ hose {
                 'env': [ 'MAX_HEAP=256M',
                     'START_JOLOKIA=true',
                     'JOLOKIA_OPTS="port=8000,host=$(hostname --ip)"'],
-                'sleep': 10,
+                'sleep': 30,
                 'healthcheck': 9042
             ]
         ],
