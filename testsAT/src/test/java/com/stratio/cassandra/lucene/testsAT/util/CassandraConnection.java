@@ -39,35 +39,49 @@ public class CassandraConnection {
     private static Session session;
     private static List<CassandraMonitoringClient> jmxClients;
 
-    public static void connect() {
-        logger.debug("Connecting to: " + HOST);
+    public static void connect() throws InterruptedException {
         if (cluster == null) {
+            connect(CONNECTION_RETRIES, CONNECTION_DELAY);
+        }
+    }
+
+    private static void connect(int connectionRetries, int conectionDelay) throws InterruptedException {
+        if (connectionRetries > 0) {
             try {
+                logger.debug("Connecting to: " + HOST);
+                cluster = establishConnection();
+            } catch (Exception runtimeException) {
+                logger.debug("Error connecting to : " + HOST + " with error: "+ runtimeException.getLocalizedMessage());
+                logger.debug("Waiting connection delay: "+ CONNECTION_DELAY+" secs");
+                Thread.sleep(CONNECTION_DELAY * 1000);
+                connect(connectionRetries - 1, conectionDelay);
+            }
+        } else {
+            throw new RuntimeException(String.format("Error connecting to cassandra clsuter, in %d connections", CONNECTION_RETRIES));
+        }
+    }
 
-                cluster = Cluster.builder().addContactPoint(HOST).build();
+    private static Cluster establishConnection() throws Exception {
+        cluster = Cluster.builder().addContactPoint(HOST).build();
 
-                cluster.getConfiguration().getQueryOptions().setConsistencyLevel(CONSISTENCY).setFetchSize(FETCH);
-                cluster.getConfiguration()
-                       .getSocketOptions()
-                       .setReadTimeoutMillis(60000)
-                       .setConnectTimeoutMillis(100000);
+        cluster.getConfiguration().getQueryOptions().setConsistencyLevel(CONSISTENCY).setFetchSize(FETCH);
+        cluster.getConfiguration()
+               .getSocketOptions()
+               .setReadTimeoutMillis(60000)
+               .setConnectTimeoutMillis(100000);
 
-                session = cluster.connect();
-                jmxClients = new ArrayList<>(MONITOR_SERVICES_URL.length);
-                if (Objects.equals(MONITOR_SERVICE, "jmx")) {
-                    for (String service : MONITOR_SERVICES_URL) {
-                        jmxClients.add(new CassandraJMXClient(service).connect());
-                    }
-                } else if (Objects.equals(MONITOR_SERVICE, "jolokia")) {
-                    for (String service : MONITOR_SERVICES_URL) {
-                        jmxClients.add(new CassandraJolokiaClient(service).connect());
-                    }
-                }
-
-            } catch (Exception e) {
-                throw new RuntimeException("Error while connecting to Cassandra server", e);
+        session = cluster.connect();
+        jmxClients = new ArrayList<>(MONITOR_SERVICES_URL.length);
+        if (Objects.equals(MONITOR_SERVICE, "jmx")) {
+            for (String service : MONITOR_SERVICES_URL) {
+                jmxClients.add(new CassandraJMXClient(service).connect());
+            }
+        } else if (Objects.equals(MONITOR_SERVICE, "jolokia")) {
+            for (String service : MONITOR_SERVICES_URL) {
+                jmxClients.add(new CassandraJolokiaClient(service).connect());
             }
         }
+        return cluster;
     }
 
     public static void disconnect() {

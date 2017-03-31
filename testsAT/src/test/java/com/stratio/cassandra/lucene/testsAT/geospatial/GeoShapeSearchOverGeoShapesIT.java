@@ -128,7 +128,7 @@ public class GeoShapeSearchOverGeoShapesIT extends BaseIT {
 
     @AfterClass
     public static void after() {
-        utils.dropIndex().dropTable().dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     private CassandraUtilsSelect filter(String shape, String operation) {

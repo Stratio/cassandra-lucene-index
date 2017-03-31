@@ -211,8 +211,8 @@ public class BitemporalSearchIT extends BaseIT {
 
     @AfterClass
     public static void afterClass() {
-        utils.dropIndex().dropTable().dropKeyspace();
-        utils2.dropIndex().dropTable().dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
+        CassandraUtils.dropKeyspaceIfNotNull(utils2);
     }
 
     @Test
@@ -544,7 +544,7 @@ public class BitemporalSearchIT extends BaseIT {
         select.checkUnorderedColumns("vt_to", nowValue);
         select.checkUnorderedColumns("tt_from", "1970/01/01 05:35:50.102+0000");
         select.checkUnorderedColumns("tt_to", nowValue);
-        utils.dropIndex().dropTable().dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Test
