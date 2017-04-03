@@ -25,15 +25,13 @@ hose {
                  'MAX_HEAP=256M',
                   'START_JOLOKIA=true',
                   'JOLOKIA_OPTS="port=8000,host=$(hostname --ip)"'],
-           'sleep': 10]],
+           'sleep': 30 ]],
         ]
     
     ATPARAMETERS = """
-        | -Dit.host=%%CASSANDRA
-        | -Dit.monitor_service=jolokia
-        | -Dit.monitor_services_url=%%CASSANDRA:8000
+        | -Dit.embedded=false
         | -DJACOCO_SERVER=%%CASSANDRA
-        | -Dit-embedded=false"""
+        | -Dit.host=%%CASSANDRA"""
     
     DEV = { config ->
     
