@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.9.0 (upcoming)
+
+* Upgrade to Apache Cassandra 2.2.9
+
 ## 2.2.8.0 (September 30, 2016)
 
 * Upgrade to Apache Cassandra 2.2.8
