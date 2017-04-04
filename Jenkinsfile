@@ -34,7 +34,7 @@ hose {
         | -Dit.host=%%CASSANDRA
         | -Dit.jmx_port=8000
         | -Dit.monitor_service=jolokia
-        | -DJACOCO_SERVER=%%CASSANDRA
+        | -DJACOCO_SERVER=%%CASSANDRA"""
     
     DEV = { config ->
     
