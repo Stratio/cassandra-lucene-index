@@ -86,7 +86,7 @@ public class MultipleColumnRejectTypesIndexCreationIT extends BaseIT {
 
     @After
     public void after() {
-        utils.dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Parameterized.Parameters(name = "{index}: {0} against type {3}.")

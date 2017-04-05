@@ -148,7 +148,7 @@ public class UDTPartialInsertsIT extends BaseIT {
 
     @AfterClass
     public static void afterClass() {
-        utils.dropTable().dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Test

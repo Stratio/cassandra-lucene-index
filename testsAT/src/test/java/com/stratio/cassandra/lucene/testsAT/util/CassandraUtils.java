@@ -493,4 +493,8 @@ public class CassandraUtils {
             return message.equals(this.value);
         }
     }
+
+    public static void dropKeyspaceIfNotNull(CassandraUtils utils) {
+        if (utils!=null) utils.dropKeyspace();
+    }
 }
