@@ -141,6 +141,6 @@ public class MapComponentsIT extends BaseIT {
              .filter(match("map._value.u1", 0)).checkOrderedColumns("ck", 4)
              .filter(range("map._value.u1").lower(1)).checkOrderedColumns("ck", 0, 1, 2);
 
-        utils.dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 }
