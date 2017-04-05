@@ -21,12 +21,15 @@ import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsSelect;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import static com.stratio.cassandra.lucene.builder.Builder.match;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
+@RunWith(JUnit4.class)
 public class ReadStaticColumnsIT extends BaseIT {
 
     private static CassandraUtils utils;
