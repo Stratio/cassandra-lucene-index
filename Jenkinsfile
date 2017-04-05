@@ -3,7 +3,7 @@
 hose {
     EMAIL = 'cassandra'
     MODULE = 'cassandra-lucene-index'
-    DEVTIMEOUT = 50
+    DEVTIMEOUT = 90
     RELEASETIMEOUT = 30
     FOSS = true
     REPOSITORY = 'cassandra-lucene-index'    
