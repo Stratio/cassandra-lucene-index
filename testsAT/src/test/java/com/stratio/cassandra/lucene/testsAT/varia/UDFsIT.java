@@ -21,6 +21,8 @@ import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +34,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
+@RunWith(JUnit4.class)
 public class UDFsIT extends BaseIT {
 
     private static CassandraUtils utils;
