@@ -17,9 +17,9 @@ package com.stratio.cassandra.lucene.util
 
 import com.stratio.cassandra.lucene.BaseScalaTest
 import com.stratio.cassandra.lucene.BaseScalaTest._
+import com.stratio.cassandra.lucene.util.SchemaValidator._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import com.stratio.cassandra.lucene.util.SchemaValidator._
 
 /** Tests for [[SchemaValidator]].
   *
@@ -29,38 +29,62 @@ import com.stratio.cassandra.lucene.util.SchemaValidator._
 class SchemaValidatorTest extends BaseScalaTest {
 
   test("supports regular") {
-    supports(utf8, List(classOf[String])) shouldBe true
-    supports(utf8, List(classOf[Number])) shouldBe false
-    supports(utf8, List(classOf[String], classOf[Number])) shouldBe true
-    supports(utf8, List(classOf[Number], classOf[String])) shouldBe true
+    supports(utf8, List(classOf[String]), List(), true) shouldBe true
+    supports(utf8, List(classOf[Number]), List(), true) shouldBe false
+    supports(utf8, List(classOf[String], classOf[Number]), List(), true) shouldBe true
+    supports(utf8, List(classOf[Number], classOf[String]), List(), true) shouldBe true
   }
 
   test("supports list") {
-    supports(list(utf8, false), List(classOf[String])) shouldBe true
-    supports(list(utf8, true), List(classOf[String])) shouldBe true
-    supports(list(int32, false), List(classOf[String])) shouldBe false
-    supports(list(int32, true), List(classOf[String])) shouldBe false
+    supports(list(utf8, false), List(classOf[String]), List(), true) shouldBe true
+    supports(list(utf8, true), List(classOf[String]), List(), true) shouldBe true
+    supports(list(int32, false), List(classOf[String]), List(), true) shouldBe false
+    supports(list(int32, true), List(classOf[String]), List(), true) shouldBe false
   }
 
   test("supports set") {
-    supports(set(utf8, false), List(classOf[String])) shouldBe true
-    supports(set(utf8, true), List(classOf[String])) shouldBe true
-    supports(set(int32, false), List(classOf[String])) shouldBe false
-    supports(set(int32, true), List(classOf[String])) shouldBe false
+    supports(set(utf8, false), List(classOf[String]), List(), true) shouldBe true
+    supports(set(utf8, true), List(classOf[String]), List(), true) shouldBe true
+    supports(set(int32, false), List(classOf[String]), List(), true) shouldBe false
+    supports(set(int32, true), List(classOf[String]), List(), true) shouldBe false
   }
 
   test("supports map") {
-    supports(map(int32, utf8, false), List(classOf[String])) shouldBe true
-    supports(map(int32, utf8, true), List(classOf[String])) shouldBe true
-    supports(map(utf8, int32, false), List(classOf[String])) shouldBe false
-    supports(map(utf8, int32, true), List(classOf[String])) shouldBe false
+    supports(map(int32, utf8, false), List(classOf[String]), List(), true) shouldBe true
+    supports(map(int32, utf8, true), List(classOf[String]), List(), true) shouldBe true
+    supports(map(utf8, int32, false), List(classOf[String]), List(), true) shouldBe false
+    supports(map(utf8, int32, true), List(classOf[String]), List(), true) shouldBe false
+  }
+
+  test("non supporting collections") {
+    supports(map(int32, utf8, false), List(classOf[String]), List(), false) shouldBe false
+    supports(map(int32, utf8, true), List(classOf[String]), List(), false) shouldBe false
+    supports(map(utf8, int32, false), List(classOf[String]), List(), false) shouldBe false
+    supports(map(utf8, int32, true), List(classOf[String]), List(), false) shouldBe false
+
+    supports(list(utf8, false), List(classOf[String]), List(), false) shouldBe false
+    supports(list(utf8, true), List(classOf[String]), List(), false) shouldBe false
+    supports(list(int32, false), List(classOf[String]), List(), false) shouldBe false
+    supports(list(int32, true), List(classOf[String]), List(), false) shouldBe false
+
+    supports(set(utf8, false), List(classOf[String]), List(), false) shouldBe false
+    supports(set(utf8, true), List(classOf[String]), List(), false) shouldBe false
+    supports(set(int32, false), List(classOf[String]), List(), false) shouldBe false
+    supports(set(int32, true), List(classOf[String]), List(), false) shouldBe false
   }
 
   test("supports reversed") {
-    supports(reversed(utf8), List(classOf[String])) shouldBe true
-    supports(reversed(int32), List(classOf[String])) shouldBe false
-    supports(reversed(utf8), List(classOf[String], classOf[Number])) shouldBe true
-    supports(reversed(utf8), List(classOf[Number], classOf[String])) shouldBe true
+    supports(reversed(utf8), List(classOf[String]), List(), true) shouldBe true
+    supports(reversed(int32), List(classOf[String]),  List(),true) shouldBe false
+    supports(reversed(utf8), List(classOf[String], classOf[Number]), List(), true) shouldBe true
+    supports(reversed(utf8), List(classOf[Number], classOf[String]), List(), true) shouldBe true
+  }
+
+  test("excluded types") {
+    supports(reversed(utf8), List(classOf[String]), List(classOf[String]), true) shouldBe false
+    supports(reversed(int32), List(classOf[String]),  List(classOf[String]),true) shouldBe false
+    supports(reversed(utf8), List(classOf[String], classOf[Number]), List(classOf[String]), true) shouldBe false
+    supports(reversed(utf8), List(classOf[Number], classOf[String]), List(classOf[String]), true) shouldBe false
   }
 
   test("child regular") {
@@ -136,5 +160,6 @@ class SchemaValidatorTest extends BaseScalaTest {
     childType(mapType, "b") shouldBe Some(int32)
     childType(mapType, "c") shouldBe None
   }
+
 
 }

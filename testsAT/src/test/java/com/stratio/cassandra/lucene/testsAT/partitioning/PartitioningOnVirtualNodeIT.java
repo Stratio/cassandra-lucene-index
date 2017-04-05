@@ -47,7 +47,7 @@ public class PartitioningOnVirtualNodeIT extends BaseIT {
     }
 
     public static void test(int vNodesPerPartition) {
-        if ((numTokens == 1) && (vNodesPerPartition > 1)) {
+        if ((numTokens == 1) && ((vNodesPerPartition > 1) || (vNodesPerPartition < 1))) {
             logger.debug("[IGNORED] vnode test because target cassandra cluster is not configured with virtual tokens.");
         } else {
             builder("virtual_nodes_partitioning")
