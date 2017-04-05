@@ -67,7 +67,7 @@ public class MultipleKeyDataDeletionIT extends BaseIT {
 
     @After
     public void after() {
-        utils.dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Test

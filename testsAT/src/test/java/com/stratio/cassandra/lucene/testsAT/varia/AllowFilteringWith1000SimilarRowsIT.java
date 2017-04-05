@@ -60,7 +60,7 @@ public class AllowFilteringWith1000SimilarRowsIT extends BaseIT {
 
     @AfterClass
     public static void after() {
-        utils.dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Test
