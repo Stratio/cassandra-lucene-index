@@ -42,4 +42,4 @@ if [ -d "/var/sds/cassandra/data/airlines_cassandra" ]; then
         fi
     done
 fi
-tail -F /var/log/sds/cassandra/boot.log
+tail -F /var/log/sds/cassandra/system.log
