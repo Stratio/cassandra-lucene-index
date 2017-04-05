@@ -23,8 +23,8 @@ hose {
                 'volumes':['jts:1.14.0'],
                 'env': [ 'MAX_HEAP=256M',
                     'START_JOLOKIA=true',
-                    'JOLOKIA_OPTS="port=8000,host=$(hostname --ip)"'],
-                'sleep': 10,
+                    'JOLOKIA_OPTS="port=8000,host=*"'],
+                'sleep': 30,
                 'healthcheck': 9042
             ]
         ],
@@ -32,10 +32,9 @@ hose {
     
     ATPARAMETERS = """
         | -Dit.host=%%CASSANDRA
+        | -Dit.jmx_port=8000
         | -Dit.monitor_service=jolokia
-        | -Dit.monitor_services_url=%%CASSANDRA:8000
-        | -DJACOCO_SERVER=%%CASSANDRA
-        | -Dit-embedded=false"""
+        | -DJACOCO_SERVER=%%CASSANDRA"""
     
     DEV = { config ->
     
