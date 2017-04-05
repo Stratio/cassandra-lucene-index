@@ -73,7 +73,7 @@ public class SingleColumnRejectTypeIndexCreationIT extends BaseIT {
 
     @After
     public void after() {
-        utils.dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
 

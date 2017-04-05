@@ -238,7 +238,7 @@ public class UDTIndexingIT extends BaseIT {
 
     @AfterClass
     public static void after() {
-        utils.dropTable().dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Test

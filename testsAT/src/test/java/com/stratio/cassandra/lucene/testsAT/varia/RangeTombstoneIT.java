@@ -54,7 +54,7 @@ public class RangeTombstoneIT extends BaseIT {
 
     @AfterClass
     public static void after() {
-        utils.dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     private void test(String clause, int expected) {

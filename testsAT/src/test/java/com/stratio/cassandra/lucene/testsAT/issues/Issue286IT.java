@@ -32,7 +32,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 
 /**
- * Test indexing collections beeing part of clustering key (<a href="https://github.com/Stratio/cassandra-lucene-index/issues/286">issue 286</a>).
+ * Test indexing collections being part of clustering key (<a href="https://github.com/Stratio/cassandra-lucene-index/issues/286">issue 286</a>).
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
@@ -94,7 +94,7 @@ public class Issue286IT extends BaseIT {
 
     @AfterClass
     public static void afterClass() {
-        keyspacesToDrop.forEach(CassandraUtils::dropKeyspace);
+        keyspacesToDrop.forEach(CassandraUtils::dropKeyspaceIfNotNull);
     }
 
     @Test
