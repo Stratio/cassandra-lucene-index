@@ -20,6 +20,8 @@ import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -34,6 +36,7 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
+@RunWith(JUnit4.class)
 public class Issue286IT extends BaseIT {
 
     protected static final Map<String, String> data1, data2, data3, data4, data5, data6, data7, data8;
