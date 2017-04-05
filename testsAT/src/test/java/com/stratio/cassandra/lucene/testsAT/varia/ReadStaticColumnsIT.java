@@ -60,7 +60,7 @@ public class ReadStaticColumnsIT extends BaseIT {
 
     @AfterClass
     public static void after() {
-        utils.dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Test

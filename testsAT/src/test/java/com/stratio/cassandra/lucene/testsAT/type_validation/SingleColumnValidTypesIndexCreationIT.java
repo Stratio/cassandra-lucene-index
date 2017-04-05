@@ -69,7 +69,7 @@ public class SingleColumnValidTypesIndexCreationIT extends BaseIT {
 
     @After
     public void after() {
-        utils.dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Parameterized.Parameters(name = "{index}: {0} against cqlType {2}.")

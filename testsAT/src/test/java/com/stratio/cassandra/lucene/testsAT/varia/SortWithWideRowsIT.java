@@ -58,7 +58,7 @@ public class SortWithWideRowsIT extends BaseIT {
 
     @AfterClass
     public static void after() {
-        utils.dropIndex().dropTable().dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Test
