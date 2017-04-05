@@ -61,7 +61,7 @@ public class PerPartitionLimitIT extends BaseIT {
         } catch (SyntaxError e) {
             logger.info("Skipping PER PARTITION LIMIT test because this release doesn't support it");
         } finally {
-            utils.dropKeyspace();
+            CassandraUtils.dropKeyspaceIfNotNull(utils);
         }
     }
 
@@ -89,7 +89,7 @@ public class PerPartitionLimitIT extends BaseIT {
         } catch (SyntaxError e) {
             logger.info("Skipping PER PARTITION LIMIT test because this release doesn't support it");
         } finally {
-            utils.dropKeyspace();
+            CassandraUtils.dropKeyspaceIfNotNull(utils);
         }
     }
 }

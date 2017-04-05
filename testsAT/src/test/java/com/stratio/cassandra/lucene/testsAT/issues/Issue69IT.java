@@ -53,7 +53,7 @@ public class Issue69IT extends BaseIT {
 
     @AfterClass
     public static void after() {
-        utils.dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Test

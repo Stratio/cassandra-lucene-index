@@ -62,7 +62,7 @@ public class SimpleKeyDataHandlingIT extends BaseIT {
 
     @After
     public void after() {
-        utils.dropTable().dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Test
