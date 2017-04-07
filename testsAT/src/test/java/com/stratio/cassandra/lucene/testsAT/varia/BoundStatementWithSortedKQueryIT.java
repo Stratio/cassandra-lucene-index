@@ -28,7 +28,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(JUnit4.class)
-public class BoundStatementWithSortedKQuery extends AbstractSearchIT {
+public class BoundStatementWithSortedKQueryIT extends AbstractSearchIT {
 
     @Test
     public void testSortIntegerAsc() {

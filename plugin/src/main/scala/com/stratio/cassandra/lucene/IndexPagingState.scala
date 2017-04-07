@@ -161,8 +161,8 @@ class IndexPagingState(var remaining: Int) {
       val p = partitioner.partition(key)
       val bound = bounds.find(_ contains key)
       while (partition.hasNext) {
-        bound.foreach(bound => entries.keys.filter(x => bound.contains(x._2) && p == x._1).foreach(
-          entries.remove))
+        bound.foreach(bound =>
+          entries.keys.filter(x => bound.contains(x._2) && p == x._1).foreach(entries.remove))
         val newRowIterator = new SingleRowIterator(partition)
         rowIterators += newRowIterator
         val clustering = newRowIterator.row.clustering
@@ -188,7 +188,11 @@ class IndexPagingState(var remaining: Int) {
 
   /** @inheritdoc */
   override def toString: String = {
-    MoreObjects.toStringHelper(this).add("remaining", remaining).add("entries", entries).toString
+    MoreObjects.toStringHelper(this)
+      .add("remaining", remaining)
+      .add("entries", entries)
+      .add("hasMorePages", hasMorePages)
+      .toString
   }
 
   /** Returns a byte buffer representation of this.

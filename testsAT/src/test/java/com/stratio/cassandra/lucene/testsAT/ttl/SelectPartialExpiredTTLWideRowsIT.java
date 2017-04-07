@@ -20,6 +20,8 @@ import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +31,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.stringMapper;
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
+@RunWith(JUnit4.class)
 public class SelectPartialExpiredTTLWideRowsIT extends BaseIT {
 
     private static CassandraUtils utils;
@@ -82,6 +85,6 @@ public class SelectPartialExpiredTTLWideRowsIT extends BaseIT {
 
     @AfterClass
     public static void after() {
-        utils.dropIndex().dropTable().dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 }

@@ -33,7 +33,6 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-
 @RunWith(JUnit4.class)
 public class UDTIndexingIT extends BaseIT {
 
@@ -239,7 +238,7 @@ public class UDTIndexingIT extends BaseIT {
 
     @AfterClass
     public static void after() {
-        utils.dropTable().dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Test

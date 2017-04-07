@@ -33,7 +33,6 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-
 @RunWith(JUnit4.class)
 public class TupleIndexingIT extends BaseIT {
 
@@ -65,7 +64,7 @@ public class TupleIndexingIT extends BaseIT {
 
     @AfterClass
     public static void after() {
-        utils.dropIndex().dropTable().dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Test
