@@ -14,7 +14,7 @@ hose {
     RPMARCH = 'noarch'
     EXPOSED_PORTS = [9042, 7199, 8000]
 
-    PARALLELIZE_AT = true
+    PARALLELIZEAT = 3
 
     ATSERVICES =  [
         [
