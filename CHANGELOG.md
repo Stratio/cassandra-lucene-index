@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.6.2 (upcoming)
+
+* Fix collection columns indexing being part of clustering key (#286)
+* Avoid unsupported usage of multicolumn mappers with collections
+* Add support for indexing map values
+* Add support for indexing map keys (#253)
+
 ## 3.6.1 (February 06, 2017)
 
 * Fix mutual exclusion on partition key during read before write (#261)
@@ -54,7 +61,6 @@
 * Add transformation for getting the bounding box of a geographical shape
 * Fix complex clustering keys building (#143)
 
-
 ## 3.5.1 (May 19, 2016)
 
 * Upgrade to Apache Lucene 5.5.1
@@ -94,7 +100,6 @@
 ## 3.0.3.1 (March 04, 2016)
 
 * Fix performance issues with ClusteringIndexNamesFilter
-
 * Add indexing of WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add search by WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add API for search-time transformation of WKT geographical shapes

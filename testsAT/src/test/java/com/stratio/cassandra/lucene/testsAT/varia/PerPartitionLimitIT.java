@@ -20,6 +20,8 @@ import com.datastax.driver.core.exceptions.SyntaxError;
 import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,6 +30,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
+@RunWith(JUnit4.class)
 public class PerPartitionLimitIT extends BaseIT {
 
     @Test
@@ -58,7 +61,7 @@ public class PerPartitionLimitIT extends BaseIT {
         } catch (SyntaxError e) {
             logger.info("Skipping PER PARTITION LIMIT test because this release doesn't support it");
         } finally {
-            utils.dropKeyspace();
+            CassandraUtils.dropKeyspaceIfNotNull(utils);
         }
     }
 
@@ -86,7 +89,7 @@ public class PerPartitionLimitIT extends BaseIT {
         } catch (SyntaxError e) {
             logger.info("Skipping PER PARTITION LIMIT test because this release doesn't support it");
         } finally {
-            utils.dropKeyspace();
+            CassandraUtils.dropKeyspaceIfNotNull(utils);
         }
     }
 

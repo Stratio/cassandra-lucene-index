@@ -63,4 +63,3 @@ class TokenLengthAnalyzer(val analyzer: Analyzer)
     MoreObjects.toStringHelper(this).add("analyzer", analyzer).toString
   }
 }
-

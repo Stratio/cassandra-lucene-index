@@ -62,24 +62,30 @@ class ColumnsMapperTest extends BaseScalaTest {
 
   test("columns from frozen set") {
     val column = Column("cell")
-    val `type` = set(utf8, false)
+    val `type` = set(utf8, multiCell = false)
     val bb = `type`.decompose(Set("a", "b").asJava)
     columns(column, `type`, bb) shouldBe Columns(column.withValue("b"), column.withValue("a"))
   }
 
   test("columns from frozen list") {
     val column = Column("cell")
-    val `type` = list(utf8, false)
+    val `type` = list(utf8, multiCell = false)
     val bb = `type`.decompose(List("a", "b").asJava)
     columns(column, `type`, bb) shouldBe Columns(column.withValue("b"), column.withValue("a"))
   }
 
   test("columns from frozen map") {
     val column = Column("cell")
-    val `type` = map(utf8, utf8, true)
+    val `type` = map(utf8, utf8, multiCell = true)
     val bb = `type`.decompose(Map("k1" -> "v1", "k2" -> "v2").asJava)
     columns(column, `type`, bb) shouldBe
-      Columns(column.withMapName("k2").withValue("v2"), column.withMapName("k1").withValue("v1"))
+      Columns(
+        column.withUDTName(Column.MAP_KEY_SUFFIX).withValue("k2"),
+        column.withUDTName(Column.MAP_VALUE_SUFFIX).withValue("v2"),
+        column.withMapName("k2").withValue("v2"),
+        column.withUDTName(Column.MAP_KEY_SUFFIX).withValue("k1"),
+        column.withUDTName(Column.MAP_VALUE_SUFFIX).withValue("v1"),
+        column.withMapName("k1").withValue("v1"))
   }
 
   test("columns from tuple") {

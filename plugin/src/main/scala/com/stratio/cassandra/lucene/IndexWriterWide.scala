@@ -15,13 +15,12 @@
  */
 package com.stratio.cassandra.lucene
 
-import org.apache.cassandra.db._
 import org.apache.cassandra.db.filter.{ClusteringIndexNamesFilter, ColumnFilter}
 import org.apache.cassandra.db.rows.Row
+import org.apache.cassandra.db._
 import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
-
-import scala.collection.JavaConverters._
+import collection.JavaConverters._
 
 /** [[IndexWriter]] for wide rows.
   *
@@ -46,7 +45,7 @@ class IndexWriterWide(
   /** The rows ready to be written. */
   private val rows = new java.util.TreeMap[Clustering, Row](metadata.comparator)
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def delete() {
     service.delete(key)
     clusterings.clear()
@@ -67,15 +66,13 @@ class IndexWriterWide(
 
   /** @inheritdoc */
   override def index(row: Row) {
-    if (!row.isStatic) {
-      val clustering = row.clustering
-      if (service.needsReadBeforeWrite(key, row)) {
-        tracer.trace("Lucene index doing read before write")
-        clusterings.add(clustering)
-      } else {
-        tracer.trace("Lucene index skipping read before write")
-        rows.put(clustering, row)
-      }
+    val clustering = row.clustering
+    if (service.needsReadBeforeWrite(key, row)) {
+      tracer.trace("Lucene index doing read before write")
+      clusterings.add(clustering)
+    } else {
+      tracer.trace("Lucene index skipping read before write")
+      rows.put(clustering, row)
     }
   }
 
