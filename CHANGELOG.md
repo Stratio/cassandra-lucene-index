@@ -4,11 +4,11 @@
 
 * Upgrade to Apache Cassandra 3.0.12
 
-## 3.0.11.0 (upcoming)
+## 3.0.11.0 (April 07, 2017)
 
 * Upgrade to Apache Cassandra 3.0.11
 
-## 3.0.10.4 (upcoming)
+## 3.0.10.4 (April 07, 2017)
 
 * Fix collection columns indexing being part of clustering key (#286)
 * Avoid unsupported usage of multicolumn mappers with collections
