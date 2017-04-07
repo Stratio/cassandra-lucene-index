@@ -18,11 +18,11 @@ package com.stratio.cassandra.lucene.common;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.DateParser;
 import org.apache.cassandra.utils.UUIDGen;
-import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -54,8 +54,9 @@ public class DateParserTest {
         }
     }
 
-    private static Date date(String format, String input) {
-        return DateTimeFormat.forPattern(format).parseDateTime(input).toDate();
+    private static Date date(String format, String input) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        return sdf.parse(input);
     }
 
     @Test

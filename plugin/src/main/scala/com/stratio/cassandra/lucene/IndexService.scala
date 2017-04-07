@@ -62,6 +62,7 @@ abstract class IndexService(
   val regulars = metadata.partitionColumns.regulars.asScala.toSet
   val mappedRegulars = regulars.map(_.name.toString).filter(schema.mappedCells.contains)
   val mapsMultiCell = regulars.exists(x => x.`type`.isMultiCell && schema.mapsCell(x.name.toString))
+  val mapsPrimaryKey = (metadata.partitionKeyColumns.asScala ++ metadata.clusteringColumns.asScala).exists(x => schema.mapsCell(x.name.toString))
 
   // Setup mapping
   val tokenMapper = new TokenMapper
@@ -168,6 +169,17 @@ abstract class IndexService(
     */
   def needsReadBeforeWrite(key: DecoratedKey, row: Row): Boolean = {
     mapsMultiCell || !mappedRegulars.subsetOf(row.columns.asScala.map(_.name.toString).toSet)
+  }
+
+  /**
+    * Returns true if the supplied Row contains at least one column that is present
+    * in the index schema.
+    *
+    * @param row the row
+    * @return `true` if the index must be updated, `false` otherwise
+    */
+  def doesAffectIndex(row: Row): Boolean = {
+    !options.sparse || mapsPrimaryKey || row.columns().asScala.exists(c => mappedRegulars.contains(c.name.toString))
   }
 
   /** Returns the [[DecoratedKey]] contained in the specified Lucene document.
@@ -424,5 +436,4 @@ object IndexService {
       new IndexServiceWide(table, indexMetadata)
     }
   }
-
 }

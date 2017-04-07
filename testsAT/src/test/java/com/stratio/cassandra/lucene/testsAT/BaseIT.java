@@ -31,7 +31,7 @@ public class BaseIT {
     public static final Logger logger = LoggerFactory.getLogger("TEST");
 
     @BeforeClass
-    public static void connect() {
+    public static void connect() throws InterruptedException {
         CassandraConnection.connect();
     }
 

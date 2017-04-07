@@ -18,16 +18,14 @@ package com.stratio.cassandra.lucene
 import com.google.common.collect.Lists
 import org.apache.cassandra.db.marshal._
 import org.scalatest.{FunSuite, Matchers}
+
 import scala.collection.JavaConverters._
 
 /** Base test.
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class BaseScalaTest extends FunSuite with Matchers {
-
-
-}
+class BaseScalaTest extends FunSuite with Matchers {}
 
 object BaseScalaTest {
 
@@ -61,7 +59,7 @@ object BaseScalaTest {
     new UserType(
       "ks",
       utf8.decompose("cell"),
-      names.map(x => utf8.decompose(x)).asJava,
+      Lists.newArrayList(names.map(x => utf8.decompose(x)).asJava),
       Lists.newArrayList(types.asJava))
 
   def reversed[A](base: AbstractType[A]): ReversedType[A] = ReversedType.getInstance(base)

@@ -62,5 +62,4 @@ class TokenLengthAnalyzer(val analyzer: Analyzer)
   override def toString: String = {
     MoreObjects.toStringHelper(this).add("analyzer", analyzer).toString
   }
-
 }

@@ -45,7 +45,11 @@ class CassandraConfig {
     static final String COLUMN = getString("column", "lucene");
     static final boolean USE_NEW_QUERY_SYNTAX = getBool("use_new_query_syntax", true);
     static final int LIMIT = getInt("limit", 10000);
+    static final boolean SPARSE = getBool("sparse", false);
     static final Partitioner PARTITIONER = new Partitioner.None();
+    static final int CONNECTION_RETRIES = getInt("connection_retries", 5);
+    static final int CONNECTION_DELAY = getInt("connection_delay", 2);
+
 
     static {
         assert COLUMN != null || USE_NEW_QUERY_SYNTAX;

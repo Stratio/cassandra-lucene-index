@@ -69,5 +69,4 @@ class RAMIndex(analyzer: Analyzer) {
       topDocs.scoreDocs.map(score => (searcher.doc(score.doc, fields), score))
     } finally searcher.getIndexReader.close()
   }
-
 }

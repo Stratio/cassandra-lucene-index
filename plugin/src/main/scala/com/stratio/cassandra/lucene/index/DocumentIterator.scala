@@ -119,7 +119,6 @@ class DocumentIterator(
 
       tracer.trace(s"Lucene index fetches $numFetched documents")
       logger.debug(s"Page fetched with $numFetched documents in $fetchTime")
-
     } catch {
       case e: Exception =>
         close()

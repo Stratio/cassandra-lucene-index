@@ -72,7 +72,7 @@ public class GeoBBoxSearchIT extends BaseIT {
 
     @AfterClass
     public static void after() {
-        utils.dropIndex().dropTable().dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Test

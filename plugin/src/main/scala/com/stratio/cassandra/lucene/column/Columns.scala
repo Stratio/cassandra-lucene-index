@@ -78,5 +78,4 @@ object Columns {
 
   /** Returns a new [[Columns]] composed by the specified [[Column]]s. */
   def apply(columns: Column*): Columns = new Columns(columns.toList)
-
 }

@@ -41,7 +41,7 @@ case class IndexException(
     * @param message the detail message
     */
   def this(message: String) =
-  this(message, null)
+    this(message, null)
 
   /** Constructs a new index exception with the specified formatted detail message.
     *
@@ -49,7 +49,7 @@ case class IndexException(
     * @param a1      first argument
     */
   def this(message: String, a1: AnyRef) =
-  this(format1(message, a1), null)
+    this(format1(message, a1), null)
 
   /** Constructs a new index exception with the specified formatted detail message.
     *
@@ -58,7 +58,7 @@ case class IndexException(
     * @param a2      second argument
     */
   def this(message: String, a1: AnyRef, a2: AnyRef) =
-  this(format2(message, a1, a2), null)
+    this(format2(message, a1, a2), null)
 
   /** Constructs a new index exception with the specified formatted detail message.
     *
@@ -68,7 +68,7 @@ case class IndexException(
     * @param a3      third argument
     */
   def this(message: String, a1: AnyRef, a2: AnyRef, a3: AnyRef) =
-  this(formatN(message, a1, a2, a3), null)
+    this(formatN(message, a1, a2, a3), null)
 
   /** Constructs a new index exception with the specified formatted detail message.
     *
@@ -79,7 +79,7 @@ case class IndexException(
     * @param a4      fourth argument
     */
   def this(message: String, a1: AnyRef, a2: AnyRef, a3: AnyRef, a4: AnyRef) =
-  this(formatN(message, a1, a2, a3, a4), null)
+    this(formatN(message, a1, a2, a3, a4), null)
 
   /** Constructs a new index exception with the specified formatted detail message.
     *
@@ -130,7 +130,6 @@ case class IndexException(
     */
   def this(cause: Throwable, message: String, a1: AnyRef, a2: AnyRef, a3: AnyRef, a4: AnyRef) =
   this(formatN(message, a1, a2, a3, a4), cause)
-
 }
 
 /** Companion object for [[IndexException]]. */
@@ -147,5 +146,4 @@ object IndexException {
   private def formatN(message: String, as: AnyRef*): String = {
     MessageFormatter.arrayFormat(message, as.toArray).getMessage
   }
-
 }
