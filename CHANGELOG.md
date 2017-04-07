@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.7.5 (upcoming)
+## 3.0.7.5 (April 07, 2017)
 
 * Fix collection columns indexing being part of clustering key (#286)
 * Avoid unsupported usage of multicolumn mappers with collections
