@@ -26,7 +26,7 @@
     <parent>
         <groupId>com.stratio</groupId>
         <artifactId>parent</artifactId>
-        <version>0.7.1</version>
+        <version>0.9.0</version>
     </parent>
     <inceptionYear>2014</inceptionYear>
     <packaging>pom</packaging>
@@ -39,6 +39,7 @@
     <modules>
         <module>builder</module>
         <module>plugin</module>
+        <module>dist</module>
     </modules>
 
     <licenses>
@@ -74,16 +75,24 @@
     </developers>
 
     <properties>
+        <cassandra.version>3.7</cassandra.version>
+        <coverage.data.dir>${project.build.outputDirectory}</coverage.data.dir>
+        <jackson.version>2.8.4</jackson.version>
+        <jacoco-IT-argline></jacoco-IT-argline>
+        <jts.version>1.14.0</jts.version>
+        <lucene.version>5.5.3</lucene.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <mockito.version>1.10.19</mockito.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <coverage.data.dir>${project.build.outputDirectory}</coverage.data.dir>
-        <skipTests>false</skipTests>
+        <scala.binary.version>2.12</scala.binary.version>
+        <scala.logging.version>3.5.0</scala.logging.version>
+        <scala.version>2.12.0</scala.version>
+        <scalatest.version>3.0.1</scalatest.version>
         <skipITs>false</skipITs>
-        <jacoco-IT-argline></jacoco-IT-argline>
+        <skipTests>false</skipTests>
     </properties>
-
     <build>
         <plugins>
             <plugin>

@@ -67,7 +67,7 @@ public class SimpleKeyDataDeletionIT extends BaseIT {
 
     @After
     public void after() {
-        utils.dropTable().dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     @Test
