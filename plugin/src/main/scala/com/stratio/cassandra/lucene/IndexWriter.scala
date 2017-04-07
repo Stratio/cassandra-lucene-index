@@ -62,19 +62,19 @@ abstract class IndexWriter(
   /** @inheritdoc */
   override def insertRow(row: Row): Unit = {
     logger.trace(s"Insert rows during $transactionType: $row")
-    index(row)
+    tryIndex(row)
   }
 
   /** @inheritdoc */
   override def updateRow(oldRowData: Row, newRowData: Row): Unit = {
     logger.trace(s"Update row during $transactionType: $oldRowData TO $newRowData")
-    index(newRowData)
+    tryIndex(newRowData)
   }
 
   /** @inheritdoc */
   override def removeRow(row: Row): Unit = {
     logger.trace(s"Remove row during $transactionType: $row")
-    index(row)
+    tryIndex(row)
   }
 
   /** Deletes all the partition. */
@@ -82,6 +82,15 @@ abstract class IndexWriter(
 
   /** Deletes all the rows in the specified tombstone. */
   protected def delete(tombstone: RangeTombstone)
+
+  /** Try indexing the row. If the row does not affect index it is not indexed */
+  private[this] def tryIndex(row: Row): Unit = {
+    if (service.doesAffectIndex(row)) {
+      index(row)
+    } else {
+      tracer.trace("Lucene index skipping row")
+    }
+  }
 
   /** Indexes the specified row. It behaviours as an upsert and may involve read-before-write.
     *

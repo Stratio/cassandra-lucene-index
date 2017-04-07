@@ -43,17 +43,26 @@ public class CassandraUtilsBuilder {
     private String clusteringOrderColumn;
     private boolean clusteringOrderAscending;
     private Partitioner partitioner = PARTITIONER;
+    private boolean sparse = SPARSE;
 
     private final Map<String, Map<String, String>> udts;
 
     CassandraUtilsBuilder(String keyspacePrefix) {
-        this.keyspace = keyspacePrefix + "_" + Math.abs(new Random().nextLong());
+        this.keyspace = truncateKeyspaceName((keyspacePrefix + "_" + Math.abs(new Random().nextLong())), 48);
         this.columns = new HashMap<>();
         this.mappers = new HashMap<>();
         this.analyzers = new HashMap<>();
         this.partitionKey = new ArrayList<>();
         this.clusteringKey = new ArrayList<>();
         this.udts = new LinkedHashMap<>();
+    }
+
+    private static String truncateKeyspaceName(String input, int limit) {
+        if (input.length()>limit) {
+             return input.substring(0, limit-1);
+        } else {
+             return input;
+        }
     }
 
     public CassandraUtilsBuilder withTable(String table) {
@@ -145,6 +154,11 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
+    public CassandraUtilsBuilder withSparse(boolean sparse) {
+        this.sparse = sparse;
+        return this;
+    }
+
     private SingleColumnMapper<?> defaultMapper(String name) {
         switch (name) {
             case "ascii":
@@ -202,6 +216,7 @@ public class CassandraUtilsBuilder {
                                   udts,
                                   clusteringOrderColumn,
                                   clusteringOrderAscending,
-                                  partitioner);
+                                  partitioner,
+                                  sparse);
     }
 }

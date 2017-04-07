@@ -72,7 +72,7 @@ public abstract class AbstractSearchIT extends BaseIT {
 
     @AfterClass
     public static void afterClass() {
-        utils.dropKeyspace();
+        CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
     protected CassandraUtilsSelect search() {
