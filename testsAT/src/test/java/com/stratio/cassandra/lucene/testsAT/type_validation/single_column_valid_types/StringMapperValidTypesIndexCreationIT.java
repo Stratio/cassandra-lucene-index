@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.testsAT.type_validation;
+package com.stratio.cassandra.lucene.testsAT.type_validation.single_column_valid_types;
 
-import com.datastax.driver.core.exceptions.InvalidConfigurationInQueryException;
-import com.google.common.collect.Sets;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsBuilder;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -29,26 +29,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.stratio.cassandra.lucene.builder.Builder.stringMapper;
 import static com.stratio.cassandra.lucene.testsAT.type_validation.DataHelper.*;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(Parameterized.class)
-public class SingleColumnRejectTypeIndexCreationIT extends BaseIT {
+public class StringMapperValidTypesIndexCreationIT extends BaseIT {
 
+    private static final String MAPPER_TYPE= "string";
     private final String mapperName;
     private final Mapper mapper;
     private final String cqlType;
-    private final String expectedExceptionMessage;
     private static CassandraUtils utils;
     private static CassandraUtilsBuilder builder;
 
-    public SingleColumnRejectTypeIndexCreationIT(String mapperName, Mapper mapper, String cqlType, String expectedExceptionMessage) {
+    public StringMapperValidTypesIndexCreationIT(String mapperName, Mapper mapper, String cqlType) {
         this.mapperName = mapperName;
         this.mapper = mapper;
         this.cqlType = cqlType;
-        this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
     @Before
@@ -68,7 +68,7 @@ public class SingleColumnRejectTypeIndexCreationIT extends BaseIT {
                        .build()
                        .createKeyspace()
                        .createTable()
-                       .createIndex(InvalidConfigurationInQueryException.class, expectedExceptionMessage);
+                       .createIndex();
     }
 
     @After
@@ -76,13 +76,14 @@ public class SingleColumnRejectTypeIndexCreationIT extends BaseIT {
         CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
-    @Parameterized.Parameters(name = "{index}: {0} against type {2}.")
+    @Parameterized.Parameters(name = "{index}: {0} against cqlType {2}.")
     public static Collection regExValues() {
         List<Object[]> possibleValues = new ArrayList<>();
-        for (String mapperType : singleColumnMappersAcceptedTypes.keySet()) {
-            for (String rejectType : Sets.difference(ALL_CQL_TYPES, singleColumnMappersAcceptedTypes.get(mapperType)).immutableCopy()) {
-                possibleValues.add(new Object[]{mapperType, mapperByName.get(mapperType), rejectType, buildIndexMessage("column", rejectType)});
-            }
+        for (String acceptedType : singleColumnMappersAcceptedTypes.get(MAPPER_TYPE)) {
+            possibleValues.add(new Object[]{MAPPER_TYPE, mapperByName.get(MAPPER_TYPE), acceptedType});
+            possibleValues.add(new Object[]{MAPPER_TYPE, mapperByName.get(MAPPER_TYPE), listComposedType(acceptedType)});
+            possibleValues.add(new Object[]{MAPPER_TYPE, mapperByName.get(MAPPER_TYPE), setComposedType(acceptedType)});
+            possibleValues.add(new Object[]{MAPPER_TYPE, mapperByName.get(MAPPER_TYPE), mapComposedType(acceptedType)});
         }
         return possibleValues;
     }
