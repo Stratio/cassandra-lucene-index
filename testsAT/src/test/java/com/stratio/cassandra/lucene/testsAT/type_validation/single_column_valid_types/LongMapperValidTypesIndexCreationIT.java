@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.testsAT.type_validation;
+package com.stratio.cassandra.lucene.testsAT.type_validation.single_column_valid_types;
 
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.testsAT.BaseIT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsBuilder;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -27,21 +29,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.stratio.cassandra.lucene.builder.Builder.longMapper;
 import static com.stratio.cassandra.lucene.testsAT.type_validation.DataHelper.*;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(Parameterized.class)
-public class SingleColumnValidTypesIndexCreationIT extends BaseIT {
+public class LongMapperValidTypesIndexCreationIT extends BaseIT {
 
+    private static final String MAPPER_TYPE= "long";
     private final String mapperName;
     private final Mapper mapper;
     private final String cqlType;
     private static CassandraUtils utils;
     private static CassandraUtilsBuilder builder;
 
-    public SingleColumnValidTypesIndexCreationIT(String mapperName, Mapper mapper, String cqlType) {
+    public LongMapperValidTypesIndexCreationIT(String mapperName, Mapper mapper, String cqlType) {
         this.mapperName = mapperName;
         this.mapper = mapper;
         this.cqlType = cqlType;
@@ -75,13 +79,11 @@ public class SingleColumnValidTypesIndexCreationIT extends BaseIT {
     @Parameterized.Parameters(name = "{index}: {0} against cqlType {2}.")
     public static Collection regExValues() {
         List<Object[]> possibleValues = new ArrayList<>();
-        for (Mapper mapper : singleColumnMappersAcceptedTypes.keySet()) {
-            for (String acceptedType : singleColumnMappersAcceptedTypes.get(mapper)) {
-                possibleValues.add(new Object[]{mapper.getClass().getSimpleName(), mapper, acceptedType});
-                possibleValues.add(new Object[]{mapper.getClass().getSimpleName(), mapper, listComposedType(acceptedType)});
-                possibleValues.add(new Object[]{mapper.getClass().getSimpleName(), mapper, setComposedType(acceptedType)});
-                possibleValues.add(new Object[]{mapper.getClass().getSimpleName(), mapper, mapComposedType(acceptedType)});
-            }
+        for (String acceptedType : singleColumnMappersAcceptedTypes.get(MAPPER_TYPE)) {
+            possibleValues.add(new Object[]{MAPPER_TYPE, mapperByName.get(MAPPER_TYPE), acceptedType});
+            possibleValues.add(new Object[]{MAPPER_TYPE, mapperByName.get(MAPPER_TYPE), listComposedType(acceptedType)});
+            possibleValues.add(new Object[]{MAPPER_TYPE, mapperByName.get(MAPPER_TYPE), setComposedType(acceptedType)});
+            possibleValues.add(new Object[]{MAPPER_TYPE, mapperByName.get(MAPPER_TYPE), mapComposedType(acceptedType)});
         }
         return possibleValues;
     }
