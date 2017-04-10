@@ -224,7 +224,7 @@ public class Issue286IT extends BaseIT {
                                                      .createKeyspace();
         keyspacesToDrop.add(utils);
         utils.createTable(InvalidQueryException.class,
-                          "Invalid non-frozen collection type for PRIMARY KEY component telephones");
+                          "Invalid collection type for PRIMARY KEY component telephones");
     }
 
     @Test
@@ -241,7 +241,7 @@ public class Issue286IT extends BaseIT {
                                                      .createKeyspace();
         keyspacesToDrop.add(utils);
         utils.createTable(InvalidQueryException.class,
-                          "Invalid non-frozen collection type for PRIMARY KEY component telephones");
+                          "Invalid collection type for PRIMARY KEY component telephones");
     }
 
     @Test
@@ -258,7 +258,7 @@ public class Issue286IT extends BaseIT {
                                                      .createKeyspace();
         keyspacesToDrop.add(utils);
         utils.createTable(InvalidQueryException.class,
-                          "Non-frozen UDTs are not allowed inside collections: map<string, bigint>");
+                          "Non-frozen collections are not allowed inside collections: map<string, bigint>");
     }
 
     @Test
@@ -280,6 +280,6 @@ public class Issue286IT extends BaseIT {
                                                       .createUDTs();
         keyspacesToDrop.add(utils);
         utils.createTable(InvalidQueryException.class,
-                          "Invalid non-frozen user-defined type for PRIMARY KEY component address");
+                          "Non-frozen User-Defined types are not supported, please use frozen<>");
     }
 }
