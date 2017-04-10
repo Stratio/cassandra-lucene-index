@@ -19,9 +19,26 @@
 package com.stratio.cassandra.lucene.schema;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.analysis.ComplexAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.SnowballAnalyzerBuilder.SnowballAnalyzer;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.*;
+import com.stratio.cassandra.lucene.schema.mapping.BigDecimalMapper;
+import com.stratio.cassandra.lucene.schema.mapping.BigIntegerMapper;
+import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
+import com.stratio.cassandra.lucene.schema.mapping.BlobMapper;
+import com.stratio.cassandra.lucene.schema.mapping.BooleanMapper;
+import com.stratio.cassandra.lucene.schema.mapping.DateMapper;
+import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
+import com.stratio.cassandra.lucene.schema.mapping.DoubleMapper;
+import com.stratio.cassandra.lucene.schema.mapping.FloatMapper;
+import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
+import com.stratio.cassandra.lucene.schema.mapping.InetMapper;
+import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
+import com.stratio.cassandra.lucene.schema.mapping.LongMapper;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
+import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
+import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
@@ -29,8 +46,27 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.bigDecimalMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.bigIntegerMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.bitemporalMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.blobMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.booleanMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.classpathAnalyzer;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.dateMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.dateRangeMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.doubleMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.floatMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.geoPointMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.inetMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.integerMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.longMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.snowballAnalyzer;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.uuidMapper;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -292,6 +328,36 @@ public class SchemaBuilderTest {
         Mapper snowballMapper = schema.getMapper("snowball_text");
         assertTrue(snowballMapper instanceof TextMapper);
         assertEquals("Expected EnglishAnalyzer", EnglishAnalyzer.class.getName(), snowballMapper.analyzer);
+
+        schema.close();
+    }
+
+    @Test
+    public void testFromJSONWithComplexAnalyzer() throws IOException {
+        final String complexJson = "{" +
+                "type:\"complex\"," +
+                "tokenizer:{\"class\":\"ngram\", \"parameters\":[\"1\",\"2\"]}," +
+                "token_streams:[" +
+                "  {" +
+                "\"class\":\"stop\"," +
+                "\"parameters\":[null, \"a,an,and,are,as,at,be,but,by,for,if,in,into,is,it,no,not,of,on," +
+                "or,such,that,the,their,then,there,these,they,this,to,was,will,with\"]" +
+                "  }," +
+                "  {" +
+                "\"class\":\"org.apache.lucene.analysis.core.LowerCaseFilter\"," +
+                "\"parameters\":[null]" +
+                "  }," +
+                "  {" +
+                "\"class\":\"org.apache.lucene.analysis.standard.StandardFilter\"," +
+                "\"parameters\":[null]" +
+                "  }" +
+                "]}";
+        final String json = "{analyzers:{\"customandcomplex\":" + complexJson + "}, default_analyzer : \"customandcomplex\" }'";
+        final Schema schema = SchemaBuilder.fromJson(json).build();
+
+        final Analyzer defaultAnalyzer = schema.getDefaultAnalyzer();
+        assertNotNull(defaultAnalyzer);
+        assertTrue(ComplexAnalyzerBuilder.ComplexAnalyzer.class.isInstance(defaultAnalyzer));
 
         schema.close();
     }
