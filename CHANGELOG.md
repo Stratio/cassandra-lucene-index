@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.10.0 (upcoming)
+## 3.10.0 (April 11, 2017)
 
 * Fix collection columns indexing being part of clustering key (#286)
 * Upgrade to Apache Cassandra 3.10
