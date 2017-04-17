@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.13.0 (upcoming)
+## 3.0.13.0 (April 17, 2017)
 
 * Upgrade to Apache Cassandra 3.0.13
 
