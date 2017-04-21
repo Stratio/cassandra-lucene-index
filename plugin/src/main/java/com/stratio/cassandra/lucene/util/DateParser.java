@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.util;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import org.apache.cassandra.db.marshal.SimpleDateType;
+import org.apache.cassandra.serializers.SimpleDateSerializer;
 import org.apache.cassandra.utils.UUIDGen;
 
 import java.text.DateFormat;
@@ -33,12 +34,13 @@ import java.util.UUID;
  */
 public class DateParser {
 
-    static final Long DAYS_TO_MILLIS = 24L * 60L * 60L * 1000L;
     /** The default date pattern for {@code String}s. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS Z";
 
     /** The pattern value for timestamps. */
     public static final String TIMESTAMP_PATTERN_FIELD = "timestamp";
+
+    private static final Long DAYS_TO_MILLIS = 24L * 60L * 60L * 1000L;
 
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
@@ -49,7 +51,7 @@ public class DateParser {
     /**
      * Constructor with pattern.
      *
-     * @param pattern the {@link SimpleDateFormat} pattern to use.
+     * @param pattern the {@link SimpleDateFormat} pattern to use
      */
     public DateParser(String pattern) {
 
@@ -95,8 +97,8 @@ public class DateParser {
      * Returns the {@link Date} represented by the specified {@link Object}, or {@code null} if the specified  {@link
      * Object} is {@code null}.
      *
-     * @param value The {@link Object} to pe parsed.
-     * @return The {@link Date} represented by the specified {@link Object}.
+     * @param value the {@link Object} to be parsed
+     * @return the parsed {@link Date}
      */
     public Date parse(Object value) {
         if (value == null) {
@@ -105,13 +107,13 @@ public class DateParser {
             return (Date) value;
         } else if (value instanceof Integer) {
             if ((Integer) value < 0) {
-                throw new IndexException("Required positive Integer for dates but found '%s'", value);
+                throw new IndexException("Required positive Integer for dates but found '{}'", value);
             } else {
                 return new Date(DAYS_TO_MILLIS * (Integer) value);
             }
         } else if (value instanceof Long) {
             if ((Long) value < 0L) {
-                throw new IndexException("Required positive Long for dates but found '%s'", value);
+                throw new IndexException("Required positive Long for dates but found '{}'", value);
             } else {
                 return new Date((Long) value);
             }
@@ -119,7 +121,7 @@ public class DateParser {
             try {
                 return new Date(UUIDGen.unixTimestamp((UUID) value));
             } catch (UnsupportedOperationException e) {
-                throw new IndexException("Required a version 1 UUID but found '%s'", value);
+                throw new IndexException("Required a version 1 UUID but found '{}'", value);
             }
         } else {
             if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
@@ -144,7 +146,7 @@ public class DateParser {
         if (valueLong != null) {
             return new Date(valueLong);
         } else {
-            throw new IndexException("Valid timestamp required but found '%s'", value);
+            throw new IndexException("Valid timestamp required but found '{}'", value);
         }
     }
 
@@ -152,10 +154,11 @@ public class DateParser {
         try {
             return concurrentDateFormat.get().parse(value.toString());
         } catch (ParseException e) {
-            throw new IndexException("Required date with pattern '%s' but found '%s'", pattern, value);
+            throw new IndexException("Required date with pattern '{}' but found '{}'", pattern, value);
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return pattern;
@@ -164,8 +167,8 @@ public class DateParser {
     /**
      * Returns the {@link String} representation of the specified {@link Date}.
      *
-     * @param date A {@link Date}.
-     * @return The {@link String} representation of the specified {@link Date}.
+     * @param date the date
+     * @return the {@link String} representation of {@code Date}
      */
     public String toString(Date date) {
         if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
