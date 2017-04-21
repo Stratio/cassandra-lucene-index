@@ -157,7 +157,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      *
      * @param <T> the base type
      */
-    public abstract static class SingleFieldMapper<T extends Comparable<T>> extends SingleColumnMapper<T> {
+    public static abstract class SingleFieldMapper<T extends Comparable<T>> extends SingleColumnMapper<T> {
 
         /**
          * Builds a new {@link SingleFieldMapper} supporting the specified types for indexing and clustering.
