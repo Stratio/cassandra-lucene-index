@@ -18,6 +18,9 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
@@ -26,6 +29,8 @@ import static org.junit.Assert.assertEquals;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class AbstractMapperTest {
+
+    public static final Logger logger = LoggerFactory.getLogger("TEST");
 
     protected void testJson(MapperBuilder<?, ?> mapperBuilder, String json) {
         try {
