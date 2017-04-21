@@ -25,7 +25,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
 import javax.validation.constraints.NotNull;
-import java.nio.ByteBuffer;
 import java.util.Collections;
 
 /**
@@ -80,7 +79,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
-        for (Column col : columns.getColumnsByMapperName(column)){
+        for (Column col : columns.getColumnsByMapperName(column)) {
             addFields(document, col);
         }
         //columns.getColumnsByMapperName(column).forEach(c -> addFields(document, c));
@@ -185,7 +184,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
         @Override
         public void addIndexedFields(Document document, String name, T value) {
             Field field = indexedField(name, value);
-            if (null != field){
+            if (field != null) {
                 document.add(field);
             }
         }
@@ -194,7 +193,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
         @Override
         public void addSortedFields(Document document, String name, T value) {
             Field field = sortedField(name, value);
-            if (null != field){
+            if (field != null) {
                 document.add(field);
             }
         }
