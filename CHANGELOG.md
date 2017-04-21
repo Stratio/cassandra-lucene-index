@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.9.1 (April 20, 2017)
+## 2.2.9.1 (upcoming)
 
 * Fix parsing of data with CQL "date" type (#158)
 
