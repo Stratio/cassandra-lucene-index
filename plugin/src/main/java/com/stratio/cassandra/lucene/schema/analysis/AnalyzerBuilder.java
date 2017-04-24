@@ -26,7 +26,8 @@ import org.apache.lucene.analysis.Analyzer;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = ClasspathAnalyzerBuilder.class, name = "classpath"),
-               @JsonSubTypes.Type(value = SnowballAnalyzerBuilder.class, name = "snowball")})
+               @JsonSubTypes.Type(value = SnowballAnalyzerBuilder.class, name = "snowball"),
+               @JsonSubTypes.Type(value = CustomAnalyzerBuilder.class, name = "custom")})
 public abstract class AnalyzerBuilder {
 
     /**
