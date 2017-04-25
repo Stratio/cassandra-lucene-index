@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.9.1 (upcoming)
+
+* Fix sorting by CQL "date" type (#313)
+
 ## 2.2.9.0 (April 03, 2017)
 
 * Upgrade to Apache Cassandra 2.2.9
