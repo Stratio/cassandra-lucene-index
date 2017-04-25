@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.util;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
+import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.SimpleDateType;
 import org.apache.cassandra.utils.UUIDGen;
 
@@ -33,13 +34,11 @@ import java.util.UUID;
  */
 public class DateParser {
 
-    static final Long DAYS_TO_MILLIS = 24L * 60L * 60L * 1000L;
     /** The default date pattern for {@code String}s. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS Z";
-
     /** The pattern value for timestamps. */
     public static final String TIMESTAMP_PATTERN_FIELD = "timestamp";
-
+    static final Long DAYS_TO_MILLIS = 24L * 60L * 60L * 1000L;
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
 
@@ -71,8 +70,7 @@ public class DateParser {
     }
 
     /**
-     * Returns the {@link Date} represented by the specified {@link Column}, or {@code null} if the value of the
-     * specified {@link Column} is {@code null}.
+     * Returns the {@link Date} represented by the specified {@link Column}, or {@code null} if the value of the specified {@link Column} is {@code null}.
      *
      * @param column the column to be parsed
      * @return the parsed {@link Date}
@@ -87,13 +85,26 @@ public class DateParser {
                 return new Date(timestamp - offset);
             }
         } else {
-            return parse(column.getComposedValue());
+            return parse(column.getComposedValue(), column.getType());
+        }
+    }
+
+    private Date parse(Object value, AbstractType<?> type) {
+        if (type.getClass().equals(SimpleDateType.class)) {
+            long timestamp = SimpleDateType.instance.toTimeInMillis(SimpleDateType.instance.getSerializer().serialize((Integer) value));
+            if (concurrentDateFormat == null) {
+                return new Date(timestamp);
+            } else {
+                int offset = concurrentDateFormat.get().getTimeZone().getOffset(timestamp);
+                return new Date(timestamp - offset);
+            }
+        } else {
+            return parse(value);
         }
     }
 
     /**
-     * Returns the {@link Date} represented by the specified {@link Object}, or {@code null} if the specified  {@link
-     * Object} is {@code null}.
+     * Returns the {@link Date} represented by the specified {@link Object}, or {@code null} if the specified  {@link Object} is {@code null}.
      *
      * @param value The {@link Object} to pe parsed.
      * @return The {@link Date} represented by the specified {@link Object}.
