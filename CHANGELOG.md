@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.9.1 (upcoming)
+## 2.2.9.1 (April 25, 2017)
 
 * Fix sorting by CQL "date" type (#313)
 
