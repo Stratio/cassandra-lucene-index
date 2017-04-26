@@ -22,7 +22,7 @@ import org.apache.lucene.analysis.core.LowerCaseTokenizer;
  *
  * @author Juan Pedro Gilaberte {@literal <jpgilaberte@stratio.com>}
  */
-public class LowerCaseTokenizerBuilder extends TokenizerBuilder<LowerCaseTokenizer>{
+public class LowerCaseTokenizerBuilder extends TokenizerBuilder<LowerCaseTokenizer> {
 
     /** {@inheritDoc} */
     @Override

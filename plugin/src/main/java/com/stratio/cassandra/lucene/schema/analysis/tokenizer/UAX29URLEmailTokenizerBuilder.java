@@ -39,7 +39,7 @@ public class UAX29URLEmailTokenizerBuilder extends TokenizerBuilder<UAX29URLEmai
      */
     @JsonCreator
     public UAX29URLEmailTokenizerBuilder(@JsonProperty("max_token_length") Integer maxTokenLength) {
-        this.maxTokenLength = getOrDefault(maxTokenLength,DEFAULT_MAX_TOKEN_LENGTH);
+        this.maxTokenLength = getOrDefault(maxTokenLength, DEFAULT_MAX_TOKEN_LENGTH);
 
     }
 

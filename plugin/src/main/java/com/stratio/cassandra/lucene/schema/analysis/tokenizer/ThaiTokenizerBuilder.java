@@ -26,5 +26,7 @@ public class ThaiTokenizerBuilder extends TokenizerBuilder<ThaiTokenizer> {
 
     /** {@inheritDoc} */
     @Override
-    public ThaiTokenizer buildTokenizer() {return new ThaiTokenizer(); }
+    public ThaiTokenizer buildTokenizer() {
+        return new ThaiTokenizer();
+    }
 }

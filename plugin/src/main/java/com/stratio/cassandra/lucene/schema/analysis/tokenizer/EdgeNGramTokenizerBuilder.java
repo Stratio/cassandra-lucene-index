@@ -24,7 +24,7 @@ import org.apache.lucene.analysis.ngram.EdgeNGramTokenizer;
  *
  * @author Juan Pedro Gilaberte {@literal <jpgilaberte@stratio.com>}
  */
-public class EdgeNGramTokenizerBuilder extends TokenizerBuilder<EdgeNGramTokenizer>{
+public class EdgeNGramTokenizerBuilder extends TokenizerBuilder<EdgeNGramTokenizer> {
 
     /** the smallest n-gram to generate */
     @JsonProperty("min_gram")
@@ -42,7 +42,7 @@ public class EdgeNGramTokenizerBuilder extends TokenizerBuilder<EdgeNGramTokeniz
      */
     @JsonCreator
     public EdgeNGramTokenizerBuilder(@JsonProperty("min_gram") Integer minGram,
-                                 @JsonProperty("max_gram") Integer maxGram) {
+                                     @JsonProperty("max_gram") Integer maxGram) {
         this.minGram = getOrDefault(minGram, EdgeNGramTokenizer.DEFAULT_MIN_GRAM_SIZE);
         this.maxGram = getOrDefault(maxGram, EdgeNGramTokenizer.DEFAULT_MAX_GRAM_SIZE);
     }
@@ -52,6 +52,5 @@ public class EdgeNGramTokenizerBuilder extends TokenizerBuilder<EdgeNGramTokeniz
     public EdgeNGramTokenizer buildTokenizer() {
         return new EdgeNGramTokenizer(minGram, maxGram);
     }
-
 
 }

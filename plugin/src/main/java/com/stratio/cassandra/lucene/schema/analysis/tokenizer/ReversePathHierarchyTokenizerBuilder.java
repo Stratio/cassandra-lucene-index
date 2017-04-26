@@ -48,7 +48,8 @@ public class ReversePathHierarchyTokenizerBuilder extends TokenizerBuilder<Rever
     final Integer skip;
 
     /**
-     * Builds a new {@link ReversePathHierarchyTokenizerBuilder} using the specified bufferSize, delimiter, replacement and skip.
+     * Builds a new {@link ReversePathHierarchyTokenizerBuilder} using the specified bufferSize, delimiter, replacement
+     * and skip.
      *
      * @param bufferSize terms cache read buffer size
      * @param delimiter path separator

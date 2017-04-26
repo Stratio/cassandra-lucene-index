@@ -54,7 +54,7 @@ public abstract class TokenizerBuilder<T extends Tokenizer> {
      * @return if (param!=null) { return param; }else{ return defaultParam; }
      */
     public static <T> T getOrDefault(T param, T defaultParam) {
-        if (param==null) {
+        if (param == null) {
             return defaultParam;
         } else {
             return param;

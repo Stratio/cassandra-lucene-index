@@ -67,6 +67,7 @@ public class WikipediaTokenizerBuilder extends TokenizerBuilder<WikipediaTokeniz
             return stringValue;
         }
     }
+
     /** this tokenizer output, only untokenized, only tokens or both */
     @JsonProperty("token_output")
     final TokenOutputValue tokenOutput;
@@ -92,6 +93,5 @@ public class WikipediaTokenizerBuilder extends TokenizerBuilder<WikipediaTokeniz
     public WikipediaTokenizer buildTokenizer() {
         return new WikipediaTokenizer(tokenOutput.getIntegerValue(), untokenizedTypes);
     }
-
 
 }
