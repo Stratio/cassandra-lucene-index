@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.10.1 (upcoming)
+
+* Upgrade to Apache Lucene 5.5.4
+
 ## 3.10.0 (April 11, 2017)
 
 * Fix collection columns indexing being part of clustering key (#286)
