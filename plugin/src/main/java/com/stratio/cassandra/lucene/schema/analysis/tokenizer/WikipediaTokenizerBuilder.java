@@ -32,32 +32,6 @@ public class WikipediaTokenizerBuilder extends TokenizerBuilder<WikipediaTokeniz
     static final TokenOutputValue DEFAULT_TOKEN_OUTPUT = TokenOutputValue.TOKENS_ONLY;
     static final Set<String> DEFAULT_UNTOKENIZED_TYPES = Collections.emptySet();
 
-    /** this tokenizer output, only untokenized, only tokens or both */
-    @JsonProperty("token_output")
-    final TokenOutputValue tokenOutput;
-    /** //TODO */
-    @JsonProperty("untokenized_types")
-    final Set<String> untokenizedTypes;
-
-    /**
-     * Builds a new {@link WikipediaTokenizerBuilder} using the specified tokenOutput and untokenizedTypes.
-     *
-     * @param tokenOutput this tokenizer output, only untokenized, only tokens or both
-     * @param untokenizedTypes //TODO
-     */
-    @JsonCreator
-    public WikipediaTokenizerBuilder(@JsonProperty("token_output") TokenOutputValue tokenOutput,
-                                     @JsonProperty("untokenized_types") Set<String> untokenizedTypes) {
-        this.tokenOutput = getOrDefault(tokenOutput, DEFAULT_TOKEN_OUTPUT);
-        this.untokenizedTypes = getOrDefault(untokenizedTypes, DEFAULT_UNTOKENIZED_TYPES);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public WikipediaTokenizer buildTokenizer() {
-        return new WikipediaTokenizer(tokenOutput.getIntegerValue(), untokenizedTypes);
-    }
-
     public enum TokenOutputValue {
 
         TOKENS_ONLY("TOKENS_ONLY", WikipediaTokenizer.TOKENS_ONLY),
@@ -93,4 +67,31 @@ public class WikipediaTokenizerBuilder extends TokenizerBuilder<WikipediaTokeniz
             return stringValue;
         }
     }
+    /** this tokenizer output, only untokenized, only tokens or both */
+    @JsonProperty("token_output")
+    final TokenOutputValue tokenOutput;
+    /** //TODO */
+    @JsonProperty("untokenized_types")
+    final Set<String> untokenizedTypes;
+
+    /**
+     * Builds a new {@link WikipediaTokenizerBuilder} using the specified tokenOutput and untokenizedTypes.
+     *
+     * @param tokenOutput this tokenizer output, only untokenized, only tokens or both
+     * @param untokenizedTypes //TODO
+     */
+    @JsonCreator
+    public WikipediaTokenizerBuilder(@JsonProperty("token_output") WikipediaTokenizerBuilder.TokenOutputValue tokenOutput,
+                                     @JsonProperty("untokenized_types") Set<String> untokenizedTypes) {
+        this.tokenOutput = getOrDefault(tokenOutput, DEFAULT_TOKEN_OUTPUT);
+        this.untokenizedTypes = getOrDefault(untokenizedTypes, DEFAULT_UNTOKENIZED_TYPES);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public WikipediaTokenizer buildTokenizer() {
+        return new WikipediaTokenizer(tokenOutput.getIntegerValue(), untokenizedTypes);
+    }
+
+
 }

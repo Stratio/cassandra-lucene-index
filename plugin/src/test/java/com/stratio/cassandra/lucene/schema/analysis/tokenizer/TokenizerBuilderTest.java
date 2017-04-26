@@ -3,10 +3,8 @@ package com.stratio.cassandra.lucene.schema.analysis.tokenizer;
 import com.google.common.collect.Sets;
 import com.stratio.cassandra.lucene.common.JsonSerializer;
 import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.core.KeywordTokenizer;
-import org.apache.lucene.analysis.core.LetterTokenizer;
-import org.apache.lucene.analysis.core.UnicodeWhitespaceTokenizer;
-import org.apache.lucene.analysis.core.WhitespaceTokenizer;
+import org.apache.lucene.analysis.core.*;
+import org.apache.lucene.analysis.ngram.EdgeNGramTokenizer;
 import org.apache.lucene.analysis.ngram.NGramTokenizer;
 import org.apache.lucene.analysis.path.PathHierarchyTokenizer;
 import org.apache.lucene.analysis.path.ReversePathHierarchyTokenizer;
@@ -14,6 +12,7 @@ import org.apache.lucene.analysis.pattern.PatternTokenizer;
 import org.apache.lucene.analysis.standard.ClassicTokenizer;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.standard.UAX29URLEmailTokenizer;
+import org.apache.lucene.analysis.th.ThaiTokenizer;
 import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
 import org.junit.Test;
 
@@ -97,6 +96,16 @@ public class TokenizerBuilderTest {
     }
 
     @Test
+    public void testLowerCaseTokenizerValidJSON() {
+        assertBuilderAndTokenizer("{type: \"lower_case\"}", LowerCaseTokenizerBuilder.class, LowerCaseTokenizer.class);
+    }
+
+    @Test
+    public void testThaiTokenizerValidJSON() {
+        assertBuilderAndTokenizer("{type: \"thai\"}", ThaiTokenizerBuilder.class, ThaiTokenizer.class);
+    }
+
+    @Test
     public void testNGramTokenizerValidJSON() {
         String json = "{type: \"ngram\", min_gram: 1, max_gram: 1}";
         NGramTokenizerBuilder builder = assertBuilderAndTokenizer(json, NGramTokenizerBuilder.class, NGramTokenizer.class);
@@ -115,6 +124,27 @@ public class TokenizerBuilderTest {
     @Test(expected = IOException.class)
     public void testNGramTokenizerInvalidJSON() throws IOException {
         assertJsonParseFail("{type: \"ngram\", min_am: 1, max_gram: 1}");
+    }
+
+    @Test
+    public void testEdgeNGramTokenizerValidJSON() {
+        String json = "{type: \"edge_ngram\", min_gram: 1, max_gram: 1}";
+        EdgeNGramTokenizerBuilder builder = assertBuilderAndTokenizer(json, EdgeNGramTokenizerBuilder.class, EdgeNGramTokenizer.class);
+        assertExactValue("EdgeNGramTokenizerBuilder.min_gram", 1, builder.minGram);
+        assertExactValue("EdgeNGramTokenizerBuilder.max_gram", 1, builder.maxGram);
+    }
+
+    @Test
+    public void testEdgeNGramTokenizerDefaultValues() {
+        String json = "{type: \"edge_ngram\"}";
+        EdgeNGramTokenizerBuilder builder = assertBuilderAndTokenizer(json, EdgeNGramTokenizerBuilder.class, EdgeNGramTokenizer.class);
+        assertExactValue("EdgeNGramTokenizerBuilder.min_gram", EdgeNGramTokenizer.DEFAULT_MIN_GRAM_SIZE, builder.minGram);
+        assertExactValue("EdgeNGramTokenizerBuilder.max_gram", EdgeNGramTokenizer.DEFAULT_MAX_GRAM_SIZE, builder.maxGram);
+    }
+
+    @Test(expected = IOException.class)
+    public void testEdgeNGramTokenizerInvalidJSON() throws IOException {
+        assertJsonParseFail("{type: \"edge_ngram\", min_am: 1, max_gram: 1}");
     }
 
     @Test
@@ -258,5 +288,10 @@ public class TokenizerBuilderTest {
     @Test(expected = IOException.class)
     public void testWikipediaTokenizerInvalidJSON() throws IOException {
         assertJsonParseFail("{type: \"wikipedia\", token_output: \"TOKENS_ONLY\", untoknized_types : [\"aaa\",\"bbb\"]}");
+    }
+
+    @Test(expected = IOException.class)
+    public void testInvalidTokenizerType() throws IOException {
+        assertJsonParseFail("{type: \"invalid_type\"}");
     }
 }

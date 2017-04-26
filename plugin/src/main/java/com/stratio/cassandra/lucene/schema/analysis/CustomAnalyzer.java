@@ -19,7 +19,7 @@ public class CustomAnalyzer extends Analyzer {
     }
 
     @Override
-    protected TokenStreamComponents createComponents(String fieldName) {
+    protected Analyzer.TokenStreamComponents createComponents(String fieldName) {
 
         TokenStream ts = tokenizer;
 

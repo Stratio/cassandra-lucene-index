@@ -24,8 +24,10 @@ import org.apache.lucene.analysis.Tokenizer;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = ClassicTokenizerBuilder.class, name = "classic"),
+               @JsonSubTypes.Type(value = EdgeNGramTokenizerBuilder.class, name = "edge_ngram"),
                @JsonSubTypes.Type(value = KeywordTokenizerBuilder.class, name = "keyword"),
                @JsonSubTypes.Type(value = LetterTokenizerBuilder.class, name = "letter"),
+               @JsonSubTypes.Type(value = LowerCaseTokenizerBuilder.class, name = "lower_case"),
                @JsonSubTypes.Type(value = NGramTokenizerBuilder.class, name = "ngram"),
                @JsonSubTypes.Type(value = PathHierarchyTokenizerBuilder.class, name = "path_hierarchy"),
                @JsonSubTypes.Type(value = PatternTokenizerBuilder.class, name = "pattern"),
@@ -33,6 +35,7 @@ import org.apache.lucene.analysis.Tokenizer;
                @JsonSubTypes.Type(value = StandardTokenizerBuilder.class, name = "standard"),
                @JsonSubTypes.Type(value = UAX29URLEmailTokenizerBuilder.class, name = "uax29_url_email"),
                @JsonSubTypes.Type(value = UnicodeWhitespaceTokenizerBuilder.class, name = "unicode_whitespace"),
+               @JsonSubTypes.Type(value = ThaiTokenizerBuilder.class, name = "thai"),
                @JsonSubTypes.Type(value = WhitespaceTokenizerBuilder.class, name = "whitespace"),
                @JsonSubTypes.Type(value = WikipediaTokenizerBuilder.class, name = "wikipedia")})
 public abstract class TokenizerBuilder<T extends Tokenizer> {
