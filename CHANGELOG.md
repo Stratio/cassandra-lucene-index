@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.13.1 (upcoming)
+
+*Upgrade to Apache Lucene 5.5.4
+
 ## 3.0.13.0 (April 17, 2017)
 
 * Upgrade to Apache Cassandra 3.0.13
