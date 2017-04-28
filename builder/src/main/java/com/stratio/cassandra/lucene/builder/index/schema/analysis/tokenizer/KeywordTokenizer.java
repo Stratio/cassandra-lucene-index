@@ -13,28 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.schema.analysis.tokenizer;
+package com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenizer;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.lucene.analysis.th.ThaiTokenizer;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * A {@link ThaiTokenizer} for building {@link org.apache.lucene.analysis.th.ThaiTokenizer}
+ * {@link Tokenizer} using a Lucene's {@code Tokenizer}s in classpath.
+ *
+ * It's uses the {@code Tokenizer}'s default (no args) constructor.
  *
  * @author Juan Pedro Gilaberte {@literal <jpgilaberte@stratio.com>}
  */
-public class ThaiTokenizerBuilder extends TokenizerBuilder<ThaiTokenizer> {
+public class KeywordTokenizer extends Tokenizer {
+
+    static final Integer DEFAULT_BUFFER_SIZE = 256;
+
+    /** terms cache read buffer size */
+    @JsonProperty("buffer_size")
+    final Integer bufferSize;
 
     /**
-     * Builds a new {@link ThaiTokenizerBuilder}
+     * Builds a new {@link KeywordTokenizer} using the specified buffer_size.
+     *
+     * @param bufferSize the terms cache read buffer size
      */
     @JsonCreator
-    public ThaiTokenizerBuilder() {
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public ThaiTokenizer buildTokenizer() {
-        return new ThaiTokenizer();
+    public KeywordTokenizer(@JsonProperty("buffer_size") Integer bufferSize) {
+        this.bufferSize = getOrDefault(bufferSize, DEFAULT_BUFFER_SIZE);
     }
 }

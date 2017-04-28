@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.schema.analysis.tokenizer;
+package com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenizer;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.lucene.analysis.ngram.EdgeNGramTokenizer;
 
 /**
- * A {@link EdgeNGramTokenizerBuilder} for building {@link org.apache.lucene.analysis.ngram.EdgeNGramTokenizer}
+ * {@link Tokenizer} using a Lucene's {@code Tokenizer}s in classpath.
+ *
+ * It's uses the {@code Tokenizer}'s default (no args) constructor.
  *
  * @author Juan Pedro Gilaberte {@literal <jpgilaberte@stratio.com>}
  */
-public class EdgeNGramTokenizerBuilder extends TokenizerBuilder<EdgeNGramTokenizer> {
+public class NGramTokenizer extends Tokenizer {
 
     static final Integer DEFAULT_MIN_GRAM = 1;
-    static final Integer DEFAULT_MAX_GRAM = 1;
+    static final Integer DEFAULT_MAX_GRAM = 2;
 
     /** the smallest n-gram to generate */
     @JsonProperty("min_gram")
@@ -38,22 +39,15 @@ public class EdgeNGramTokenizerBuilder extends TokenizerBuilder<EdgeNGramTokeniz
     final Integer maxGram;
 
     /**
-     * Builds a new {@link EdgeNGramTokenizerBuilder} using the specified minGram and manGram.
+     * Builds a new {@link NGramTokenizer} using the specified minGram and manGram.
      *
      * @param minGram the smallest n-gram to generate
      * @param minGram the largest n-gram to generate
      */
     @JsonCreator
-    public EdgeNGramTokenizerBuilder(@JsonProperty("min_gram") Integer minGram,
-                                     @JsonProperty("max_gram") Integer maxGram) {
+    public NGramTokenizer(@JsonProperty("min_gram") Integer minGram,
+                          @JsonProperty("max_gram") Integer maxGram) {
         this.minGram = getOrDefault(minGram, DEFAULT_MIN_GRAM);
         this.maxGram = getOrDefault(maxGram, DEFAULT_MAX_GRAM);
     }
-
-    /** {@inheritDoc} */
-    @Override
-    public EdgeNGramTokenizer buildTokenizer() {
-        return new EdgeNGramTokenizer(minGram, maxGram);
-    }
-
 }
