@@ -31,7 +31,7 @@ import org.apache.commons.lang3.StringUtils.EMPTY
   * @param cell the name of the base cell
   * @param udt the UDT suffix
   * @param map the map suffix
-  * @param value    the optional value
+  * @param value the optional value
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 case class Column(cell: String,

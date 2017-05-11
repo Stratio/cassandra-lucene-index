@@ -18,7 +18,7 @@ package com.stratio.cassandra.lucene.search.condition.builder;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.common.GeoOperation;
-import com.stratio.cassandra.lucene.common.GeoShape;
+import com.stratio.cassandra.lucene.common.GeoShapes;
 import com.stratio.cassandra.lucene.common.JTSNotFoundException;
 import com.stratio.cassandra.lucene.search.condition.GeoBBoxCondition;
 import com.stratio.cassandra.lucene.search.condition.GeoShapeCondition;
@@ -36,7 +36,7 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
 
     /** The shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format. */
     @JsonProperty("shape")
-    private final GeoShape shape;
+    private final GeoShapes.GeoShape shape;
 
     /** The spatial operation to be applied. */
     @JsonProperty("operation")
@@ -49,7 +49,7 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
      * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
      */
     @JsonCreator
-    public GeoShapeConditionBuilder(@JsonProperty("field") String field, @JsonProperty("shape") GeoShape shape) {
+    public GeoShapeConditionBuilder(@JsonProperty("field") String field, @JsonProperty("shape") GeoShapes.GeoShape shape) {
         this.field = field;
         this.shape = shape;
     }

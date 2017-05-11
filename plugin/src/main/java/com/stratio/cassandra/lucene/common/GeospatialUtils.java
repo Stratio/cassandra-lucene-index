@@ -22,7 +22,7 @@ import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 /**
  * Utilities for geospatial related stuff.
  *
- * @author Andres de la Pena {@literal <adelapena@stratio.com>}
+ * @author Andres de la Pena `adelapena@stratio.com`
  */
 public class GeospatialUtils {
 
@@ -30,16 +30,17 @@ public class GeospatialUtils {
     public static final SpatialContext CONTEXT = SpatialContext.GEO;
 
     /** The min accepted longitude. */
-    public static final double MIN_LATITUDE = -90.0;
+    private static final Double MIN_LATITUDE = -90.0;
 
     /** The max accepted longitude. */
-    public static final double MAX_LATITUDE = 90.0;
+    private static final Double MAX_LATITUDE = 90.0;
 
     /** The min accepted longitude. */
-    public static final double MIN_LONGITUDE = -180.0;
+    private static final Double MIN_LONGITUDE = -180.0;
 
     /** The max accepted longitude. */
-    public static final double MAX_LONGITUDE = 180.0;
+    private static final Double MAX_LONGITUDE = 180.0;
+
 
     /**
      * Checks if the specified max levels is correct.
@@ -48,12 +49,13 @@ public class GeospatialUtils {
      * @param defaultMaxLevels the default max number of levels
      * @return the validated max levels
      */
-    public static int validateGeohashMaxLevels(Integer userMaxLevels, int defaultMaxLevels) {
-        int maxLevels = userMaxLevels == null ? defaultMaxLevels : userMaxLevels;
-        if (maxLevels < 1 || maxLevels > GeohashPrefixTree.getMaxLevelsPossible()) {
+    public static int validateGeohashMaxLevels(Integer userMaxLevels,Integer defaultMaxLevels ) {
+        Integer maxLevels = defaultMaxLevels;
+        if (userMaxLevels != null) maxLevels= userMaxLevels;
+        if ((maxLevels < 1) || (maxLevels > GeohashPrefixTree.getMaxLevelsPossible())) {
             throw new IndexException("max_levels must be in range [1, {}], but found {}",
-                                     GeohashPrefixTree.getMaxLevelsPossible(),
-                                     maxLevels);
+                    GeohashPrefixTree.getMaxLevelsPossible(),
+                    maxLevels);
         }
         return maxLevels;
     }
@@ -70,10 +72,10 @@ public class GeospatialUtils {
             throw new IndexException("{} required", name);
         } else if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
             throw new IndexException("{} must be in range [{}, {}], but found {}",
-                                     name,
-                                     MIN_LATITUDE,
-                                     MAX_LATITUDE,
-                                     latitude);
+                    name,
+                    MIN_LATITUDE,
+                    MAX_LATITUDE,
+                    latitude);
         }
         return latitude;
     }
@@ -90,10 +92,10 @@ public class GeospatialUtils {
             throw new IndexException("{} required", name);
         } else if (longitude < MIN_LONGITUDE || longitude > MAX_LONGITUDE) {
             throw new IndexException("{} must be in range [{}, {}], but found {}",
-                                     name,
-                                     MIN_LONGITUDE,
-                                     MAX_LONGITUDE,
-                                     longitude);
+                    name,
+                    MIN_LONGITUDE,
+                    MAX_LONGITUDE,
+                    longitude);
         }
         return longitude;
     }

@@ -18,7 +18,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.google.common.base.MoreObjects;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.common.GeoTransformation;
+import com.stratio.cassandra.lucene.common.GeoTransformations;
 import com.stratio.cassandra.lucene.common.GeospatialUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.IndexableField;
@@ -64,7 +64,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
     public final CompositeSpatialStrategy strategy;
 
     /** The sequence of transformations to be applied to the shape before indexing. */
-    public final List<GeoTransformation> transformations;
+    public final List<GeoTransformations.GeoTransformation> transformations;
 
     /**
      * Builds a new {@link GeoShapeMapper}.
@@ -81,7 +81,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
                           String column,
                           Boolean validated,
                           Integer maxLevels,
-                          List<GeoTransformation> transformations) {
+                          List<GeoTransformations.GeoTransformation> transformations) {
         super(field, column, false, validated, null, String.class, TEXT_TYPES);
 
         this.column = column == null ? field : column;
@@ -104,7 +104,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
     @Override
     public List<IndexableField> indexableFields(String name, String value) {
         JtsGeometry shape = geometry(value);
-        for (GeoTransformation transformation : transformations) {
+        for (GeoTransformations.GeoTransformation transformation : transformations) {
             shape = transformation.apply(shape);
         }
         return Arrays.asList(strategy.createIndexableFields(shape));

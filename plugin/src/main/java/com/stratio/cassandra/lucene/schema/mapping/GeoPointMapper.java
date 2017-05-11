@@ -42,6 +42,7 @@ import static com.stratio.cassandra.lucene.common.GeospatialUtils.CONTEXT;
  */
 public class GeoPointMapper extends MultipleColumnMapper {
 
+
     /** The default max number of levels for geohash search trees. */
     public static final int DEFAULT_MAX_LEVELS = 11;
 

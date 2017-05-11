@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.common;
+package com.stratio.cassandra.lucene.common
 
 /**
  * Class for building complex objects.
  *
- * @param <T> The type of the object to be built.
- * @author Andres de la Pena {@literal <adelapena@stratio.com>}
+ * @tparam T The type of the object to be built.
+ * @author Andres de la Pena `adelapena@stratio.com`
  */
-public interface Builder<T> {
+trait Builder[T] {
 
     /**
      * Returns the object represented by this builder.
      *
-     * @return the built object
+     * @return the T built object
      */
-    T build();
+    def build : T
 }

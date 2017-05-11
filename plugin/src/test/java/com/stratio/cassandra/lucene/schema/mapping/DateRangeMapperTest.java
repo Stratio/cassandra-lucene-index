@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.common.DateParser;
 import com.stratio.cassandra.lucene.schema.mapping.builder.DateRangeMapperBuilder;
 import org.apache.cassandra.utils.UUIDGen;
 import org.apache.lucene.document.Field;
@@ -35,6 +36,8 @@ import static org.junit.Assert.*;
 
 public class DateRangeMapperTest extends AbstractMapperTest {
 
+    private static final String DEFAULT_PATTERN = DateParser.DEFAULT_PATTERN();
+
     @Test
     public void testConstructorWithDefaultArgs() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").build("field");
@@ -44,7 +47,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         assertEquals("Mapped columns are not properly set", 2, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("to"));
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("from"));
-        assertEquals("Date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.pattern);
+        assertEquals("Date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.getPattern());
         assertNotNull("Strategy is not set to default value", mapper.strategy);
     }
 
@@ -56,7 +59,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         assertEquals("Name is not properly set", "field", mapper.field);
         assertEquals("From is not properly set", "from", mapper.from);
         assertEquals("To is not properly set", "to", mapper.to);
-        assertEquals("Date pattern is not set to default value", "yyyyMMdd", mapper.parser.pattern);
+        assertEquals("Date pattern is not set to default value", "yyyyMMdd", mapper.parser.getPattern());
         assertNotNull("Strategy is not properly set", mapper.strategy);
     }
 

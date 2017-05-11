@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.common;
 
 import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.stratio.cassandra.lucene.common.GeospatialUtilsJTS;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.common.GeospatialUtilsJTS.geometry;

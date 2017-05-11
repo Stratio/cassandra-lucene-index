@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.DateParser;
 import com.stratio.cassandra.lucene.schema.mapping.builder.DateMapperBuilder;
 import org.apache.cassandra.utils.UUIDGen;
 import org.apache.lucene.document.Field;
@@ -29,11 +30,11 @@ import java.util.Date;
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.dateMapper;
-import static com.stratio.cassandra.lucene.common.DateParser.DEFAULT_PATTERN;
 import static org.junit.Assert.*;
 
 public class DateMapperTest extends AbstractMapperTest {
 
+    private static final String DEFAULT_PATTERN = DateParser.DEFAULT_PATTERN();
     @Test
     public void testConstructorWithoutArgs() {
         DateMapper mapper = new DateMapperBuilder().build("field");
@@ -42,7 +43,7 @@ public class DateMapperTest extends AbstractMapperTest {
         assertEquals("Column is not set to default value", "field", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
-        assertEquals("Date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.pattern);
+        assertEquals("Date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.getPattern());
     }
 
     @Test
@@ -53,7 +54,7 @@ public class DateMapperTest extends AbstractMapperTest {
         assertEquals("Column is not properly set", "column", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
-        assertEquals("Date pattern is not set to default value", "yyyy-MM-dd", mapper.parser.pattern);
+        assertEquals("Date pattern is not set to default value", "yyyy-MM-dd", mapper.parser.getPattern());
     }
 
     @Test

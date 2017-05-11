@@ -16,17 +16,17 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
+import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Circle;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.common.GeoDistance;
-import com.stratio.cassandra.lucene.common.GeoDistanceUnit;
-import com.stratio.cassandra.lucene.common.GeospatialUtils;
+import com.stratio.cassandra.lucene.common.*;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
+import scala.Some;
 
 import static com.stratio.cassandra.lucene.common.GeospatialUtils.CONTEXT;
 import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
@@ -70,8 +70,8 @@ public class GeoDistanceCondition extends GeospatialCondition {
                                 GeoDistance maxGeoDistance) {
         super(boost, field, "geo_distance");
 
-        this.latitude = GeospatialUtils.checkLatitude("latitude", latitude);
-        this.longitude = GeospatialUtils.checkLongitude("longitude", longitude);
+        this.latitude = GeospatialUtils.checkLatitude("latitude",latitude);
+        this.longitude = GeospatialUtils.checkLongitude("longitude",longitude);
 
         if (maxGeoDistance == null) {
             throw new IndexException("max_distance must be provided");
@@ -80,7 +80,7 @@ public class GeoDistanceCondition extends GeospatialCondition {
         this.maxGeoDistance = maxGeoDistance;
         this.minGeoDistance = minGeoDistance;
 
-        if (minGeoDistance != null && minGeoDistance.compareTo(maxGeoDistance) >= 0) {
+        if (minGeoDistance != null && minGeoDistance.compare(minGeoDistance, maxGeoDistance) >= 0) {
             throw new IndexException("min_distance must be lower than max_distance");
         }
     }
@@ -97,7 +97,7 @@ public class GeoDistanceCondition extends GeospatialCondition {
     }
 
     private Query query(GeoDistance geoDistance, SpatialStrategy spatialStrategy) {
-        double kms = geoDistance.getValue(GeoDistanceUnit.KILOMETRES);
+        double kms = geoDistance.getValue(GeoDistanceUnit.KILOMETRES());
         double distance = DistanceUtils.dist2Degrees(kms, DistanceUtils.EARTH_MEAN_RADIUS_KM);
         Circle circle = CONTEXT.makeCircle(longitude, latitude, distance);
         SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, circle);

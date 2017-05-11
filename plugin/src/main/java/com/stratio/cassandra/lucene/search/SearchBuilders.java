@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.search;
 
-import com.stratio.cassandra.lucene.common.GeoShape;
+import com.stratio.cassandra.lucene.common.GeoShapes;
 import com.stratio.cassandra.lucene.search.condition.builder.*;
 import com.stratio.cassandra.lucene.search.sort.builder.GeoDistanceSortFieldBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SimpleSortFieldBuilder;
@@ -249,7 +249,7 @@ public final class SearchBuilders {
      * @param shape the shape
      * @return a new geo shape condition builder
      */
-    public static GeoShapeConditionBuilder geoShape(String field, GeoShape shape) {
+    public static GeoShapeConditionBuilder geoShape(String field, GeoShapes.GeoShape shape) {
         return new GeoShapeConditionBuilder(field, shape);
     }
 
@@ -263,7 +263,7 @@ public final class SearchBuilders {
      * @return a new geo shape condition builder
      */
     public static GeoShapeConditionBuilder geoShape(String field, String shape) {
-        return new GeoShapeConditionBuilder(field, new GeoShape.WKT(shape));
+        return new GeoShapeConditionBuilder(field, new GeoShapes.WKT(shape));
     }
 
     /**

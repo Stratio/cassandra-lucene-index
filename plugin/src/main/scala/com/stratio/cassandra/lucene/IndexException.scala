@@ -24,7 +24,7 @@ import org.slf4j.helpers.MessageFormatter
   * @param cause   the cause
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-case class IndexException(
+class IndexException(
     message: String,
     cause: Throwable)
   extends RuntimeException(message, cause) {

@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.common.DateParser$;
 import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper.BitemporalDateTime;
 import com.stratio.cassandra.lucene.schema.mapping.builder.BitemporalMapperBuilder;
 import org.apache.cassandra.utils.UUIDGen;
@@ -51,7 +52,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         assertEquals("ttFrom is not set", "ttFrom", mapper.ttFrom);
         assertEquals("ttTo is not set", "ttTo", mapper.ttTo);
         assertEquals("Now value is not set to default", Long.MAX_VALUE, mapper.nowValue, 0);
-        assertEquals("Date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.pattern);
+        assertEquals("Date pattern is not set to default value", DateParser$.MODULE$.DEFAULT_PATTERN(), mapper.parser.getPattern());
     }
 
     @Test
@@ -66,7 +67,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         assertEquals("ttFrom is not set", "ttFrom", mapper.ttFrom);
         assertEquals("ttTo is not set", "ttTo", mapper.ttTo);
         assertEquals("Date pattern is wrong", mapper.parseBitemporalDate("2021/03/11"), BitemporalDateTime.MAX);
-        assertEquals("Date pattern is not set to default value", "yyyy/MM/dd", mapper.parser.pattern);
+        assertEquals("Date pattern is not set to default value", "yyyy/MM/dd", mapper.parser.getPattern());
     }
 
     @Test

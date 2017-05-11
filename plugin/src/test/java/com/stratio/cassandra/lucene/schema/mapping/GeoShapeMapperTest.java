@@ -23,8 +23,8 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static com.stratio.cassandra.lucene.common.GeoTransformation.BBox;
-import static com.stratio.cassandra.lucene.common.GeoTransformation.Centroid;
+import static com.stratio.cassandra.lucene.common.GeoTransformations.BBox;
+import static com.stratio.cassandra.lucene.common.GeoTransformations.Centroid;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.geoShapeMapper;
 import static org.junit.Assert.*;
 

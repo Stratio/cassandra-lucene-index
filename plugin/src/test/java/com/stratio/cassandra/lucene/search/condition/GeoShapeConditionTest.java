@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoOperation;
-import com.stratio.cassandra.lucene.common.GeoShape;
+import com.stratio.cassandra.lucene.common.GeoShapes;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.composite.CompositeVerifyQuery;
@@ -26,27 +26,26 @@ import org.junit.Test;
 
 import java.text.ParseException;
 
+import static com.stratio.cassandra.lucene.common.GeospatialUtilsJTS.geometry;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.geoShape;
-import static com.stratio.cassandra.lucene.common.GeospatialUtilsJTS.geometry;
 import static org.junit.Assert.*;
-
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class GeoShapeConditionTest extends AbstractConditionTest {
 
     private static final String WKT = "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))";
-    private static final GeoShape SHAPE = new GeoShape.WKT(WKT);
+    private static final GeoShapes.GeoShape SHAPE = new GeoShapes.WKT(WKT);
 
     @Test
     public void testConstructor() throws ParseException {
-        GeoShapeCondition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.IS_WITHIN);
+        GeoShapeCondition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.IS_WITHIN());
 
         assertEquals("Boost is not set", 0.1f, condition.boost, 0);
         assertEquals("Field is not set", "geo_point", condition.field);
         assertEquals("Geometry is not set", geometry(WKT), condition.shape.apply());
-        assertEquals("Operation is not set", GeoOperation.IS_WITHIN, condition.operation);
+        assertEquals("Operation is not set", GeoOperation.IS_WITHIN(), condition.operation);
     }
 
     @Test
@@ -85,7 +84,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testQueryWithInvalidGeometry() {
         Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
-        GeoShape shape = new GeoShape.WKT("POLYGONS((1 1,5 1,5 5,1 5,1 1))");
+        GeoShapes.GeoShape shape = new GeoShapes.WKT("POLYGONS((1 1,5 1,5 5,1 5,1 1))");
         Condition condition = new GeoShapeCondition(null, "geo_point", shape, null);
         condition.doQuery(schema);
     }
@@ -94,7 +93,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     public void testQueryIsWithIn() {
         Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
 
-        Condition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.IS_WITHIN);
+        Condition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.IS_WITHIN());
 
         Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
@@ -109,7 +108,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     public void testQueryIntersects() {
         Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
 
-        Condition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.INTERSECTS);
+        Condition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.INTERSECTS());
 
         Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
@@ -123,7 +122,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     public void testQueryContains() {
         Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
 
-        Condition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.CONTAINS);
+        Condition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.CONTAINS());
 
         Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
@@ -138,14 +137,14 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
-        GeoShapeCondition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.CONTAINS);
+        GeoShapeCondition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.CONTAINS());
         condition.query(schema);
     }
 
     @Test
     public void testToString() {
         String wkt = "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))";
-        GeoShapeCondition condition = geoShape("name", SHAPE).operation(GeoOperation.INTERSECTS).build();
+        GeoShapeCondition condition = geoShape("name", SHAPE).operation(GeoOperation.INTERSECTS()).build();
         assertEquals("Method #toString is wrong",
                      "GeoShapeCondition{boost=null, field=name, shape=WKT{" +
                      "value=POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))}, operation=INTERSECTS}",

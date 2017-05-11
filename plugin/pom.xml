@@ -85,7 +85,6 @@
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts-core</artifactId>
             <version>${jts.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

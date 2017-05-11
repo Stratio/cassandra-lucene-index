@@ -18,15 +18,16 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoOperation;
-import com.stratio.cassandra.lucene.common.GeoShape;
-import com.stratio.cassandra.lucene.common.GeoTransformation;
+import com.stratio.cassandra.lucene.common.GeoOperation$;
+import com.stratio.cassandra.lucene.common.GeoShapes;
+import com.stratio.cassandra.lucene.common.GeoTransformations;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 
 /**
  * {@link Condition} that matches documents related to a JTS geographical shape. It is possible to apply a sequence of
- * {@link GeoTransformation}s to the provided shape to search for points related to the resulting shape.
+ * {@link GeoTransformations}s to the provided shape to search for points related to the resulting shape.
  *
  * The shapes are defined using the <a href="http://en.wikipedia.org/wiki/Well-known_text"> Well Known Text (WKT)</a>
  * format.
@@ -43,10 +44,11 @@ import org.apache.lucene.spatial.query.SpatialArgs;
 public class GeoShapeCondition extends GeospatialCondition {
 
     /** The default spatial operation. */
-    public static final GeoOperation DEFAULT_OPERATION = GeoOperation.IS_WITHIN;
+    //TODO refactor scala style
+    public static final GeoOperation DEFAULT_OPERATION = GeoOperation$.MODULE$.IS_WITHIN();
 
     /** The shape. */
-    public final GeoShape shape;
+    public final GeoShapes.GeoShape shape;
 
     /** The spatial operation to be applied. */
     public final GeoOperation operation;
@@ -60,7 +62,7 @@ public class GeoShapeCondition extends GeospatialCondition {
      * @param shape the shape
      * @param operation the spatial operation to be done, defaults to {@link #DEFAULT_OPERATION}
      */
-    public GeoShapeCondition(Float boost, String field, GeoShape shape, GeoOperation operation) {
+    public GeoShapeCondition(Float boost, String field, GeoShapes.GeoShape shape, GeoOperation operation) {
         super(boost, field, "geo_shape");
 
         if (shape == null) {
@@ -74,7 +76,7 @@ public class GeoShapeCondition extends GeospatialCondition {
     /** {@inheritDoc} */
     @Override
     public Query doQuery(SpatialStrategy strategy) {
-        SpatialArgs args = new SpatialArgs(operation.getSpatialOperation(), shape.apply());
+        SpatialArgs args = new SpatialArgs(operation.spatialOperation(), shape.apply());
         args.setDistErr(0.0);
         return strategy.makeQuery(args);
     }

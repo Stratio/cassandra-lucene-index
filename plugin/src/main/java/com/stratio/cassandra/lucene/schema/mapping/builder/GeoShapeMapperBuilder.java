@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.stratio.cassandra.lucene.common.GeoTransformation;
+import com.stratio.cassandra.lucene.common.GeoTransformations;
 import com.stratio.cassandra.lucene.common.JTSNotFoundException;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
@@ -41,7 +41,7 @@ public class GeoShapeMapperBuilder extends MapperBuilder<GeoShapeMapper, GeoShap
 
     /** The sequence of transformations to be applied to the shape before indexing. */
     @JsonProperty("transformations")
-    private List<GeoTransformation> transformations;
+    private List<GeoTransformations.GeoTransformation> transformations;
 
     /**
      * Sets the name of the Cassandra column to be mapped.
@@ -71,7 +71,7 @@ public class GeoShapeMapperBuilder extends MapperBuilder<GeoShapeMapper, GeoShap
      * @param transformations the sequence of transformations
      * @return this with the transformations set
      */
-    public GeoShapeMapperBuilder transformations(List<GeoTransformation> transformations) {
+    public GeoShapeMapperBuilder transformations(List<GeoTransformations.GeoTransformation> transformations) {
         this.transformations = transformations;
         return this;
     }
@@ -82,7 +82,7 @@ public class GeoShapeMapperBuilder extends MapperBuilder<GeoShapeMapper, GeoShap
      * @param transformations the sequence of transformations
      * @return this with the transformations set
      */
-    public GeoShapeMapperBuilder transformations(GeoTransformation... transformations) {
+    public GeoShapeMapperBuilder transformations(GeoTransformations.GeoTransformation... transformations) {
         return transformations(Arrays.asList(transformations));
     }
 

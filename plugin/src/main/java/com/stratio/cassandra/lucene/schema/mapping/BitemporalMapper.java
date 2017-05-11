@@ -212,7 +212,7 @@ public class BitemporalMapper extends MultipleColumnMapper {
                           .add("vtTo", vtTo)
                           .add("ttFrom", ttFrom)
                           .add("ttTo", ttTo)
-                          .add("pattern", parser.pattern)
+                          .add("pattern", parser.getPattern())
                           .add("nowValue", nowValue)
                           .toString();
     }

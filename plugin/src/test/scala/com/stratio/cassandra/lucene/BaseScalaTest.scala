@@ -15,9 +15,15 @@
  */
 package com.stratio.cassandra.lucene
 
+import java.text.{ParseException, SimpleDateFormat}
+import java.util.Date
+
 import com.google.common.collect.Lists
+import com.stratio.cassandra.lucene.common.{DateParser, GeoShapes, JsonSerializer}
 import org.apache.cassandra.db.marshal._
+import org.junit.Assert
 import org.scalatest.{FunSuite, Matchers}
+
 import scala.collection.JavaConverters._
 
 /** Base test.
@@ -65,4 +71,36 @@ object BaseScalaTest {
       Lists.newArrayList(types.asJava))
 
   def reversed[A](base: AbstractType[A]): ReversedType[A] = ReversedType.getInstance(base)
+
+  def parse[T](json: String, valueType : Class[T]) : T  =
+    JsonSerializer.fromString[T](json, valueType)
+
+  def assertNull(pattern: String, value: Any): Unit = {
+    val parser = new DateParser(pattern)
+    Assert.assertNull(s"$parser for $value should return null", parser.parse(value))
+  }
+
+  def assertEquals(pattern: String, value: Any, expected: Date): Unit = {
+    val parser = new DateParser(pattern)
+    val date = parser.parse(value)
+    Assert.assertEquals(s"$parser for $value should generate $expected but get $date",
+      expected,
+      date)
+  }
+
+  def assertFail(pattern: String, value: Any): Unit = {
+    val parser = new DateParser(pattern)
+    try {
+      val date = parser.parse(value)
+      Assert.fail(s"$parser for $value should throw an IndexException but returned $date")
+    } catch {
+      case _: Throwable => // Nothing to do here
+    }
+  }
+
+  @throws[ParseException]
+  def date(format: String, input: String): Date = {
+    DateParser.formatter(format).get().parse(input)
+  }
+
 }
