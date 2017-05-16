@@ -15,26 +15,3 @@
  */
 package com.stratio.cassandra.lucene.schema.analysis.tokenizer;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.lucene.analysis.core.LetterTokenizer;
-
-/**
- * A {@link TokenizerBuilder} for building {@link org.apache.lucene.analysis.core.LetterTokenizer}
- *
- * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
- */
-public class LetterTokenizerBuilder extends TokenizerBuilder<LetterTokenizer> {
-
-    /**
-     * Builds a new {@link LetterTokenizer}.
-     */
-    @JsonCreator
-    public LetterTokenizerBuilder() {
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public LetterTokenizer buildTokenizer() {
-        return new LetterTokenizer();
-    }
-}

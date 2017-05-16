@@ -14,27 +14,3 @@
  * limitations under the License.
  */
 package com.stratio.cassandra.lucene.schema.analysis.tokenizer;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.lucene.analysis.core.WhitespaceTokenizer;
-
-/**
- * A {@link TokenizerBuilder} for building {@link org.apache.lucene.analysis.core.WhitespaceTokenizer}
- *
- * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
- */
-public class WhitespaceTokenizerBuilder extends TokenizerBuilder<WhitespaceTokenizer> {
-
-    /**
-     * Builds a new {@link WhitespaceTokenizerBuilder}
-     */
-    @JsonCreator
-    public WhitespaceTokenizerBuilder() {
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public WhitespaceTokenizer buildTokenizer() {
-        return new WhitespaceTokenizer();
-    }
-}

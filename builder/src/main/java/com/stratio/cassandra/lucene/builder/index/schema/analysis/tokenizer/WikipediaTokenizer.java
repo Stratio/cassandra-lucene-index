@@ -81,6 +81,16 @@ public class WikipediaTokenizer extends Tokenizer {
     final Set<String> untokenizedTypes;
 
     /**
+     * Builds a new {@link WikipediaTokenizer} using the default tokenOutput and untokenizedTypes.
+     *
+     */
+    @JsonCreator
+    public WikipediaTokenizer() {
+        this.tokenOutput = DEFAULT_TOKEN_OUTPUT;
+        this.untokenizedTypes = DEFAULT_UNTOKENIZED_TYPES;
+    }
+
+    /**
      * Builds a new {@link WikipediaTokenizer} using the specified tokenOutput and untokenizedTypes.
      *
      * @param tokenOutput this tokenizer output, only untokenized, only tokens or both

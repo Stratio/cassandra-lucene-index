@@ -39,6 +39,16 @@ public class NGramTokenizer extends Tokenizer {
     final Integer maxGram;
 
     /**
+     * Builds a new {@link NGramTokenizer} using the default minGram and manGram.
+     *
+     */
+    @JsonCreator
+    public NGramTokenizer() {
+        this.minGram = DEFAULT_MIN_GRAM;
+        this.maxGram = DEFAULT_MAX_GRAM;
+    }
+
+    /**
      * Builds a new {@link NGramTokenizer} using the specified minGram and manGram.
      *
      * @param minGram the smallest n-gram to generate

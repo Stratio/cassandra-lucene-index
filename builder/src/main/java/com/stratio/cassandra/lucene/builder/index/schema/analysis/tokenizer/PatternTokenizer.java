@@ -44,6 +44,16 @@ public class PatternTokenizer extends Tokenizer {
     final Integer group;
 
     /**
+     * Builds a new {@link PatternTokenizer} using the default pattern, flags, and group.
+     */
+    @JsonCreator
+    public PatternTokenizer() {
+        this.pattern = DEFAULT_PATTERN;
+        this.flags = DEFAULT_FLAGS;
+        this.group = DEFAULT_GROUP;
+    }
+
+    /**
      * Builds a new {@link PatternTokenizer} using the specified pattern, flags, and group.
      *
      * @param pattern java regular expression

@@ -33,6 +33,11 @@ public class KeywordTokenizer extends Tokenizer {
     @JsonProperty("buffer_size")
     final Integer bufferSize;
 
+    @JsonCreator
+    public KeywordTokenizer() {
+        this.bufferSize = DEFAULT_BUFFER_SIZE;
+    }
+
     /**
      * Builds a new {@link KeywordTokenizer} using the specified buffer_size.
      *

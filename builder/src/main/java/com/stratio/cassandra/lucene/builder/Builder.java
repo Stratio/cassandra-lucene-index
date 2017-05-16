@@ -21,7 +21,9 @@ import com.stratio.cassandra.lucene.builder.index.Index;
 import com.stratio.cassandra.lucene.builder.index.Partitioner;
 import com.stratio.cassandra.lucene.builder.index.schema.Schema;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.ClasspathAnalyzer;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.CustomAnalyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.SnowballAnalyzer;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenizer.Tokenizer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.*;
 import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.*;
@@ -251,6 +253,16 @@ public abstract class Builder {
      */
     public static SnowballAnalyzer snowballAnalyzer(String language) {
         return new SnowballAnalyzer(language);
+    }
+
+    /**
+     * Returns a new {@link SnowballAnalyzer} for the specified language and stopwords.
+     *
+     * @param tokenizer
+     * @return a new custom analyzer
+     */
+    public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer) {
+        return new CustomAnalyzer(tokenizer);
     }
 
     /**

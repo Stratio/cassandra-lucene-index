@@ -15,39 +15,4 @@
  */
 package com.stratio.cassandra.lucene.schema.analysis.tokenizer;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.lucene.analysis.standard.UAX29URLEmailTokenizer;
 
-/**
- * A {@link TokenizerBuilder} for building {@link org.apache.lucene.analysis.standard.UAX29URLEmailTokenizer}
- *
- * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
- */
-public class UAX29URLEmailTokenizerBuilder extends TokenizerBuilder<UAX29URLEmailTokenizer> {
-
-    static final Integer DEFAULT_MAX_TOKEN_LENGTH = 255;
-
-    /** If a token length is bigger that this, token is split at max token length intervals. */
-    @JsonProperty("max_token_length")
-    final Integer maxTokenLength;
-
-    /**
-     * Builds a new {@link UAX29URLEmailTokenizerBuilder} using the specified maxTokenLength.
-     *
-     * @param maxTokenLength if a token length is bigger that this, token is split at max token length intervals.
-     */
-    @JsonCreator
-    public UAX29URLEmailTokenizerBuilder(@JsonProperty("max_token_length") Integer maxTokenLength) {
-        this.maxTokenLength = getOrDefault(maxTokenLength, DEFAULT_MAX_TOKEN_LENGTH);
-
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public UAX29URLEmailTokenizer buildTokenizer() {
-        UAX29URLEmailTokenizer tokenizer = new UAX29URLEmailTokenizer();
-        tokenizer.setMaxTokenLength(maxTokenLength);
-        return tokenizer;
-    }
-}

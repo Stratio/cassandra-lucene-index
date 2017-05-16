@@ -20,10 +20,7 @@ public class CustomAnalyzer extends Analyzer {
 
     @Override
     protected Analyzer.TokenStreamComponents createComponents(String fieldName) {
-
-        TokenStream ts = tokenizer;
-
-        return new TokenStreamComponents(tokenizer, ts);
+        return new TokenStreamComponents(tokenizer);
     }
 
 

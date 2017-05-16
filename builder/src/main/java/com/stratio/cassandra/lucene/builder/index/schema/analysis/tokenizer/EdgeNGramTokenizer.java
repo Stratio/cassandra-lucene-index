@@ -38,6 +38,15 @@ public class EdgeNGramTokenizer extends Tokenizer {
     final Integer maxGram;
 
     /**
+     * Builds a new {@link EdgeNGramTokenizer} using the default minGram and manGram.
+     */
+    @JsonCreator
+    public EdgeNGramTokenizer() {
+        this.minGram = DEFAULT_MIN_GRAM;
+        this.maxGram = DEFAULT_MAX_GRAM;
+    }
+
+    /**
      * Builds a new {@link EdgeNGramTokenizer} using the specified minGram and manGram.
      *
      * @param minGram the smallest n-gram to generate

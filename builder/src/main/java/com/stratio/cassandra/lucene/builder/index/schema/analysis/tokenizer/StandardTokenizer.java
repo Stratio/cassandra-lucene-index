@@ -34,6 +34,15 @@ public class StandardTokenizer extends Tokenizer {
     final Integer maxTokenLength;
 
     /**
+     * Builds a new {@link StandardTokenizer} using the default bufferSize, delimiter, replacement and skip.
+     *
+     */
+    @JsonCreator
+    public StandardTokenizer() {
+        this.maxTokenLength = DEFAULT_MAX_TOKEN_LENGTH;
+    }
+
+    /**
      * Builds a new {@link StandardTokenizer} using the specified bufferSize, delimiter, replacement and skip.
      *
      * @param maxTokenLength if a token length is bigger that this, token is split at max token length intervals.

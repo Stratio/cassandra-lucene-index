@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stratio.cassandra.lucene.schema.analysis.tokenizer.TokenizerBuilder;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.Tokenizer;
 
 /**
  * {@link AnalyzerBuilder} for building {@link Analyzer}s based on an advanced configuration.
@@ -45,7 +46,7 @@ public class CustomAnalyzerBuilder extends AnalyzerBuilder {
     /** {@inheritDoc} */
     @Override
     public Analyzer analyzer() {
-        return new CustomAnalyzer(tokenizer.buildTokenizer());
+        return new CustomAnalyzer((Tokenizer)tokenizer.buildTokenizer());
     }
 }
 

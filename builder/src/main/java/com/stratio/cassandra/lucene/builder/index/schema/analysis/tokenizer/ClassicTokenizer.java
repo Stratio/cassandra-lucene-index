@@ -34,6 +34,14 @@ public class ClassicTokenizer extends Tokenizer {
     final Integer maxTokenLength;
 
     /**
+     * Builds a new {@link ClassicTokenizer} using the DEFAULT_MAX_TOKEN_LENGTH.
+     */
+    @JsonCreator
+    public ClassicTokenizer() {
+        this.maxTokenLength = DEFAULT_MAX_TOKEN_LENGTH;
+    }
+
+    /**
      * Builds a new {@link ClassicTokenizer} using the specified maxTokenLength.
      *
      * @param maxTokenLength if a token length is bigger that this, token is split at max token length intervals.

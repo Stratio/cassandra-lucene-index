@@ -15,38 +15,3 @@
  */
 package com.stratio.cassandra.lucene.schema.analysis.tokenizer;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.lucene.analysis.standard.StandardTokenizer;
-
-/**
- * A {@link TokenizerBuilder} for building {@link org.apache.lucene.analysis.standard.StandardTokenizer}
- *
- * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
- */
-public class StandardTokenizerBuilder extends TokenizerBuilder<StandardTokenizer> {
-
-    static final Integer DEFAULT_MAX_TOKEN_LENGTH = 255;
-
-    /** If a token length is bigger that this, token is split at max token length intervals. */
-    @JsonProperty("max_token_length")
-    final Integer maxTokenLength;
-
-    /**
-     * Builds a new {@link StandardTokenizerBuilder} using the specified bufferSize, delimiter, replacement and skip.
-     *
-     * @param maxTokenLength if a token length is bigger that this, token is split at max token length intervals.
-     */
-    @JsonCreator
-    public StandardTokenizerBuilder(@JsonProperty("max_token_length") Integer maxTokenLength) {
-        this.maxTokenLength = getOrDefault(maxTokenLength, DEFAULT_MAX_TOKEN_LENGTH);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public StandardTokenizer buildTokenizer() {
-        StandardTokenizer tokenizer = new StandardTokenizer();
-        tokenizer.setMaxTokenLength(maxTokenLength);
-        return tokenizer;
-    }
-}

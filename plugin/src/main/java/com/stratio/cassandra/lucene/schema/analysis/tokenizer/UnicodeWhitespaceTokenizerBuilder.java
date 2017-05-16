@@ -14,19 +14,3 @@
  * limitations under the License.
  */
 package com.stratio.cassandra.lucene.schema.analysis.tokenizer;
-
-import org.apache.lucene.analysis.core.UnicodeWhitespaceTokenizer;
-
-/**
- * A {@link TokenizerBuilder} for building {@link org.apache.lucene.analysis.core.UnicodeWhitespaceTokenizer}
- *
- * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
- */
-public class UnicodeWhitespaceTokenizerBuilder extends TokenizerBuilder<UnicodeWhitespaceTokenizer> {
-
-    /** {@inheritDoc} */
-    @Override
-    public UnicodeWhitespaceTokenizer buildTokenizer() {
-        return new UnicodeWhitespaceTokenizer();
-    }
-}

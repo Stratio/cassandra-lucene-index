@@ -14,27 +14,3 @@
  * limitations under the License.
  */
 package com.stratio.cassandra.lucene.schema.analysis.tokenizer;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.lucene.analysis.th.ThaiTokenizer;
-
-/**
- * A {@link ThaiTokenizer} for building {@link org.apache.lucene.analysis.th.ThaiTokenizer}
- *
- * @author Juan Pedro Gilaberte {@literal <jpgilaberte@stratio.com>}
- */
-public class ThaiTokenizerBuilder extends TokenizerBuilder<ThaiTokenizer> {
-
-    /**
-     * Builds a new {@link ThaiTokenizerBuilder}
-     */
-    @JsonCreator
-    public ThaiTokenizerBuilder() {
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public ThaiTokenizer buildTokenizer() {
-        return new ThaiTokenizer();
-    }
-}

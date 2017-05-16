@@ -14,27 +14,3 @@
  * limitations under the License.
  */
 package com.stratio.cassandra.lucene.schema.analysis.tokenizer;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.lucene.analysis.core.LowerCaseTokenizer;
-
-/**
- * A {@link LowerCaseTokenizerBuilder} for building {@link org.apache.lucene.analysis.core.LowerCaseTokenizer}
- *
- * @author Juan Pedro Gilaberte {@literal <jpgilaberte@stratio.com>}
- */
-public class LowerCaseTokenizerBuilder extends TokenizerBuilder<LowerCaseTokenizer> {
-
-    /**
-     * Builds a new {@link LowerCaseTokenizerBuilder}
-     */
-    @JsonCreator
-    public LowerCaseTokenizerBuilder() {
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public LowerCaseTokenizer buildTokenizer() {
-        return new LowerCaseTokenizer();
-    }
-}

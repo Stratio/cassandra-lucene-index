@@ -50,6 +50,17 @@ public class PathHierarchyTokenizer extends Tokenizer {
 
     /**
      * Builds a new {@link PathHierarchyTokenizer} using the specified bufferSize, delimiter, replacement and skip.
+     */
+    @JsonCreator
+    public PathHierarchyTokenizer() {
+        this.bufferSize = DEFAULT_BUFFER_SIZE;
+        this.delimiter = DEFAULT_DELIMITER;
+        this.replacement = DEFAULT_REPLACEMENT;
+        this.skip = DEFAULT_SKIP;
+    }
+
+    /**
+     * Builds a new {@link PathHierarchyTokenizer} using the default bufferSize, delimiter, replacement and skip.
      *
      * @param bufferSize terms cache read buffer size
      * @param delimiter path separator
