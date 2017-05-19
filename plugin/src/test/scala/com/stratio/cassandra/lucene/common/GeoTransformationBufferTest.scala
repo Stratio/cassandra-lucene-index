@@ -142,7 +142,7 @@ class GeoTransformationBufferTest extends BaseScalaTest {
         val json = "{type:\"buffer\",max_distance:\"1km\",min_distance:\"10m\"}"
         val buffer = JsonSerializer.fromString(json, classOf[Buffer])
         assertNotNull("JSON serialization is wrong", buffer)
-        assertEquals("JSON min distance serialization is wrong", 10.0, buffer.minDistance.getValue(GeoDistanceUnit.CENTIMETRES), 0)
+        assertEquals("JSON min distance serialization is wrong", 10.0, buffer.minDistance.getValue(GeoDistanceUnit.METRES), 0)
         assertEquals("JSON max distance serialization is wrong", 1.0, buffer.maxDistance.getValue(GeoDistanceUnit.KILOMETRES), 0)
     }
 

@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Abstract builder for creating JSON documents.
  *
- * @author Andres de la Pena {@literal <adelapena@stratio.com>}
+ * @author Andres de la Pena {@literal <adelapena@stratio.com}
  */
 public abstract class JSONBuilder {
 

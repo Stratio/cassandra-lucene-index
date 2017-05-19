@@ -15,6 +15,8 @@
  */
 package com.stratio.cassandra.lucene
 
+import java.util.function.Predicate
+
 import org.apache.cassandra.db.rows.Row
 import org.apache.cassandra.db.{Clustering, DecoratedKey, RangeTombstone, SinglePartitionReadCommand}
 import org.apache.cassandra.index.transactions.IndexTransaction
@@ -83,15 +85,14 @@ class IndexWriterWide(
     }
 
     // Write rows
-    rows.forEach((clustering, row) => {
-      if (row.hasLiveData(nowInSec)) {
+    rows.forEach((clustering, row) => row.hasLiveData(nowInSec) match {
+      case (true) =>
         tracer.trace("Lucene index writing document")
         service.upsert(key, row, nowInSec)
-      } else {
+      case (false) =>
         tracer.trace("Lucene index deleting document")
         service.delete(key, clustering)
-      }
+
     })
   }
-
 }

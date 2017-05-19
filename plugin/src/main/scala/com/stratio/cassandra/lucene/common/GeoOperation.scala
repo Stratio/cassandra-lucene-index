@@ -30,6 +30,8 @@ class GeoOperation(val name: String , val spatialOperation : SpatialOperation) {
 }
 
 object GeoOperation extends Logging {
+    val DEFAULT_GEO_OPERATION = INTERSECTS
+
     val INTERSECTS : GeoOperation = new GeoOperation("intersects", SpatialOperation.Intersects)
     val IS_WITHIN : GeoOperation = new GeoOperation("is_within", SpatialOperation.IsWithin)
     val CONTAINS : GeoOperation = new GeoOperation("contains", SpatialOperation.Contains)
@@ -44,10 +46,6 @@ object GeoOperation extends Logging {
                 returnObject = Some(geoOperation)
             }
         }
-        if (returnObject.isDefined) {
-            returnObject.get
-        } else {
-            throw new IndexException("Invalid geographic operation {}", value)
-        }
+        returnObject.getOrElse(throw new IndexException("Invalid geographic operation {}", value))
     }
 }

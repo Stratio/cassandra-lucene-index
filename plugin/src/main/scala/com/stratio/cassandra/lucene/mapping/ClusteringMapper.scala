@@ -179,7 +179,6 @@ object ClusteringMapper {
     * @param token a token
     * @return a lexicographically sortable 8 bytes array
     */
-  @SuppressWarnings(Array("NumericOverflow"))
   def prefix(token: Token): Array[Byte] = {
     val value = TokenMapper.longValue(token)
     val collated = Long.MinValue * -1 + value
@@ -230,15 +229,21 @@ object ClusteringMapper {
   * @param mapper the primary key mapper to be used
   */
 class ClusteringSort(mapper: ClusteringMapper) extends SortField(
-  FIELD_NAME, (field, hits, sortPos, reversed) => new TermValComparator(hits, field, false) {
-    override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
-      val comp = compareUnsigned(t1.bytes, 0, PREFIX_SIZE, t2.bytes, 0, PREFIX_SIZE)
-      if (comp != 0) return comp
-      val bb1 = ByteBuffer.wrap(t1.bytes, PREFIX_SIZE, t1.length - PREFIX_SIZE)
-      val bb2 = ByteBuffer.wrap(t2.bytes, PREFIX_SIZE, t2.length - PREFIX_SIZE)
-      val clustering1 = mapper.clustering(bb1)
-      val clustering2 = mapper.clustering(bb2)
-      mapper.comparator.compare(clustering1, clustering2)
+  FIELD_NAME, new FieldComparatorSource {
+    override def newComparator(
+        s: String,
+        i: Int,
+        i1: Int,
+        b: Boolean): FieldComparator[_] = new TermValComparator(i, s, false) {
+      override def compareValues(t1: BytesRef, t2: BytesRef): Int = {
+        val comp = compareUnsigned(t1.bytes, 0, PREFIX_SIZE, t2.bytes, 0, PREFIX_SIZE)
+        if (comp != 0) return comp
+        val bb1 = ByteBuffer.wrap(t1.bytes, PREFIX_SIZE, t1.length - PREFIX_SIZE)
+        val bb2 = ByteBuffer.wrap(t2.bytes, PREFIX_SIZE, t2.length - PREFIX_SIZE)
+        val clustering1 = mapper.clustering(bb1)
+        val clustering2 = mapper.clustering(bb2)
+        mapper.comparator.compare(clustering1, clustering2)
+      }
     }
   }) {
 
@@ -250,7 +255,6 @@ class ClusteringSort(mapper: ClusteringMapper) extends SortField(
     case cs: ClusteringSort => true
     case _ => false
   }
-
 }
 
 /** [[MultiTermQuery]] to get a range of clustering keys.

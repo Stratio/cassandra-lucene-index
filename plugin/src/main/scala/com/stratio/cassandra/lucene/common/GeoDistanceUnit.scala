@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.common
 
 import com.fasterxml.jackson.annotation.JsonCreator
+import com.stratio.cassandra.lucene.IndexException
 
 /**
   * Builds the [[GeoDistanceUnit]] defined by the specified value in metres and the specified identifying names.
@@ -68,21 +69,14 @@ object GeoDistanceUnit {
       */
     @JsonCreator
     def parse(value: String) : GeoDistanceUnit = {
-        var returnObject : Option[GeoDistanceUnit]= None
-        if (value == null) {
-            throw new IllegalArgumentException()
-        }
-        for (valueItem <- values ()) {
+        var returnObject: Option[GeoDistanceUnit] = None
+        for (valueItem <- values()) {
             for (s <- valueItem.getNames()) {
                 if (s.equals(value)) {
-                    returnObject= Some(valueItem)
+                    returnObject = Some(valueItem)
                 }
             }
         }
-        if (returnObject.isDefined) {
-            returnObject.get
-        } else {
-            throw new IllegalArgumentException()
-        }
+        returnObject.getOrElse(throw new IndexException(s"Unparseable geo_distance unit $value"))
     }
 }

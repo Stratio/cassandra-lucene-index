@@ -116,7 +116,7 @@
                 <artifactId>scala-maven-plugin</artifactId>
                 <configuration>
                     <args>
-                        <arg>-nowarn</arg>
+
                     </args>
                 </configuration>
                 <executions>

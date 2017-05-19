@@ -37,7 +37,7 @@ class GeoDistance(measurementValue: Double, measurementUnit: GeoDistanceUnit) ex
      * @return The numeric distance value in the specified unit.
      */
     def getValue(unit  : GeoDistanceUnit ) : Double =
-        unit.getMetres * measurementValue / unit.getMetres
+        measurementUnit.getMetres * measurementValue / unit.getMetres
 
     /**
      * Return the numeric distance value in degrees.
@@ -94,7 +94,6 @@ object GeoDistance {
             new GeoDistance(value, unit_);
         } catch {
             case (e: Exception) => throw new IndexException(e, s"Unparseable distance: $json")
-
         }
     }
 }

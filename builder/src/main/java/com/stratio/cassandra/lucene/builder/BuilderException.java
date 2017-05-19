@@ -18,7 +18,7 @@ package com.stratio.cassandra.lucene.builder;
 /**
  * {@code RuntimeException} to be thrown when there are builder-related errors.
  *
- * @author Andres de la Pena {@literal <adelapena@stratio.com>}
+ * @author Andres de la Pena {@literal <adelapena@stratio.com}
  */
 public class BuilderException extends RuntimeException {
 

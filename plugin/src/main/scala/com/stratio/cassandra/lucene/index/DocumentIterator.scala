@@ -121,7 +121,7 @@ class DocumentIterator(
       logger.debug(s"Page fetched with $numFetched documents in $fetchTime")
 
     } catch {
-      case e: Exception =>
+      case (e: Exception) =>
         close()
         throw new IndexException(e, s"Error searching with $query and $sort")
     }

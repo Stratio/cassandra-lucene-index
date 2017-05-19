@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.partitioning
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty}
 import com.stratio.cassandra.lucene.IndexException
 import com.stratio.cassandra.lucene.util.Logging
 import org.apache.cassandra.config.CFMetaData
@@ -117,9 +117,9 @@ case class PartitionerOnVirtualNode(
 object PartitionerOnVirtualNode {
 
   /** [[PartitionerOnVirtualNode]] builder. */
-  case class Builder(@JsonProperty("vnodes_per_partition") vnodes_per_partition: Int) extends Partitioner.Builder {
+  case class Builder @JsonCreator() (@JsonProperty("vnodes_per_partition") vNodesPerPartition: Int) extends Partitioner.Builder {
     override def build(metadata: CFMetaData): PartitionerOnVirtualNode = PartitionerOnVirtualNode(
-      vnodes_per_partition,
+      vNodesPerPartition,
       StorageService.instance.getLocalTokens.asScala.toList.sorted)
   }
 

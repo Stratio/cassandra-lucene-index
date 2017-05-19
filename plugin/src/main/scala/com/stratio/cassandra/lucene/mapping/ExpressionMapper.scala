@@ -136,7 +136,7 @@ case class ExpressionMapper(tableMetadata: CFMetaData, indexMetadata: IndexMetad
     builder.newRow(row.clustering())
     builder.addRowDeletion(row.deletion)
     builder.addPrimaryKeyLivenessInfo(row.primaryKeyLivenessInfo)
-    row.cells.forEach(builder addCell _)
+    row.cells.asScala.foreach(builder.addCell)
 
     // Add score cell
     val timestamp = row.primaryKeyLivenessInfo.timestamp

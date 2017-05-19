@@ -360,5 +360,4 @@ object Index extends Logging {
     logger.debug("Lucene index options are valid")
     Collections.emptyMap[String, String]
   }
-
 }

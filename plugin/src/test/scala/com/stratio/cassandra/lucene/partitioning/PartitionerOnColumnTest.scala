@@ -79,7 +79,5 @@ class PartitionerOnColumnTest extends PartitionerTest {
     val key = Murmur3Partitioner.instance.decorateKey(bb)
     PartitionerOnColumn(10, "c", 0, validator).partition(key) shouldBe 5
     PartitionerOnColumn(10, "c", 1, validator).partition(key) shouldBe 3
-
   }
-
 }

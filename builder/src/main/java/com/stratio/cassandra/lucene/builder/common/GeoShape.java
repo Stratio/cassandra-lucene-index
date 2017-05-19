@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @author Andres de la Pena {@literal <adelapena@stratio.com>}
+ * @author Andres de la Pena {@literal <adelapena@stratio.com}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = GeoShape.WKT.class, name = "wkt"),

@@ -357,7 +357,7 @@ abstract class IndexService(
   def sort(search: Search): Sort = {
     val sortFields = mutable.ListBuffer[SortField]()
     if (search.usesSorting) {
-      sortFields ++= search.sortFields(schema).asScala
+      sortFields ++= search.sortFields(schema)
     }
     if (search.usesRelevance) {
       sortFields += SortField.FIELD_SCORE

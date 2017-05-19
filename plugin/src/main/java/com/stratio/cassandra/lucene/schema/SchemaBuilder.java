@@ -114,7 +114,7 @@ public class SchemaBuilder {
 
         Analyzer defaultAnalyzer;
         if (defaultAnalyzerName == null) {
-            defaultAnalyzer = StandardAnalyzers.DEFAULT.get();
+            defaultAnalyzer = StandardAnalyzers.get("default");
         } else {
             defaultAnalyzer = analyzers.get(defaultAnalyzerName);
             if (defaultAnalyzer == null) {

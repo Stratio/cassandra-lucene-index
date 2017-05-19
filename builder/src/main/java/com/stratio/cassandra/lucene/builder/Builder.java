@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 /**
  * Utility class for creating Lucene index statements.
  *
- * @author Andres de la Pena {@literal <adelapena@stratio.com>}
+ * @author Andres de la Pena {@literal <adelapena@stratio.com}
  */
 public abstract class Builder {
 

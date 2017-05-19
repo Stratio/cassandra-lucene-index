@@ -58,7 +58,7 @@ object JsonSerializer {
      * @param value the JSON [[String]] to be parsed
      * @param valueType the class of the object to be parsed
      * @tparam T the type of the object to be parsed
-     * @return an object of the specified class represented by [[value]]
+     * @return an object of the specified class represented by {{{value}}}
      * @throws IOException if there are parsing problems
      */
     @throws(classOf[IOException])

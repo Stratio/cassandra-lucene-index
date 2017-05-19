@@ -70,7 +70,7 @@ object GeoTransformations {
     }
 
     /**
-      * [[GeoTransformation} that returns the bounding shape of a JTS geographical shape.
+      * [[GeoTransformation]] that returns the bounding shape of a JTS geographical shape.
       */
     class Buffer @JsonCreator() (@JsonProperty("min_distance") val minDistance: GeoDistance,
                                  @JsonProperty("max_distance") val maxDistance: GeoDistance)  extends GeoTransformation {

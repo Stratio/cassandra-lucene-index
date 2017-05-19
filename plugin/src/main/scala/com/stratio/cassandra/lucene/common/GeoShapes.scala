@@ -20,6 +20,7 @@ import com.google.common.base.MoreObjects
 import com.spatial4j.core.shape.jts.JtsGeometry
 import com.stratio.cassandra.lucene.common.GeospatialUtilsJTS.CONTEXT
 import com.stratio.cassandra.lucene.common.GeospatialUtilsJTS.geometry
+import com.stratio.cassandra.lucene.util.Logging
 
 object GeoShapes {
 
@@ -99,7 +100,7 @@ object GeoShapes {
       */
     class Buffer @JsonCreator() (@JsonProperty("shape") val shape : GeoShapes.GeoShape,
                                  @JsonProperty("min_distance") val minDistance : GeoDistance,
-                                 @JsonProperty("max_distance") val maxDistance : GeoDistance) extends GeoShapes.GeoShape {
+                                 @JsonProperty("max_distance") val maxDistance : GeoDistance) extends GeoShapes.GeoShape with Logging {
 
         /**
           * Returns the buffer of the specified [[JtsGeometry]].
@@ -107,6 +108,7 @@ object GeoShapes {
           * @return the buffer
           */
         override def apply :JtsGeometry = {
+            logger.debug("buffer transformation aplying to it self")
             val jts = shape.apply
 
             val max = if (maxDistance == null)
@@ -177,7 +179,7 @@ object GeoShapes {
       *
       * [[GeoShape]] that returns the difference of two JTS geographical shapes.
       */
-    class Difference @JsonCreator() (@JsonProperty("shapes") val shapes : Array[GeoShapes.GeoShape]) extends GeoShapes.GeoShape {
+    class Difference @JsonCreator() (@JsonProperty("shapes") val shapes : Array[GeoShapes.GeoShape]) extends GeoShapes.GeoShape with Logging {
 
         /**
           * Returns the difference of the specified shapes.
@@ -186,7 +188,7 @@ object GeoShapes {
           */
         override def apply:JtsGeometry = {
             var result = shapes.head.apply.getGeom
-            for (shape : GeoShapes.GeoShape <- shapes) {
+            for (shape : GeoShapes.GeoShape <- shapes.slice(1,shapes.length)) {
                 result = result.difference(shape.apply.getGeom)
             }
             CONTEXT.makeShape(result)
@@ -211,7 +213,7 @@ object GeoShapes {
           */
         override def apply:JtsGeometry = {
             var  result = shapes.head.apply.getGeom
-            for (shape : GeoShapes.GeoShape <-shapes ) {
+            for (shape : GeoShapes.GeoShape <- shapes.slice(1, shapes.length) ) {
                 result = result.intersection(shape.apply.getGeom)
             }
             CONTEXT.makeShape(result)
@@ -235,7 +237,7 @@ object GeoShapes {
           */
         override def apply:JtsGeometry = {
             var result = shapes.head.apply.getGeom
-            for (shape : GeoShapes.GeoShape <- shapes) {
+            for (shape : GeoShapes.GeoShape <- shapes.slice(1, shapes.length)) {
                 result = result.union(shape.apply.getGeom)
             }
             CONTEXT.makeShape(result)

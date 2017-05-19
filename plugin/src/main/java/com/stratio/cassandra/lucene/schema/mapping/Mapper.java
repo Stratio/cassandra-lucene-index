@@ -46,7 +46,7 @@ public abstract class Mapper {
     private static final Logger logger = LoggerFactory.getLogger(Mapper.class);
 
     /** A no-action analyzer for not tokenized {@link Mapper} implementations. */
-    static final String KEYWORD_ANALYZER = StandardAnalyzers.KEYWORD.toString();
+    static final String KEYWORD_ANALYZER = StandardAnalyzers.KEYWORD().toString();
 
     static final List<Class<?>> TEXT_TYPES = Collections.singletonList(String.class);
 

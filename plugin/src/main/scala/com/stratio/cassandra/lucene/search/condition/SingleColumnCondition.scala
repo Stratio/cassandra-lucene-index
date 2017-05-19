@@ -1,0 +1,61 @@
+/*
+ * Copyright (C) 2014 Stratio (http://stratio.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.stratio.cassandra.lucene.search.condition
+
+import com.stratio.cassandra.lucene.IndexException
+import com.stratio.cassandra.lucene.schema.Schema
+import com.stratio.cassandra.lucene.schema.mapping.{Mapper, SingleColumnMapper}
+import org.apache.lucene.analysis.Analyzer
+import org.apache.lucene.search.Query
+
+/**
+ * The abstract base class for queries.
+ *
+ * Known subclasses are: <ul> <li> [[FuzzyCondition]] <li> [[MatchCondition]] <li> [[PhraseCondition]] <li>
+ * [[PrefixCondition]] <li> [[RangeCondition]] <li> [[WildcardCondition]] </ul>
+ *
+ * @author Andres de la Pena `adelapena@stratio.com`
+  * @param boost___ The boost for this query clause. Documents matching this clause will (in addition to the normal
+  * weightings) have their score multiplied by {{{boost}.
+  * @param field__ the name of the field to be matched
+  *
+ */
+abstract class SingleColumnCondition(val boost___ : Float, val field__ : String) extends SingleFieldCondition(boost___, field__ ) {
+
+    /** @inheritdoc */
+    override def doQuery(schema : Schema) : Query = {
+        val mapper = schema.mapper(field__)
+        if (mapper == null) {
+            throw new IndexException("No mapper found for field '{}'", field__)
+        } else if (!classOf[SingleColumnMapper[_]].isAssignableFrom(mapper.getClass)) {
+            throw new IndexException("Field '{}' requires a mapper of type '{}' but found '{}'",
+                                     field__,
+                                         classOf[SingleColumnMapper[_]].getSimpleName,
+                                     mapper)
+        } else {
+            doQuery(mapper.asInstanceOf[SingleColumnMapper[_]], schema.analyzer)
+        }
+    }
+
+    /**
+     * Returns the Lucene [[Query]] representation of this condition.
+     *
+     * @param mapper the mapper to be used
+     * @param analyzer the [[Schema]] analyzer
+     * @return the Lucene query
+     */
+    def  doQuery(mapper : SingleColumnMapper[_] , analyzer : Analyzer) : Query
+}
