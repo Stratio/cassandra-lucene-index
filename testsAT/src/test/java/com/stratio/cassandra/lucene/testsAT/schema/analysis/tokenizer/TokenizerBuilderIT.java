@@ -44,6 +44,25 @@ public class TokenizerBuilderIT extends BaseIT{
         CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
+//    @Test
+//    public void testClassicTokenizer() {
+//        utils = CassandraUtils.builder("tokenizer")
+//                .withPartitionKey("pk")
+//                .withColumn("pk", "int")
+//                .withColumn("rc", "text", textMapper().analyzer("en"))
+//                .withAnalyzer("en", customAnalyzer(new NGramTokenizer(2,1),
+//                        null,
+//                        null))
+//                .build()
+//                .createKeyspace()
+//                .createTable()
+//                .insert("pk,rc", 1, "aabb")
+//                .createIndex().refresh()
+//                .filter(all()).check(1)
+//                .filter(none()).check(0)
+//                .filter(match("rc", "aa")).check(1)
+//                .filter(match("rc", "ab")).check(1);
+//    }
     @Test
     public void testClassicTokenizer() {
         utils = CassandraUtils.builder("tokenizer")
@@ -218,7 +237,6 @@ public class TokenizerBuilderIT extends BaseIT{
                 .filter(phrase("rc", "The 2 QUICK Brown-Foxes jumped the")).check(1)
                 .filter(fuzzy("rc", "The 2 QUICK Brown-Foxes jumped the lazy dog bone. and/o")).check(0)
                 .filter(fuzzy("rc", "The 2 QUICK Brown-Foxes jumped the lazy dog bone.")).check(0)
-                //TODO: check this behaviour
                 .filter(contains("rc", "The 2 QUICK Brown-Foxes")).check(1)
                 .filter(contains("rc", "jump")).check(0)
                 .filter(contains("rc", "and/or")).check(1)
@@ -249,7 +267,6 @@ public class TokenizerBuilderIT extends BaseIT{
                 .filter(phrase("rc", "The 2 QUICK Brown-Foxes jumped the")).check(1)
                 .filter(fuzzy("rc", "The 2 QUICK Brown-Foxes jumped the lazy dog bone. and/o")).check(0)
                 .filter(fuzzy("rc", "The 2 QUICK Brown-Foxes jumped the lazy dog bone.")).check(0)
-                //TODO: check this behaviour
                 .filter(contains("rc", "The 2 QUICK Brown-Foxes")).check(1)
                 .filter(contains("rc", "jump")).check(0)
                 .filter(contains("rc", "and/or")).check(1)
@@ -385,7 +402,7 @@ public class TokenizerBuilderIT extends BaseIT{
                 .withPartitionKey("pk")
                 .withColumn("pk", "int")
                 .withColumn("rc", "text", textMapper().analyzer("en"))
-                .withAnalyzer("en", customAnalyzer(new ReversePathHierarchyTokenizer()))
+                .withAnalyzer("en", customAnalyzer(new PathHierarchyTokenizer(true, '/', '/', 0)))
                 .build()
                 .createKeyspace()
                 .createTable()
@@ -551,7 +568,7 @@ public class TokenizerBuilderIT extends BaseIT{
                 .withPartitionKey("pk")
                 .withColumn("pk", "int")
                 .withColumn("rc", "text", textMapper().analyzer("en"))
-                .withAnalyzer("en", customAnalyzer(new UnicodeWhitespaceTokenizer()))
+                .withAnalyzer("en", customAnalyzer(new WhitespaceTokenizer("unicode")))
                 .build()
                 .createKeyspace()
                 .createTable()
@@ -590,7 +607,6 @@ public class TokenizerBuilderIT extends BaseIT{
                 .filter(fuzzy("rc", "gjumperd")).check(1)
                 .filter(fuzzy("rc", "dogjumperdog")).check(0)
                 .filter(contains("rc", "jumped")).check(1)
-                //TODO: check this behaviour
                 .filter(contains("rc", "jump")).check(0)
                 .filter(contains("rc", "jumper")).check(0)
                 .filter(contains("rc", "ajumped")).check(0)
@@ -653,7 +669,6 @@ public class TokenizerBuilderIT extends BaseIT{
                 .filter(fuzzy("rc", "gjumperd")).check(1)
                 .filter(fuzzy("rc", "dogjumperdog")).check(0)
                 .filter(contains("rc", "jumped")).check(1)
-                //TODO: check this behaviour
                 .filter(contains("rc", "jump")).check(0)
                 .filter(contains("rc", "jumper")).check(0)
                 .filter(contains("rc", "ajumped")).check(0)
@@ -707,4 +722,3 @@ public class TokenizerBuilderIT extends BaseIT{
                 .filter(contains("rc", "sub head followed by some text")).check(1);
     }
 }
-
