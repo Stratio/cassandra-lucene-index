@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.schema.analysis;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.stratio.cassandra.lucene.schema.analysis.analyzer.CustomAnalyzerBuilder;
 import org.apache.lucene.analysis.Analyzer;
 
 /**
