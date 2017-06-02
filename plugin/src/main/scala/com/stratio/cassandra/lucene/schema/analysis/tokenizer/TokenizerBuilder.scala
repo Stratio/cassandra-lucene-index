@@ -16,8 +16,10 @@
 package com.stratio.cassandra.lucene.schema.analysis.tokenizer
 
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type
-import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
-import org.apache.lucene.analysis.Tokenizer
+import com.fasterxml.jackson.annotation.{JsonProperty, JsonSubTypes, JsonTypeInfo}
+import com.stratio.cassandra.lucene.schema.analysis.Builder
+import org.apache.lucene.analysis.util.TokenizerFactory
+
 
 /**
   * @author Juan Pedro Gilaberte jpgilaberte@stratio.com
@@ -31,45 +33,25 @@ import org.apache.lucene.analysis.Tokenizer
                     new Type(value = classOf[NGramTokenizerBuilder], name = "ngram"),
                     new Type(value = classOf[PathHierarchyTokenizerBuilder], name = "path_hierarchy"),
                     new Type(value = classOf[PatternTokenizerBuilder], name = "pattern"),
-                    new Type(value = classOf[ReversePathHierarchyTokenizerBuilder], name = "reverse_path_hierarchy"),
                     new Type(value = classOf[StandardTokenizerBuilder], name = "standard"),
                     new Type(value = classOf[UAX29URLEmailTokenizerBuilder], name = "uax29_url_email"),
-                    new Type(value = classOf[UnicodeWhitespaceTokenizerBuilder], name = "unicode_whitespace"),
                     new Type(value = classOf[ThaiTokenizerBuilder], name = "thai"),
                     new Type(value = classOf[WhitespaceTokenizerBuilder], name = "whitespace"),
                     new Type(value = classOf[WikipediaTokenizerBuilder], name = "wikipedia"))
-) trait TokenizerBuilder[T <: Tokenizer] {
-  /**
-    *
-    * @return
-    */
-  def function : ()=>T
-
-  //TODO: refactor scala style (remove throw)
-  /**
-    *
-    * @param throwable
-    * @return
-    */
-  def failThrowException(throwable: Throwable) = throw throwable
-
-  /**
-    * Gets or creates the Lucene {@link Tokenizer}.
-    *
-    * @return the built analyzer
-    */
-  def buildTokenizer: T = {
-    import scala.util.control.Exception._
-    //TODO: refactor scala style (manage either in other level)
-    catching(classOf[Exception]).either(function()).asInstanceOf[Either[Exception, T]].fold(failThrowException, x=>x)
-  }
-
-  /**
-    * @param param        the main parameter.
-    * @param defaultParam the default parameter if main paramaeter is null.
-    * @return if (param!=null) { return param; }else{ return defaultParam; }
-    */
-  def getOrDefault(param: Option[Any], defaultParam: Any): Any = param.map(x => x).getOrElse(defaultParam)
+) sealed abstract class TokenizerBuilder[T](typeBuilder: String) extends Builder[T]{
+    def buildFunction = () => TokenizerFactory.forName(typeBuilder, mapParsed).asInstanceOf[T]
 }
 
-object TokenizerBuilder{}
+final case class ClassicTokenizerBuilder(@JsonProperty("max_token_length") maxTokenLength: Integer) extends TokenizerBuilder[TokenizerFactory]("classic")
+final case class EdgeNGramTokenizerBuilder(@JsonProperty("min_gram_size") minGramSize: Integer, @JsonProperty("max_gram_size") maxGramSize: Integer) extends TokenizerBuilder[TokenizerFactory]("edgengram")
+final case class KeywordTokenizerBuilder() extends TokenizerBuilder[TokenizerFactory]("keyword")
+final case class LetterTokenizerBuilder() extends TokenizerBuilder[TokenizerFactory]("letter")
+final case class LowerCaseTokenizerBuilder() extends TokenizerBuilder[TokenizerFactory]("lowercase")
+final case class NGramTokenizerBuilder(@JsonProperty("min_gram_size") minGramSize: Integer, @JsonProperty("max_gram_size") maxGramSize: Integer) extends TokenizerBuilder[TokenizerFactory]("ngram")
+final case class PathHierarchyTokenizerBuilder(@JsonProperty("reverse") reverse: Boolean, @JsonProperty("delimiter") delimiter: Char, @JsonProperty("replace") replace: Char, @JsonProperty("skip") skip: Integer) extends TokenizerBuilder[TokenizerFactory]("pathhierarchy")
+final case class PatternTokenizerBuilder(@JsonProperty("pattern") pattern: String, @JsonProperty("group") group: Integer) extends TokenizerBuilder[TokenizerFactory]("pattern")
+final case class StandardTokenizerBuilder(@JsonProperty("max_token_length") maxTokenLength: Integer) extends TokenizerBuilder[TokenizerFactory]("standard")
+final case class ThaiTokenizerBuilder() extends TokenizerBuilder[TokenizerFactory]("thai")
+final case class UAX29URLEmailTokenizerBuilder(@JsonProperty("max_token_length") maxTokenLength: Integer) extends TokenizerBuilder[TokenizerFactory]("uax29urlemail")
+final case class WhitespaceTokenizerBuilder(@JsonProperty("rule") rule: String) extends TokenizerBuilder[TokenizerFactory]("whitespace")
+final case class WikipediaTokenizerBuilder() extends TokenizerBuilder[TokenizerFactory]("wikipedia")
