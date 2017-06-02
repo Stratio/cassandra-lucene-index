@@ -33,10 +33,8 @@ import com.stratio.cassandra.lucene.builder.JSONBuilder;
                @JsonSubTypes.Type(value = NGramTokenizer.class, name = "ngram"),
                @JsonSubTypes.Type(value = PathHierarchyTokenizer.class, name = "path_hierarchy"),
                @JsonSubTypes.Type(value = PatternTokenizer.class, name = "pattern"),
-               @JsonSubTypes.Type(value = ReversePathHierarchyTokenizer.class, name = "reverse_path_hierarchy"),
                @JsonSubTypes.Type(value = StandardTokenizer.class, name = "standard"),
                @JsonSubTypes.Type(value = UAX29URLEmailTokenizer.class, name = "uax29_url_email"),
-               @JsonSubTypes.Type(value = UnicodeWhitespaceTokenizer.class, name = "unicode_whitespace"),
                @JsonSubTypes.Type(value = ThaiTokenizer.class, name = "thai"),
                @JsonSubTypes.Type(value = WhitespaceTokenizer.class, name = "whitespace"),
                @JsonSubTypes.Type(value = WikipediaTokenizer.class, name = "wikipedia")})

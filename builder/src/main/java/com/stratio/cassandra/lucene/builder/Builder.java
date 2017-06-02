@@ -23,6 +23,8 @@ import com.stratio.cassandra.lucene.builder.index.schema.Schema;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.ClasspathAnalyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.CustomAnalyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.SnowballAnalyzer;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.charFilter.CharFilter;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenFilter.TokenFilter;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenizer.Tokenizer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.*;
 import com.stratio.cassandra.lucene.builder.search.Search;
@@ -256,13 +258,27 @@ public abstract class Builder {
     }
 
     /**
-     * Returns a new {@link SnowballAnalyzer} for the specified language and stopwords.
+     * Returns a new {@link CustomAnalyzer} for the specified language and stopwords.
      *
      * @param tokenizer
-     * @return a new custom analyzer
+     * @param charFilter
+     * @param tokenFiliter
+     * @return
      */
+    public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer, CharFilter[] charFilter, TokenFilter[] tokenFiliter) {
+        return new CustomAnalyzer(tokenizer, charFilter, tokenFiliter);
+    }
+
     public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer) {
-        return new CustomAnalyzer(tokenizer);
+        return new CustomAnalyzer(tokenizer, null, null);
+    }
+
+    public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer, CharFilter[] charFilter) {
+        return new CustomAnalyzer(tokenizer, charFilter, null);
+    }
+
+    public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer, TokenFilter[] tokenFiliter) {
+        return new CustomAnalyzer(tokenizer, null, tokenFiliter);
     }
 
     /**

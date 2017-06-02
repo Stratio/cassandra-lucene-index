@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenizer;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * {@link Tokenizer} using a Lucene's {@code Tokenizer}s in classpath.
@@ -26,10 +27,23 @@ import com.fasterxml.jackson.annotation.JsonCreator;
  */
 public class WhitespaceTokenizer extends Tokenizer {
 
+    private final String RULE = "java";
+
+    /** terms cache read buffer size */
+    @JsonProperty("rule")
+    final String rule;
+
     /**
-     * Builds a new {@link ThaiTokenizer}
+     * Builds a new {@link WhitespaceTokenizer}
      */
     @JsonCreator
     public WhitespaceTokenizer() {
+        this.rule = RULE;
     }
+
+    @JsonCreator
+    public WhitespaceTokenizer(String rule) {
+        this.rule = rule;
+    }
+
 }

@@ -17,7 +17,10 @@ package com.stratio.cassandra.lucene.builder.index.schema.analysis;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.charFilter.CharFilter;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenFilter.TokenFilter;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenizer.Tokenizer;
+
 
 /**
  * {@link Analyzer} using a Lucene's {@code Analyzer}s in classpath.
@@ -28,16 +31,25 @@ import com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenizer.Toke
  */
 public class CustomAnalyzer extends Analyzer{
 
+    @JsonProperty("token_filter")
+    private final TokenFilter[] tokenFilter;
+
+    @JsonProperty("char_filter")
+    private final CharFilter[] charFilter;
+
     @JsonProperty("tokenizer")
     private final Tokenizer tokenizer;
-
     /**
      * Builds a new {@link CustomAnalyzer} using custom tokenizer, char_filters and token_filters.
      *
      * @param tokenizer an {@link Tokenizer} the tookenizer to use.
      */
     @JsonCreator
-    public CustomAnalyzer(@JsonProperty("tokenizer") Tokenizer tokenizer) {
+    public CustomAnalyzer(@JsonProperty("tokenizer") Tokenizer tokenizer, @JsonProperty("char_filter") CharFilter[] charFilter,
+                          @JsonProperty("token_filter") TokenFilter[] tokenFilter)
+    {
         this.tokenizer = tokenizer;
+        this.charFilter = charFilter;
+        this.tokenFilter = tokenFilter;
     }
 }

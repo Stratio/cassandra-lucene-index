@@ -27,22 +27,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class PathHierarchyTokenizer extends Tokenizer {
 
-    static final Integer DEFAULT_BUFFER_SIZE = 1024;
+    static final Boolean REVERSE = false;
     static final Character DEFAULT_DELIMITER = '/';
     static final Character DEFAULT_REPLACEMENT = '/';
     static final Integer DEFAULT_SKIP = 0;
 
     /** terms cache read buffer size */
-    @JsonProperty("buffer_size")
-    final Integer bufferSize;
+    @JsonProperty("reverse")
+    final Boolean reverse;
 
     /** path separator */
     @JsonProperty("delimiter")
     final Character delimiter;
 
     /** a replacement character for delimiter */
-    @JsonProperty("replacement")
-    final Character replacement;
+    @JsonProperty("replace")
+    final Character replace;
 
     /** number of initial tokens to skip */
     @JsonProperty("skip")
@@ -53,28 +53,28 @@ public class PathHierarchyTokenizer extends Tokenizer {
      */
     @JsonCreator
     public PathHierarchyTokenizer() {
-        this.bufferSize = DEFAULT_BUFFER_SIZE;
+        this.reverse = REVERSE;
         this.delimiter = DEFAULT_DELIMITER;
-        this.replacement = DEFAULT_REPLACEMENT;
+        this.replace = DEFAULT_REPLACEMENT;
         this.skip = DEFAULT_SKIP;
     }
 
     /**
      * Builds a new {@link PathHierarchyTokenizer} using the default bufferSize, delimiter, replacement and skip.
      *
-     * @param bufferSize terms cache read buffer size
+     * @param reverse terms cache read buffer size
      * @param delimiter path separator
-     * @param replacement a replacement character for delimiter
+     * @param replace a replacement character for delimiter
      * @param skip number of initial tokens to skip
      */
     @JsonCreator
-    public PathHierarchyTokenizer(@JsonProperty("buffer_size") Integer bufferSize,
+    public PathHierarchyTokenizer(@JsonProperty("reverse") Boolean reverse,
                                   @JsonProperty("delimiter") Character delimiter,
-                                  @JsonProperty("replacement") Character replacement,
+                                  @JsonProperty("replace") Character replacement,
                                   @JsonProperty("skip") Integer skip) {
-        this.bufferSize = getOrDefault(bufferSize, DEFAULT_BUFFER_SIZE);
+        this.reverse = getOrDefault(reverse, REVERSE);
         this.delimiter = getOrDefault(delimiter, DEFAULT_DELIMITER);
-        this.replacement = getOrDefault(replacement, DEFAULT_REPLACEMENT);
+        this.replace = getOrDefault(replacement, DEFAULT_REPLACEMENT);
         this.skip = getOrDefault(skip, DEFAULT_SKIP);
     }
 }

@@ -28,16 +28,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class PatternTokenizer extends Tokenizer {
 
     static final String DEFAULT_PATTERN = "\\W+";
-    static final Integer DEFAULT_FLAGS = 0;
     static final Integer DEFAULT_GROUP = -1;
 
     /** java regular expression <a href="http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html"</a> */
     @JsonProperty("pattern")
     final String pattern;
-
-    /** java regular expression flags */
-    @JsonProperty("flags")
-    final Integer flags;
 
     /** which pattern group to use to generate tokens (-1 for split) */
     @JsonProperty("group")
@@ -49,7 +44,6 @@ public class PatternTokenizer extends Tokenizer {
     @JsonCreator
     public PatternTokenizer() {
         this.pattern = DEFAULT_PATTERN;
-        this.flags = DEFAULT_FLAGS;
         this.group = DEFAULT_GROUP;
     }
 
@@ -65,7 +59,6 @@ public class PatternTokenizer extends Tokenizer {
                             @JsonProperty("flags") Integer flags,
                             @JsonProperty("group") Integer group) {
         this.pattern = getOrDefault(pattern, DEFAULT_PATTERN);
-        this.flags = getOrDefault(flags, DEFAULT_FLAGS);
         this.group = getOrDefault(group, DEFAULT_GROUP);
     }
 }

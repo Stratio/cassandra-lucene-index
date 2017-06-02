@@ -31,33 +31,33 @@ public class NGramTokenizer extends Tokenizer {
     static final Integer DEFAULT_MAX_GRAM = 2;
 
     /** the smallest n-gram to generate */
-    @JsonProperty("min_gram")
-    final Integer minGram;
+    @JsonProperty("min_gram_size")
+    final Integer minGramSize;
 
     /** the largest n-gram to generate */
-    @JsonProperty("max_gram")
-    final Integer maxGram;
+    @JsonProperty("max_gram_size")
+    final Integer maxGramSize;
 
     /**
-     * Builds a new {@link NGramTokenizer} using the default minGram and manGram.
+     * Builds a new {@link NGramTokenizer} using the default minGramSize and manGram.
      *
      */
     @JsonCreator
     public NGramTokenizer() {
-        this.minGram = DEFAULT_MIN_GRAM;
-        this.maxGram = DEFAULT_MAX_GRAM;
+        this.minGramSize = DEFAULT_MIN_GRAM;
+        this.maxGramSize = DEFAULT_MAX_GRAM;
     }
 
     /**
-     * Builds a new {@link NGramTokenizer} using the specified minGram and manGram.
+     * Builds a new {@link NGramTokenizer} using the specified minGramSize and manGram.
      *
-     * @param minGram the smallest n-gram to generate
-     * @param minGram the largest n-gram to generate
+     * @param gramMinSize the smallest n-gram to generate
+     * @param gramMaxSize the largest n-gram to generate
      */
     @JsonCreator
-    public NGramTokenizer(@JsonProperty("min_gram") Integer minGram,
-                          @JsonProperty("max_gram") Integer maxGram) {
-        this.minGram = getOrDefault(minGram, DEFAULT_MIN_GRAM);
-        this.maxGram = getOrDefault(maxGram, DEFAULT_MAX_GRAM);
+    public NGramTokenizer(@JsonProperty("min_gram_size") Integer minGramSize,
+                          @JsonProperty("max_gram_size") Integer maxGramSize) {
+        this.minGramSize = getOrDefault(minGramSize, DEFAULT_MIN_GRAM);
+        this.maxGramSize = getOrDefault(maxGramSize, DEFAULT_MAX_GRAM);
     }
 }

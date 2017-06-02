@@ -13,23 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenizer;
+package com.stratio.cassandra.lucene.builder.index.schema.analysis.charFilter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 /**
- * {@link Tokenizer} using a Lucene's {@code Tokenizer}s in classpath.
- *
- * It's uses the {@code Tokenizer}'s default (no args) constructor.
- *
- * @author Juan Pedro Gilaberte {@literal <jpgilaberte@stratio.com>}
+ * Created by jpgilaberte on 30/05/17.
  */
-public class UnicodeWhitespaceTokenizer extends Tokenizer {
-
-    /**
-     * Builds a new {@link LetterTokenizer}.
-     */
+public class HtmlStripCharFilter extends CharFilter{
     @JsonCreator
-    public UnicodeWhitespaceTokenizer() {
-    }
+    public HtmlStripCharFilter(){}
 }

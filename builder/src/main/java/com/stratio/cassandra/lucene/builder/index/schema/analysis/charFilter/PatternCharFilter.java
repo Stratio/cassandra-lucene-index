@@ -13,22 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenizer;
+package com.stratio.cassandra.lucene.builder.index.schema.analysis.charFilter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * {@link Tokenizer} using a Lucene's {@code Tokenizer}s in classpath.
- *
- * It's uses the {@code Tokenizer}'s default (no args) constructor.
- *
- * @author Juan Pedro Gilaberte {@literal <jpgilaberte@stratio.com>}
+ * Created by jpgilaberte on 30/05/17.
  */
-public class KeywordTokenizer extends Tokenizer {
+public class PatternCharFilter extends CharFilter{
+
+    @JsonProperty("pattern")
+    final String pattern;
+
+    @JsonProperty("replacement")
+    final String replacement;
 
     @JsonCreator
-    public KeywordTokenizer() {
+    public PatternCharFilter(@JsonProperty("pattern") String pattern, @JsonProperty("replacement") String replacement){
+        this.pattern = pattern;
+        this.replacement = replacement;
     }
-
 }
