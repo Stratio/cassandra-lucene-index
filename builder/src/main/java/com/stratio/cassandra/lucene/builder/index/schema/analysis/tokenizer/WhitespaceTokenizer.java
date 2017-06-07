@@ -29,7 +29,7 @@ public class WhitespaceTokenizer extends Tokenizer {
 
     private final String RULE = "java";
 
-    /** terms cache read buffer size */
+    /** Rule for whiteSpace character [java|unicode] */
     @JsonProperty("rule")
     final String rule;
 
@@ -41,6 +41,9 @@ public class WhitespaceTokenizer extends Tokenizer {
         this.rule = RULE;
     }
 
+    /**
+     * Builds a new {@link WhitespaceTokenizer} with rule.
+     */
     @JsonCreator
     public WhitespaceTokenizer(String rule) {
         this.rule = rule;

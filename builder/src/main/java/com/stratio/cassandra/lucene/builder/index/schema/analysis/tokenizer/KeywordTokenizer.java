@@ -27,6 +27,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class KeywordTokenizer extends Tokenizer {
 
+    /**
+     * Builds a new {@link KeywordTokenizer}.
+     */
     @JsonCreator
     public KeywordTokenizer() {
     }

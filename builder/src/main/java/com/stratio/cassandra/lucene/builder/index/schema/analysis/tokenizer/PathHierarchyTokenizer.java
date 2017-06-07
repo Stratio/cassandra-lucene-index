@@ -70,11 +70,11 @@ public class PathHierarchyTokenizer extends Tokenizer {
     @JsonCreator
     public PathHierarchyTokenizer(@JsonProperty("reverse") Boolean reverse,
                                   @JsonProperty("delimiter") Character delimiter,
-                                  @JsonProperty("replace") Character replacement,
+                                  @JsonProperty("replace") Character replace,
                                   @JsonProperty("skip") Integer skip) {
         this.reverse = getOrDefault(reverse, REVERSE);
         this.delimiter = getOrDefault(delimiter, DEFAULT_DELIMITER);
-        this.replace = getOrDefault(replacement, DEFAULT_REPLACEMENT);
+        this.replace = getOrDefault(replace, DEFAULT_REPLACEMENT);
         this.skip = getOrDefault(skip, DEFAULT_SKIP);
     }
 }

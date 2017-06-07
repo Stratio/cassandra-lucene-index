@@ -27,9 +27,9 @@ import org.junit.runners.JUnit4;
 import static com.stratio.cassandra.lucene.builder.Builder.*;
 
 /**
- * Test partitioning on partition key column.
+ * Test Tokenizers.
  *
- * @author Andres de la Pena {@literal <adelapena@stratio.com>}
+ * @author Juan Pedro Gilaberte {@literal <jpgilaberte@stratio.com>}
  */
 @RunWith(JUnit4.class)
 public class TokenizerBuilderIT extends BaseIT{
@@ -44,25 +44,6 @@ public class TokenizerBuilderIT extends BaseIT{
         CassandraUtils.dropKeyspaceIfNotNull(utils);
     }
 
-//    @Test
-//    public void testClassicTokenizer() {
-//        utils = CassandraUtils.builder("tokenizer")
-//                .withPartitionKey("pk")
-//                .withColumn("pk", "int")
-//                .withColumn("rc", "text", textMapper().analyzer("en"))
-//                .withAnalyzer("en", customAnalyzer(new NGramTokenizer(2,1),
-//                        null,
-//                        null))
-//                .build()
-//                .createKeyspace()
-//                .createTable()
-//                .insert("pk,rc", 1, "aabb")
-//                .createIndex().refresh()
-//                .filter(all()).check(1)
-//                .filter(none()).check(0)
-//                .filter(match("rc", "aa")).check(1)
-//                .filter(match("rc", "ab")).check(1);
-//    }
     @Test
     public void testClassicTokenizer() {
         utils = CassandraUtils.builder("tokenizer")
@@ -365,7 +346,7 @@ public class TokenizerBuilderIT extends BaseIT{
                 .withPartitionKey("pk")
                 .withColumn("pk", "int")
                 .withColumn("rc", "text", textMapper().analyzer("en"))
-                .withAnalyzer("en", customAnalyzer(new PatternTokenizer("/", 0, -1)))
+                .withAnalyzer("en", customAnalyzer(new PatternTokenizer("/", -1)))
                 .build()
                 .createKeyspace()
                 .createTable()

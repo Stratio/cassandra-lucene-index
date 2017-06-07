@@ -258,15 +258,15 @@ public abstract class Builder {
     }
 
     /**
-     * Returns a new {@link CustomAnalyzer} for the specified language and stopwords.
+     * Returns a new {@link CustomAnalyzer}  using custom tokenizer, char_filters and token_filters.
      *
-     * @param tokenizer
-     * @param charFilter
-     * @param tokenFiliter
+     * @param tokenizer an {@link Tokenizer} the tokenizer to use.
+     * @param charFilter an {@link CharFilter[]} the charFilter array to use.
+     * @param tokenFilter an {@link TokenFilter[]} the tokenFilter array to use.
      * @return
      */
-    public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer, CharFilter[] charFilter, TokenFilter[] tokenFiliter) {
-        return new CustomAnalyzer(tokenizer, charFilter, tokenFiliter);
+    public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer, CharFilter[] charFilter, TokenFilter[] tokenFilter) {
+        return new CustomAnalyzer(tokenizer, charFilter, tokenFilter);
     }
 
     public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer) {
@@ -277,8 +277,8 @@ public abstract class Builder {
         return new CustomAnalyzer(tokenizer, charFilter, null);
     }
 
-    public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer, TokenFilter[] tokenFiliter) {
-        return new CustomAnalyzer(tokenizer, null, tokenFiliter);
+    public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer, TokenFilter[] tokenFilter) {
+        return new CustomAnalyzer(tokenizer, null, tokenFilter);
     }
 
     /**

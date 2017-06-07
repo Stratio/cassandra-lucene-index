@@ -39,7 +39,10 @@ import com.stratio.cassandra.lucene.builder.JSONBuilder;
                @JsonSubTypes.Type(value = WhitespaceTokenizer.class, name = "whitespace"),
                @JsonSubTypes.Type(value = WikipediaTokenizer.class, name = "wikipedia")})
 public abstract class Tokenizer extends JSONBuilder {
+
     /**
+     *
+     *
      * @param param the main parameter.
      * @param defaultParam the default parameter if main paramaeter is null.
      * @param <T> return type must extend {@link Tokenizer}

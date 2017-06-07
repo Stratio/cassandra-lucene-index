@@ -51,8 +51,8 @@ public class NGramTokenizer extends Tokenizer {
     /**
      * Builds a new {@link NGramTokenizer} using the specified minGramSize and manGram.
      *
-     * @param gramMinSize the smallest n-gram to generate
-     * @param gramMaxSize the largest n-gram to generate
+     * @param minGramSize the smallest n-gram to generate
+     * @param maxGramSize the largest n-gram to generate
      */
     @JsonCreator
     public NGramTokenizer(@JsonProperty("min_gram_size") Integer minGramSize,

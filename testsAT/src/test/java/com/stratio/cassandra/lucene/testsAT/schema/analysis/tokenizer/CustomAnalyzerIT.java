@@ -28,7 +28,9 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
 import static com.stratio.cassandra.lucene.builder.Builder.match;
 
 /**
- * Created by jpgilaberte on 2/06/17.
+ * Test Custom Analyzer.
+ *
+ * @author Juan Pedro Gilaberte {@literal <jpgilaberte@stratio.com>}
  */
 @RunWith(JUnit4.class)
 public class CustomAnalyzerIT extends BaseIT {

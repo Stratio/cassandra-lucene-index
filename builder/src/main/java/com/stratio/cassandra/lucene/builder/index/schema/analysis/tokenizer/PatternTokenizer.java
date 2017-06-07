@@ -51,12 +51,10 @@ public class PatternTokenizer extends Tokenizer {
      * Builds a new {@link PatternTokenizer} using the specified pattern, flags, and group.
      *
      * @param pattern java regular expression
-     * @param flags java regular expression flags
      * @param group a pattern group to use to generate tokens (-1 for split)
      */
     @JsonCreator
     public PatternTokenizer(@JsonProperty("pattern") String pattern,
-                            @JsonProperty("flags") Integer flags,
                             @JsonProperty("group") Integer group) {
         this.pattern = getOrDefault(pattern, DEFAULT_PATTERN);
         this.group = getOrDefault(group, DEFAULT_GROUP);
