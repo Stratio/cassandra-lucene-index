@@ -135,6 +135,8 @@ Now you can run Cassandra and do some tests using the Cassandra Query Language:
 The Lucene’s index files will be stored in the same directories where the Cassandra’s will be. The default data
 directory is ``/var/lib/cassandra/data``, and each index is placed next to the SSTables of its indexed column family.
 
+Remember that if you use geo shape search you need to `include the JTS jar <doc/documentation.rst#geo-shape-mapper>`__.
+
 For more details about Apache Cassandra please see its `documentation <http://cassandra.apache.org/>`__.
 
 Examples
