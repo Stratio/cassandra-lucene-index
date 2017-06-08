@@ -22,7 +22,12 @@ import org.apache.lucene.analysis.util.TokenFilterFactory
 
 
 /**
-  * Base utility class for implementing a {@link BaseCharFilter}.
+  * {@link Builder} for building {@link TokenFilterBuilder}s in classpath using its default constructor.
+  *
+  * Encapsulates all functionality to build Lucene TokenFilter. Override 'buildFunction', in Builder trait,
+  * to implement the construction of a type of Lucene TokenFilterFactory with its parameters and its name
+  *
+  * @param typeBuilder name of factory in Lucene API
   *
   * @author Juan Pedro Gilaberte jpgilaberte@stratio.com
   */

@@ -20,30 +20,31 @@ import collection.JavaConverters._
 import scala.reflect.runtime.{universe=>ru}
 
 /**
+  * Implements the necessary functionality so that a 'case class' with attributes that extends from it,
+  * can use reflection to construct a HashMap of attributes, necessary to build lucene factories
+  *
   * @author Juan Pedro Gilaberte jpgilaberte@stratio.com
   */
 trait Builder[T] {
 
   /**
-    * Implement function to return Lucene object
+    * Implement function to return Lucene factory. Mandatory override in instance class.
     *
-    * @return
+    * @return the built factory
     */
   def buildFunction : () => T
 
-  //TODO: refactor scala style (remove throw and manage exception in centralized layer)
   /**
-    * Auxiliary function to manage Java Exceptions (Lucene's layer)
+    * Assistant function to throw Java Exceptions (Lucene's layer)
     *
     * @param throwable
-    * @return
     */
   def failThrowException(throwable: Throwable) = throw throwable
 
   /**
-    * Manage Java Exceptions (Lucene's layer)
+    * Wrap Java flow/exception (Lucene's layer) in Scala Style
     *
-    * @return the built analyzer
+    * @return the built factory
     */
   def build: T = {
     import scala.util.control.Exception._
@@ -60,23 +61,27 @@ trait Builder[T] {
   def getOrDefault(param: Option[Any], defaultParam: Any): Any = param.map(x => x).getOrElse(defaultParam)
 
   /**
+    * Assistant function that return {@link TermSymbol} of an current instance
     *
-    * @return
+    * @return iterable of Terms (reflection API)
     */
   def termSymbolsList = scala.reflect.runtime.currentMirror.classSymbol(this.getClass).toType
                           .members.collect { case m: ru.TermSymbol if m.isGetter => m }.map(_.asTerm)
 
   /**
+    * Assistant function that return value of a {@link TermSymbol}
     *
-    * @param termString
-    * @return
+    * @param termString TermSymbol to evaluate
+    * @return value of TermSymbol
     */
   def reflectedFieldValue(termString: ru.TermSymbol) = ru.runtimeMirror(this.getClass.getClassLoader)
                                                         .reflect(this).reflectField(termString).get
 
   /**
+    * Convert child instance parameters in Java {HashMap[String, String]}.
+    * This function is usually called from the 'buildFunction' method overwritten in the child classes.
     *
-     * @return
+    * @return Java {HashMap[String, String]} with key(parameterName)->value(parameterValue)
     */
   def mapParsed = new util.HashMap[String, String](termSymbolsList.collect({case tm: ru.TermSymbol if reflectedFieldValue(tm) != null => tm})
       .map(x => (x.name.toString, reflectedFieldValue(x).toString)).toMap.asJava)

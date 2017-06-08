@@ -22,6 +22,13 @@ import org.apache.lucene.analysis.util.TokenizerFactory
 
 
 /**
+  * {@link Builder} for building {@link TokenizerBuilder}s in classpath using its default constructor.
+  *
+  * Encapsulates all functionality to build Lucene Tokenizer. Override 'buildFunction', in Builder trait,
+  * to implement the construction of a type of Lucene TokenizerFactory with its parameters and its name
+  *
+  * @param typeBuilder name of factory in Lucene API
+  *
   * @author Juan Pedro Gilaberte jpgilaberte@stratio.com
   */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -39,6 +46,7 @@ import org.apache.lucene.analysis.util.TokenizerFactory
                     new Type(value = classOf[WhitespaceTokenizerBuilder], name = "whitespace"),
                     new Type(value = classOf[WikipediaTokenizerBuilder], name = "wikipedia"))
 ) sealed abstract class TokenizerBuilder[T](typeBuilder: String) extends Builder[T]{
+    /** {@inheritDoc} */
     def buildFunction = () => TokenizerFactory.forName(typeBuilder, mapParsed).asInstanceOf[T]
 }
 

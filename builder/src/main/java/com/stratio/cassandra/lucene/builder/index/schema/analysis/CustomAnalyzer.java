@@ -31,15 +31,15 @@ import com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenizer.Toke
  */
 public class CustomAnalyzer extends Analyzer{
 
-    /** The {@code Analyzer} full qualified class name. */
+    /** The {@code TokenFilter} array. */
     @JsonProperty("token_filter")
     private final TokenFilter[] tokenFilter;
 
-    /** The {@code Analyzer} full qualified class name. */
+    /** The {@code CharFilter} array. */
     @JsonProperty("char_filter")
     private final CharFilter[] charFilter;
 
-    /** The {@code Analyzer} full qualified class name. */
+    /** The {@code Tokenizer} instance. */
     @JsonProperty("tokenizer")
     private final Tokenizer tokenizer;
 

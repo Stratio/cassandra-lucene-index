@@ -28,15 +28,22 @@ import org.apache.lucene.analysis.util.{CharFilterFactory, TokenFilterFactory, T
 
 import scala.util.{Failure, Success, Try}
 
-
 /**
-  * Created by jpgilaberte on 24/05/17.
+  * {@link AnalyzerBuilder} for building {@link Analyzer}s in classpath using its default constructor.
+  *
+  * @author by jpgilaberte on 24/05/17
+  *
+  * @param tokenizer the tokenizer to use.
+  * @param charFilter the charFilter array to use.
+  * @param tokenFilter the tokenFilter array to use.
   */
 final case class CustomAnalyzerBuilder( @JsonProperty("tokenizer") tokenizer: TokenizerBuilder[_],
                                         @JsonProperty("char_filter") charFilter: Array[CharFilterBuilder[_]],
                                         @JsonProperty("token_filter") tokenFilter: Array[TokenFilterBuilder[_]]
                                         ) extends AnalyzerBuilder{
 
+
+  /** {@inheritDoc} */
   override def analyzer(): Analyzer = {
     val custom = CustomAnalyzer.builder()
 
