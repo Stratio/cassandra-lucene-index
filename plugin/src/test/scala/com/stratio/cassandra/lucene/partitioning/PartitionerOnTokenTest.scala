@@ -27,30 +27,40 @@ import org.scalatest.junit.JUnitRunner
 class PartitionerOnTokenTest extends PartitionerTest {
 
   test("build with zero partitions") {
-    assertThrows[IndexException] {PartitionerOnToken(0)}
+    intercept[IndexException] {
+      PartitionerOnToken(0, Array("/home/a"))
+    }.getMessage shouldBe "The number of partitions should be strictly positive but found 0"
   }
 
   test("build with negative partitions") {
-    assertThrows[IndexException] {PartitionerOnToken(-1)}
+    intercept[IndexException] {
+      PartitionerOnToken(-1, Array("/home/a"))
+    }.getMessage shouldBe "The number of partitions should be strictly positive but found -1"
+  }
+
+  test("build with size(paths) != partitions") {
+    intercept [IndexException] {
+      PartitionerOnToken(1, Array())
+    }.getMessage shouldBe "The paths size must be equal to number of partitions"
   }
 
   test("parse JSON") {
-    val json = "{type:\"token\", partitions: 10}"
-    Partitioner.fromJson(json) shouldBe PartitionerOnToken.Builder(10)
+    val json = "{type:\"token\", partitions: 1, paths: [\"/home/a\"]}"
+    Partitioner.fromJson(json) shouldBe PartitionerOnToken.Builder(1, Array("/home/a"))
   }
 
   test("num partitions") {
-    PartitionerOnToken(4).numPartitions shouldBe 4
+    PartitionerOnToken(4, Array("/home/a","/home/b","/home/c","/home/d")).numPartitions shouldBe 4
   }
 
   test("key partition with 1 partition") {
     for (i <- 1 to 10) {
-      PartitionerOnToken(1).partition(key(i)) shouldBe 0
+      PartitionerOnToken(1, Array("/home/a")).partition(key(i)) shouldBe 0
     }
   }
 
   test("key partition with n partitions") {
-    val partitioner = PartitionerOnToken(10)
+    val partitioner = PartitionerOnToken(10, Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j"))
     partitioner.partition(key(0)) shouldBe 8
     partitioner.partition(key(1)) shouldBe 9
     partitioner.partition(key(2)) shouldBe 2
@@ -61,4 +71,31 @@ class PartitionerOnTokenTest extends PartitionerTest {
     partitioner.partition(key(7)) shouldBe 6
   }
 
+  test("test valid paths set get") {
+    val partitioner = PartitionerOnToken(10, Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j"))
+    partitioner.pathForPartition(0) shouldBe "/home/a"
+    partitioner.pathForPartition(1) shouldBe "/home/b"
+    partitioner.pathForPartition(2) shouldBe "/home/c"
+    partitioner.pathForPartition(3) shouldBe "/home/d"
+    partitioner.pathForPartition(4) shouldBe "/home/e"
+    partitioner.pathForPartition(5) shouldBe "/home/f"
+    partitioner.pathForPartition(6) shouldBe "/home/g"
+    partitioner.pathForPartition(7) shouldBe "/home/h"
+    partitioner.pathForPartition(8) shouldBe "/home/i"
+    partitioner.pathForPartition(9) shouldBe "/home/j"
+  }
+
+  test("testing invalid index in pathForPartition") {
+    val partitioner = PartitionerOnToken(1, Array("/home/a"))
+    intercept [IndexOutOfBoundsException] {
+      partitioner.pathForPartition(1)
+    }.getMessage shouldBe "partition must be [0,1)"
+  }
+
+  test("testing invalid index in pathForPartition with -1") {
+    val partitioner = PartitionerOnToken(1, Array("/home/a"))
+    intercept [IndexOutOfBoundsException] {
+      partitioner.pathForPartition(-1)
+    }.getMessage shouldBe "partition must be [0,1)"
+  }
 }

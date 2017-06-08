@@ -29,11 +29,11 @@ import org.apache.cassandra.db.{DecoratedKey, ReadCommand}
   */
 trait Partitioner {
 
-  /** Returns the number of partitions. */
-  def numPartitions: Int
-
   /** Returns all the partitions. */
   lazy val allPartitions: List[Int] = (0 until numPartitions).toList
+
+  /** Returns the number of partitions. */
+  def numPartitions: Int
 
   /** Returns the partition for the specified partition key.
     *
@@ -54,6 +54,15 @@ trait Partitioner {
 /** Companion object for [[Partitioner]]. */
 object Partitioner {
 
+  /** Returns the [[Partitioner]] represented by the specified JSON string.
+    *
+    * @param metadata the indexed table metadata
+    * @param json     a JSON string representing a [[Partitioner]]
+    * @return the partitioner represented by `json`
+    */
+  def fromJson(metadata: CFMetaData, json: String): Partitioner =
+    fromJson(json).build(metadata)
+
   /** Returns the [[Builder]] represented by the specified JSON string.
     *
     * @param json a JSON string representing a [[Partitioner]]
@@ -61,15 +70,6 @@ object Partitioner {
     */
   def fromJson(json: String): Builder =
     JsonSerializer.fromString(json, classOf[Partitioner.Builder])
-
-  /** Returns the [[Partitioner]] represented by the specified JSON string.
-    *
-    * @param metadata the indexed table metadata
-    * @param json a JSON string representing a [[Partitioner]]
-    * @return the partitioner represented by `json`
-    */
-  def fromJson(metadata: CFMetaData, json: String): Partitioner =
-    fromJson(json).build(metadata)
 
   @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -85,6 +85,10 @@ object Partitioner {
 
     def build(metadata: CFMetaData): Partitioner
 
+  }
+
+  trait StaticPartitioner extends Partitioner {
+    def pathForPartition(partition: Int): String
   }
 
 }

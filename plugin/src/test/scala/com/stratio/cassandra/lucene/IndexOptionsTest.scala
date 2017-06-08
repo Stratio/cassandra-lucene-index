@@ -264,7 +264,7 @@ class IndexOptionsTest extends BaseScalaTest {
 
   test("parse partitioner with token partitioner") {
     val json = "{type:\"token\", partitions: 10}"
-    parsePartitioner(Map(PARTITIONER_OPTION -> json), null) shouldBe PartitionerOnToken(10)
+    parsePartitioner(Map(PARTITIONER_OPTION -> json), null) shouldBe PartitionerOnToken(10, Array())
   }
 
 }
