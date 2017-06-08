@@ -20,6 +20,7 @@ import javax.management.{JMException, ObjectName}
 
 import com.stratio.cassandra.lucene.index.{DocumentIterator, PartitionedIndex}
 import com.stratio.cassandra.lucene.mapping._
+import com.stratio.cassandra.lucene.partitioning.Partitioner.StaticPartitioner
 import com.stratio.cassandra.lucene.search.Search
 import com.stratio.cassandra.lucene.util._
 import org.apache.cassandra.config.{ColumnDefinition, DatabaseDescriptor}
@@ -75,6 +76,10 @@ abstract class IndexService(
   val partitioner = options.partitioner
   val lucene = new PartitionedIndex(partitioner.numPartitions,
     idxName,
+    partitioner match {
+      case (s:StaticPartitioner) => s.pathsForEveryPartition
+      case (other) => Array()
+    },
     options.path,
     options.schema.analyzer,
     options.refreshSeconds,

@@ -89,6 +89,7 @@ object Partitioner {
 
   trait StaticPartitioner extends Partitioner {
     def pathForPartition(partition: Int): String
+    def pathsForEveryPartition : Array[String]
   }
 
 }

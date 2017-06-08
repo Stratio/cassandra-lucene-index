@@ -71,6 +71,17 @@ case class PartitionerOnToken(partitions: Int, paths: Array[String]) extends Sta
 
   /** @inheritdoc*/
   override def numPartitions: Int = partitions
+
+  /** @inheritdoc*/
+  override def pathsForEveryPartition: Array[String] = paths
+
+  /** @inheritdoc*/
+  override def equals(that: Any): Boolean =
+    that match {
+      case that: PartitionerOnToken => this.partitions.equals(that.partitions) && this.paths.sameElements(
+        that.paths)
+      case _ => false
+    }
 }
 
 /** Companion object for [[PartitionerOnToken]]. */

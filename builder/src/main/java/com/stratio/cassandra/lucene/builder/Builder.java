@@ -780,8 +780,8 @@ public abstract class Builder {
      * @param partitions the number of index partitions per node
      * @return a new partitioner based on Cassandra's partitioning token
      */
-    public static Partitioner.OnToken partitionerOnToken(int partitions) {
-        return new Partitioner.OnToken(partitions);
+    public static Partitioner.OnToken partitionerOnToken(int partitions, String[] paths) {
+        return new Partitioner.OnToken(partitions, paths);
     }
 
     /**
@@ -798,8 +798,8 @@ public abstract class Builder {
      * @param column the name of the partition key column
      * @return a new partitioner based on a partitioning key column
      */
-    public static Partitioner.OnColumn partitionerOnColumn(int partitions, String column) {
-        return new Partitioner.OnColumn(partitions, column);
+    public static Partitioner.OnColumn partitionerOnColumn(int partitions, String column, String[] paths) {
+        return new Partitioner.OnColumn(partitions, column, paths);
     }
 
     /**

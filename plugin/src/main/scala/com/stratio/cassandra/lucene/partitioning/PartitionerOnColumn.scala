@@ -48,7 +48,7 @@ import scala.collection.JavaConverters._
   * @param keyValidator the type of the partition key
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-case class PartitionerOnColumn(
+case class PartitionerOnColumn (
     partitions: Int,
     column: String,
     paths: Array[String],
@@ -110,6 +110,17 @@ case class PartitionerOnColumn(
 
   /** @inheritdoc*/
   override def numPartitions: Int = partitions
+
+  override def pathsForEveryPartition: Array[String] = paths
+
+
+  /** @inheritdoc*/
+  override def equals(that: Any): Boolean =
+    that match {
+      case that: PartitionerOnColumn => this.partitions.equals(that.partitions) && this.column.equals(that.column) && this.paths.sameElements(
+        that.paths) && this.position.equals(that.position) && this.keyValidator.equals(that.keyValidator)
+      case _ => false
+    }
 }
 
 /** Companion object for [[PartitionerOnColumn]]. */
