@@ -92,7 +92,7 @@ class PartitionedIndex(
     }
   }
 
-  private[this] def useLocalPath = localPaths.length > 0
+  private[this] def useLocalPath = localPaths!= null && localPaths.length > 0
   private[this] var mergeSort: Sort = _
   private[this] var fields: java.util.Set[String] = _
 
