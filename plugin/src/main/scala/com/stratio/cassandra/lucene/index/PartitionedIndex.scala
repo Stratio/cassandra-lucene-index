@@ -76,7 +76,7 @@ class PartitionedIndex(
           val path = if (useLocalPath) {
             localPaths(index) + File.separator + index
           } else {
-            globalPath.toFile.getAbsolutePath + File.separator
+            globalPath.toFile.getAbsolutePath + File.separator + index
           }
           outputList = outputList ++ List(new FSIndex(name,
             Paths.get(path),

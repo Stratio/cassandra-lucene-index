@@ -53,7 +53,7 @@ public class BuilderTest {
                                                    .indexingQueuesSize(100)
                                                    .excludedDataCenters("DC1,DC2")
                                                    .sparse(true)
-                                                   .partitioner(partitionerOnToken(8, new String[]{"a","b","c","d","e","f","g","h"}))
+                                                   .partitioner(partitionerOnToken(8).paths(new String[]{"a","b","c","d","e","f","g","h"}))
                                                    .defaultAnalyzer("my_analyzer")
                                                    .analyzer("my_analyzer", classpathAnalyzer("my_class"))
                                                    .analyzer("snow", snowballAnalyzer("tartar").stopwords("a,b,c"))
@@ -91,14 +91,14 @@ public class BuilderTest {
 
     @Test
     public void testTokenPartitioner() {
-        String actual = partitionerOnToken(6, new String[] {"/home/a", "/home/b", "/home/c", "/home/d", "/home/e", "/home/f"}).build();
+        String actual = partitionerOnToken(6).paths(new String[] {"/home/a", "/home/b", "/home/c", "/home/d", "/home/e", "/home/f"}).build();
         String expected = "{\"type\":\"token\",\"partitions\":6,\"paths\":[\"/home/a\",\"/home/b\",\"/home/c\",\"/home/d\",\"/home/e\",\"/home/f\"]}";
         assertEquals("token partitioner serialization is wrong", expected, actual);
     }
 
     @Test
     public void testColumnPartitioner() {
-        String actual = partitionerOnColumn(6, "col", new String[] {"/home/a", "/home/b", "/home/c", "/home/d", "/home/e", "/home/f"}).build();
+        String actual = partitionerOnColumn(6, "col").paths(new String[] {"/home/a", "/home/b", "/home/c", "/home/d", "/home/e", "/home/f"}).build();
         String expected = "{\"type\":\"column\",\"partitions\":6,\"column\":\"col\",\"paths\":[\"/home/a\",\"/home/b\",\"/home/c\",\"/home/d\",\"/home/e\",\"/home/f\"]}";
         assertEquals("column partitioner serialization is wrong", expected, actual);
     }
