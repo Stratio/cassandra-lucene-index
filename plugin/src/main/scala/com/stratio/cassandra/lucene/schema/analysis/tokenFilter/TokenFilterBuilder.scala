@@ -63,6 +63,7 @@ import org.apache.lucene.analysis.util.TokenFilterFactory
   new Type(value = classOf[LowercaseTokenFilter], name = "lowercase")
 ))
 sealed abstract class TokenFilterBuilder[T](typeBuilder: String) extends Builder[T]{
+  /** {@inheritDoc} */
   def buildFunction = () => TokenFilterFactory.forName(typeBuilder, mapParsed).asInstanceOf[T]
 }
 
@@ -77,15 +78,15 @@ final case class GermanMinimalStemTokenFilterBuilder() extends TokenFilterBuilde
 final case class UpperCaseTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("uppercase")
 final case class KeywordRepeatTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("keywordrepeat")
 final case class ClassicTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("classic")
-final case class ShingleTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("shingle")
-final case class StemmeroverrideTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("stemmeroverride")
+final case class ShingleTokenFilterBuilder(@JsonProperty("min_shingle_size") minShingleSize: Integer, @JsonProperty("max_shingle_size") maxShingleSize: Integer) extends TokenFilterBuilder[TokenFilterFactory]("shingle")
+final case class StemmeroverrideTokenFilterBuilder(@JsonProperty("dictionary") dictionary: String, @JsonProperty("ignore_case") ignoreCase: Boolean) extends TokenFilterBuilder[TokenFilterFactory]("stemmeroverride")
 final case class BulgarianstemTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("bulgarianstem")
 final case class SwedishlightstemTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("swedishlightstem")
 final case class FrenchlightstemTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("frenchlightstem")
 final case class CjkwidthTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("cjkwidth")
 final case class GreekstemTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("greekstem")
 final case class StopTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("stop")
-final case class HindistemTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("hindistem")
+final case class HindistemTokenFilterBuilder(@JsonProperty("maxOutputTokenSize") maxOutputTokenSize: Integer, @JsonProperty("separator") separator: String) extends TokenFilterBuilder[TokenFilterFactory]("hindistem")
 final case class FingerprintTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("fingerprint")
 final case class SpanishlightstemTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("spanishlightstem")
 final case class HungarianlightstemTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("hungarianlightstem")
@@ -94,7 +95,7 @@ final case class PersiannormalizationTokenFilterBuilder() extends TokenFilterBui
 final case class GermanlightstemTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("germanlightstem")
 final case class TypeTokenFilterBuilder() extends TokenFilterBuilder[TokenFilterFactory]("type")
 //
-final case class AsciifoldingTokenFilter(@JsonProperty("preserveOriginal") preserveOriginal:Boolean) extends TokenFilterBuilder[TokenFilterFactory]("asciifolding")
+final case class AsciifoldingTokenFilter(@JsonProperty("preserve_original") preserveOriginal:Boolean) extends TokenFilterBuilder[TokenFilterFactory]("asciifolding")
 final case class LowercaseTokenFilter() extends TokenFilterBuilder[TokenFilterFactory]("lowercase")
 //
 //final case class StandardTokenFilter() extends TokenizerFilterBuilder[TokenFilterFactory]("germanstem")

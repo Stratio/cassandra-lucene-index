@@ -37,10 +37,11 @@ import org.apache.lucene.analysis.util.CharFilterFactory
                     new Type(value = classOf[PersianCharFilterBuilder], name = CharFilterBuilder.PERSIAN),
                     new Type(value = classOf[PatternReplaceCharFilterBuilder], name = CharFilterBuilder.PATTERN_REPLACE)))
 sealed abstract class CharFilterBuilder[T](typeBuilder: String) extends Builder[T]{
+  /** {@inheritDoc} */
   def buildFunction = () => CharFilterFactory.forName(typeBuilder, mapParsed).asInstanceOf[T]
 }
 
-final case class HtmlStripCharFilterBuilder() extends CharFilterBuilder[CharFilterFactory](CharFilterBuilder.HTML_STRIP)
+final case class HtmlStripCharFilterBuilder(@JsonProperty(CharFilterBuilder.ESCAPED_TAGS) escapedTags: Array[String]) extends CharFilterBuilder[CharFilterFactory](CharFilterBuilder.HTML_STRIP)
 final case class PersianCharFilterBuilder() extends CharFilterBuilder[CharFilterFactory](CharFilterBuilder.PERSIAN)
 final case class PatternReplaceCharFilterBuilder(@JsonProperty(CharFilterBuilder.PATTERN) pattern: String, @JsonProperty(CharFilterBuilder.REPLACEMENT)  replacement:String) extends CharFilterBuilder[CharFilterFactory](CharFilterBuilder.PATTERN_REPLACE)
 final case class MappingCharFilterBuilder(@JsonProperty(CharFilterBuilder.MAPPINGS) mapping: String) extends CharFilterBuilder[CharFilterFactory](CharFilterBuilder.MAPPING){
@@ -48,6 +49,7 @@ final case class MappingCharFilterBuilder(@JsonProperty(CharFilterBuilder.MAPPIN
 }
 
 object CharFilterBuilder{
+  final val ESCAPED_TAGS = "escapedtags"
   final val MAPPINGS = "mapping"
   final val TYPE = "type"
   final val PATTERN = "pattern"
