@@ -17,10 +17,29 @@ package com.stratio.cassandra.lucene.builder.index.schema.analysis.charFilter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+import java.util.ArrayList;
+
 /**
  * Created by jpgilaberte on 30/05/17.
  */
 public class HtmlStripCharFilter extends CharFilter{
+
     @JsonCreator
     public HtmlStripCharFilter(){}
+
+    @JsonCreator
+    public HtmlStripCharFilter(ArrayList<String> escapedtags) {
+        this.escapedtags = escapedtags;
+    }
+
+    private ArrayList<String> escapedtags;
+
+    public ArrayList<String> getEscapedtags() {
+        return escapedtags;
+    }
+
+    public HtmlStripCharFilter setEscapedtags(ArrayList<String> escapedtags) {
+        this.escapedtags = escapedtags;
+        return this;
+    }
 }
