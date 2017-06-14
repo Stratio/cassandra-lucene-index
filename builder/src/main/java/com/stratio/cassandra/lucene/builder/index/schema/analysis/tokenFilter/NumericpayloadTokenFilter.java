@@ -20,9 +20,36 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * Created by jpgilaberte on 25/05/17.
  */
- public class ApostropheTokenFilter extends TokenFilter{
+ public class NumericpayloadTokenFilter extends TokenFilter{
 
     @JsonCreator
-    public ApostropheTokenFilter(){}
+    public NumericpayloadTokenFilter(){}
+
+    @JsonCreator
+    public NumericpayloadTokenFilter(Integer payload, String typeMatch) {
+        this.payload = payload;
+        this.typeMatch = typeMatch;
+    }
+
+    private Integer payload;
+    private String typeMatch;
+
+    public Integer getPayload() {
+        return payload;
+    }
+
+    public NumericpayloadTokenFilter setPayload(Integer payload) {
+        this.payload = payload;
+        return this;
+    }
+
+    public String getTypeMatch() {
+        return typeMatch;
+    }
+
+    public NumericpayloadTokenFilter setTypeMatch(String typeMatch) {
+        this.typeMatch = typeMatch;
+        return this;
+    }
 }
 

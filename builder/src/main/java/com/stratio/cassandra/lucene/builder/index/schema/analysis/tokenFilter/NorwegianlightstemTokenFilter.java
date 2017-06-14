@@ -20,9 +20,25 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * Created by jpgilaberte on 25/05/17.
  */
- public class ApostropheTokenFilter extends TokenFilter{
+ public class NorwegianlightstemTokenFilter extends TokenFilter{
 
     @JsonCreator
-    public ApostropheTokenFilter(){}
+    public NorwegianlightstemTokenFilter(){}
+
+    @JsonCreator
+    public NorwegianlightstemTokenFilter(String variant) {
+        this.variant = variant;
+    }
+
+    private String variant = "nb";
+
+    public String getVariant() {
+        return variant;
+    }
+
+    public NorwegianlightstemTokenFilter setVariant(String variant) {
+        this.variant = variant;
+        return this;
+    }
 }
 

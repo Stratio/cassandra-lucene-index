@@ -16,13 +16,43 @@
 package com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenFilter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by jpgilaberte on 25/05/17.
  */
- public class ApostropheTokenFilter extends TokenFilter{
+ public class SnowballporterTokenFilter extends TokenFilter{
 
     @JsonCreator
-    public ApostropheTokenFilter(){}
+    public SnowballporterTokenFilter(){}
+
+    @JsonCreator
+    public SnowballporterTokenFilter(String protect, String language) {
+        this.protect = protect;
+        this.language = language;
+    }
+
+    @JsonProperty("protected")
+    private String protect;
+
+    private String language;
+
+    public String getProtect() {
+        return protect;
+    }
+
+    public SnowballporterTokenFilter setProtect(String protect) {
+        this.protect = protect;
+        return this;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public SnowballporterTokenFilter setLanguage(String language) {
+        this.language = language;
+        return this;
+    }
 }
 

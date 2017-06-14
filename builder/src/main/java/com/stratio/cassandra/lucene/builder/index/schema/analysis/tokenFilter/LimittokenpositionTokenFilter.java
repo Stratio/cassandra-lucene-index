@@ -20,24 +20,35 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * Created by jpgilaberte on 25/05/17.
  */
- public class AsciifoldingTokenFilter extends TokenFilter{
+ public class LimittokenpositionTokenFilter extends TokenFilter{
 
     @JsonCreator
-    public AsciifoldingTokenFilter(){}
+    public LimittokenpositionTokenFilter(){}
 
     @JsonCreator
-    public AsciifoldingTokenFilter(Boolean preserveOriginal) {
-        this.preserveOriginal = preserveOriginal;
+    public LimittokenpositionTokenFilter(Integer maxTokenPosition, Boolean consumeAllTokens) {
+        this.maxTokenPosition = maxTokenPosition;
+        this.consumeAllTokens = consumeAllTokens;
     }
 
-    private Boolean preserveOriginal;
+    private Integer maxTokenPosition;
+    private Boolean consumeAllTokens;
 
-    public Boolean getPreserveOriginal() {
-        return preserveOriginal;
+    public Integer getMaxTokenPosition() {
+        return maxTokenPosition;
     }
 
-    public AsciifoldingTokenFilter setPreserveOriginal(Boolean preserveOriginal) {
-        this.preserveOriginal = preserveOriginal;
+    public LimittokenpositionTokenFilter setMaxTokenPosition(Integer maxTokenPosition) {
+        this.maxTokenPosition = maxTokenPosition;
+        return this;
+    }
+
+    public Boolean getConsumeAllTokens() {
+        return consumeAllTokens;
+    }
+
+    public LimittokenpositionTokenFilter setConsumeAllTokens(Boolean consumeAllTokens) {
+        this.consumeAllTokens = consumeAllTokens;
         return this;
     }
 }

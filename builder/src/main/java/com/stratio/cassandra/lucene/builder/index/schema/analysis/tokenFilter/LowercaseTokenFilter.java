@@ -18,9 +18,11 @@ package com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenFilter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 /**
- * Created by jpgilaberte on 30/05/17.
+ * Created by jpgilaberte on 25/05/17.
  */
-public class LowercaseTokenFilter extends TokenFilter{
+ public class LowercaseTokenFilter extends TokenFilter{
+
     @JsonCreator
     public LowercaseTokenFilter(){}
 }
+

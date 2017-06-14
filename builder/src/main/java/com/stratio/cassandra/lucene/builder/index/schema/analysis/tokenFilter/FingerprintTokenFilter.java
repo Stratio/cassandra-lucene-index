@@ -20,24 +20,35 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * Created by jpgilaberte on 25/05/17.
  */
- public class AsciifoldingTokenFilter extends TokenFilter{
+ public class FingerprintTokenFilter extends TokenFilter{
 
     @JsonCreator
-    public AsciifoldingTokenFilter(){}
+    public FingerprintTokenFilter(){}
 
     @JsonCreator
-    public AsciifoldingTokenFilter(Boolean preserveOriginal) {
-        this.preserveOriginal = preserveOriginal;
+    public FingerprintTokenFilter(Integer maxOutputTokenSize, String separator) {
+        this.maxOutputTokenSize = maxOutputTokenSize;
+        this.separator = separator;
     }
 
-    private Boolean preserveOriginal;
+    private Integer maxOutputTokenSize = 1024;
+    private String separator = " ";
 
-    public Boolean getPreserveOriginal() {
-        return preserveOriginal;
+    public Integer getMaxOutputTokenSize() {
+        return maxOutputTokenSize;
     }
 
-    public AsciifoldingTokenFilter setPreserveOriginal(Boolean preserveOriginal) {
-        this.preserveOriginal = preserveOriginal;
+    public FingerprintTokenFilter setMaxOutputTokenSize(Integer maxOutputTokenSize) {
+        this.maxOutputTokenSize = maxOutputTokenSize;
+        return this;
+    }
+
+    public String getSeparator() {
+        return separator;
+    }
+
+    public FingerprintTokenFilter setSeparator(String separator) {
+        this.separator = separator;
         return this;
     }
 }

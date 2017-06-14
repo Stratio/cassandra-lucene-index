@@ -20,9 +20,36 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * Created by jpgilaberte on 25/05/17.
  */
- public class ApostropheTokenFilter extends TokenFilter{
+ public class ElisionTokenFilter extends TokenFilter{
 
     @JsonCreator
-    public ApostropheTokenFilter(){}
+    public ElisionTokenFilter(){}
+
+    @JsonCreator
+    public ElisionTokenFilter(String articles, Boolean ignoreCase) {
+        this.articles = articles;
+        this.ignoreCase = ignoreCase;
+    }
+
+    private String articles;
+    private Boolean ignoreCase;
+
+    public String getArticles() {
+        return articles;
+    }
+
+    public ElisionTokenFilter setArticles(String articles) {
+        this.articles = articles;
+        return this;
+    }
+
+    public Boolean getIgnoreCase() {
+        return ignoreCase;
+    }
+
+    public ElisionTokenFilter setIgnoreCase(Boolean ignoreCase) {
+        this.ignoreCase = ignoreCase;
+        return this;
+    }
 }
 

@@ -20,9 +20,36 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * Created by jpgilaberte on 25/05/17.
  */
- public class ApostropheTokenFilter extends TokenFilter{
+ public class LengthTokenFilter extends TokenFilter{
 
     @JsonCreator
-    public ApostropheTokenFilter(){}
+    public LengthTokenFilter(){}
+
+    @JsonCreator
+    public LengthTokenFilter(Integer min, Integer max) {
+        this.min = min;
+        this.max = max;
+    }
+
+    private Integer min	= 0;
+    private Integer max;
+
+    public Integer getMin() {
+        return min;
+    }
+
+    public LengthTokenFilter setMin(Integer min) {
+        this.min = min;
+        return this;
+    }
+
+    public Integer getMax() {
+        return max;
+    }
+
+    public LengthTokenFilter setMax(Integer max) {
+        this.max = max;
+        return this;
+    }
 }
 

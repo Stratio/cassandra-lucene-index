@@ -20,9 +20,36 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * Created by jpgilaberte on 25/05/17.
  */
- public class ApostropheTokenFilter extends TokenFilter{
+ public class DaterecognizerTokenFilter extends TokenFilter{
 
     @JsonCreator
-    public ApostropheTokenFilter(){}
+    public DaterecognizerTokenFilter(){}
+
+    @JsonCreator
+    public DaterecognizerTokenFilter(String datePattern, String locale) {
+        this.datePattern = datePattern;
+        this.locale = locale;
+    }
+
+    private String datePattern;
+    private String locale;
+
+    public String getDatePattern() {
+        return datePattern;
+    }
+
+    public DaterecognizerTokenFilter setDatePattern(String datePattern) {
+        this.datePattern = datePattern;
+        return this;
+    }
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public DaterecognizerTokenFilter setLocale(String locale) {
+        this.locale = locale;
+        return this;
+    }
 }
 

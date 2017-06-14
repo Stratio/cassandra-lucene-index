@@ -20,9 +20,25 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * Created by jpgilaberte on 25/05/17.
  */
- public class ApostropheTokenFilter extends TokenFilter{
+ public class TruncateTokenFilter extends TokenFilter{
 
     @JsonCreator
-    public ApostropheTokenFilter(){}
+    public TruncateTokenFilter(){}
+
+    @JsonCreator
+    public TruncateTokenFilter(Integer prefixLength) {
+        this.prefixLength = prefixLength;
+    }
+
+    private Integer prefixLength;
+
+    public Integer getPrefixLength() {
+        return prefixLength;
+    }
+
+    public TruncateTokenFilter setPrefixLength(Integer prefixLength) {
+        this.prefixLength = prefixLength;
+        return this;
+    }
 }
 

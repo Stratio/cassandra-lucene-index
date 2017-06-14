@@ -20,24 +20,35 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * Created by jpgilaberte on 25/05/17.
  */
- public class AsciifoldingTokenFilter extends TokenFilter{
+ public class PatterncapturegroupTokenFilter extends TokenFilter{
 
     @JsonCreator
-    public AsciifoldingTokenFilter(){}
+    public PatterncapturegroupTokenFilter(){}
 
     @JsonCreator
-    public AsciifoldingTokenFilter(Boolean preserveOriginal) {
-        this.preserveOriginal = preserveOriginal;
+    public PatterncapturegroupTokenFilter(String pattern, boolean preserve_original) {
+        this.pattern = pattern;
+        this.preserve_original = preserve_original;
     }
 
-    private Boolean preserveOriginal;
+    private String pattern;
+    private boolean preserve_original;
 
-    public Boolean getPreserveOriginal() {
-        return preserveOriginal;
+    public String getPattern() {
+        return pattern;
     }
 
-    public AsciifoldingTokenFilter setPreserveOriginal(Boolean preserveOriginal) {
-        this.preserveOriginal = preserveOriginal;
+    public PatterncapturegroupTokenFilter setPattern(String pattern) {
+        this.pattern = pattern;
+        return this;
+    }
+
+    public boolean isPreserve_original() {
+        return preserve_original;
+    }
+
+    public PatterncapturegroupTokenFilter setPreserve_original(boolean preserve_original) {
+        this.preserve_original = preserve_original;
         return this;
     }
 }

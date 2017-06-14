@@ -20,24 +20,46 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * Created by jpgilaberte on 25/05/17.
  */
- public class AsciifoldingTokenFilter extends TokenFilter{
+ public class StopTokenFilter extends TokenFilter{
 
     @JsonCreator
-    public AsciifoldingTokenFilter(){}
+    public StopTokenFilter(){}
 
     @JsonCreator
-    public AsciifoldingTokenFilter(Boolean preserveOriginal) {
-        this.preserveOriginal = preserveOriginal;
+    public StopTokenFilter(String words, String format, Boolean ignore_case) {
+        this.words = words;
+        this.format = format;
+        this.ignore_case = ignore_case;
     }
 
-    private Boolean preserveOriginal;
+    private String words;
+    private String format;
+    private Boolean ignore_case;
 
-    public Boolean getPreserveOriginal() {
-        return preserveOriginal;
+    public String getWords() {
+        return words;
     }
 
-    public AsciifoldingTokenFilter setPreserveOriginal(Boolean preserveOriginal) {
-        this.preserveOriginal = preserveOriginal;
+    public StopTokenFilter setWords(String words) {
+        this.words = words;
+        return this;
+    }
+
+    public Boolean getIgnore_case() {
+        return ignore_case;
+    }
+
+    public StopTokenFilter setIgnore_case(Boolean ignore_case) {
+        this.ignore_case = ignore_case;
+        return this;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public StopTokenFilter setFormat(String format) {
+        this.format = format;
         return this;
     }
 }

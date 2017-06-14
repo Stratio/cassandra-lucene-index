@@ -20,9 +20,36 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * Created by jpgilaberte on 25/05/17.
  */
- public class ApostropheTokenFilter extends TokenFilter{
+ public class EdgengramTokenFilter extends TokenFilter{
 
     @JsonCreator
-    public ApostropheTokenFilter(){}
+    public EdgengramTokenFilter(){}
+
+    @JsonCreator
+    public EdgengramTokenFilter(Integer minGramSize, Integer maxGramSize) {
+        this.minGramSize = minGramSize;
+        this.maxGramSize = maxGramSize;
+    }
+
+    private Integer minGramSize	= 1;
+    private Integer maxGramSize = 2;
+
+    public Integer getMinGramSize() {
+        return minGramSize;
+    }
+
+    public EdgengramTokenFilter setMinGramSize(Integer minGramSize) {
+        this.minGramSize = minGramSize;
+        return this;
+    }
+
+    public Integer getMaxGramSize() {
+        return maxGramSize;
+    }
+
+    public EdgengramTokenFilter setMaxGramSize(Integer maxGramSize) {
+        this.maxGramSize = maxGramSize;
+        return this;
+    }
 }
 
