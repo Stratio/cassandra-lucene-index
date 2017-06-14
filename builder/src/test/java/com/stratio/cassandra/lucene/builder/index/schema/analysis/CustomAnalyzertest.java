@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenizer;
+package com.stratio.cassandra.lucene.builder.index.schema.analysis;
 
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenFilter.AsciifoldingTokenFilter;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenFilter.LowercaseTokenFilter;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenFilter.TokenFilter;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenizer.WhitespaceTokenizer;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
