@@ -21,7 +21,11 @@ import com.stratio.cassandra.lucene.builder.index.Index;
 import com.stratio.cassandra.lucene.builder.index.Partitioner;
 import com.stratio.cassandra.lucene.builder.index.schema.Schema;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.ClasspathAnalyzer;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.CustomAnalyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.SnowballAnalyzer;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.charFilter.CharFilter;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenFilter.TokenFilter;
+import com.stratio.cassandra.lucene.builder.index.schema.analysis.tokenizer.Tokenizer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.*;
 import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.*;
@@ -251,6 +255,30 @@ public abstract class Builder {
      */
     public static SnowballAnalyzer snowballAnalyzer(String language) {
         return new SnowballAnalyzer(language);
+    }
+
+    /**
+     * Returns a new {@link CustomAnalyzer}  using custom tokenizer, char_filters and token_filters.
+     *
+     * @param tokenizer an {@link Tokenizer} the tokenizer to use.
+     * @param charFilter an {@link CharFilter[]} the charFilter array to use.
+     * @param tokenFilter an {@link TokenFilter[]} the tokenFilter array to use.
+     * @return
+     */
+    public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer, CharFilter[] charFilter, TokenFilter[] tokenFilter) {
+        return new CustomAnalyzer(tokenizer, charFilter, tokenFilter);
+    }
+
+    public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer) {
+        return new CustomAnalyzer(tokenizer, null, null);
+    }
+
+    public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer, CharFilter[] charFilter) {
+        return new CustomAnalyzer(tokenizer, charFilter, null);
+    }
+
+    public static CustomAnalyzer customAnalyzer(Tokenizer tokenizer, TokenFilter[] tokenFilter) {
+        return new CustomAnalyzer(tokenizer, null, tokenFilter);
     }
 
     /**

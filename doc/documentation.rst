@@ -18,6 +18,10 @@ Stratio's Cassandra Lucene Index
         - `Virtual node partitioner <#virtual-node-partitioner>`__
     - `Analyzers <#analyzers>`__
         - `Classpath analyzer <#classpath-analyzer>`__
+        - `Custom analyzer <#custom-analyzer>`__
+            - `CharFilter <#charfilter>`__
+            - `Tokenizer <#tokenizer>`__
+            - `TokenFilter <#tokenfilter>`__
         - `Snowball analyzer <#snowball-analyzer>`__
     - `Mappers <#mappers>`__
         - `Big decimal mapper <#big-decimal-mapper>`__
@@ -106,11 +110,11 @@ based implementation of Cassandra secondary indexes, where each node of the clus
 Cassandra indexes are one of the core modules on which `Stratio’s BigData platform <http://www.stratio.com/>`__ is based.
 
 .. image:: /doc/resources/architecture.png
-   :width: 100%
+:width: 100%
    :alt: architecture
-   :align: center
+           :align: center
 
-Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allow you to retrieve the
+        Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allow you to retrieve the
 *n* more relevant results satisfying a search. The coordinator node sends the search to each node in the cluster, each node
 returns its *n* best results and then the coordinator combines these partial results and gives you the *n* best of them,
 avoiding full scan. You can also base the sorting in a combination of fields.
@@ -123,18 +127,18 @@ frameworks as `Apache Hadoop <http://hadoop.apache.org/>`__ or, even better, `Ap
 Adding Lucene filters in the jobs input can dramatically reduce the amount of data to be processed, avoiding full scan.
 
 .. image:: /doc/resources/spark_architecture.png
-   :width: 100%
+:width: 100%
    :alt: spark_architecture
-   :align: center
+           :align: center
 
-This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
-indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
-out of the box features, filling the gap between real-time and analytics.
+        This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
+        indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
+        out of the box features, filling the gap between real-time and analytics.
 
 .. image:: /doc/resources/oltp_olap.png
-   :width: 100%
+:width: 100%
    :alt: oltp_olap
-   :align: center
+           :align: center
 
 Features
 ========
@@ -775,15 +779,21 @@ Analyzers
 Analyzer definition options depend on the analyzer type. Details and
 default values are listed in the table below.
 
-+-----------------+-------------+--------------+-----------------+
-| Analyzer type   | Option      | Value type   | Default value   |
-+=================+=============+==============+=================+
-| classpath       | class       | string       | null            |
-+-----------------+-------------+--------------+-----------------+
-| snowball        | language    | string       | null            |
-|                 +-------------+--------------+-----------------+
-|                 | stopwords   | string       | null            |
-+-----------------+-------------+--------------+-----------------+
++-----------------+--------------+--------------+-----------------+
+| Analyzer type   | Option       | Value type   | Default value   |
++=================+==============+==============+=================+
+| classpath       | class        | string       | null            |
++-----------------+--------------+--------------+-----------------+
+| custom          | tokenizer    | Tokenizer    |                 |
+|                 +--------------+--------------+-----------------+
+|                 | charFilter   | CharFilter[] | null            |
+|                 +--------------+--------------+-----------------+
+|                 | tokenFilter  | TokenFilter[]| null            |
++-----------------+--------------+--------------+-----------------+
+| snowball        | language     | string       | null            |
+|                 +--------------+--------------+-----------------+
+|                 | stopwords    | string       | null            |
++-----------------+--------------+--------------+-----------------+
 
 The analyzers defined in this section can by referenced by mappers. Additionally, there are prebuilt analyzers for:
 
@@ -870,7 +880,7 @@ The analyzers defined in this section can by referenced by mappers. Additionally
 Classpath analyzer
 __________________
 
-Analyzer which instances a Lucene's `analyzer <https://lucene.apache.org/core/5_3_0/core/org/apache/lucene/analysis/Analyzer.html>`__
+Analyzer which instances a Lucene's `analyzer <https://lucene.apache.org/core/5_4_0/core/org/apache/lucene/analysis/Analyzer.html>`__
 present in classpath.
 
 **Example:**
@@ -895,7 +905,7 @@ Snowball analyzer
 _________________
 
 Analyzer using a `http://snowball.tartarus.org/ <http://snowball.tartarus.org/>`__ snowball filter
-`SnowballFilter <https://lucene.apache.org/core/5_3_0/analyzers-common/org/apache/lucene/analysis/snowball/SnowballFilter.html>`__
+`SnowballFilter <https://lucene.apache.org/core/5_4_0/analyzers-common/org/apache/lucene/analysis/snowball/SnowballFilter.html>`__
 
 Example:
 ~~~~~~~~
@@ -919,6 +929,393 @@ Example:
 Supported languages: English, French, Spanish, Portuguese, Italian, Romanian, German, Dutch, Swedish, Norwegian, Danish,
 Russian, Finnish, Hungarian and Turkish.
 
+Custom analyzer
+_______________
+Analyzer which instances a Lucene's `analyzer <https://lucene.apache.org/core/5_4_0/analyzers-common/org/apache/lucene/analysis/custom/CustomAnalyzer.html>`__
+present in classpath. It is a general-purpose Analyzer that can have zero or more CharFilters, at least one Tokenizer and zero or more TokenFilter.
+Under the hood it uses the Lucene's factory classes TokenizerFactory, TokenFilterFactory, and CharFilterFactory.
+
+**Example:**
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          analyzers: {
+             an_analyzer: {
+                type: "custom",
+                tokenizer: {type:"whitespace"},
+                token_filter: [{type:"asciifolding"}, {type:"lowercase"}]
+             }
+          }
+       }'
+    };
+
+CharFilter
+~~~~~~~~~~
+
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Name                        | Option            | Value type   | Default value  | Mandatory  | CharFilter class name                                                                                                                                                                    |
++=============================+===================+==============+================+============+==========================================================================================================================================================================================+
+| pattern                     | pattern           | string       |                | No         | `PatternReplaceCharFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/pattern/PatternReplaceCharFilterFactory.html>`__                      |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| htmlstrip                   | escapedtags       | string[]     |                | No         | `HTMLStripCharFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/charfilter/HTMLStripCharFilterFactory.html>`__                             |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| mapping                     | mapping           | string       |                | No         | `MappingCharFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/charfilter/MappingCharFilterFactory.html>`__                                 |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| persian                     |                   |              |                |            | `PersianCharFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/fa/PersianCharFilterFactory.html>`__                                         |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+Tokenizer
+~~~~~~~~~
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Name                        | Option            | Value type   | Default value  | Mandatory  | Tokenizer class name                                                                                                                                                                     |
++=============================+===================+==============+================+============+==========================================================================================================================================================================================+
+| classic                     | max_token_length  | integer      | 256            | No         | `ClassicTokenizerFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/standard/ClassicTokenizerFactory.html>`__                                     |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| edge_ngram                  | min_gram_size     | integer      | 1              | No         | `EdgeNGramTokenizerFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/ngram/EdgeNGramTokenizerFactory.html>`__                                    |
+|                             +-------------------+--------------+----------------+------------+                                                                                                                                                                                          |
+|                             | max_gram_size     | integer      | 2              | No         |                                                                                                                                                                                          |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| keyword                     |                   |              |                |            | `KeywordTokenizerFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/core/KeywordTokenizerFactory.html>`__                                         |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| letter                      |                   |              |                |            | `LetterTokenizerFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/core/LetterTokenizerFactory.html>`__                                           |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| lower_case                  |                   |              |                |            | `LowerCaseTokenizerFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/core/LowerCaseTokenizerFactory.html>`__                                     |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ngram                       | min_gram_size     | integer      | 1              | No         | `NGramTokenizerFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/ngram/NGramTokenizerFactory.html>`__                                            |
+|                             +-------------------+--------------+----------------+------------+                                                                                                                                                                                          |
+|                             | max_gram_size     | integer      | 2              | No         |                                                                                                                                                                                          |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| path_hierarchy              | reverse           | boolean      | false          | No         | `PathHierarchyTokenizerFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/path/PathHierarchyTokenizerFactory.html>`__                             |
+|                             +-------------------+--------------+----------------+------------+                                                                                                                                                                                          |
+|                             | delimiter         | char         | /              | No         |                                                                                                                                                                                          |
+|                             +-------------------+--------------+----------------+------------+                                                                                                                                                                                          |
+|                             | replace           | char         | /              | No         |                                                                                                                                                                                          |
+|                             +-------------------+--------------+----------------+------------+                                                                                                                                                                                          |
+|                             | skip              | integer      | 0              | No         |                                                                                                                                                                                          |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| pattern                     | pattern           | string       | null           | No         | `PatternTokenizerFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/pattern/PatternTokenizerFactory.html>`__                                      |
+|                             +-------------------+--------------+----------------+------------+                                                                                                                                                                                          |
+|                             | group             | integer      | -1             | No         |                                                                                                                                                                                          |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| standard                    | max_token_length  | integer      | 256            | No         | `StandardTokenizerFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/standard/StandardTokenizerFactory.html>`__                                   |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| uax29_url_email             | max_token_length  | integer      | 256            | No         | `UAX29URLEmailTokenizerFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/standard/UAX29URLEmailTokenizerFactory.html>`__                         |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| thai                        |                   |              |                |            | `ThaiTokenizerFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/th/ThaiTokenizerFactory.html>`__                                                 |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| whitespace                  | rule              | string       | java           | No         | `WhitespaceTokenizerFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/core/WhitespaceTokenizerFactory.html>`__                                   |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| wikipedia                   |                   |              |                |            | `WikipediaTokenizerFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/wikipedia/WikipediaTokenizerFactory.html>`__                                |
++-----------------------------+-------------------+--------------+----------------+------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+TokenFilter
+~~~~~~~~~~~
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Name                        | Option            | Value type   | Default value  | Mand. | TokenFilter class name                                                                                                                                                                        |
++=============================+===================+==============+================+=======+===============================================================================================================================================================================================+
+| standard                    |                   |              |                |       | `StandardFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/standard/StandardFilterFactory.html>`__                                                     |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| apostrophe                  |                   |              |                |       | `ApostropheFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/tr/ApostropheFilterFactory.html>`__                                                       |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| arabicnormalization         |                   |              |                |       | `ArabicNormalizationFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/ar/ArabicNormalizationFilterFactory.html>`__                                     |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| arabicstem                  |                   |              |                |       | `ArabicStemFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/ar/ArabicStemFilterFactory.html>`__                                                       |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| indicnormalization          |                   |              |                |       | `IndicNormalizationFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/in/IndicNormalizationFilterFactory.html>`__                                       |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| portuguesestem              |                   |              |                |       | `PortugueseStemFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/pt/PortugueseStemFilterFactory.html>`__                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| germanminimalstem           |                   |              |                |       | `GermanMinimalStemFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/de/GermanMinimalStemFilterFactory.html>`__                                         |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| uppercase                   |                   |              |                |       | `UpperCaseFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/core/UpperCaseFilterFactory.html>`__                                                       |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| keywordrepeat               |                   |              |                |       | `KeywordRepeatFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/KeywordRepeatFilterFactory.html>`__                                      |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| classic                     |                   |              |                |       | `ClassicFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/standard/ClassicFilterFactory.html>`__                                                       |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| shingle                     | min_shingle_size  | integer      | 2              | No    | `ShingleFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/shingle/ShingleFilterFactory.html>`__                                                        |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | max_shingle_size  | integer      | 2              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | outputUnigrams    | boolean      | false          | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | OUIfNoShingles    | boolean      | false          | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | tokenSeparator    | string       |                | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | fillerToken       | string       |                | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| stemmeroverride             | dictionary        | string       |                | No    | `StemmerOverrideFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/StemmerOverrideFilterFactory.html>`__                                  |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | ignore_case       | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| bulgarianstem               |                   |              |                |       | `BulgarianStemFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/bg/BulgarianStemFilterFactory.html>`__                                                 |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| swedishlightstem            |                   |              |                |       | `SwedishLightStemFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/sv/SwedishLightStemFilterFactory.html>`__                                           |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| frenchlightstem             |                   |              |                |       | `FrenchLightStemFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/fr/FrenchLightStemFilterFactory.html>`__                                             |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| cjkwidth                    |                   |              |                |       | `CJKWidthFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/cjk/CJKWidthFilterFactory.html>`__                                                          |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| greekstem                   |                   |              |                |       | `GreekStemFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/el/GreekStemFilterFactory.html>`__                                                         |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| stop                        | words             | string       |                | No    | `StopFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/core/StopFilterFactory.html>`__                                                                 |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | format            | string       |                | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | ignore_case       | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| hindistem                   |                   |              |                |       | `HindiStemFilter <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/hi/HindiStemFilterFactory.html>`__                                                         |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| fingerprint                 | maxOutputTokenSize| integer      | 1024           | No    | `FingerprintFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/FingerprintFilterFactory.html>`__                                   |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | separator         | char         | " "            | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| spanishlightstem            |                   |              |                |       | `SpanishLightStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/es/SpanishLightStemFilterFactory.html>`__                                    |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| hungarianlightstem          |                   |              |                |       | `HungarianLightStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/hu/HungarianLightStemFilterFactory.html>`__                                |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| norwegianminimalstem        |                   |              |                |       | `NorwegianMinimalStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/no/NorwegianMinimalStemFilterFactory.html>`__                            |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| persiannormalization        |                   |              |                |       | `PersianNormalizationFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/fa/PersianNormalizationFilterFactory.html>`__                            |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| germanlightstem             |                   |              |                |       | `GermanLightStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/de/GermanLightStemFilterFactory.html>`__                                      |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| type                        | types             | string       |                | Yes   | `TypeTokenFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/core/TypeTokenFilterFactory.html>`__                                                |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | useWhitelist      | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| asciifolding                | preserveOriginal  | boolean      | false          | No    | `ASCIIFoldingFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/ASCIIFoldingFilterFactory.html>`__                                 |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| lowercase                   |                   |              |                |       | `LowerCaseFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/core/LowerCaseFilterFactory.html>`__                                                |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| germanstem                  |                   |              |                |       | `GermanStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/de/GermanStemFilterFactory.html>`__                                                |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ngram                       | minGramSize       | integer      | 1              | No    | `NGramFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/ngram/NGramFilterFactory.html>`__                                                       |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | maxGramSize       | integer      | 2              | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| limittokenposition          | maxTokenPosition  | integer      |                | Yes   | `LimitTokenPositionFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/LimitTokenPositionFilterFactory.html>`__                     |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | consumeAllTokens  | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| greeklowercase              |                   |              |                |       | `GreekLowerCaseFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/el/GreekLowerCaseFilterFactory.html>`__                                        |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| limittokenoffset            | maxStartOffset    | integer      |                | Yes   | `LimitTokenOffsetFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/LimitTokenOffsetFilterFactory.html>`__                         |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | consumeAllTokens  | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| snowballporter              | protected         | string       |                | No    | `SnowballPorterFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/snowball/SnowballPorterFilterFactory.html>`__                                  |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | language          | string       |                | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| typeaspayload               |                   |              |                |       | `TypeAsPayloadTokenFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/payloads/TypeAsPayloadTokenFilterFactory.html>`__                          |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| patternreplace              | pattern           | string       |                | Yes   | `PatternReplaceFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/pattern/PatternReplaceFilterFactory.html>`__                                   |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | replacement       | string       |                | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| cjkbigram                   | han               | boolean      |                |       | `CJKBigramFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/cjk/CJKBigramFilterFactory.html>`__                                                 |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | hiragana          | boolean      |                | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | katakana          | boolean      |                | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | hangul            | boolean      |                | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | outputUnigrams    | boolean      |                | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| keywordmarker               | protected         | string       |                |       | `KeywordMarkerFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/KeywordMarkerFilterFactory.html>`__                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | pattern           | string       |                | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | ignoreCase        | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| soranistem                  |                   |              |                |       | `SoraniStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/ckb/SoraniStemFilterFactory.html>`__                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| elision                     | articles          | string       |                | No    | `ElisionFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/util/ElisionFilterFactory.html>`__                                                    |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | ignoreCase        | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| hunspellstem                | dictionary        | string       |                | Yes   | `HunspellStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/hunspell/HunspellStemFilterFactory.html>`__                                      |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | affix             | string       |                | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | longestOnly       | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| codepointcount              | min               | integer      |                | Yes   | `CodepointCountFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/CodepointCountFilterFactory.html>`__                             |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | max               | integer      |                | Yes   |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| czechstem                   |                   |              |                |       | `CzechStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/cz/CzechStemFilterFactory.html>`__                                                  |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| turkishlowercase            |                   |              |                |       | `TurkishLowerCaseFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/tr/TurkishLowerCaseFilterFactory.html>`__                                    |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| daterecognizer              | datePattern       | string       |                | No    | `DateRecognizerFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/DateRecognizerFilterFactory.html>`__                             |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | locale            | string       |                | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| portugueselightstem         |                   |              |                |       | `PortugueseLightStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/pt/PortugueseLightStemFilterFactory.html>`__                              |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| irishlowercase              |                   |              |                |       | `IrishLowerCaseFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/ga/IrishLowerCaseFilterFactory.html>`__                                        |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| commongramsquery            | words             | string       |                | No    | `CommonGramsQueryFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/commongrams/CommonGramsQueryFilterFactory.html>`__                           |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | ignoreCase        | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| numericpayload              | payload           | float        |                | Yes   | `NumericPayloadTokenFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/payloads/NumericPayloadTokenFilterFactory.html>`__                        |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | typeMatch         | string       |                | Yes   |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| scandinavianfolding         |                   |              |                |       | `ScandinavianFoldingFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/ScandinavianFoldingFilterFactory.html>`__                   |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| germannormalization         |                   |              |                |       | `GermanNormalizationFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/de/GermanNormalizationFilterFactory.html>`__                              |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| delimitedpayload            | encoder           | string       |                | Yes   | `GreekLowerCaseFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/el/GreekLowerCaseFilterFactory.html>`__                                        |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | delimiter         | string       |                | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| worddelimiter               | protected         | string       |                | No    | `WordDelimiterFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/WordDelimiterFilterFactory.html>`__                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | preserveOriginal  | integer      | 0              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | splitOnNumerics   | integer      | 1              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | splitOnCaseChange | integer      | 1              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | catenateWords     | integer      | 0              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | catenateNumbers   | integer      | 0              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | catenateAll       | integer      | 0              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | generateWordParts | integer      | 1              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | genNumberParts    | integer      | 1              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | stemEnglishPosse  | integer      | 1              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | types             | string       |                | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| portugueseminimalstem       |                   |              |                |       | `PortugueseMinimalStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/pt/PortugueseMinimalStemFilterFactory.html>`__                          |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| removeduplicates            |                   |              |                |       | `RemoveDuplicatesTokenFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/RemoveDuplicatesTokenFilterFactory.html>`__               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| edgengram                   | minGramSize       | integer      | 1              | No    | `EdgeNGramFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/ngram/EdgeNGramFilterFactory.html>`__                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | maxGramSize       | integer      | 2              | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| latvianstem                 |                   |              |                |       | `LatvianStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/lv/LatvianStemFilterFactory.html>`__                                              |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| finnishlightstem            |                   |              |                |       | `FinnishLightStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/fi/FinnishLightStemFilterFactory.html>`__                                    |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| commongrams                 | words             | string       |                | No    | `CommonGramsFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/commongrams/CommonGramsFilterFactory.html>`__                                     |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | ignoreCase        | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| galicianstem                |                   |              |                |       | `GalicianStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/gl/GalicianStemFilterFactory.html>`__                                            |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| kstem                       |                   |              |                |       | `KStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/en/KStemFilterFactory.html>`__                                                          |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| norwegianlightstem          | variant           | string       | nb             | No    | `NorwegianLightStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/no/NorwegianLightStemFilterFactory.html>`__                                |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| trim                        |                   |              |                |       | `TrimFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/TrimFilterFactory.html>`__                                                 |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| length                      | min               | integer      |                | Yes   | `LengthFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/LengthFilterFactory.html>`__                                             |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | max               | integer      |                | Yes   |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| decimaldigit                |                   |              |                |       | `DecimalDigitFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/core/DecimalDigitFilterFactory.html>`__                                          |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| brazilianstem               |                   |              |                |       | `BrazilianStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/br/BrazilianStemFilterFactory.html>`__                                          |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| capitalization              | onlyFirstWord     | boolean      | true           | No    | `CapitalizationFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/CapitalizationFilterFactory.html>`__                             |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | keep              | string       |                | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | keepIgnoreCase    | boolean      | false          | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | okPrefix          | string       |                | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| serbiannormalization        |                   |              |                |       | `SerbianNormalizationFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/sr/SerbianNormalizationFilterFactory.html>`__                            |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| frenchminimalstem           |                   |              |                |       | `FrenchMinimalStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/fr/FrenchMinimalStemFilterFactory.html>`__                                  |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| englishminimalstem          |                   |              |                |       | `EnglishMinimalStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/en/EnglishMinimalStemFilterFactory.html>`__                                |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| limittokencount             | maxTokenCount     | integer      |                | Yes   | `LimitTokenCountFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/LimitTokenCountFilterFactory.html>`__                           |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | consumeAllTokens  | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| hyphenatedwords             |                   |              |                |       | `HyphenatedWordsFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/HyphenatedWordsFilterFactory.html>`__                           |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| truncate                    | prefixLength      | integer      | 5              | No    | `TruncateTokenFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/TruncateTokenFilterFactory.html>`__                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| tokenoffsetpayload          |                   |              |                |       | `TokenOffsetPayloadTokenFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/payloads/TokenOffsetPayloadTokenFilterFactory.html>`__                |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| galicianminimalstem         |                   |              |                |       | `GalicianMinimalStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/gl/GalicianMinimalStemFilterFactory.html>`__                              |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| russianlightstem            |                   |              |                |       | `RussianLightStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/ru/RussianLightStemFilterFactory.html>`__                                    |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| hindinormalization          |                   |              |                |       | `HindiNormalizationFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/hi/HindiNormalizationFilterFactory.html>`__                                |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| scandinaviannormalization   |                   |              |                |       | `ScandinavianNormalizationFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/ScandinavianNormalizationFilterFactory.html>`__       |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| thaiword                    |                   |              |                |       | `ThaiWordFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/th/ThaiWordFilterFactory.html>`__                                                    |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| synonym                     | synonyms          | string       |                | Yes   | `SynonymFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/synonym/SynonymFilterFactory.html>`__                                                 |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | format            | string       |                | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | ignoreCase        | boolean      | false          | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | expand            | boolean      | true           | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | tokenizerFactory  | string       | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| indonesianstem              | stemDerivational  | boolean      | false          | No    | `IndonesianStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/id/IndonesianStemFilterFactory.html>`__                                        |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| keepword                    | words             | string       |                | No    | `KeepWordFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/miscellaneous/KeepWordFilterFactory.html>`__                                         |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | ignoreCase        | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| hyphenationcompoundword     | hyphenator        | string       |                | Yes   | `HyphenationCompoundWordTokenFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/compound/HyphenationCompoundWordTokenFilterFactory.html>`__      |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | encoding          | string       |                | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | dictionary        | string       |                | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | minWordSize       | integer      | 5              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | minSubwordSize    | integer      | 2              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | maxSubwordSize    | integer      | 15             | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | onlyLongestMatch  | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| dictionarycompoundword      | dictionary        | string       |                | Yes   | `DictionaryCompoundWordTokenFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/compound/DictionaryCompoundWordTokenFilterFactory.html>`__        |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | minWordSize       | integer      | 5              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | minSubwordSize    | integer      | 2              | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | maxSubwordSize    | integer      | 15             | No    |                                                                                                                                                                                               |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | onlyLongestMatch  | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| italianlightstem            |                   |              |                |       | `ItalianLightStemFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/it/ItalianLightStemFilterFactory.html>`__                                    |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| patterncapturegroup         | pattern           | string       |                | Yes   | `PatternCaptureGroupFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/pattern/PatternCaptureGroupFilterFactory.html>`__                         |
+|                             +-------------------+--------------+----------------+-------+                                                                                                                                                                                               |
+|                             | preserve_original | boolean      | false          | No    |                                                                                                                                                                                               |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| reversestring               |                   |              |                |       | `ReverseStringFilterFactory <https://lucene.apache.org/core/5_5_4/analyzers-common/org/apache/lucene/analysis/reverse/ReverseStringFilterFactory.html>`__                                     |
++-----------------------------+-------------------+--------------+----------------+-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 Mappers
 =======
 
@@ -1527,9 +1924,9 @@ into your Cassandra installation lib directory.
 **Example 2:** Index only the centroid of the WKT shape contained in the indexed column:
 
 .. image:: /doc/resources/geo_shape_mapper_example_2.png
-   :width: 100%
+:width: 100%
    :alt: search by shape
-   :align: center
+           :align: center
 
 .. code-block:: sql
 
@@ -1561,9 +1958,9 @@ into your Cassandra installation lib directory.
 **Example 3:** Index a buffer 50 kilometres around the area of a city:
 
 .. image:: /doc/resources/geo_shape_mapper_example_3.png
-   :width: 100%
+:width: 100%
    :alt: search by shape
-   :align: center
+           :align: center
 
 .. code-block:: sql
 
@@ -1595,9 +1992,9 @@ into your Cassandra installation lib directory.
 **Example 4:** Index a buffer 50 kilometres around the borders of a country:
 
 .. image:: /doc/resources/geo_shape_mapper_example_4.png
-   :width: 100%
+:width: 100%
    :alt: search by shape
-   :align: center
+           :align: center
 
 .. code-block:: sql
 
@@ -1628,9 +2025,9 @@ into your Cassandra installation lib directory.
 **Example 5:** Index the convex hull of the WKT shape contained in the indexed column:
 
 .. image:: /doc/resources/geo_shape_mapper_example_5.png
-   :width: 100%
+:width: 100%
    :alt: search by shape
-   :align: center
+           :align: center
 
 .. code-block:: sql
 
@@ -1659,9 +2056,9 @@ into your Cassandra installation lib directory.
 **Example 6:** Index the bounding box of the WKT shape contained in the indexed column:
 
 .. image:: /doc/resources/geo_shape_mapper_example_6.png
-   :width: 100%
+:width: 100%
    :alt: search by shape
-   :align: center
+           :align: center
 
 .. code-block:: sql
 
@@ -3172,9 +3569,9 @@ where:
 **Example 1:** search for shapes within a polygon:
 
 .. image:: /doc/resources/geo_shape_condition_example_1.png
-   :width: 100%
+:width: 100%
    :alt: search by shape
-   :align: center
+           :align: center
 
 .. code-block:: sql
 
@@ -3204,9 +3601,9 @@ Using the `Java query builder <#query-builder>`__:
 Florida's coastline:
 
 .. image:: /doc/resources/geo_shape_condition_example_2.png
-   :width: 100%
+:width: 100%
    :alt: buffer transformation
-   :align: center
+           :align: center
 
 .. code-block:: sql
 
@@ -4614,9 +5011,9 @@ approaches depends on the particular use case. Generally, combining Lucene index
 retrieving no more than the 25% of the stored data.
 
 .. image:: /doc/resources/spark_performance.png
-   :width: 100%
+:width: 100%
    :alt: spark_performance
-   :align: center
+           :align: center
 
 -------------
 JMX Interface

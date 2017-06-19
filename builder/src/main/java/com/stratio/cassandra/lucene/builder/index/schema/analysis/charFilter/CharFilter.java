@@ -13,28 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.schema.analysis;
+package com.stratio.cassandra.lucene.builder.index.schema.analysis.charFilter;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.stratio.cassandra.lucene.schema.analysis.analyzer.CustomAnalyzerBuilder;
-import org.apache.lucene.analysis.Analyzer;
+import com.stratio.cassandra.lucene.builder.JSONBuilder;
 
 /**
- * An Lucene {@link Analyzer} builder.
- *
- * @author Andres de la Pena {@literal <adelapena@stratio.com>}
+ * Created by jpgilaberte on 25/05/17.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes({@JsonSubTypes.Type(value = ClasspathAnalyzerBuilder.class, name = "classpath"),
-               @JsonSubTypes.Type(value = SnowballAnalyzerBuilder.class, name = "snowball"),
-               @JsonSubTypes.Type(value = CustomAnalyzerBuilder.class, name = "custom")})
-public abstract class AnalyzerBuilder {
+@JsonSubTypes({@JsonSubTypes.Type(value = MappingCharFilter.class, name = "mapping"),
+        @JsonSubTypes.Type(value = HtmlStripCharFilter.class, name = "htmlstrip"),
+        @JsonSubTypes.Type(value = PatternCharFilter.class, name = "pattern"),
+        @JsonSubTypes.Type(value = PersianCharFilter.class, name = "persian")})
+public class CharFilter extends JSONBuilder{
 
-    /**
-     * Gets or creates the Lucene {@link Analyzer}.
-     *
-     * @return the built analyzer
-     */
-    public abstract Analyzer analyzer();
 }

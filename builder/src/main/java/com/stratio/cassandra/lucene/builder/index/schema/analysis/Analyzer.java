@@ -26,6 +26,7 @@ import com.stratio.cassandra.lucene.builder.JSONBuilder;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = ClasspathAnalyzer.class, name = "classpath"),
-               @JsonSubTypes.Type(value = SnowballAnalyzer.class, name = "snowball")})
+               @JsonSubTypes.Type(value = SnowballAnalyzer.class, name = "snowball"),
+               @JsonSubTypes.Type(value = CustomAnalyzer.class, name = "custom")})
 public abstract class Analyzer extends JSONBuilder {
 }
