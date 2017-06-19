@@ -30,7 +30,7 @@ import org.apache.lucene.search.{Query, Sort}
   *
   * @param partitions     the number of index partitions
   * @param name           the index name
-  * @param path           the directory path
+  * @param globalPath     the directory path
   * @param analyzer       the index writer analyzer
   * @param refreshSeconds the index reader refresh frequency in seconds
   * @param ramBufferMB    the index writer RAM buffer size in MB
@@ -41,27 +41,56 @@ import org.apache.lucene.search.{Query, Sort}
 class PartitionedIndex(
     partitions: Int,
     name: String,
-    path: Path,
+    localPaths: Array[String],
+    globalPath: Path,
     analyzer: Analyzer,
     refreshSeconds: Double,
     ramBufferMB: Int,
     maxMergeMB: Int,
     maxCachedMB: Int) extends Logging {
 
-  private[this] val indexes: List[FSIndex] = partitions match {
-    case 1 =>
-      List(new FSIndex(name, path, analyzer, refreshSeconds, ramBufferMB, maxMergeMB, maxCachedMB))
-    case n if n > 1 =>
-      val root = path.toFile.getAbsolutePath + File.separator
-      (0 until n)
-        .map(root + File.separator + _)
-        .map(Paths.get(_))
-        .map(new FSIndex(name, _, analyzer, refreshSeconds, ramBufferMB, maxMergeMB, maxCachedMB))
-        .toList
-    case _ => throw new IndexException(
-      s"The number of partitions should be strictly positive but found $partitions")
-  }
+  private[this] val indexes: List[FSIndex] = {
+    var outputList: List[FSIndex] = List()
 
+    partitions match {
+      case 1 =>
+        if (useLocalPath) {
+          List(new FSIndex(name,
+            Paths.get(localPaths.apply(0)),
+            analyzer,
+            refreshSeconds,
+            ramBufferMB,
+            maxMergeMB,
+            maxCachedMB))
+        } else {
+          List(new FSIndex(name,
+            Paths.get(globalPath.toFile.getAbsolutePath + File.separator + "0"),
+            analyzer,
+            refreshSeconds,
+            ramBufferMB,
+            maxMergeMB,
+            maxCachedMB))
+        }
+      case n if n > 1 =>
+        for (index <- 0 until n) {
+          val path = if (useLocalPath) {
+            localPaths(index) + File.separator + index
+          } else {
+            globalPath.toFile.getAbsolutePath + File.separator + index
+          }
+          outputList = outputList ++ List(new FSIndex(name,
+            Paths.get(path),
+            analyzer,
+            refreshSeconds,
+            ramBufferMB,
+            maxMergeMB,
+            maxCachedMB))
+        }
+        outputList
+      case _ => throw new IndexException(
+        s"The number of partitions should be strictly positive but found $partitions")
+    }
+  }
   private[this] var mergeSort: Sort = _
   private[this] var fields: java.util.Set[String] = _
 
@@ -98,9 +127,15 @@ class PartitionedIndex(
 
   /** Closes the index and removes all its files. */
   def delete() {
-    try indexes.foreach(_.delete()) finally if (partitions > 1) deleteRecursive(path.toFile)
+    try {
+      indexes.foreach(_.delete())
+      if (useLocalPath) localPaths.foreach((localPath: String) => deleteRecursive(Paths.get(
+        localPath).toFile))
+    } finally if (partitions > 1) if (!useLocalPath) deleteRecursive(globalPath.toFile)
     logger.info(s"Deleted $name")
   }
+
+  private[this] def useLocalPath = localPaths != null && localPaths.length > 0
 
   /** Optimizes the index forcing merge segments leaving the specified number of segments.
     * This operation may block until all merging completes.
@@ -194,14 +229,13 @@ class PartitionedIndex(
   : DocumentIterator = {
     logger.debug(
       s"""Searching in $name
-         | partitions : ${partitions.map(_._1).mkString(", ")}
-         |      after : ${partitions.map(_._2).mkString(", ")}
-         |      query : $query
-         |      count : $count
-         |       sort : $sort
+          | partitions : ${partitions.map(_._1).mkString(", ")}
+          |      after : ${partitions.map(_._2).mkString(", ")}
+          |      query : $query
+          |      count : $count
+          |       sort : $sort
        """.stripMargin)
     val cursors = partitions.map { case (p, a) => (indexes(p).searcherManager, a) }
     new DocumentIterator(cursors, mergeSort, sort, query, count, fields)
   }
-
 }

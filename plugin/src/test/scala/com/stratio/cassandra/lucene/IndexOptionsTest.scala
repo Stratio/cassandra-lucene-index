@@ -252,7 +252,6 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   // Partitioner option tests
-
   test("parse partitioner option with default") {
     parsePartitioner(Map(), null) shouldBe DEFAULT_PARTITIONER
   }
@@ -263,8 +262,8 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   test("parse partitioner with token partitioner") {
-    val json = "{type:\"token\", partitions: 10}"
-    parsePartitioner(Map(PARTITIONER_OPTION -> json), null) shouldBe PartitionerOnToken(10)
+    val json = "{type:\"token\", partitions: 10, paths:[\"/home/a\",\"/home/b\",\"/home/c\",\"/home/d\",\"/home/e\",\"/home/f\",\"/home/g\",\"/home/h\",\"/home/i\",\"/home/j\"]}"
+    parsePartitioner(Map(PARTITIONER_OPTION -> json), null) shouldBe PartitionerOnToken(10, Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j"))
   }
 
 }

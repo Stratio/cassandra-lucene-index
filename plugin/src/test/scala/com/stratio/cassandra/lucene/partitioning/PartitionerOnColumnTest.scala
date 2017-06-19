@@ -30,39 +30,53 @@ import org.apache.cassandra.dht.Murmur3Partitioner
 class PartitionerOnColumnTest extends PartitionerTest {
 
   test("build with zero partitions") {
-    assertThrows[IndexException] {PartitionerOnColumn(0, "c", 0, int32)}
+    intercept [IndexException] {
+      PartitionerOnColumn(0, "c", Array(), 0, int32)
+    }.getMessage shouldBe "The number of partitions should be strictly positive but found 0"
   }
 
   test("build with negative partitions") {
-    assertThrows[IndexException] {PartitionerOnColumn(-1, "c", 0, int32)}
+    intercept [IndexException] {
+      PartitionerOnColumn(-1, "c", Array(), 0, int32)
+    }.getMessage shouldBe "The number of partitions should be strictly positive but found -1"
   }
 
   test("build with negative position") {
-    assertThrows[IndexException] {PartitionerOnColumn(1, "c", -1, int32)}
+    intercept [IndexException] {
+      PartitionerOnColumn(1, "c", Array("/home/a"), -1, int32)
+    }.getMessage shouldBe "The column position in the partition key should be positive"
   }
 
   test("build with null type") {
-    assertThrows[IndexException] {PartitionerOnColumn(1, "c", 0, null)}
+    intercept [IndexException] {
+      PartitionerOnColumn(1, "c", Array("/home/a"), 0, null)
+    }.getMessage shouldBe "The partition key type should be specified"
+  }
+
+  test("build with size(paths) != partitions") {
+    intercept [IndexException] {
+      PartitionerOnColumn(1, "c", Array(), 0, int32)
+    }.getMessage shouldBe "The paths size must be equal to number of partitions"
   }
 
   test("parse JSON") {
-    val json = "{type:\"column\", partitions: 10, column:\"c\"}"
-    Partitioner.fromJson(json) shouldBe PartitionerOnColumn.Builder(10, "c")
+    val json = "{type:\"column\", partitions: 3, column:\"c\", paths : [\"/home/a\",\"/home/b\",\"/home/c\"]}"
+    Partitioner.fromJson(json) shouldBe PartitionerOnColumn.Builder(3, "c", Array("/home/a","/home/b","/home/c"))
   }
 
   test("num partitions") {
-    PartitionerOnColumn(4, "c", 0, int32).numPartitions shouldBe 4
+    PartitionerOnColumn(4, "c", Array("/home/a","/home/b","/home/c","/home/d"), 0, int32).numPartitions shouldBe 4
   }
 
   test("key partition with 1 partition") {
-    val partitioner = PartitionerOnColumn(1, "c", 0, int32)
+    val partitioner = PartitionerOnColumn(1, "c", Array("/home/a"), 0, int32)
     for (i <- 1 to 10) {
       partitioner.partition(key(i)) shouldBe 0
     }
   }
 
   test("key partition with n partitions") {
-    val partitioner = PartitionerOnColumn(10, "c", 0, int32)
+    val partitioner = PartitionerOnColumn(10, "c", Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j"), 0, int32)
     partitioner.partition(key(0)) shouldBe 8
     partitioner.partition(key(1)) shouldBe 9
     partitioner.partition(key(2)) shouldBe 2
@@ -73,12 +87,40 @@ class PartitionerOnColumnTest extends PartitionerTest {
     partitioner.partition(key(7)) shouldBe 6
   }
 
+  test("test valid paths set get") {
+    val partitioner = PartitionerOnColumn(10, "c", Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j"), 0, int32)
+    partitioner.pathForPartition(0) shouldBe "/home/a"
+    partitioner.pathForPartition(1) shouldBe "/home/b"
+    partitioner.pathForPartition(2) shouldBe "/home/c"
+    partitioner.pathForPartition(3) shouldBe "/home/d"
+    partitioner.pathForPartition(4) shouldBe "/home/e"
+    partitioner.pathForPartition(5) shouldBe "/home/f"
+    partitioner.pathForPartition(6) shouldBe "/home/g"
+    partitioner.pathForPartition(7) shouldBe "/home/h"
+    partitioner.pathForPartition(8) shouldBe "/home/i"
+    partitioner.pathForPartition(9) shouldBe "/home/j"
+  }
+
+  test("testing invalid index in pathForPartition") {
+    val partitioner = PartitionerOnColumn(1, "c", Array("/home/a"), 0, int32)
+    intercept [Exception] {
+      partitioner.pathForPartition(1)
+    }.getMessage shouldBe "partition must be [0,1)"
+  }
+
+  test("testing invalid index in pathForPartition with -1") {
+    val partitioner = PartitionerOnColumn(1, "c", Array("/home/a"), 0, int32)
+    intercept [Exception] {
+      partitioner.pathForPartition(-1)
+    }.getMessage shouldBe "partition must be [0,1)"
+  }
+
   test("composite key") {
     val validator = CompositeType.getInstance(int32, utf8)
     val bb = validator.builder().add(int32.decompose(3)).add(utf8.decompose("v1")).build
     val key = Murmur3Partitioner.instance.decorateKey(bb)
-    PartitionerOnColumn(10, "c", 0, validator).partition(key) shouldBe 5
-    PartitionerOnColumn(10, "c", 1, validator).partition(key) shouldBe 3
+    PartitionerOnColumn(10, "c", Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j"), 0, validator).partition(key) shouldBe 5
+    PartitionerOnColumn(10, "c", Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j"), 1, validator).partition(key) shouldBe 3
 
   }
 
