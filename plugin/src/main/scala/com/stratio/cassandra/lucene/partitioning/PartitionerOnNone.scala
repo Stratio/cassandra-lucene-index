@@ -40,6 +40,8 @@ object PartitionerOnNone {
 
   /** [[PartitionerOnNone]] builder. */
   case class Builder() extends Partitioner.Builder {
+
+    /** @inheritdoc */
     override def build(metadata: CFMetaData): PartitionerOnNone = PartitionerOnNone()
   }
 
