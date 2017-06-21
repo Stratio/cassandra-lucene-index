@@ -6,7 +6,8 @@
 
 ## 3.0.13.1 (upcoming)
 
-*Upgrade to Apache Lucene 5.5.4
+* Upgrade to Apache Lucene 5.5.4
+* Fix cassandra directory sharing.
 
 ## 3.0.13.0 (April 17, 2017)
 
