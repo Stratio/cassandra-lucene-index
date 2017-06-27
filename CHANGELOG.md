@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.14.0 (upcoming)
+
+* Upgrade to Apache Cassandra 3.0.14
+
 ## 3.0.13.1 (upcoming)
 
 *Upgrade to Apache Lucene 5.5.4
