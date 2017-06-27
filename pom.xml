@@ -92,6 +92,7 @@
         <scalatest.version>3.0.1</scalatest.version>
         <skipITs>false</skipITs>
         <skipTests>false</skipTests>
+        <apache_archive_url>http://archive.apache.org/dist/cassandra/${cassandra.version}/apache-cassandra-${cassandra.version}-bin.tar.gz</apache_archive_url>
     </properties>
     <build>
         <plugins>

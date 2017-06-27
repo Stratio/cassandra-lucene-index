@@ -218,7 +218,7 @@
                                 <configuration>
                                     <target>
                                         <echo message="Downloading Apache Cassandra"/>
-                                        <get src="http://www.us.apache.org/dist/cassandra/${cassandra.version}/apache-cassandra-${cassandra.version}-bin.tar.gz"
+                                        <get src="${apache_archive_url}"
                                              dest="${project.build.directory}/apache-cassandra-${cassandra.version}-bin.tar.gz"/>
                                         <echo message="Uncompressing Apache Cassandra"/>
                                         <gunzip src="${project.build.directory}/apache-cassandra-${cassandra.version}-bin.tar.gz"
