@@ -1,8 +1,8 @@
 # Changelog
 
-## 3.11.0 (upcoming)
+## 3.11.0.0 (upcoming)
 
-* Upgrade to Apache Cassandra 3.11
+* Upgrade to Apache Cassandra 3.11.0
 
 ## 3.10.1 (upcoming)
 
