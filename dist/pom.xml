@@ -8,7 +8,7 @@
     <parent>
         <artifactId>cassandra-lucene-index-parent</artifactId>
         <groupId>com.stratio.cassandra</groupId>
-        <version>3.11.0.0-SNAPSHOT</version>
+        <version>3.11.0.0</version>
     </parent>
 
     <artifactId>dist</artifactId>
