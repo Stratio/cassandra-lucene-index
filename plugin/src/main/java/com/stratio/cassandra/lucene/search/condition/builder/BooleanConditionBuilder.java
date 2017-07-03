@@ -43,6 +43,10 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
     @JsonProperty("not")
     protected final List<ConditionBuilder<?, ?>> not = new LinkedList<>();
 
+    /** The max boolean query clauses. */
+    @JsonProperty("max_clauses")
+    protected Integer maxClauses = null;
+
     /**
      * Returns this builder with the specified mandatory conditions.
      *
@@ -77,6 +81,17 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
     }
 
     /**
+     * Returns this builder with the specified max booleqna query clauses
+     *
+     * @param maxClauses teh booleanQuery allowed max clauses
+     * @return this builder with the specified conditions
+     */
+    public BooleanConditionBuilder maxClauses(Integer maxClauses) {
+        this.maxClauses = maxClauses;
+        return this;
+    }
+
+    /**
      * Returns the {@link BooleanCondition} represented by this builder.
      *
      * @return a new boolean condition
@@ -86,6 +101,7 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
         return new BooleanCondition(boost,
                                     must.stream().map(ConditionBuilder::build).collect(toList()),
                                     should.stream().map(ConditionBuilder::build).collect(toList()),
-                                    not.stream().map(ConditionBuilder::build).collect(toList()));
+                                    not.stream().map(ConditionBuilder::build).collect(toList()),
+                                    maxClauses);
     }
 }

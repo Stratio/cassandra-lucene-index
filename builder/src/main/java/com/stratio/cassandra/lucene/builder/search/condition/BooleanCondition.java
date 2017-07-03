@@ -39,6 +39,10 @@ public class BooleanCondition extends Condition<BooleanCondition> {
     @JsonProperty("not")
     private List<Condition> not;
 
+    /** The max boolean query clauses. */
+    @JsonProperty("max_clauses")
+    private Integer maxClauses = null;
+
     /**
      * Returns this with the specified mandatory conditions.
      *
@@ -69,6 +73,18 @@ public class BooleanCondition extends Condition<BooleanCondition> {
      */
     public BooleanCondition not(Condition... conditions) {
         not = add(not, conditions);
+        return this;
+    }
+
+
+    /**
+     * Returns this builder with the specified max booleqna query clauses
+     *
+     * @param maxClauses teh booleanQuery allowed max clauses
+     * @return this builder with the specified conditions
+     */
+    public BooleanCondition maxClauses(Integer maxClauses) {
+        this.maxClauses = maxClauses;
         return this;
     }
 }
