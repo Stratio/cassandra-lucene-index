@@ -15,6 +15,8 @@
  */
 package com.stratio.cassandra.lucene.partitioning
 
+import java.nio.file.Path
+
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.stratio.cassandra.lucene.common.JsonSerializer
 import org.apache.cassandra.config.CFMetaData
@@ -82,14 +84,38 @@ object Partitioner {
     new JsonSubTypes.Type(value = classOf[PartitionerOnColumn.Builder], name = "column"),
     new JsonSubTypes.Type(value = classOf[PartitionerOnVirtualNode.Builder], name = "vnode")))
   trait Builder {
-
+    /**
+      * Builds the nested object
+      *
+      * @param metadata the Column family metadata from cassandra
+      * @return a built [[Partitioner]]
+      */
     def build(metadata: CFMetaData): Partitioner
 
   }
 
   trait StaticPartitioner extends Partitioner {
-    def pathForPartition(partition: Int): String
-    def pathsForEveryPartition : Array[String]
+
+    /** Returns the path url where the partition should write to.
+      *
+      * @param partition the number of partition you want to know the path for.
+      * @return a path url where that partition writes to disk.
+      */
+    def pathForPartition(partition: Int): Path
+
+    /** Returns the path urls for every partition.
+      *
+      * @return a path url for every partition.
+      */
+    def pathsForEveryPartition: Array[Path]
+
+    /**
+      * Checks if it is configured with custom paths.
+      *
+      * @return true if is configured with custom paths, false i.o.c.
+      */
+    def isConfiguredWithCustomPath: Boolean =
+      (pathsForEveryPartition != null) && (pathsForEveryPartition.length > 0)
   }
 
 }

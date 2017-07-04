@@ -15,6 +15,8 @@
  */
 package com.stratio.cassandra.lucene
 
+import java.nio.file.Paths
+
 import com.stratio.cassandra.lucene.IndexOptions._
 import com.stratio.cassandra.lucene.partitioning.{PartitionerOnNone, PartitionerOnToken}
 import org.junit.runner.RunWith
@@ -28,7 +30,6 @@ import org.scalatest.junit.JUnitRunner
 class IndexOptionsTest extends BaseScalaTest {
 
   // Refresh seconds option tests
-
   test("parse refresh seconds option with default") {
     parseRefresh(Map()) shouldBe DEFAULT_REFRESH_SECONDS
   }
@@ -60,7 +61,6 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   // RAM buffer MB option tests
-
   test("parse RAM buffer MB option with default") {
     parseRamBufferMB(Map()) shouldBe DEFAULT_RAM_BUFFER_MB
   }
@@ -94,7 +94,6 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   // Max merge MB option tests
-
   test("parse max merge MB option with default") {
     parseMaxMergeMB(Map()) shouldBe DEFAULT_MAX_MERGE_MB
   }
@@ -128,7 +127,6 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   // Max cached MB option tests
-
   test("parse max cached MB option with default") {
     parseMaxCachedMB(Map()) shouldBe DEFAULT_MAX_CACHED_MB
   }
@@ -162,7 +160,6 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   // Indexing threads option tests
-
   test("parse indexing threads option with default") {
     parseIndexingThreads(Map()) shouldBe DEFAULT_INDEXING_THREADS
   }
@@ -192,7 +189,6 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   // Indexing queues size option tests
-
   test("parse indexing queues size option with default") {
     parseIndexingQueuesSize(Map()) shouldBe DEFAULT_INDEXING_QUEUES_SIZE
   }
@@ -228,7 +224,6 @@ class IndexOptionsTest extends BaseScalaTest {
   }
 
   // Excluded data centers size option tests
-
   test("parse excluded data centers option with default") {
     parseExcludedDataCenters(Map()) shouldBe DEFAULT_EXCLUDED_DATA_CENTERS
   }
@@ -263,7 +258,96 @@ class IndexOptionsTest extends BaseScalaTest {
 
   test("parse partitioner with token partitioner") {
     val json = "{type:\"token\", partitions: 10, paths:[\"/home/a\",\"/home/b\",\"/home/c\",\"/home/d\",\"/home/e\",\"/home/f\",\"/home/g\",\"/home/h\",\"/home/i\",\"/home/j\"]}"
-    parsePartitioner(Map(PARTITIONER_OPTION -> json), null) shouldBe PartitionerOnToken(10, Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j"))
+    parsePartitioner(Map(PARTITIONER_OPTION -> json), null) shouldBe PartitionerOnToken(10,
+      Array("/home/a",
+        "/home/b",
+        "/home/c",
+        "/home/d",
+        "/home/e",
+        "/home/f",
+        "/home/g",
+        "/home/h",
+        "/home/i",
+        "/home/j").map(Paths.get(_)))
   }
 
+  // tests for File configuration collision among cassandra and scli
+  test("test custom partitioner with one path inside the one cassandra directory") {
+    val partitionJson = "{type:\"token\", partitions: 3, paths:[\"/home/cassandra/c\", \"/home/eduard/\", \"/home/jp\"]}"
+    val path = "null"
+    val paths = Array("/home/cassandra/").map(Paths.get(_))
+    parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson, DIRECTORY_PATH_OPTION -> path), null, paths)
+  }
+
+  test("test custom partitioner with every path inside the one cassandra directory") {
+    val partitionJson = "{type:\"token\", partitions: 3, paths:[\"/home/cassandra/c\", \"/home/cassandra/f\", \"/home/cassandra/d\"]}"
+    val path = "null"
+    val paths = Array("/home/cassandra/").map(Paths.get(_))
+    parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson, DIRECTORY_PATH_OPTION -> path), null, paths)
+  }
+
+  test("test custom partitioner with all paths outside the one cassandra directory") {
+    val partitionJson = "{type:\"token\", partitions: 3, paths:[\"/home/eduard/c\", \"/home/eduard/f\", \"/home/eduard/d\"]}"
+    val path = "null"
+    val paths = Array("/home/cassandra/").map(Paths.get(_))
+    parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson, DIRECTORY_PATH_OPTION -> path), null, paths)
+  }
+
+  test("test directory_path inside the cassandra directory") {
+    val partitionJson = "{type:\"none\"}"
+    val path = "/home/cassandra/a"
+    val paths = Array("/home/cassandra/").map(Paths.get(_))
+
+    parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson, DIRECTORY_PATH_OPTION -> path), null, paths)
+  }
+
+  test("test directory_path outside the cassandra directory") {
+    val partitionJson = "{type:\"none\"}"
+    val path = "/home/eduard/"
+    val paths = Array("/home/cassandra/").map(Paths.get(_))
+    parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson, DIRECTORY_PATH_OPTION -> path), null, paths)
+  }
+
+  test("test custom partitioner with one path inside multiple cassandra directory") {
+    intercept[IndexException] {
+      val partitionJson = "{type:\"token\", partitions: 3, paths:[\"/home/cassandra/c\", \"/home/eduard/\", \"/home/jp\"]}"
+      val paths = Array("/home/cassandra/", "/home/cassandra2/").map(Paths.get(_))
+      parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson), null, paths)
+    }.getMessage shouldBe "When cassandra is configured with more than one 'data_file_directory', custom partitioner paths must not be inside any of those 'data_file_directory','/home/cassandra/c' is inside: '/home/cassandra'"
+  }
+
+  test("test custom partitioner with every path inside multiple cassandra directory") {
+    intercept[IndexException] {
+      val partitionJson = "{type:\"token\", partitions: 3, paths:[\"/home/cassandra/c\", \"/home/cassandra/f\", \"/home/cassandra/d\"]}"
+      val paths = Array("/home/cassandra/", "/home/cassandra2/").map(Paths.get(_))
+      parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson), null, paths)
+    }.getMessage shouldBe "When cassandra is configured with more than one 'data_file_directory', custom partitioner paths must not be inside any of those 'data_file_directory','/home/cassandra/c' is inside: '/home/cassandra'"
+  }
+
+  test("test custom partitioner with all paths outside multiple cassandra directory") {
+    val partitionJson = "{type:\"token\", partitions: 3, paths:[\"/home/eduard/c\", \"/home/eduard/f\", \"/home/eduard/d\"]}"
+    val paths = Array("/home/cassandra/", "/home/cassandra2/").map(Paths.get(_))
+    parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson), null, paths)
+  }
+
+  test("test directory_path inside multiple cassandra directory") {
+    intercept[IndexException] {
+      val paths = Array("/home/cassandra/", "/home/cassandra2/").map(Paths.get(_))
+      val path = "/home/cassandra/a"
+      parsePathAndPartitioner(Map(DIRECTORY_PATH_OPTION -> path), null, paths)
+    }.getMessage shouldBe "When cassandra is configured with more than one 'data_file_directory', 'directory_path' must not be inside any of those 'data_file_directory','/home/cassandra/a' is inside: '/home/cassandra'"
+  }
+
+  test("test directory_path outside multiple cassandra directory") {
+    val paths = Array("/home/cassandra/", "/home/cassandra2/").map(Paths.get(_))
+    val path = "/home/eduard"
+    parsePathAndPartitioner(Map(DIRECTORY_PATH_OPTION -> path), null, paths)
+  }
+
+  test("test null directory_path") {
+    intercept[IndexException] {
+      val paths = Array("/home/cassandra/", "/home/cassandra2/").map(Paths.get(_))
+      parsePathAndPartitioner(Map(), null, paths)
+    }.getMessage shouldBe "When cassandra is configured with more than one 'data_file_directory', 'directory_path' required"
+  }
 }
