@@ -88,5 +88,3 @@ class PartitionerOnTokenTest extends PartitionerTest {
     pathForPartitions(9) shouldBe Paths.get("/home/j")
   }
 }
-
-

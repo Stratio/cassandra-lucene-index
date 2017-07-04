@@ -131,6 +131,7 @@ class PartitionedIndex(
       indexes.foreach(_.delete())
       if (useLocalPath) localPaths.get.foreach((localPath: Path) => deleteRecursive(localPath.toFile))
     } finally if (partitions > 1) if (!useLocalPath) deleteRecursive(globalPath.get.toFile)
+
     logger.info(s"Deleted $name")
   }
 
