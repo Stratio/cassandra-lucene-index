@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
+import static com.stratio.cassandra.lucene.search.condition.BooleanCondition.DEFAULT_MAX_CLAUSES;
 import static org.junit.Assert.*;
 
 /**
@@ -55,6 +56,7 @@ public class BooleanConditionTest extends AbstractConditionTest {
         assertEquals("Must is not set", 0, condition.must.size());
         assertEquals("Should is not set", 0, condition.should.size());
         assertEquals("Not is not set", 0, condition.not.size());
+        assertEquals("Max Clauses is not set", DEFAULT_MAX_CLAUSES, condition.maxClauses);
     }
 
     @Test
@@ -118,4 +120,46 @@ public class BooleanConditionTest extends AbstractConditionTest {
                      condition.toString());
     }
 
+    @Test
+    public void testOverMaxClauses() {
+        Schema schema = schema().mapper("name1", stringMapper())
+                                .mapper("name2", stringMapper())
+                                .mapper("name3", stringMapper())
+                                .mapper("name4", stringMapper())
+                                .mapper("name5", stringMapper())
+                                .mapper("name6", stringMapper()).build();
+        BooleanCondition condition = bool().maxClauses(5)
+                                           .must(match("name1","value1"))
+                                           .must(match("name2","value2"))
+                                           .must(match("name3","value3"))
+                                           .must(match("name4","value4"))
+                                           .must(match("name5","value5"))
+                                           .must(match("name6","value6")).build();
+
+        try {
+            condition.doQuery(schema);
+        } catch (org.apache.lucene.search.BooleanQuery.TooManyClauses e) {
+            assertTrue(true);
+            return;
+        }
+        fail("Creating a booleanQuery with more clauses than limited should throw an Exception");
+    }
+
+    @Test
+    public void testInMaxClauses() {
+        Schema schema = schema().mapper("name1", stringMapper())
+                                .mapper("name2", stringMapper())
+                                .mapper("name3", stringMapper())
+                                .mapper("name4", stringMapper())
+                                .mapper("name5", stringMapper())
+                                .mapper("name6", stringMapper()).build();
+        BooleanCondition condition = bool().maxClauses(10)
+                                           .must(match("name1","value1"))
+                                           .must(match("name2","value2"))
+                                           .must(match("name3","value3"))
+                                           .must(match("name4","value4"))
+                                           .must(match("name5","value5"))
+                                           .must(match("name6","value6")).build();
+        assertEquals("Query count clauses is wrong", 6, condition.doQuery(schema).clauses().size());
+    }
 }

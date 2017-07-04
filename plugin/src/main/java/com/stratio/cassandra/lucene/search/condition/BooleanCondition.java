@@ -30,14 +30,14 @@ import java.util.Set;
 import static org.apache.lucene.search.BooleanClause.Occur.*;
 
 /**
- * A {@link Condition} that matches documents matching boolean combinations of other queries, e.g. {@link
- * MatchCondition}s, {@link RangeCondition}s or other {@link BooleanCondition}s.
+ * A {@link Condition} that matches documents matching boolean combinations of other queries, e.g. {@link MatchCondition}s, {@link RangeCondition}s or other {@link BooleanCondition}s.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class BooleanCondition extends Condition {
 
     protected static final Logger logger = LoggerFactory.getLogger(BooleanCondition.class);
+    static final Integer DEFAULT_MAX_CLAUSES = 1024;
 
     /** The mandatory conditions. */
     public final List<Condition> must;
@@ -48,28 +48,36 @@ public class BooleanCondition extends Condition {
     /** The mandatory not conditions. */
     public final List<Condition> not;
 
+    /** The max boolean query clauses. */
+    final Integer maxClauses;
+
     /**
      * Returns a new {@link BooleanCondition} compound by the specified {@link Condition}s.
      *
-     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}.
+     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal weightings) have their score multiplied by {@code boost}.
      * @param must the mandatory conditions
      * @param should the optional conditions
      * @param not the mandatory not conditions
+     * @param maxClauses teh booleanQuery allowed max clauses
      */
     public BooleanCondition(Float boost,
                             List<Condition> must,
                             List<Condition> should,
-                            List<Condition> not) {
+                            List<Condition> not,
+                            Integer maxClauses) {
         super(boost);
         this.must = must == null ? Collections.EMPTY_LIST : must;
         this.should = should == null ? Collections.EMPTY_LIST : should;
         this.not = not == null ? Collections.EMPTY_LIST : not;
+        this.maxClauses = maxClauses == null ? DEFAULT_MAX_CLAUSES : maxClauses;
     }
 
     /** {@inheritDoc} */
     @Override
-    public BooleanQuery doQuery(Schema schema) {
+    public synchronized BooleanQuery doQuery(Schema schema) {
+        int oldMaxClauses= BooleanQuery.getMaxClauseCount();
+        BooleanQuery.setMaxClauseCount(maxClauses);
+
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         must.forEach(condition -> builder.add(condition.query(schema), MUST));
         should.forEach(condition -> builder.add(condition.query(schema), SHOULD));
@@ -78,7 +86,9 @@ public class BooleanCondition extends Condition {
             logger.warn("Performing resource-intensive pure negation query {}", this);
             builder.add(new MatchAllDocsQuery(), FILTER);
         }
-        return builder.build();
+        BooleanQuery out=builder.build();
+        BooleanQuery.setMaxClauseCount(oldMaxClauses);
+        return out;
     }
 
     /** {@inheritDoc} */

@@ -484,6 +484,7 @@ public class BuilderTest {
                               .should(match("f3", 3), match("f4", 4))
                               .not(match("f5", 5), match("f6", 6))
                               .boost(2)
+                              .maxClauses(10)
                               .build();
         String expected = "{\"type\":\"boolean\",\"boost\":2.0," +
                           "\"must\":[" +
@@ -495,7 +496,7 @@ public class BuilderTest {
                           "],\"not\":[" +
                           "{\"type\":\"match\",\"field\":\"f5\",\"value\":5}," +
                           "{\"type\":\"match\",\"field\":\"f6\",\"value\":6}" +
-                          "]}";
+                          "],\"max_clauses\":10}";
         assertEquals("boolean is wrong", expected, actual);
     }
 

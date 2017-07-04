@@ -2446,6 +2446,7 @@ Searches for rows matching boolean combinations of other searches.
          (, must: [(search,)?] )?
          (, should: [(search,)?] )?
          (, not: [(search,)?] )?
+         (, max_clauses: <max_clauses>)?
        }
     }');
 
@@ -2457,6 +2458,7 @@ where:
    OR … OR search_n
 -  **not**: represents the negation of the disjunction of searches:
    NOT(search_1 OR search_2 OR … OR search_n)
+-  **max_clauses**: this is the clauses limit for this query
 
 
 **Example 1:** search for rows where name ends with “a” AND food starts
