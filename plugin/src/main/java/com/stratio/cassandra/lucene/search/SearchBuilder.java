@@ -57,6 +57,9 @@ public class SearchBuilder implements Builder<Search> {
     @JsonProperty("paging")
     private String paging;
 
+    @JsonProperty("skip")
+    private Integer skip;
+
     /** Default constructor. */
     SearchBuilder() {
     }
@@ -119,6 +122,17 @@ public class SearchBuilder implements Builder<Search> {
     }
 
     /**
+     * Sets the specified starting partition key.
+     *
+     * @param skip the offset
+     * @return this builder with the specified partition key
+     */
+    public SearchBuilder skip(Integer skip) {
+        this.skip = skip;
+        return this;
+    }
+
+    /**
      * Returns the {@link Search} represented by this builder.
      *
      * @return the search represented by this builder
@@ -129,7 +143,8 @@ public class SearchBuilder implements Builder<Search> {
                           query.stream().map(ConditionBuilder::build).collect(toList()),
                           sort.stream().map(SortFieldBuilder::build).collect(toList()),
                           paging == null ? null : IndexPagingState.fromByteBuffer(ByteBufferUtils.byteBuffer(paging)),
-                          refresh);
+                          refresh,
+                          skip);
     }
 
     /**

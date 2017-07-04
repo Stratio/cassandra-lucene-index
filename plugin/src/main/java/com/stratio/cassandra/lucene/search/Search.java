@@ -45,6 +45,7 @@ public class Search {
     protected static final Logger logger = LoggerFactory.getLogger(Search.class);
 
     private static final boolean DEFAULT_FORCE_REFRESH = false;
+    private static final int DEFAULT_SKIP = 0;
 
     /** The mandatory conditions not participating in scoring. */
     public final List<Condition> filter;
@@ -61,6 +62,9 @@ public class Search {
     /** The paging state. */
     private final IndexPagingState paging;
 
+    /** Firsts rows to skip. */
+    private final Integer skip;
+
     /**
      * Constructor using the specified querying, filtering, sorting and refresh options.
      *
@@ -69,17 +73,20 @@ public class Search {
      * @param sort the sort fields for the query
      * @param paging the paging state
      * @param refresh if this search must refresh the index before reading it
+     * @param skip skip this number of first rows
      */
     public Search(List<Condition> filter,
                   List<Condition> query,
                   List<SortField> sort,
                   IndexPagingState paging,
-                  Boolean refresh) {
+                  Boolean refresh,
+                  Integer skip) {
         this.filter = filter == null ? Collections.EMPTY_LIST : filter;
         this.query = query == null ? Collections.EMPTY_LIST : query;
         this.sort = sort == null ? Collections.EMPTY_LIST : sort;
         this.paging = paging;
         this.refresh = refresh == null ? DEFAULT_FORCE_REFRESH : refresh;
+        this.skip = skip == null ? DEFAULT_SKIP : skip;
     }
 
     /**
@@ -125,6 +132,24 @@ public class Search {
      */
     public boolean isEmpty() {
         return filter.isEmpty() && query.isEmpty() && sort.isEmpty();
+    }
+
+    /**
+     * Returns the number of firsts rows to skip in coordinator
+     *
+     * @return the number of rows to skip
+     */
+    public Integer getSkip() {
+        return skip;
+    }
+
+    /**
+     * Returns if this search use Skip functionality
+     *
+     * @return if skip is greater than 0
+     */
+    public Boolean useSkip() {
+        return skip > 0;
     }
 
     /**

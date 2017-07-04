@@ -117,7 +117,7 @@ public class CassandraConnection {
                 client.invoke(bean, operation, params, signature);
             }
         } catch (RuntimeException e) {
-            throw new RuntimeException("Error while invoking JMX method " + operation, e);
+            throw new RuntimeException("Error while invoking JMX method " + operation+ " with beanName: "+bean + " params: " + params.toString(), e);
         }
     }
 }

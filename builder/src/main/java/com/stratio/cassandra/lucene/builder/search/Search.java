@@ -48,6 +48,10 @@ public class Search extends JSONBuilder {
     @JsonProperty("refresh")
     private Boolean refresh;
 
+    /** Firsts rows to skip. */
+    @JsonProperty("skip")
+    private Integer skip;
+
     /** Default constructor. */
     public Search() {
     }
@@ -94,6 +98,17 @@ public class Search extends JSONBuilder {
      */
     public Search refresh(Boolean refresh) {
         this.refresh = refresh;
+        return this;
+    }
+
+    /**
+     * Sets the specified starting partition key.
+     *
+     * @param skip the offset
+     * @return this builder with the specified partition key
+     */
+    public Search skip(Integer skip) {
+        this.skip = skip;
         return this;
     }
 
