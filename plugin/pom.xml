@@ -26,7 +26,7 @@
     <parent>
         <groupId>com.stratio.cassandra</groupId>
         <artifactId>cassandra-lucene-index-parent</artifactId>
-        <version>3.0.13.1-RC1-SNAPSHOT</version>
+        <version>3.0.14.1-RC1-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -218,7 +218,7 @@
                                 <configuration>
                                     <target>
                                         <echo message="Downloading Apache Cassandra"/>
-                                        <get src="http://www.us.apache.org/dist/cassandra/${cassandra.version}/apache-cassandra-${cassandra.version}-bin.tar.gz"
+                                        <get src="${archive.apache.url}"
                                              dest="${project.build.directory}/apache-cassandra-${cassandra.version}-bin.tar.gz"/>
                                         <echo message="Uncompressing Apache Cassandra"/>
                                         <gunzip src="${project.build.directory}/apache-cassandra-${cassandra.version}-bin.tar.gz"
