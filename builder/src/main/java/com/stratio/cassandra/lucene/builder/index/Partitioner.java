@@ -48,10 +48,8 @@ public abstract class Partitioner extends JSONBuilder {
     }
 
     /**
-     * A {@link Partitioner} based on the partition key token. Rows will be stored in an index partition determined by
-     * the hash of the partition key token. Partition-directed searches will be routed to a single partition, increasing
-     * performance. However, token range searches will be routed to all the partitions, with a slightly lower
-     * performance.
+     * A {@link Partitioner} based on the partition key token. Rows will be stored in an index partition determined by the hash of the partition key token. Partition-directed searches will be routed to a single partition, increasing performance. However, token range searches will be routed to all
+     * the partitions, with a slightly lower performance.
      *
      * This partitioner guarantees an excellent load balancing between index partitions.
      *
@@ -74,13 +72,11 @@ public abstract class Partitioner extends JSONBuilder {
          */
         public OnToken(int partitions) {
             this.partitions = partitions;
-            this.paths=paths;
         }
 
         /**
-         *
          * @param paths the paths where to save partitions
-         *
+         * @return this with the specified path directories
          */
         public OnToken paths(String[] paths) {
             this.paths = paths;
@@ -90,14 +86,10 @@ public abstract class Partitioner extends JSONBuilder {
     }
 
     /**
-     * A {@link Partitioner} based on a partition key column. Rows will be stored in an index partition determined by
-     * the hash of the specified partition key column. Both partition-directed as well as token range searches
-     * containing an CQL equality filter over the selected partition key column will be routed to a single partition,
-     * increasing performance. However, token range searches without filters over the partitioning column will be routed
-     * to all the partitions, with a slightly lower performance.
+     * A {@link Partitioner} based on a partition key column. Rows will be stored in an index partition determined by the hash of the specified partition key column. Both partition-directed as well as token range searches containing an CQL equality filter over the selected partition key column will
+     * be routed to a single partition, increasing performance. However, token range searches without filters over the partitioning column will be routed to all the partitions, with a slightly lower performance.
      *
-     * Load balancing depends on the cardinality and distribution of the values of the partitioning column. Both high
-     * cardinalities and uniform distributions will provide better load balancing between partitions.
+     * Load balancing depends on the cardinality and distribution of the values of the partitioning column. Both high cardinalities and uniform distributions will provide better load balancing between partitions.
      *
      * Both the number of partitions per node and the name of the partition column should be specified.
      */
@@ -120,7 +112,6 @@ public abstract class Partitioner extends JSONBuilder {
          *
          * @param partitions the number of index partitions per node
          * @param column the partition key column
-
          */
         public OnColumn(int partitions, String column) {
             this.partitions = partitions;
@@ -128,9 +119,8 @@ public abstract class Partitioner extends JSONBuilder {
         }
 
         /**
-         *
          * @param paths the paths where to save partitions
-         *
+         * @return this with the specified path directories
          */
         public OnColumn paths(String[] paths) {
             this.paths = paths;
@@ -139,15 +129,10 @@ public abstract class Partitioner extends JSONBuilder {
     }
 
     /**
-     * A {@link Partitioner} based on the partition key token. Rows will be stored in an index partition determined by
-     * the virtual node token range. Partition-directed searches will be routed to a single partition, increasing
-     * performance. However, unbounded token range searches will be routed to all the partitions, with a slightly lower
-     * performance. Virtual node token range queries will be routed to only one partition which increase performance in
-     * spark queries with virtual nodes rather than partitioning on token.
+     * A {@link Partitioner} based on the partition key token. Rows will be stored in an index partition determined by the virtual node token range. Partition-directed searches will be routed to a single partition, increasing performance. However, unbounded token range searches will be routed to all
+     * the partitions, with a slightly lower performance. Virtual node token range queries will be routed to only one partition which increase performance in spark queries with virtual nodes rather than partitioning on token.
      *
-     * This partitioner load balance depends on virtual node token ranges assignation. The more virtual nodes, the
-     * better distribution (more similarity in number of tokens that falls inside any virtual node) between virtual
-     * nodes, the better load balance with this partitioner.
+     * This partitioner load balance depends on virtual node token ranges assignation. The more virtual nodes, the better distribution (more similarity in number of tokens that falls inside any virtual node) between virtual nodes, the better load balance with this partitioner.
      *
      * The number of virtual nodes per each partition must be specified.
      */
