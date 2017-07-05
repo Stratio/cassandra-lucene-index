@@ -223,6 +223,7 @@ class PartitionedIndex(
     * @param query      the query to search for
     * @param sort       the sort to be applied
     * @param count      the max number of results to be collected
+    * @param skip       the number of first results to skip
     * @return the found documents, sorted first by `sort`, then by `query` relevance
     */
   def search(partitions: List[(Int, Option[Term])], query: Query, sort: Sort, count: Int, skip: Int)
