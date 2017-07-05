@@ -228,7 +228,7 @@ class IndexQueryHandler extends QueryHandler with Logging {
       if (data != null) data.close()
     }
   }
-  
+
 }
 
 /** Companion object for [[IndexQueryHandler]]. */

@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.google.common.collect.Sets;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.MatchConditionBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
@@ -25,6 +26,8 @@ import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
+import static com.stratio.cassandra.lucene.search.Search.DEFAULT_FORCE_REFRESH;
+import static com.stratio.cassandra.lucene.search.Search.DEFAULT_SKIP;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
 import static org.junit.Assert.*;
 
@@ -39,16 +42,38 @@ public class SearchTest {
     @Test
     public void testBuilderEmpty() {
         Search search = search().build();
-        assertFalse("Default refresh is not set", search.refresh());
+        assertEquals("Default refresh is not set", DEFAULT_FORCE_REFRESH, search.refresh());
+        assertEquals("Default refresh is not set", new Long(DEFAULT_SKIP), new Long(search.getSkip()));
     }
 
     @Test
     public void testBuilder() {
-        assertTrue("Refresh is not set", search().filter(MATCH)
-                                                 .query(MATCH)
-                                                 .sort(FIELD)
-                                                 .refresh(true)
-                                                 .build().refresh());
+        Search search = search().filter(MATCH)
+                                .query(MATCH)
+                                .sort(FIELD)
+                                .refresh(true)
+                                .skip(10)
+                                .build();
+        assertEquals("Refresh is not set", true, search.refresh());
+        assertEquals("Skip is not set", 10, search.getSkip());
+        assertEquals("Skip is not set", true, search.useSkip());
+    }
+
+    @Test
+    public void testFailingBuilder() {
+        try {
+            search().filter(MATCH)
+                    .query(MATCH)
+                    .sort(FIELD)
+                    .refresh(true)
+                    .skip(-10)
+                    .build();
+            fail("Incorrect Search builder with negative skip should throw a IndexException but does not");
+        } catch (IndexException e) {
+            String expectedMessage = "skip must be positive.";
+            String receivedMessage = e.getMessage();
+            assertEquals("Exception message should be '" + expectedMessage + "'but it is: '" + receivedMessage + "'", expectedMessage, receivedMessage);
+        }
     }
 
     @Test
