@@ -225,7 +225,7 @@ class PartitionedIndex(
     * @param count      the max number of results to be collected
     * @return the found documents, sorted first by `sort`, then by `query` relevance
     */
-  def search(partitions: List[(Int, Option[Term])], query: Query, sort: Sort, count: Int)
+  def search(partitions: List[(Int, Option[Term])], query: Query, sort: Sort, count: Int, skip: Int)
   : DocumentIterator = {
     logger.debug(
       s"""Searching in $name
@@ -236,6 +236,6 @@ class PartitionedIndex(
           |       sort : $sort
        """.stripMargin)
     val cursors = partitions.map { case (p, a) => (indexes(p).searcherManager, a) }
-    new DocumentIterator(cursors, mergeSort, sort, query, count, fields)
+    new DocumentIterator(cursors, mergeSort, sort, query, count, fields, skip)
   }
 }

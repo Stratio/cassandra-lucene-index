@@ -300,7 +300,7 @@ abstract class IndexService(
     tracer.trace(s"Lucene index searching for $count rows")
     val partitions = partitioner.partitions(command)
     val readers = afters.filter(a => partitions.contains(a._1))
-    val documents = lucene.search(readers, query, sort, count)
+    val documents = lucene.search(readers, query, sort, count, search.getSkip)
     reader(documents, command, orderGroup)
   }
 

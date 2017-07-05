@@ -176,7 +176,7 @@ class IndexQueryHandler extends QueryHandler with Logging {
         if (search.requiresPostProcessing && page > 0 && page < limit) {
           executeSortedLuceneQuery(select, state, options, partitioner)
         } else {
-          IndexQueryHandler.skipRows(execute(select, state, options), search.getSkip)
+          execute(select, state, options)
         }
       }
     }
@@ -258,7 +258,7 @@ object IndexQueryHandler {
       }
     }
   }
-
+/*
   def skipRows(rows: ResultMessage, skip: Integer): ResultMessage = rows match {
     case (r: Rows) =>
       val realSkip: Integer = if (r.result.rows.size() > skip) skip else r.result.rows.size()
@@ -267,6 +267,6 @@ object IndexQueryHandler {
       new Rows(rs)
     case (other) => other
   }
-
+*/
 
 }
