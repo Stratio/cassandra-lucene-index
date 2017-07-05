@@ -102,14 +102,13 @@ public class Search extends JSONBuilder {
     }
 
     /**
-     * Sets the specified starting partition key.
+     * Sets the skip value for this search
      *
      * @param skip the offset
-     * @return this builder with the specified partition key
+     * @return this builder with the specified skip
      */
     public Search skip(Integer skip) {
         this.skip = skip;
         return this;
     }
-
 }

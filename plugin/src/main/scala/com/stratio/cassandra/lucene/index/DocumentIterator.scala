@@ -33,7 +33,7 @@ import org.apache.lucene.search._
   * @param query     the query to be satisfied by the documents
   * @param limit     the iteration page size
   * @param fields    the names of the document fields to be loaded
-  * @param skip       the number of first results to skip
+  * @param skip      the number of first results to skip
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 class DocumentIterator(

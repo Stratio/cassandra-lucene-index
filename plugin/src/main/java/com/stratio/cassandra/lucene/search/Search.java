@@ -135,7 +135,7 @@ public class Search {
     }
 
     /**
-     * Returns the number of firsts rows to skip in coordinator
+     * Returns the number of first rows to skip
      *
      * @return the number of rows to skip
      */
@@ -144,9 +144,9 @@ public class Search {
     }
 
     /**
-     * Returns if this search use Skip functionality
+     * Returns if this search has an offset
      *
-     * @return if skip is greater than 0
+     * @return if this search has an offset
      */
     public Boolean useSkip() {
         return skip > 0;

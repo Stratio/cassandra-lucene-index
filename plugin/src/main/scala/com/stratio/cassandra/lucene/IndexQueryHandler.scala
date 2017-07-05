@@ -147,6 +147,11 @@ class IndexQueryHandler extends QueryHandler with Logging {
     map.toMap
   }
 
+  def execute(statement: CQLStatement, state: QueryState, options: QueryOptions): ResultMessage = {
+    val result = statement.execute(state, options)
+    if (result == null) new ResultMessage.Void else result
+  }
+
   def executeLuceneQuery(
       select: SelectStatement,
       state: QueryState,
@@ -224,11 +229,6 @@ class IndexQueryHandler extends QueryHandler with Logging {
     }
   }
 
-  def execute(statement: CQLStatement, state: QueryState, options: QueryOptions): ResultMessage = {
-    val result = statement.execute(state, options)
-    if (result == null) new ResultMessage.Void else result
-  }
-
 }
 
 /** Companion object for [[IndexQueryHandler]]. */
@@ -258,15 +258,4 @@ object IndexQueryHandler {
       }
     }
   }
-/*
-  def skipRows(rows: ResultMessage, skip: Integer): ResultMessage = rows match {
-    case (r: Rows) =>
-      val realSkip: Integer = if (r.result.rows.size() > skip) skip else r.result.rows.size()
-      val rs = new ResultSet(r.result.metadata,
-        r.result.rows.subList(realSkip, r.result.rows.size()))
-      new Rows(rs)
-    case (other) => other
-  }
-*/
-
 }
