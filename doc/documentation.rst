@@ -151,7 +151,7 @@ Not yet supported:
 -  Indexing static columns
 -  Columns with TTL
 -  Other partitioners than Murmur3
--  JSON inserts (Please see `#335 <https://github.com/stratio/cassandra-lucene-index/issues/335>`__ )
+-  JSON inserts (Please see `#335 <https://github.com/stratio/cassandra-lucene-index/issues/335>`__)
 
 Architecture
 ============
