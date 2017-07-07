@@ -41,7 +41,7 @@ import org.apache.lucene.search.{Query, Sort}
 class PartitionedIndex(
     partitions: Int,
     name: String,
-    localPaths: Array[Path],
+    localPaths: Array[String],
     globalPath: Path,
     analyzer: Analyzer,
     refreshSeconds: Double,
@@ -56,7 +56,7 @@ class PartitionedIndex(
       case 1 =>
         if (useLocalPath) {
           List(new FSIndex(name,
-            localPaths(0),
+            Paths.get(localPaths.apply(0)),
             analyzer,
             refreshSeconds,
             ramBufferMB,
@@ -129,7 +129,8 @@ class PartitionedIndex(
   def delete() {
     try {
       indexes.foreach(_.delete())
-      if (useLocalPath) localPaths.foreach((localPath: Path) => deleteRecursive(localPath.toFile))
+      if (useLocalPath) localPaths.foreach((localPath: String) => deleteRecursive(Paths.get(
+        localPath).toFile))
     } finally if (partitions > 1) if (!useLocalPath) deleteRecursive(globalPath.toFile)
     logger.info(s"Deleted $name")
   }

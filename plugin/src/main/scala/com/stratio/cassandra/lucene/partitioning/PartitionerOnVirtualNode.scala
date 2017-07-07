@@ -63,16 +63,15 @@ case class PartitionerOnVirtualNode(
     partitionPerBound(bound) = partition
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def numPartitions: Int = (numTokens.toDouble / vnodes_per_partition.toDouble).ceil.toInt
-
   partitionPerBound(new Bounds(tokens(numPartitions - 1), new LongToken(Long.MaxValue))) = partition
 
   if (tokens.head.getTokenValue.asInstanceOf[Long] != Long.MinValue) {
     partitionPerBound(new Bounds(new LongToken(Long.MinValue), tokens.head)) = partition
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partitions(command: ReadCommand): List[Int] = command match {
     case c: SinglePartitionReadCommand => List(partition(c.partitionKey))
     case c: PartitionRangeReadCommand =>
@@ -105,10 +104,10 @@ case class PartitionerOnVirtualNode(
     }
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partition(key: DecoratedKey): Int = partition(key.getToken)
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   private[this] def partition(token: Token): Int =
     partitionPerBound.filter(_._1.contains(token)).toList.head._2
 
@@ -119,8 +118,6 @@ object PartitionerOnVirtualNode {
 
   /** [[PartitionerOnVirtualNode]] builder. */
   case class Builder(@JsonProperty("vnodes_per_partition") vnodes_per_partition: Int) extends Partitioner.Builder {
-
-    /** @inheritdoc*/
     override def build(metadata: CFMetaData): PartitionerOnVirtualNode = PartitionerOnVirtualNode(
       vnodes_per_partition,
       StorageService.instance.getLocalTokens.asScala.toList.sorted)
