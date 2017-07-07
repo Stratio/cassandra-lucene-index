@@ -632,17 +632,6 @@ Where default\_analyzer defaults to ‘org.apache.lucene.analysis.standard.Stand
        type: "<mapper_type>" (, <option>: "<value>")*
     }
 
-There are three configuration levels related to the directory where indexes should be written to.
-You can configure your static partitioner with the literal paths.
-Also, you can configure the global 'directory_path'.
-
-SCLI uses the custom static partitioner paths, the directory_path and cassandra configured in that order
-
-
-When cassandra is configured with more than one **data_file_directories**, during flushing, it locks
-those directories. Lucene indexes does it as well (file locking), So, if cassandra is configured with
-multiple **data_file_directories**, indexes prevent you to use a child directory to store lucene indexes.
-
 Partitioners
 ============
 

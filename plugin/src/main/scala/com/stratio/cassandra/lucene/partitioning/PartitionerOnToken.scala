@@ -15,8 +15,6 @@
  */
 package com.stratio.cassandra.lucene.partitioning
 
-import java.nio.file.{Path, Paths}
-
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.stratio.cassandra.lucene.IndexException
 import com.stratio.cassandra.lucene.partitioning.Partitioner.StaticPartitioner
@@ -34,7 +32,7 @@ import org.apache.cassandra.dht.Token
   * @param partitions the number of index partitions per node
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-case class PartitionerOnToken(partitions: Int, paths: Array[Path]) extends StaticPartitioner {
+case class PartitionerOnToken(partitions: Int, paths: Array[String]) extends StaticPartitioner {
 
   if (partitions <= 0) throw new IndexException(
     s"The number of partitions should be strictly positive but found $partitions")
@@ -44,7 +42,7 @@ case class PartitionerOnToken(partitions: Int, paths: Array[Path]) extends Stati
       s"The paths size must be equal to number of partitions")
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def partitions(command: ReadCommand): List[Int] = command match {
     case c: SinglePartitionReadCommand => List(partition(c.partitionKey))
     case c: PartitionRangeReadCommand =>
@@ -55,15 +53,15 @@ case class PartitionerOnToken(partitions: Int, paths: Array[Path]) extends Stati
     case _ => throw new IndexException(s"Unsupported read command type: ${command.getClass}")
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def partition(key: DecoratedKey): Int = partition(key.getToken)
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   private[this] def partition(token: Token): Int =
     (Math.abs(token.getTokenValue.asInstanceOf[Long]) % partitions).toInt
 
-  /** @inheritdoc */
-  override def pathForPartition(partition: Int): Path = {
+  /** @inheritdoc*/
+  override def pathForPartition(partition: Int): String = {
     if ((partition < 0) || (partition >= numPartitions)) {
       throw new IndexOutOfBoundsException(s"partition must be [0,$numPartitions)")
     } else {
@@ -71,13 +69,13 @@ case class PartitionerOnToken(partitions: Int, paths: Array[Path]) extends Stati
     }
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def numPartitions: Int = partitions
 
-  /** @inheritdoc */
-  override def pathsForEveryPartition: Array[Path] = paths
+  /** @inheritdoc*/
+  override def pathsForEveryPartition: Array[String] = paths
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def equals(that: Any): Boolean =
     that match {
       case that: PartitionerOnToken => this.partitions.equals(that.partitions) && this.paths.sameElements(
@@ -96,11 +94,9 @@ object PartitionerOnToken {
   case class Builder(
       @JsonProperty("partitions") partitions: Int,
       @JsonProperty("paths") paths: Array[String]) extends Partitioner.Builder {
-
-    /** @inheritdoc */
     override def build(metadata: CFMetaData): PartitionerOnToken = PartitionerOnToken(partitions,
-      paths.map(Paths.get(_)))
-    /** @inheritdoc */
+      paths)
+
     override def equals(that: Any): Boolean =
       that match {
         case that: Builder => this.partitions.equals(that.partitions) && this.paths.sameElements(
