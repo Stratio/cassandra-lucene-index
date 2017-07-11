@@ -15,9 +15,10 @@
  */
 package com.stratio.cassandra.lucene.partitioning
 
+import java.nio.file.{Path, Paths}
+
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.stratio.cassandra.lucene.IndexException
-import com.stratio.cassandra.lucene.partitioning.Partitioner.StaticPartitioner
 import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db._
 import org.apache.cassandra.dht.Token
@@ -32,17 +33,17 @@ import org.apache.cassandra.dht.Token
   * @param partitions the number of index partitions per node
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-case class PartitionerOnToken(partitions: Int, paths: Array[String]) extends StaticPartitioner {
+case class PartitionerOnToken(partitions: Int, paths: Option[Array[Path]]) extends Partitioner {
 
   if (partitions <= 0) throw new IndexException(
     s"The number of partitions should be strictly positive but found $partitions")
 
-  if (paths != null) {
-    if (paths.length != partitions) throw new IndexException(
+  if (paths.isDefined) {
+    if (paths.get.length != partitions) throw new IndexException(
       s"The paths size must be equal to number of partitions")
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partitions(command: ReadCommand): List[Int] = command match {
     case c: SinglePartitionReadCommand => List(partition(c.partitionKey))
     case c: PartitionRangeReadCommand =>
@@ -53,35 +54,50 @@ case class PartitionerOnToken(partitions: Int, paths: Array[String]) extends Sta
     case _ => throw new IndexException(s"Unsupported read command type: ${command.getClass}")
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partition(key: DecoratedKey): Int = partition(key.getToken)
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   private[this] def partition(token: Token): Int =
     (Math.abs(token.getTokenValue.asInstanceOf[Long]) % partitions).toInt
 
-  /** @inheritdoc*/
-  override def pathForPartition(partition: Int): String = {
-    if ((partition < 0) || (partition >= numPartitions)) {
-      throw new IndexOutOfBoundsException(s"partition must be [0,$numPartitions)")
-    } else {
-      paths(partition)
-    }
-  }
-
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def numPartitions: Int = partitions
 
-  /** @inheritdoc*/
-  override def pathsForEveryPartition: Array[String] = paths
+  /** @inheritdoc */
+  override def pathsForEachPartitions: Option[Array[Path]] = paths
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def equals(that: Any): Boolean =
     that match {
-      case that: PartitionerOnToken => this.partitions.equals(that.partitions) && this.paths.sameElements(
-        that.paths)
+      case that: PartitionerOnToken =>
+        var returnValue = this.partitions.equals(that.partitions)
+        if ((this.paths.isDefined && that.paths.isEmpty) || (this.paths.isEmpty && that.paths.isDefined)) {
+          return false
+        } else if (this.paths.isDefined) {
+          returnValue &= this.paths.get.sameElements(that.paths.get)
+        }
+        returnValue
       case _ => false
     }
+
+  /** @inheritdoc */
+  override def toString: String = {
+    val sb = new StringBuilder()
+    sb.append("PartitionerOnToken(")
+    sb.append(partitions)
+    sb.append(", [")
+    if (paths.isDefined) {
+      val pathsInternal = paths.get
+      for ((path: Path) <- pathsInternal.slice(1, pathsInternal.length)) {
+        sb.append(path.toString)
+        sb.append(", ")
+      }
+      sb.append(pathsInternal(pathsInternal.length - 1).toString)
+    }
+    sb.append("])")
+    sb.toString()
+  }
 }
 
 /** Companion object for [[PartitionerOnToken]]. */
@@ -94,16 +110,26 @@ object PartitionerOnToken {
   case class Builder(
       @JsonProperty("partitions") partitions: Int,
       @JsonProperty("paths") paths: Array[String]) extends Partitioner.Builder {
-    override def build(metadata: CFMetaData): PartitionerOnToken = PartitionerOnToken(partitions,
-      paths)
 
+    /** @inheritdoc */
+    override def build(metadata: CFMetaData): PartitionerOnToken = {
+      PartitionerOnToken(partitions,
+        if (paths != null) Some(paths.map(Paths.get(_))) else None)
+    }
+
+    /** @inheritdoc */
     override def equals(that: Any): Boolean =
       that match {
-        case that: Builder => this.partitions.equals(that.partitions) && this.paths.sameElements(
-          that.paths)
+        case that: Builder =>
+          var returnValue = this.partitions.equals(that.partitions)
+          if (((this.paths != null) && that.paths.isEmpty) || (this.paths.isEmpty && (that.paths != null))) {
+            return false
+          } else if (this.paths != null) {
+            returnValue &= this.paths.sameElements(that.paths)
+          }
+          returnValue
         case _ => false
       }
-
   }
 
 }

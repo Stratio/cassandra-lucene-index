@@ -3,6 +3,7 @@
 ## 3.0.14.1 (upcoming)
 
 * Add 'max_clauses' to boolean query
+* Fix cassandra directory sharing.
 
 ## 3.0.14.0 (June 27, 2017)
 

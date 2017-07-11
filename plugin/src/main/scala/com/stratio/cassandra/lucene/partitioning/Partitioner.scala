@@ -15,6 +15,8 @@
  */
 package com.stratio.cassandra.lucene.partitioning
 
+import java.nio.file.Path
+
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.stratio.cassandra.lucene.common.JsonSerializer
 import org.apache.cassandra.config.CFMetaData
@@ -49,6 +51,15 @@ trait Partitioner {
     */
   def partitions(command: ReadCommand): List[Int]
 
+  /** @inheritdoc */
+  override def toString: String
+
+  /** Returns the path urls for every partition.
+    *
+    * @return a path url, if defined, for every partition
+    */
+  def pathsForEachPartitions: Option[Array[Path]]
+
 }
 
 /** Companion object for [[Partitioner]]. */
@@ -82,14 +93,14 @@ object Partitioner {
     new JsonSubTypes.Type(value = classOf[PartitionerOnColumn.Builder], name = "column"),
     new JsonSubTypes.Type(value = classOf[PartitionerOnVirtualNode.Builder], name = "vnode")))
   trait Builder {
-
+    /**
+      * Builds the nested object
+      *
+      * @param metadata the Column family metadata from cassandra
+      * @return a built [[Partitioner]]
+      */
     def build(metadata: CFMetaData): Partitioner
 
-  }
-
-  trait StaticPartitioner extends Partitioner {
-    def pathForPartition(partition: Int): String
-    def pathsForEveryPartition : Array[String]
   }
 
 }

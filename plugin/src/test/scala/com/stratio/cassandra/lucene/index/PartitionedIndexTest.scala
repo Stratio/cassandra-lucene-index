@@ -54,8 +54,8 @@ class PartitionedIndexTest extends BaseScalaTest {
       val index = new PartitionedIndex(
         numPartitions,
         "test_index",
-        Array(),
-        Paths.get(temporaryFolder.newFolder("directory" + UUID.randomUUID).getPath),
+        None,
+        Some(Paths.get(temporaryFolder.newFolder("directory" + UUID.randomUUID).getPath)),
         new StandardAnalyzer,
         REFRESH_SECONDS,
         DEFAULT_RAM_BUFFER_MB,

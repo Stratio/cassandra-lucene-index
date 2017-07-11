@@ -41,8 +41,8 @@ import org.apache.lucene.search.{Query, Sort}
 class PartitionedIndex(
     partitions: Int,
     name: String,
-    localPaths: Array[String],
-    globalPath: Path,
+    localPaths: Option[Array[Path]],
+    globalPath: Option[Path],
     analyzer: Analyzer,
     refreshSeconds: Double,
     ramBufferMB: Int,
@@ -56,7 +56,7 @@ class PartitionedIndex(
       case 1 =>
         if (useLocalPath) {
           List(new FSIndex(name,
-            Paths.get(localPaths.apply(0)),
+            localPaths.get(0),
             analyzer,
             refreshSeconds,
             ramBufferMB,
@@ -64,7 +64,7 @@ class PartitionedIndex(
             maxCachedMB))
         } else {
           List(new FSIndex(name,
-            Paths.get(globalPath.toFile.getAbsolutePath + File.separator + "0"),
+            Paths.get(globalPath.get.toFile.getAbsolutePath + File.separator + "0"),
             analyzer,
             refreshSeconds,
             ramBufferMB,
@@ -74,9 +74,9 @@ class PartitionedIndex(
       case n if n > 1 =>
         for (index <- 0 until n) {
           val path = if (useLocalPath) {
-            localPaths(index) + File.separator + index
+            localPaths.get(index) + File.separator + index
           } else {
-            globalPath.toFile.getAbsolutePath + File.separator + index
+            globalPath.get.toFile.getAbsolutePath + File.separator + index
           }
           outputList = outputList ++ List(new FSIndex(name,
             Paths.get(path),
@@ -129,13 +129,12 @@ class PartitionedIndex(
   def delete() {
     try {
       indexes.foreach(_.delete())
-      if (useLocalPath) localPaths.foreach((localPath: String) => deleteRecursive(Paths.get(
-        localPath).toFile))
-    } finally if (partitions > 1) if (!useLocalPath) deleteRecursive(globalPath.toFile)
+      if (useLocalPath) localPaths.get.foreach((localPath: Path) => deleteRecursive(localPath.toFile))
+    } finally if (partitions > 1) if (!useLocalPath) deleteRecursive(globalPath.get.toFile)
     logger.info(s"Deleted $name")
   }
 
-  private[this] def useLocalPath = localPaths != null && localPaths.length > 0
+  private[this] def useLocalPath = localPaths.isDefined
 
   /** Optimizes the index forcing merge segments leaving the specified number of segments.
     * This operation may block until all merging completes.
