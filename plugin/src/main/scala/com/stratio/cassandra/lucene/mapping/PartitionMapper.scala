@@ -139,10 +139,10 @@ class PartitionSort(mapper: PartitionMapper) extends SortField(
     }
   }) {
 
-  /** @inheritdoc **/
+  /** @inheritdoc */
   override def toString: String = "<partition>"
 
-  /** @inheritdoc **/
+  /** @inheritdoc */
   override def equals(o: Any): Boolean = o match {
     case ps: PartitionSort => true
     case _ => false

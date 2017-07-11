@@ -210,9 +210,9 @@ object IndexOptions {
     val partitioner = parsePartitioner(options, table)
     val customPartitionerPaths = partitioner.pathsForEachPartitions
     if (cassandraPathDirs.length > 1) {
-      if (customPartitionerPaths.length > 0) {
+      if (customPartitionerPaths.isDefined) {
         for (cassandraFile <- cassandraPathDirs) {
-          for (partitionerPath <- customPartitionerPaths) {
+          for (partitionerPath <- customPartitionerPaths.get) {
             if (partitionerPath.startsWith(cassandraFile)) {
               throw new IndexException(s"When cassandra is configured with more than one 'data_file_directory', custom partitioner paths must not be inside any of those 'data_file_directory','$partitionerPath' is inside: '$cassandraFile'")
             }
@@ -229,7 +229,7 @@ object IndexOptions {
           throw new IndexException(s"When cassandra is configured with more than one 'data_file_directory', 'directory_path' required")
         }
       }
-    } else if ((cassandraPathDirs.length == 1) && (customPartitionerPaths.length == 0) && path.isEmpty) {
+    } else if ((cassandraPathDirs.length == 1) && customPartitionerPaths.isEmpty && path.isEmpty) {
       path = Some(baseTablePath)
     }
     (path, partitioner)
@@ -270,6 +270,4 @@ object IndexOptions {
           s"'$SPARSE_OPTION' is invalid : ${e.getMessage}")
       }).getOrElse(DEFAULT_SPARSE)
   }
-
-
 }

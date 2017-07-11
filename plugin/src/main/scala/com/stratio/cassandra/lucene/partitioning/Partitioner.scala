@@ -56,9 +56,9 @@ trait Partitioner {
 
   /** Returns the path urls for every partition.
     *
-    * @return a path url for every partition. could be null
+    * @return a path url, if defined, for every partition
     */
-  def pathsForEachPartitions: Array[Path]
+  def pathsForEachPartitions: Option[Array[Path]]
 
 }
 
@@ -102,4 +102,5 @@ object Partitioner {
     def build(metadata: CFMetaData): Partitioner
 
   }
+
 }

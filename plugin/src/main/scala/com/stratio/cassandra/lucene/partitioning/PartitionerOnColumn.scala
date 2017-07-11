@@ -43,7 +43,7 @@ import scala.collection.JavaConverters._
   *
   * @param partitions   the number of index partitions per node
   * @param column       the name of the partition key column
-  * @param paths        the paths where partitions should write to.(null != Array())
+  * @param paths        the paths where partitions should write to
   * @param position     the position of the partition column in the partition key
   * @param keyValidator the type of the partition key
   * @author Andres de la Pena `adelapena@stratio.com`
@@ -51,7 +51,7 @@ import scala.collection.JavaConverters._
 case class PartitionerOnColumn(
     partitions: Int,
     column: String,
-    paths: Array[Path],
+    paths: Option[Array[Path]],
     position: Int,
     keyValidator: AbstractType[_]) extends Partitioner {
 
@@ -67,12 +67,12 @@ case class PartitionerOnColumn(
   if (keyValidator == null) throw new IndexException(
     s"The partition key type should be specified")
 
-  if (paths != null) {
-    if (paths.length != partitions) throw new IndexException(
+  if (paths.isDefined) {
+    if (paths.get.length != partitions) throw new IndexException(
       s"The paths size must be equal to number of partitions")
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def partitions(command: ReadCommand): List[Int] = command match {
     case c: SinglePartitionReadCommand => List(partition(c.partitionKey))
     case c: PartitionRangeReadCommand =>
@@ -89,7 +89,7 @@ case class PartitionerOnColumn(
     case _ => throw new IndexException(s"Unsupported read command type: ${command.getClass}")
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def partition(key: DecoratedKey): Int =
     partition(ByteBufferUtils.split(key.getKey, keyValidator)(position))
 
@@ -99,28 +99,26 @@ case class PartitionerOnColumn(
     (Math.abs(hash(0)) % partitions).toInt
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc **/
   override def numPartitions: Int = partitions
 
-  /** @inheritdoc */
-  override def pathsForEachPartitions: Array[Path] = if (paths==null) Array() else paths
+  /** @inheritdoc **/
+  override def pathsForEachPartitions: Option[Array[Path]] = paths
 
-  /** @inheritdoc */
+  /** @inheritdoc **/
   override def equals(that: Any): Boolean =
     that match {
-      case that: PartitionerOnColumn => {
-        var returnValue= true
-        returnValue &= this.partitions.equals(that.partitions)
+      case that: PartitionerOnColumn =>
+        var returnValue = this.partitions.equals(that.partitions)
         returnValue &= this.column.equals(that.column)
-        if ((this.paths != null) && (that.paths != null)) {
-          returnValue &= this.paths.sameElements(that.paths)
-        } else if (((this.paths==null) && (that.paths!=null)) || ((this.paths!=null) && (that.paths==null))) {
+        if (this.paths.isDefined && that.paths.isDefined) {
+          returnValue &= this.paths.get.sameElements(that.paths.get)
+        } else if ((this.paths.isEmpty && that.paths.isDefined) || (this.paths.isDefined && that.paths.isEmpty)) {
           return false
         }
         returnValue &= this.position.equals(that.position)
         returnValue &= this.keyValidator.equals(that.keyValidator)
         returnValue
-      }
       case _ => false
     }
 }
@@ -136,7 +134,7 @@ object PartitionerOnColumn {
   case class Builder(
       @JsonProperty("partitions") partitions: Int,
       @JsonProperty("column") column: String,
-      @JsonProperty("paths") paths: Array[String])
+      @JsonProperty("paths") paths: Option[Array[String]])
     extends Partitioner.Builder {
 
     /** @inheritdoc */
@@ -146,7 +144,11 @@ object PartitionerOnColumn {
         case null =>
           throw new IndexException(s"Partitioner's column '$column' not found in table schema")
         case d if d.isPartitionKey =>
-          PartitionerOnColumn(partitions, column, if (paths==null) null else paths.map(Paths.get(_)), d.position, metadata.getKeyValidator)
+          PartitionerOnColumn(partitions,
+            column,
+            if (paths.isDefined) Some(paths.get.map(Paths.get(_))) else None,
+            d.position,
+            metadata.getKeyValidator)
         case _ =>
           throw new IndexException(s"Partitioner's column '$column' is not part of partition key")
       }
@@ -155,8 +157,16 @@ object PartitionerOnColumn {
     /** @inheritdoc */
     override def equals(that: Any): Boolean =
       that match {
-        case that: Builder => this.partitions.equals(that.partitions) && this.column.equals(that.column) && this.paths.sameElements(
-          that.paths)
+        case that: Builder =>
+          var returnValue: Boolean =
+            this.partitions.equals(that.partitions)
+          returnValue &= this.column.equals(that.column)
+          if (this.paths.isDefined && that.paths.isDefined) {
+            returnValue &= this.paths.get.sameElements(that.paths.get)
+          } else if ((this.paths.isEmpty && that.paths.isDefined) || (this.paths.isDefined && that.paths.isEmpty)) {
+            return false
+          }
+          returnValue
         case _ => false
       }
   }

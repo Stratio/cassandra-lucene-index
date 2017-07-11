@@ -39,7 +39,7 @@ case class PartitionerOnNone() extends Partitioner {
   override def toString: String = "PartitionerOnNone()"
 
   /** @inheritdoc */
-  override def pathsForEachPartitions: Array[Path] = Array()
+  override def pathsForEachPartitions: Option[Array[Path]] = None
 
 }
 
