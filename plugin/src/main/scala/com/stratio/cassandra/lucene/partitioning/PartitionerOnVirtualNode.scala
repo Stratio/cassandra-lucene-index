@@ -15,6 +15,8 @@
  */
 package com.stratio.cassandra.lucene.partitioning
 
+import java.nio.file.Path
+
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.stratio.cassandra.lucene.IndexException
 import com.stratio.cassandra.lucene.util.Logging
@@ -63,7 +65,7 @@ case class PartitionerOnVirtualNode(
     partitionPerBound(bound) = partition
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def numPartitions: Int = (numTokens.toDouble / vnodes_per_partition.toDouble).ceil.toInt
 
   partitionPerBound(new Bounds(tokens(numPartitions - 1), new LongToken(Long.MaxValue))) = partition
@@ -72,7 +74,7 @@ case class PartitionerOnVirtualNode(
     partitionPerBound(new Bounds(new LongToken(Long.MinValue), tokens.head)) = partition
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partitions(command: ReadCommand): List[Int] = command match {
     case c: SinglePartitionReadCommand => List(partition(c.partitionKey))
     case c: PartitionRangeReadCommand =>
@@ -105,13 +107,26 @@ case class PartitionerOnVirtualNode(
     }
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partition(key: DecoratedKey): Int = partition(key.getToken)
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   private[this] def partition(token: Token): Int =
     partitionPerBound.filter(_._1.contains(token)).toList.head._2
 
+  /** @inheritdoc */
+  override def toString: String = {
+    val sb= new StringBuilder()
+    sb.append("PartitionerOnVirtualNode(")
+    sb.append(vnodes_per_partition)
+    sb.append(", [")
+    tokens.foreach((token: Token) => sb.append(token.toString))
+    sb.append("])")
+    sb.toString()
+  }
+
+  /** @inheritdoc */
+  override def pathsForEachPartitions: Array[Path] = Array()
 }
 
 /** Companion object for [[PartitionerOnVirtualNode]]. */
@@ -120,7 +135,7 @@ object PartitionerOnVirtualNode {
   /** [[PartitionerOnVirtualNode]] builder. */
   case class Builder(@JsonProperty("vnodes_per_partition") vnodes_per_partition: Int) extends Partitioner.Builder {
 
-    /** @inheritdoc*/
+    /** @inheritdoc */
     override def build(metadata: CFMetaData): PartitionerOnVirtualNode = PartitionerOnVirtualNode(
       vnodes_per_partition,
       StorageService.instance.getLocalTokens.asScala.toList.sorted)

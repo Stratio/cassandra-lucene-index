@@ -15,6 +15,8 @@
  */
 package com.stratio.cassandra.lucene.partitioning
 
+import java.nio.file.Path
+
 import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db.{DecoratedKey, ReadCommand}
 
@@ -32,6 +34,12 @@ case class PartitionerOnNone() extends Partitioner {
 
   /** @inheritdoc */
   override def partitions(command: ReadCommand): List[Int] = allPartitions
+
+  /** @inheritdoc */
+  override def toString: String = "PartitionerOnNone()"
+
+  /** @inheritdoc */
+  override def pathsForEachPartitions: Array[Path] = Array()
 
 }
 

@@ -42,12 +42,14 @@ class PartitionedIndex(
     partitions: Int,
     name: String,
     localPaths: Array[Path],
-    globalPath: Path,
+    globalPath: Option[Path],
     analyzer: Analyzer,
     refreshSeconds: Double,
     ramBufferMB: Int,
     maxMergeMB: Int,
     maxCachedMB: Int) extends Logging {
+  logger.debug(s"Building PartitionedIndex [partoiione,,,,,,]")
+
 
   private[this] val indexes: List[FSIndex] = {
     var outputList: List[FSIndex] = List()
@@ -64,7 +66,7 @@ class PartitionedIndex(
             maxCachedMB))
         } else {
           List(new FSIndex(name,
-            Paths.get(globalPath.toFile.getAbsolutePath + File.separator + "0"),
+            Paths.get(globalPath.get.toFile.getAbsolutePath + File.separator + "0"),
             analyzer,
             refreshSeconds,
             ramBufferMB,
@@ -76,7 +78,7 @@ class PartitionedIndex(
           val path = if (useLocalPath) {
             localPaths(index) + File.separator + index
           } else {
-            globalPath.toFile.getAbsolutePath + File.separator + index
+            globalPath.get.toFile.getAbsolutePath + File.separator + index
           }
           outputList = outputList ++ List(new FSIndex(name,
             Paths.get(path),
@@ -130,7 +132,7 @@ class PartitionedIndex(
     try {
       indexes.foreach(_.delete())
       if (useLocalPath) localPaths.foreach((localPath: Path) => deleteRecursive(localPath.toFile))
-    } finally if (partitions > 1) if (!useLocalPath) deleteRecursive(globalPath.toFile)
+    } finally if (partitions > 1) if (!useLocalPath) deleteRecursive(globalPath.get.toFile)
     logger.info(s"Deleted $name")
   }
 

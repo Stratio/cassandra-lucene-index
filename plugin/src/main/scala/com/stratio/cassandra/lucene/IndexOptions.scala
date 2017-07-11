@@ -18,11 +18,11 @@ package com.stratio.cassandra.lucene
 import java.nio.file.{Path, Paths}
 
 import com.stratio.cassandra.lucene.IndexOptions._
-import com.stratio.cassandra.lucene.partitioning.Partitioner.StaticPartitioner
 import com.stratio.cassandra.lucene.partitioning.{Partitioner, PartitionerOnNone}
 import com.stratio.cassandra.lucene.schema.{Schema, SchemaBuilder}
 import com.stratio.cassandra.lucene.util.SchemaValidator
 import org.apache.cassandra.config.{CFMetaData, DatabaseDescriptor}
+import org.apache.cassandra.db.Directories
 import org.apache.cassandra.schema.IndexMetadata
 
 import scala.collection.JavaConverters._
@@ -61,10 +61,10 @@ class IndexOptions(tableMetadata: CFMetaData, indexMetadata: IndexMetadata) {
   /** The mapping schema */
   val schema = parseSchema(options, tableMetadata)
 
-  val tuple = parsePathAndPartitioner(options, tableMetadata,DatabaseDescriptor.getAllDataFileLocations.map(Paths.get(_)))
+  val tuple = parsePathAndPartitioner(options, tableMetadata,DatabaseDescriptor.getAllDataFileLocations.map(Paths.get(_)), getBaseTablePath(tableMetadata))
 
   /** The path of the directory where the index files will be stored */
-  val path= tuple._1
+  val path = tuple._1
 
   /** The index partitioner */
   val partitioner = tuple._2
@@ -123,7 +123,7 @@ object IndexOptions {
     parseIndexingQueuesSize(o)
     parseExcludedDataCenters(o)
     parseSchema(o, metadata)
-    parsePathAndPartitioner(o, metadata,DatabaseDescriptor.getAllDataFileLocations.map(Paths.get(_)))
+    parsePathAndPartitioner(o, metadata,DatabaseDescriptor.getAllDataFileLocations.map(Paths.get(_)), getBaseTablePath(metadata))
   }
 
   def parseRefresh(options: Map[String, String]): Double = {
@@ -160,38 +160,33 @@ object IndexOptions {
   def parsePathAndPartitioner(
       options: Map[String, String],
       table: CFMetaData,
-      cassandraPathDirs : Array[Path]): (Path, Partitioner) = {
+      cassandraPathDirs : Array[Path],
+      baseTablePath : Path): (Option[Path], Partitioner) = {
     var path = parsePath(options)
     val partitioner= parsePartitioner(options, table)
-
-    val customPartitionerPaths = partitioner match {
-      case static: StaticPartitioner => static.pathsForEveryPartition
-      case _ => Array[Path]()
-    }
-
+    val customPartitionerPaths = partitioner.pathsForEachPartitions
     if (cassandraPathDirs.length > 1) {
       if (customPartitionerPaths.length > 0) {
         for (cassandraFile <- cassandraPathDirs) {
           for (partitionerPath <- customPartitionerPaths) {
             if (partitionerPath.startsWith(cassandraFile)) {
-              throw new IndexException(s"When cassandra is configured with more than one 'data_file_directory', custom partitioner paths must not be inside any of those 'data_file_directory','${partitionerPath}' is inside: '${cassandraFile}'")
-              (null, null)
+              throw new IndexException(s"When cassandra is configured with more than one 'data_file_directory', custom partitioner paths must not be inside any of those 'data_file_directory','$partitionerPath' is inside: '$cassandraFile'")
             }
           }
         }
       } else {
-        if (path != null) {
+        if (path.isDefined) {
           for (cassandraFile <- cassandraPathDirs) {
-            if (path.startsWith(cassandraFile)) {
-              throw new IndexException(s"When cassandra is configured with more than one 'data_file_directory', 'directory_path' must not be inside any of those 'data_file_directory','${path}' is inside: '${cassandraFile}'")
+            if (path.get.startsWith(cassandraFile)) {
+              throw new IndexException(s"When cassandra is configured with more than one 'data_file_directory', 'directory_path' must not be inside any of those 'data_file_directory','${path.get}' is inside: '$cassandraFile'")
             }
           }
         } else {
           throw new IndexException(s"When cassandra is configured with more than one 'data_file_directory', 'directory_path' required")
         }
       }
-    } else if ((cassandraPathDirs.length == 1) && (customPartitionerPaths.length == 0) && (path == null)) {
-      path = cassandraPathDirs(0)
+    } else if ((cassandraPathDirs.length == 1) && (customPartitionerPaths.length == 0) && path.isEmpty) {
+      path = Some(baseTablePath)
     }
     (path, partitioner)
   }
@@ -218,7 +213,9 @@ object IndexOptions {
       }).getOrElse(DEFAULT_PARTITIONER)
   }
 
-  def parsePath(options: Map[String, String]) =  options.get(DIRECTORY_PATH_OPTION).map(Paths.get(_)).orNull
+  def parsePath(options: Map[String, String]):Option[Path] =
+    options.get(DIRECTORY_PATH_OPTION).map(Paths.get(_)).orElse(None)
+
 
   def parseSparse(options: Map[String, String], table: CFMetaData): Boolean = {
     options.get(SPARSE_OPTION).map(
@@ -265,6 +262,9 @@ object IndexOptions {
         throw new IndexException(s"'$name' must be strictly positive, found: $double")
       }).getOrElse(default)
   }
+
+  def getBaseTablePath(table: CFMetaData) : Path =
+    Paths.get(new Directories(table).getDirectoryForNewSSTables.getAbsolutePath)
 
 
 }

@@ -51,6 +51,15 @@ trait Partitioner {
     */
   def partitions(command: ReadCommand): List[Int]
 
+  /** @inheritdoc */
+  override def toString: String
+
+  /** Returns the path urls for every partition.
+    *
+    * @return a path url for every partition. could be null
+    */
+  def pathsForEachPartitions: Array[Path]
+
 }
 
 /** Companion object for [[Partitioner]]. */
@@ -93,29 +102,4 @@ object Partitioner {
     def build(metadata: CFMetaData): Partitioner
 
   }
-
-  trait StaticPartitioner extends Partitioner {
-
-    /** Returns the path url where the partition should write to.
-      *
-      * @param partition the number of partition you want to know the path for.
-      * @return a path url where that partition writes to disk.
-      */
-    def pathForPartition(partition: Int): Path
-
-    /** Returns the path urls for every partition.
-      *
-      * @return a path url for every partition.
-      */
-    def pathsForEveryPartition: Array[Path]
-
-    /**
-      * Checks if it is configured with custom paths.
-      *
-      * @return true if is configured with custom paths, false i.o.c.
-      */
-    def isConfiguredWithCustomPath: Boolean =
-      (pathsForEveryPartition != null) && (pathsForEveryPartition.length > 0)
-  }
-
 }

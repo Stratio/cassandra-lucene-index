@@ -55,7 +55,7 @@ class PartitionedIndexTest extends BaseScalaTest {
         numPartitions,
         "test_index",
         Array(),
-        Paths.get(temporaryFolder.newFolder("directory" + UUID.randomUUID).getPath),
+        Some(Paths.get(temporaryFolder.newFolder("directory" + UUID.randomUUID).getPath)),
         new StandardAnalyzer,
         REFRESH_SECONDS,
         DEFAULT_RAM_BUFFER_MB,

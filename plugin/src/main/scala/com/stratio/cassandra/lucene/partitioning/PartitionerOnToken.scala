@@ -19,7 +19,6 @@ import java.nio.file.{Path, Paths}
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.stratio.cassandra.lucene.IndexException
-import com.stratio.cassandra.lucene.partitioning.Partitioner.StaticPartitioner
 import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db._
 import org.apache.cassandra.dht.Token
@@ -34,7 +33,7 @@ import org.apache.cassandra.dht.Token
   * @param partitions the number of index partitions per node
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-case class PartitionerOnToken(partitions: Int, paths: Array[Path]) extends StaticPartitioner {
+case class PartitionerOnToken(partitions: Int, paths: Array[Path]) extends Partitioner {
 
   if (partitions <= 0) throw new IndexException(
     s"The number of partitions should be strictly positive but found $partitions")
@@ -63,19 +62,10 @@ case class PartitionerOnToken(partitions: Int, paths: Array[Path]) extends Stati
     (Math.abs(token.getTokenValue.asInstanceOf[Long]) % partitions).toInt
 
   /** @inheritdoc */
-  override def pathForPartition(partition: Int): Path = {
-    if ((partition < 0) || (partition >= numPartitions)) {
-      throw new IndexOutOfBoundsException(s"partition must be [0,$numPartitions)")
-    } else {
-      paths(partition)
-    }
-  }
-
-  /** @inheritdoc */
   override def numPartitions: Int = partitions
 
   /** @inheritdoc */
-  override def pathsForEveryPartition: Array[Path] = paths
+  override def pathsForEachPartitions: Array[Path] = if (paths==null) Array() else paths
 
   /** @inheritdoc */
   override def equals(that: Any): Boolean =
@@ -84,6 +74,21 @@ case class PartitionerOnToken(partitions: Int, paths: Array[Path]) extends Stati
         that.paths)
       case _ => false
     }
+
+  /** @inheritdoc */
+  override def toString: String = {
+    val sb= new StringBuilder()
+    sb.append("PartitionerOnToken(")
+    sb.append(partitions)
+    sb.append(", [")
+    for ((path:Path) <- paths.slice(1, paths.length)) {
+      sb.append(path.toString)
+      sb.append(", ")
+    }
+    sb.append(paths(paths.length -1).toString)
+    sb.append("])")
+    sb.toString()
+  }
 }
 
 /** Companion object for [[PartitionerOnToken]]. */
@@ -98,8 +103,9 @@ object PartitionerOnToken {
       @JsonProperty("paths") paths: Array[String]) extends Partitioner.Builder {
 
     /** @inheritdoc */
-    override def build(metadata: CFMetaData): PartitionerOnToken = PartitionerOnToken(partitions,
-      paths.map(Paths.get(_)))
+    override def build(metadata: CFMetaData): PartitionerOnToken = {
+      PartitionerOnToken(partitions, if (paths==null) null else paths.map(Paths.get(_)))
+    }
     /** @inheritdoc */
     override def equals(that: Any): Boolean =
       that match {

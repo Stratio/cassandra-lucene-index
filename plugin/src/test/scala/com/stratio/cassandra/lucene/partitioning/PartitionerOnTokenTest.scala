@@ -75,29 +75,18 @@ class PartitionerOnTokenTest extends PartitionerTest {
 
   test("test valid paths set get") {
     val partitioner = PartitionerOnToken(10, Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j").map(Paths.get(_)))
-    partitioner.pathForPartition(0) shouldBe Paths.get("/home/a")
-    partitioner.pathForPartition(1) shouldBe Paths.get("/home/b")
-    partitioner.pathForPartition(2) shouldBe Paths.get("/home/c")
-    partitioner.pathForPartition(3) shouldBe Paths.get("/home/d")
-    partitioner.pathForPartition(4) shouldBe Paths.get("/home/e")
-    partitioner.pathForPartition(5) shouldBe Paths.get("/home/f")
-    partitioner.pathForPartition(6) shouldBe Paths.get("/home/g")
-    partitioner.pathForPartition(7) shouldBe Paths.get("/home/h")
-    partitioner.pathForPartition(8) shouldBe Paths.get("/home/i")
-    partitioner.pathForPartition(9) shouldBe Paths.get("/home/j")
-  }
-
-  test("testing invalid index in pathForPartition") {
-    val partitioner = PartitionerOnToken(1, Array("/home/a").map(Paths.get(_)))
-    intercept [IndexOutOfBoundsException] {
-      partitioner.pathForPartition(1)
-    }.getMessage shouldBe "partition must be [0,1)"
-  }
-
-  test("testing invalid index in pathForPartition with -1") {
-    val partitioner = PartitionerOnToken(1, Array("/home/a").map(Paths.get(_)))
-    intercept [IndexOutOfBoundsException] {
-      partitioner.pathForPartition(-1)
-    }.getMessage shouldBe "partition must be [0,1)"
+    val pathForPartitions =partitioner.pathsForEachPartitions
+    pathForPartitions(0) shouldBe Paths.get("/home/a")
+    pathForPartitions(1) shouldBe Paths.get("/home/b")
+    pathForPartitions(2) shouldBe Paths.get("/home/c")
+    pathForPartitions(3) shouldBe Paths.get("/home/d")
+    pathForPartitions(4) shouldBe Paths.get("/home/e")
+    pathForPartitions(5) shouldBe Paths.get("/home/f")
+    pathForPartitions(6) shouldBe Paths.get("/home/g")
+    pathForPartitions(7) shouldBe Paths.get("/home/h")
+    pathForPartitions(8) shouldBe Paths.get("/home/i")
+    pathForPartitions(9) shouldBe Paths.get("/home/j")
   }
 }
+
+
