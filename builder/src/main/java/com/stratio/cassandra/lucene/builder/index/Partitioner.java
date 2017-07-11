@@ -74,13 +74,11 @@ public abstract class Partitioner extends JSONBuilder {
          */
         public OnToken(int partitions) {
             this.partitions = partitions;
-            this.paths=paths;
         }
 
         /**
-         *
          * @param paths the paths where to save partitions
-         *
+         * @return this with the specified path directories
          */
         public OnToken paths(String[] paths) {
             this.paths = paths;
@@ -120,7 +118,6 @@ public abstract class Partitioner extends JSONBuilder {
          *
          * @param partitions the number of index partitions per node
          * @param column the partition key column
-
          */
         public OnColumn(int partitions, String column) {
             this.partitions = partitions;
@@ -128,9 +125,8 @@ public abstract class Partitioner extends JSONBuilder {
         }
 
         /**
-         *
          * @param paths the paths where to save partitions
-         *
+         * @return this with the specified path directories
          */
         public OnColumn paths(String[] paths) {
             this.paths = paths;
