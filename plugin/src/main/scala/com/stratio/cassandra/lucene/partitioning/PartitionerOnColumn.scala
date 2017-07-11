@@ -134,7 +134,7 @@ object PartitionerOnColumn {
   case class Builder(
       @JsonProperty("partitions") partitions: Int,
       @JsonProperty("column") column: String,
-      @JsonProperty("paths") paths: Option[Array[String]])
+      @JsonProperty("paths") paths: Array[String])
     extends Partitioner.Builder {
 
     /** @inheritdoc */
@@ -146,7 +146,7 @@ object PartitionerOnColumn {
         case d if d.isPartitionKey =>
           PartitionerOnColumn(partitions,
             column,
-            if (paths.isDefined) Some(paths.get.map(Paths.get(_))) else None,
+            if (paths != null) Some(paths.map(Paths.get(_))) else None,
             d.position,
             metadata.getKeyValidator)
         case _ =>
@@ -161,9 +161,9 @@ object PartitionerOnColumn {
           var returnValue: Boolean =
             this.partitions.equals(that.partitions)
           returnValue &= this.column.equals(that.column)
-          if (this.paths.isDefined && that.paths.isDefined) {
-            returnValue &= this.paths.get.sameElements(that.paths.get)
-          } else if ((this.paths.isEmpty && that.paths.isDefined) || (this.paths.isDefined && that.paths.isEmpty)) {
+          if ((this.paths != null) && (that.paths!= null)) {
+            returnValue &= this.paths.sameElements(that.paths)
+          } else if (((this.paths==null)  && (that.paths!=null)) || ((this.paths != null) && (that.paths==null))) {
             return false
           }
           returnValue

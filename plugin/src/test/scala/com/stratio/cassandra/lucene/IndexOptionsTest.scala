@@ -261,7 +261,7 @@ class IndexOptionsTest extends BaseScalaTest {
   test("parse partitioner with token partitioner") {
     val json = "{type:\"token\", partitions: 10, paths:[\"/home/a\",\"/home/b\",\"/home/c\",\"/home/d\",\"/home/e\",\"/home/f\",\"/home/g\",\"/home/h\",\"/home/i\",\"/home/j\"]}"
     parsePartitioner(Map(PARTITIONER_OPTION -> json), null) shouldBe PartitionerOnToken(10,
-      Array("/home/a",
+      Some(Array("/home/a",
         "/home/b",
         "/home/c",
         "/home/d",
@@ -270,7 +270,7 @@ class IndexOptionsTest extends BaseScalaTest {
         "/home/g",
         "/home/h",
         "/home/i",
-        "/home/j").map(Paths.get(_)))
+        "/home/j").map(Paths.get(_))))
   }
 
   // tests for File configuration collision among cassandra and scli
@@ -291,7 +291,7 @@ class IndexOptionsTest extends BaseScalaTest {
     System.out.println(parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson, DIRECTORY_PATH_OPTION -> path), null, paths, baseTablePath))
     val tuple = parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson, DIRECTORY_PATH_OPTION -> path), null, paths, baseTablePath)
     tuple._1 shouldBe Some(Paths.get(path))
-    tuple._2 shouldBe PartitionerOnToken(3, Array("/home/cassandra/c", "/home/cassandra/f", "/home/cassandra/d").map(Paths.get(_)))
+    tuple._2 shouldBe PartitionerOnToken(3, Some(Array("/home/cassandra/c", "/home/cassandra/f", "/home/cassandra/d").map(Paths.get(_))))
   }
 
   test("test custom partitioner with all paths outside the cassandra directory") {
@@ -302,7 +302,7 @@ class IndexOptionsTest extends BaseScalaTest {
     System.out.println(parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson, DIRECTORY_PATH_OPTION -> path), null, paths, baseTablePath))
     val tuple = parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson, DIRECTORY_PATH_OPTION -> path), null, paths, baseTablePath)
     tuple._1 shouldBe Some(Paths.get(path))
-    tuple._2 shouldBe PartitionerOnToken(3, Array("/home/eduard/c", "/home/eduard/f", "/home/eduard/d").map(Paths.get(_)))
+    tuple._2 shouldBe PartitionerOnToken(3, Some(Array("/home/eduard/c", "/home/eduard/f", "/home/eduard/d").map(Paths.get(_))))
   }
 
   test("test directory_path inside the cassandra directory") {
@@ -352,7 +352,7 @@ class IndexOptionsTest extends BaseScalaTest {
     System.out.println(parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson), null, paths, baseTablePath))
     val tuple = parsePathAndPartitioner(Map(PARTITIONER_OPTION -> partitionJson), null, paths, baseTablePath)
     tuple._1 shouldBe None
-    tuple._2 shouldBe PartitionerOnToken(3, Array("/home/eduard/c", "/home/eduard/f", "/home/eduard/d").map(Paths.get(_)))
+    tuple._2 shouldBe PartitionerOnToken(3, Some(Array("/home/eduard/c", "/home/eduard/f", "/home/eduard/d").map(Paths.get(_))))
   }
 
   test("test directory_path inside multiple cassandra directory") {

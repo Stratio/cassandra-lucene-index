@@ -30,19 +30,19 @@ class PartitionerOnTokenTest extends PartitionerTest {
 
   test("build with zero partitions") {
     intercept[IndexException] {
-      PartitionerOnToken(0, Array("/home/a").map(Paths.get(_)))
+      PartitionerOnToken(0, Some(Array("/home/a").map(Paths.get(_))))
     }.getMessage shouldBe "The number of partitions should be strictly positive but found 0"
   }
 
   test("build with negative partitions") {
     intercept[IndexException] {
-      PartitionerOnToken(-1, Array("/home/a").map(Paths.get(_)))
+      PartitionerOnToken(-1, Some(Array("/home/a").map(Paths.get(_))))
     }.getMessage shouldBe "The number of partitions should be strictly positive but found -1"
   }
 
   test("build with size(paths) != partitions") {
     intercept [IndexException] {
-      PartitionerOnToken(1, Array())
+      PartitionerOnToken(1, Some(Array()))
     }.getMessage shouldBe "The paths size must be equal to number of partitions"
   }
 
@@ -52,17 +52,17 @@ class PartitionerOnTokenTest extends PartitionerTest {
   }
 
   test("num partitions") {
-    PartitionerOnToken(4, Array("/home/a","/home/b","/home/c","/home/d").map(Paths.get(_))).numPartitions shouldBe 4
+    PartitionerOnToken(4, Some(Array("/home/a","/home/b","/home/c","/home/d").map(Paths.get(_)))).numPartitions shouldBe 4
   }
 
   test("key partition with 1 partition") {
     for (i <- 1 to 10) {
-      PartitionerOnToken(1, Array("/home/a").map(Paths.get(_))).partition(key(i)) shouldBe 0
+      PartitionerOnToken(1, Some(Array("/home/a").map(Paths.get(_)))).partition(key(i)) shouldBe 0
     }
   }
 
   test("key partition with n partitions") {
-    val partitioner = PartitionerOnToken(10, Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j").map(Paths.get(_)))
+    val partitioner = PartitionerOnToken(10, Some(Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j").map(Paths.get(_))))
     partitioner.partition(key(0)) shouldBe 8
     partitioner.partition(key(1)) shouldBe 9
     partitioner.partition(key(2)) shouldBe 2
@@ -74,8 +74,8 @@ class PartitionerOnTokenTest extends PartitionerTest {
   }
 
   test("test valid paths set get") {
-    val partitioner = PartitionerOnToken(10, Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j").map(Paths.get(_)))
-    val pathForPartitions =partitioner.pathsForEachPartitions
+    val partitioner = PartitionerOnToken(10, Some(Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j").map(Paths.get(_))))
+    val pathForPartitions =partitioner.pathsForEachPartitions.get
     pathForPartitions(0) shouldBe Paths.get("/home/a")
     pathForPartitions(1) shouldBe Paths.get("/home/b")
     pathForPartitions(2) shouldBe Paths.get("/home/c")

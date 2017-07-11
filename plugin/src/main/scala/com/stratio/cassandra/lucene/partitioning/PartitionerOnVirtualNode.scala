@@ -126,7 +126,7 @@ case class PartitionerOnVirtualNode(
   }
 
   /** @inheritdoc */
-  override def pathsForEachPartitions: Array[Path] = Array()
+  override def pathsForEachPartitions: Option[Array[Path]] = None
 }
 
 /** Companion object for [[PartitionerOnVirtualNode]]. */

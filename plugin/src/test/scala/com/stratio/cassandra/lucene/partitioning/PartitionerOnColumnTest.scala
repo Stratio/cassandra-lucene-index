@@ -33,31 +33,31 @@ class PartitionerOnColumnTest extends PartitionerTest {
 
   test("build with zero partitions") {
     intercept [IndexException] {
-      PartitionerOnColumn(0, "c", Array(), 0, int32)
+      PartitionerOnColumn(0, "c", None, 0, int32)
     }.getMessage shouldBe "The number of partitions should be strictly positive but found 0"
   }
 
   test("build with negative partitions") {
     intercept [IndexException] {
-      PartitionerOnColumn(-1, "c", Array(), 0, int32)
+      PartitionerOnColumn(-1, "c", None, 0, int32)
     }.getMessage shouldBe "The number of partitions should be strictly positive but found -1"
   }
 
   test("build with negative position") {
     intercept [IndexException] {
-      PartitionerOnColumn(1, "c", Array("/home/a").map(Paths.get(_)), -1, int32)
+      PartitionerOnColumn(1, "c", Some(Array("/home/a").map(Paths.get(_))), -1, int32)
     }.getMessage shouldBe "The column position in the partition key should be positive"
   }
 
   test("build with null type") {
     intercept [IndexException] {
-      PartitionerOnColumn(1, "c", Array("/home/a").map(Paths.get(_)), 0, null)
+      PartitionerOnColumn(1, "c", Some(Array("/home/a").map(Paths.get(_))), 0, null)
     }.getMessage shouldBe "The partition key type should be specified"
   }
 
   test("build with size(paths) != partitions") {
     intercept [IndexException] {
-      PartitionerOnColumn(1, "c", Array(), 0, int32)
+      PartitionerOnColumn(1, "c", Some(Array()), 0, int32)
     }.getMessage shouldBe "The paths size must be equal to number of partitions"
   }
 
@@ -67,18 +67,18 @@ class PartitionerOnColumnTest extends PartitionerTest {
   }
 
   test("num partitions") {
-    PartitionerOnColumn(4, "c", Array("/home/a","/home/b","/home/c","/home/d").map(Paths.get(_)), 0, int32).numPartitions shouldBe 4
+    PartitionerOnColumn(4, "c", Some(Array("/home/a","/home/b","/home/c","/home/d").map(Paths.get(_))), 0, int32).numPartitions shouldBe 4
   }
 
   test("key partition with 1 partition") {
-    val partitioner = PartitionerOnColumn(1, "c", Array("/home/a").map(Paths.get(_)), 0, int32)
+    val partitioner = PartitionerOnColumn(1, "c", Some(Array("/home/a").map(Paths.get(_))), 0, int32)
     for (i <- 1 to 10) {
       partitioner.partition(key(i)) shouldBe 0
     }
   }
 
   test("key partition with n partitions") {
-    val partitioner = PartitionerOnColumn(10, "c", Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j").map(Paths.get(_)), 0, int32)
+    val partitioner = PartitionerOnColumn(10, "c", Some(Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j").map(Paths.get(_))), 0, int32)
     partitioner.partition(key(0)) shouldBe 8
     partitioner.partition(key(1)) shouldBe 9
     partitioner.partition(key(2)) shouldBe 2
@@ -90,8 +90,9 @@ class PartitionerOnColumnTest extends PartitionerTest {
   }
 
   test("test valid paths set get") {
-    val partitioner = PartitionerOnColumn(10, "c", Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j").map(Paths.get(_)), 0, int32)
-    val pathForPartitions=partitioner.pathsForEachPartitions
+    val partitioner = PartitionerOnColumn(10, "c", Some(Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j").map(Paths.get(_))), 0, int32)
+    val pathForPartitions=partitioner.pathsForEachPartitions.get
+
     pathForPartitions(0) shouldBe Paths.get("/home/a")
     pathForPartitions(1) shouldBe Paths.get("/home/b")
     pathForPartitions(2) shouldBe Paths.get("/home/c")
@@ -108,8 +109,8 @@ class PartitionerOnColumnTest extends PartitionerTest {
     val validator = CompositeType.getInstance(int32, utf8)
     val bb = validator.builder().add(int32.decompose(3)).add(utf8.decompose("v1")).build
     val key = Murmur3Partitioner.instance.decorateKey(bb)
-    PartitionerOnColumn(10, "c", Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j").map(Paths.get(_)), 0, validator).partition(key) shouldBe 5
-    PartitionerOnColumn(10, "c", Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j").map(Paths.get(_)), 1, validator).partition(key) shouldBe 3
+    PartitionerOnColumn(10, "c", Some(Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j").map(Paths.get(_))), 0, validator).partition(key) shouldBe 5
+    PartitionerOnColumn(10, "c", Some(Array("/home/a","/home/b","/home/c","/home/d","/home/e","/home/f","/home/g","/home/h","/home/i","/home/j").map(Paths.get(_))), 1, validator).partition(key) shouldBe 3
   }
 
 }

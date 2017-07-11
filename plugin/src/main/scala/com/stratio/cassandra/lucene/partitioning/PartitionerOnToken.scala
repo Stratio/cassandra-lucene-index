@@ -43,7 +43,7 @@ case class PartitionerOnToken(partitions: Int, paths: Option[Array[Path]]) exten
       s"The paths size must be equal to number of partitions")
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partitions(command: ReadCommand): List[Int] = command match {
     case c: SinglePartitionReadCommand => List(partition(c.partitionKey))
     case c: PartitionRangeReadCommand =>
@@ -54,20 +54,20 @@ case class PartitionerOnToken(partitions: Int, paths: Option[Array[Path]]) exten
     case _ => throw new IndexException(s"Unsupported read command type: ${command.getClass}")
   }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def partition(key: DecoratedKey): Int = partition(key.getToken)
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   private[this] def partition(token: Token): Int =
     (Math.abs(token.getTokenValue.asInstanceOf[Long]) % partitions).toInt
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def numPartitions: Int = partitions
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def pathsForEachPartitions: Option[Array[Path]] = paths
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def equals(that: Any): Boolean =
     that match {
       case that: PartitionerOnToken =>
@@ -81,7 +81,7 @@ case class PartitionerOnToken(partitions: Int, paths: Option[Array[Path]]) exten
       case _ => false
     }
 
-  /** @inheritdoc*/
+  /** @inheritdoc */
   override def toString: String = {
     val sb = new StringBuilder()
     sb.append("PartitionerOnToken(")
@@ -109,23 +109,23 @@ object PartitionerOnToken {
     */
   case class Builder(
       @JsonProperty("partitions") partitions: Int,
-      @JsonProperty("paths") paths: Option[Array[String]]) extends Partitioner.Builder {
+      @JsonProperty("paths") paths: Array[String]) extends Partitioner.Builder {
 
-    /** @inheritdoc*/
+    /** @inheritdoc */
     override def build(metadata: CFMetaData): PartitionerOnToken = {
       PartitionerOnToken(partitions,
-        if (paths.isDefined) Some(paths.get.map(Paths.get(_))) else None)
+        if (paths != null) Some(paths.map(Paths.get(_))) else None)
     }
 
-    /** @inheritdoc*/
+    /** @inheritdoc */
     override def equals(that: Any): Boolean =
       that match {
         case that: Builder =>
           var returnValue = this.partitions.equals(that.partitions)
-          if ((this.paths.isDefined && that.paths.isEmpty) || (this.paths.isEmpty && that.paths.isDefined)) {
+          if (((this.paths != null) && that.paths.isEmpty) || (this.paths.isEmpty && (that.paths != null))) {
             return false
-          } else if (this.paths.isDefined) {
-            returnValue &= this.paths.get.sameElements(that.paths.get)
+          } else if (this.paths != null) {
+            returnValue &= this.paths.sameElements(that.paths)
           }
           returnValue
         case _ => false

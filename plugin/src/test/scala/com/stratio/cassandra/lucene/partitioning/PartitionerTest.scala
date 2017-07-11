@@ -35,7 +35,7 @@ class PartitionerTest extends BaseScalaTest {
   }
 
   test("num partitions with token partitioner") {
-    PartitionerOnToken(4, null).allPartitions shouldBe List(0, 1, 2, 3)
+    PartitionerOnToken(4, None).allPartitions shouldBe List(0, 1, 2, 3)
   }
 
   def key(n: Int): DecoratedKey = Murmur3Partitioner.instance.decorateKey(int32.decompose(n))
