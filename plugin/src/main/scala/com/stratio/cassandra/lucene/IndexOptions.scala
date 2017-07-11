@@ -61,13 +61,16 @@ class IndexOptions(tableMetadata: CFMetaData, indexMetadata: IndexMetadata) {
   /** The mapping schema */
   val schema = parseSchema(options, tableMetadata)
 
-  val tuple = parsePathAndPartitioner(options, tableMetadata,DatabaseDescriptor.getAllDataFileLocations.map(Paths.get(_)), getBaseTablePath(tableMetadata))
+  val pathAndPartitioner = parsePathAndPartitioner(options,
+    tableMetadata,
+    DatabaseDescriptor.getAllDataFileLocations.map(Paths.get(_)),
+    getBaseTablePath(tableMetadata))
 
   /** The path of the directory where the index files will be stored */
-  val path = tuple._1
+  val path = pathAndPartitioner._1
 
   /** The index partitioner */
-  val partitioner = tuple._2
+  val partitioner = pathAndPartitioner._2
 
   /** If the index is sparse or not */
   val sparse = parseSparse(options, tableMetadata)
@@ -123,11 +126,29 @@ object IndexOptions {
     parseIndexingQueuesSize(o)
     parseExcludedDataCenters(o)
     parseSchema(o, metadata)
-    parsePathAndPartitioner(o, metadata,DatabaseDescriptor.getAllDataFileLocations.map(Paths.get(_)), getBaseTablePath(metadata))
+    parsePathAndPartitioner(o,
+      metadata,
+      DatabaseDescriptor.getAllDataFileLocations.map(Paths.get(_)),
+      getBaseTablePath(metadata))
   }
 
   def parseRefresh(options: Map[String, String]): Double = {
     parseStrictlyPositiveDouble(options, REFRESH_SECONDS_OPTION, DEFAULT_REFRESH_SECONDS)
+  }
+
+  private def parseStrictlyPositiveDouble(
+      options: Map[String, String],
+      name: String,
+      default: Double): Double = {
+    options.get(name).map(
+      string => try string.toDouble catch {
+        case e: NumberFormatException =>
+          throw new IndexException(s"'$name' must be a strictly positive decimal, found: $string")
+      }).map(
+      double => if (double > 0) double
+      else {
+        throw new IndexException(s"'$name' must be strictly positive, found: $double")
+      }).getOrElse(default)
   }
 
   def parseRamBufferMB(options: Map[String, String]): Int = {
@@ -142,8 +163,31 @@ object IndexOptions {
     parseStrictlyPositiveInt(options, MAX_CACHED_MB_OPTION, DEFAULT_MAX_CACHED_MB)
   }
 
+  private def parseStrictlyPositiveInt(
+      options: Map[String, String],
+      name: String,
+      default: Int): Int = {
+    options.get(name).map(
+      string => try string.toInt catch {
+        case e: NumberFormatException =>
+          throw new IndexException(s"'$name' must be a strictly positive integer, found: $string")
+      }).map(
+      integer => if (integer > 0) integer
+      else {
+        throw new IndexException(s"'$name' must be strictly positive, found: $integer")
+      }).getOrElse(default)
+  }
+
   def parseIndexingThreads(options: Map[String, String]): Int = {
     parseInt(options, INDEXING_THREADS_OPTION, DEFAULT_INDEXING_THREADS)
+  }
+
+  private def parseInt(options: Map[String, String], name: String, default: Int): Int = {
+    options.get(name).map(
+      string => try string.toInt catch {
+        case e: NumberFormatException =>
+          throw new IndexException(s"'$name' must be an integer, found: $string")
+      }).getOrElse(default)
   }
 
   def parseIndexingQueuesSize(options: Map[String, String]): Int = {
@@ -160,10 +204,10 @@ object IndexOptions {
   def parsePathAndPartitioner(
       options: Map[String, String],
       table: CFMetaData,
-      cassandraPathDirs : Array[Path],
-      baseTablePath : Path): (Option[Path], Partitioner) = {
+      cassandraPathDirs: Array[Path],
+      baseTablePath: Path): (Option[Path], Partitioner) = {
     var path = parsePath(options)
-    val partitioner= parsePartitioner(options, table)
+    val partitioner = parsePartitioner(options, table)
     val customPartitionerPaths = partitioner.pathsForEachPartitions
     if (cassandraPathDirs.length > 1) {
       if (customPartitionerPaths.length > 0) {
@@ -191,6 +235,19 @@ object IndexOptions {
     (path, partitioner)
   }
 
+  def parsePartitioner(options: Map[String, String], table: CFMetaData): Partitioner = {
+    options.get(PARTITIONER_OPTION).map(
+      value => try {
+        Partitioner.fromJson(table, value)
+      } catch {
+        case e: Exception => throw new IndexException(e,
+          s"'$PARTITIONER_OPTION' is invalid : ${e.getMessage}")
+      }).getOrElse(DEFAULT_PARTITIONER)
+  }
+
+  def parsePath(options: Map[String, String]): Option[Path] =
+    options.get(DIRECTORY_PATH_OPTION).map(Paths.get(_)).orElse(None)
+
   def parseSchema(options: Map[String, String], table: CFMetaData): Schema = {
     options.get(SCHEMA_OPTION).map(
       value => try {
@@ -203,19 +260,8 @@ object IndexOptions {
       }).getOrElse(throw new IndexException(s"'$SCHEMA_OPTION' is required"))
   }
 
-  def parsePartitioner(options: Map[String, String], table: CFMetaData): Partitioner = {
-    options.get(PARTITIONER_OPTION).map(
-      value => try {
-        Partitioner.fromJson(table, value)
-      } catch {
-        case e: Exception => throw new IndexException(e,
-          s"'$PARTITIONER_OPTION' is invalid : ${e.getMessage}")
-      }).getOrElse(DEFAULT_PARTITIONER)
-  }
-
-  def parsePath(options: Map[String, String]):Option[Path] =
-    options.get(DIRECTORY_PATH_OPTION).map(Paths.get(_)).orElse(None)
-
+  def getBaseTablePath(table: CFMetaData): Path =
+    Paths.get(new Directories(table).getDirectoryForNewSSTables.getAbsolutePath)
 
   def parseSparse(options: Map[String, String], table: CFMetaData): Boolean = {
     options.get(SPARSE_OPTION).map(
@@ -224,47 +270,6 @@ object IndexOptions {
           s"'$SPARSE_OPTION' is invalid : ${e.getMessage}")
       }).getOrElse(DEFAULT_SPARSE)
   }
-
-  private def parseInt(options: Map[String, String], name: String, default: Int): Int = {
-    options.get(name).map(
-      string => try string.toInt catch {
-        case e: NumberFormatException =>
-          throw new IndexException(s"'$name' must be an integer, found: $string")
-      }).getOrElse(default)
-  }
-
-  private def parseStrictlyPositiveInt(
-      options: Map[String, String],
-      name: String,
-      default: Int): Int = {
-    options.get(name).map(
-      string => try string.toInt catch {
-        case e: NumberFormatException =>
-          throw new IndexException(s"'$name' must be a strictly positive integer, found: $string")
-      }).map(
-      integer => if (integer > 0) integer
-      else {
-        throw new IndexException(s"'$name' must be strictly positive, found: $integer")
-      }).getOrElse(default)
-  }
-
-  private def parseStrictlyPositiveDouble(
-      options: Map[String, String],
-      name: String,
-      default: Double): Double = {
-    options.get(name).map(
-      string => try string.toDouble catch {
-        case e: NumberFormatException =>
-          throw new IndexException(s"'$name' must be a strictly positive decimal, found: $string")
-      }).map(
-      double => if (double > 0) double
-      else {
-        throw new IndexException(s"'$name' must be strictly positive, found: $double")
-      }).getOrElse(default)
-  }
-
-  def getBaseTablePath(table: CFMetaData) : Path =
-    Paths.get(new Directories(table).getDirectoryForNewSSTables.getAbsolutePath)
 
 
 }
