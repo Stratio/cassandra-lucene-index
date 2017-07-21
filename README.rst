@@ -71,7 +71,7 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 -  Bitemporal search (valid and transaction time durations)
 -  CQL complex types (list, set, map, tuple and UDT)
 -  CQL user defined functions (UDF)
--  CQL paging, even with sorted searches
+-  Driver paging (not in CQL), even with sorted searches
 -  Columns with TTL
 -  Third-party CQL-based drivers compatibility
 -  Spark and Hadoop compatibility
