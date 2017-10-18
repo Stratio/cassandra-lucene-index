@@ -69,7 +69,9 @@ class IndexOptions(tableMetadata: CFMetaData, indexMetadata: IndexMetadata) {
   val path = parsePath(options, tableMetadata, Some(indexMetadata))
 
   /** If the index is sparse or not */
-  val sparse = parseSparse(options, tableMetadata)
+  val sparse = parseBool(options, SPARSE_OPTION, DEFAULT_SPARSE)
+
+  val useTtl = parseBool(options, USE_TTL, DEFAULT_USE_TTL)
 }
 
 /** Companion object for [[IndexOptions]]. */
@@ -106,6 +108,9 @@ object IndexOptions {
 
   val SPARSE_OPTION = "sparse"
   val DEFAULT_SPARSE = false
+
+  val USE_TTL = "use_ttl"
+  val DEFAULT_USE_TTL = true
 
   /** Validates the specified index options.
     *
@@ -192,12 +197,12 @@ object IndexOptions {
       }).getOrElse(DEFAULT_PARTITIONER)
   }
 
-  def parseSparse(options: Map[String, String], table: CFMetaData): Boolean = {
-    options.get(SPARSE_OPTION).map(
+  def parseBool(options: Map[String, String], name: String, default: Boolean): Boolean = {
+    options.get(name).map(
       value => try value.toBoolean catch {
         case e: Exception => throw new IndexException(e,
-          s"'$SPARSE_OPTION' is invalid : ${e.getMessage}")
-      }).getOrElse(DEFAULT_SPARSE)
+          s"'$name' is invalid : ${e.getMessage}")
+      }).getOrElse(default)
   }
 
   private def parseInt(options: Map[String, String], name: String, default: Int): Int = {
