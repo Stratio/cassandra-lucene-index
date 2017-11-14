@@ -4,6 +4,7 @@
 
 * Add 'max_clauses' to boolean query
 * Fix cassandra directory sharing.
+* Fix excluded_data_centers options for index creation.
 
 ## 3.0.14.0 (June 27, 2017)
 
