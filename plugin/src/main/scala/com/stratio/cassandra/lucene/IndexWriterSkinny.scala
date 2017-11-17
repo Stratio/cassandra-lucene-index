@@ -68,7 +68,7 @@ class IndexWriterSkinny(
         } else row
       }).foreach(
       row => {
-        if (row.hasLiveData(nowInSec, true)) {
+        if (row.hasLiveData(nowInSec, false)) {
           tracer.trace("Lucene index writing document")
           service.upsert(key, row, nowInSec)
         } else {
