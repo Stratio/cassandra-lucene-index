@@ -4648,7 +4648,7 @@ distributed index.
 +-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | Name              | Type      | Notes                                                                                                                                                                                 |
 +===================+===========+=======================================================================================================================================================================================+
-| NumDeletedDocs    | Attribute | Total number of documents in the index.                                                                                                                                               |
+| NumDeletedDocs    | Attribute | Total number of deleted documents in the index.                                                                                                                                       |
 +-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | NumDocs           | Attribute | Total number of documents in the index.                                                                                                                                               |
 +-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -4744,7 +4744,7 @@ Disregard the first query
 =========================
 
 Lucene makes a huge use of caching,
-so the first query done to an index will be specially slow dou to the cost of initializing caches.
+so the first query done to an index will be specially slow due to the cost of initializing caches.
 Thus, you should disregard the first query when measuring performance.
 
 
