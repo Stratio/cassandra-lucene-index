@@ -58,8 +58,10 @@ public class Issue359IT extends BaseIT {
                               .insert(data1, data2, data3, data4)
                               .filter(must(match("telephone", "5"))).refresh(true).check(2)
                               .filter(must(match("telephone", "15"))).refresh(true).check(2)
+                              .checkNumDocsInIndex(4)
                               .delete().where("login", "jsmith").and("telephone","5")
                               .filter(all()).refresh(true).check(3)
+                              .checkNumDocsInIndex(3)
                               .dropKeyspace();
     }
 }
