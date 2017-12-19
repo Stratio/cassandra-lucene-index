@@ -230,21 +230,26 @@ abstract class IndexService(
     * @param nowInSec now in seconds
     */
   def upsert(key: DecoratedKey, row: Row, nowInSec: Int) {
-    queue.submitAsynchronous(key, () => {
-      val partition = partitioner.partition(key)
-      val clustering = row.clustering()
-      val term = this.term(key, clustering)
-      val columns = columnsMapper.columns(key, row, nowInSec)
-      val fields = schema.indexableFields(columns)
-      if (fields.isEmpty) {
-        lucene.delete(partition, term)
-      } else {
-        val doc = new Document
-        keyIndexableFields(key, clustering).foreach(doc.add)
-        fields.forEach(doc add _)
-        lucene.upsert(partition, term, doc)
-      }
-    })
+    if (!options.excludedDataCenters.contains(DatabaseDescriptor.getLocalDataCenter())) {
+      queue.submitAsynchronous(key, () => {
+        val partition = partitioner.partition(key)
+        val clustering = row.clustering()
+        val term = this.term(key, clustering)
+        val columns = columnsMapper.columns(key, row, nowInSec)
+        val fields = schema.indexableFields(columns)
+        if (fields.isEmpty) {
+          lucene.delete(partition, term)
+        } else {
+          val doc = new Document
+          keyIndexableFields(key, clustering).foreach(doc.add)
+          fields.forEach(doc add _)
+          lucene.upsert(partition, term, doc)
+        }
+      })
+    }
+    else {
+      logger.info(s"Ignoring upsert row in lucene index '$idxName'")
+    }
   }
 
   /** Deletes the partition identified by the specified key.
