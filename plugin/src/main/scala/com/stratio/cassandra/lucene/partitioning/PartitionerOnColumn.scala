@@ -72,6 +72,7 @@ case class PartitionerOnColumn(
       s"The paths size must be equal to number of partitions")
   }
 
+
   /** @inheritdoc*/
   override def partitions(command: ReadCommand): List[Int] = command match {
     case c: SinglePartitionReadCommand => List(partition(c.partitionKey))

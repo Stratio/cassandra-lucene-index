@@ -50,6 +50,7 @@ public class CassandraUtilsSelect {
     private boolean allowFiltering = false;
     private ConsistencyLevel consistency;
     private boolean useNewQuerySyntax;
+    private Integer skip;
 
     public CassandraUtilsSelect(CassandraUtils parent) {
         this.parent = parent;
@@ -150,6 +151,11 @@ public class CassandraUtilsSelect {
         return this;
     }
 
+    public CassandraUtilsSelect skip(Integer skip) {
+        this.skip = skip;
+        return this;
+    }
+
     public List<Row> get() {
         Select.Where where = QueryBuilder.select().from(parent.getKeyspace(), parent.getTable()).where();
         clauses.forEach(where::and);
@@ -159,7 +165,7 @@ public class CassandraUtilsSelect {
         StringBuilder sb = new StringBuilder(query);
         if (search != null) {
             sb.append(clauses.isEmpty() ? " WHERE " : " AND ");
-            String json = search.refresh(refresh).build();
+            String json = search.refresh(refresh).skip(skip).build();
             if (useNewQuerySyntax) {
                 sb.append(String.format("expr(%s,'%s')", parent.getIndexName(), json));
             } else {

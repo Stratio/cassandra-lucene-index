@@ -33,6 +33,7 @@ import org.apache.lucene.search._
   * @param query     the query to be satisfied by the documents
   * @param limit     the iteration page size
   * @param fields    the names of the document fields to be loaded
+  * @param skip      the number of first results to skip
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 class DocumentIterator(
@@ -41,7 +42,8 @@ class DocumentIterator(
     querySort: Sort,
     query: Query,
     limit: Int,
-    fields: java.util.Set[String])
+    fields: java.util.Set[String],
+    skip: Int)
   extends Iterator[(Document, ScoreDoc)] with AutoCloseable with Logging with Tracing {
 
   private[this] val pageSize = Math.min(limit, MAX_PAGE_SIZE) + 1
@@ -53,6 +55,7 @@ class DocumentIterator(
   private[this] val offsets = cursors.map(_ => 0).toArray
   private[this] var finished = false
   private[this] var closed = false
+  private[this] var remainingToSkip = skip
 
   private[this] def releaseSearchers(): Unit =
     indices.foreach(i => managers(i).release(searchers(i)))
@@ -111,10 +114,14 @@ class DocumentIterator(
       finished = numFetched < pageSize
 
       for (scoreDoc <- scoreDocs) {
-        val shard = scoreDoc.shardIndex
-        afters(shard) = Some(scoreDoc)
-        val document = searchers(shard).doc(scoreDoc.doc, fields)
-        documents.add((document, scoreDoc))
+        if (remainingToSkip <= 0) {
+          val shard = scoreDoc.shardIndex
+          afters(shard) = Some(scoreDoc)
+          val document = searchers(shard).doc(scoreDoc.doc, fields)
+          documents.add((document, scoreDoc))
+        } else {
+          remainingToSkip = remainingToSkip - 1
+        }
       }
 
       tracer.trace(s"Lucene index fetches $numFetched documents")

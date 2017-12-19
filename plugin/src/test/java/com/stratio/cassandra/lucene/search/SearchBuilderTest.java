@@ -16,9 +16,9 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.JsonSerializer;
 import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SimpleSortFieldBuilder;
-import com.stratio.cassandra.lucene.common.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -41,8 +41,15 @@ public class SearchBuilderTest {
         SimpleSortFieldBuilder sort2 = field("field4");
         SearchBuilder builder = new SearchBuilder().filter(filter)
                                                    .query(query)
-                                                   .sort(sort1, sort2);
-        String json = builder.toJson();
+                                                   .sort(sort1, sort2)
+                                                   .skip(25);
+        String json = "{" +
+                      "filter:[{type:\"match\",field:\"field1\",value:\"value2\"}]," +
+                      "query:[{type:\"match\",field:\"field2\",value:\"value2\"}]," +
+                      "sort:[{type:\"simple\",field:\"field3\",reverse:false},{type:\"simple\",field:\"field4\",reverse:false}]," +
+                      "refresh:false," +
+                      "skip:25" +
+                      "}";
         assertEquals("JSON serialization is wrong", json, JsonSerializer.toString(builder));
     }
 
@@ -50,9 +57,16 @@ public class SearchBuilderTest {
     public void testJson() {
         SearchBuilder searchBuilder = search().filter(match("field1", "value1"))
                                               .query(match("field2", "value2"))
-                                              .sort(field("field"));
-        String json = searchBuilder.toJson();
-        assertEquals("JSON serialization is wrong", json, SearchBuilder.fromJson(json).toJson());
+                                              .sort(field("field"))
+                                              .skip(10);
+        String json = "{" +
+                      "filter:[{type:\"match\",field:\"field1\",value:\"value1\"}]," +
+                      "query:[{type:\"match\",field:\"field2\",value:\"value2\"}]," +
+                      "sort:[{type:\"simple\",field:\"field\",reverse:false}]," +
+                      "refresh:false," +
+                      "skip:10" +
+                      "}";
+        assertEquals("JSON serialization is wrong", json, searchBuilder.toJson());
     }
 
     @Test(expected = IndexException.class)

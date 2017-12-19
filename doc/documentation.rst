@@ -1991,6 +1991,7 @@ Lucene indexes are queried using a custom JSON syntax defining the kind of searc
        (, query: ( <query>  )* )?
        (, sort: ( <sort>   )* )?
        (, refresh: ( true | false ) )?
+       (, skip: <skip> )?
     }');
 
 where <filter> and <query> are a JSON object:
@@ -2046,10 +2047,12 @@ explicitly refresh all the index shards with an empty search with consistency
     CONSISTENCY ALL
     SELECT * FROM <table> WHERE expr(<index_name>, '{refresh:true}');
     CONSISTENCY QUORUM
-
 This way the subsequent searches will view all the writes done before this
 operation, without needing to wait for the index auto refresh. It is useful to
 perform this operation before searching after a bulk data load.
+
+The ``skip`` option lets you skip the first 'skip' rows. It is not compatible
+with paging or top-K queries.
 
 Types of search and their options are summarized in the table below.
 Details for each of them are available in individual sections and the

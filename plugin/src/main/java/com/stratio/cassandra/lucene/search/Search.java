@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.google.common.base.MoreObjects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.IndexPagingState;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.Condition;
@@ -44,7 +45,8 @@ public class Search {
 
     protected static final Logger logger = LoggerFactory.getLogger(Search.class);
 
-    private static final boolean DEFAULT_FORCE_REFRESH = false;
+    static final boolean DEFAULT_FORCE_REFRESH = false;
+    static final int DEFAULT_SKIP = 0;
 
     /** The mandatory conditions not participating in scoring. */
     public final List<Condition> filter;
@@ -61,6 +63,9 @@ public class Search {
     /** The paging state. */
     private final IndexPagingState paging;
 
+    /** Firsts rows to skip. */
+    private int skip;
+
     /**
      * Constructor using the specified querying, filtering, sorting and refresh options.
      *
@@ -69,17 +74,24 @@ public class Search {
      * @param sort the sort fields for the query
      * @param paging the paging state
      * @param refresh if this search must refresh the index before reading it
+     * @param skip skip this number of first rows
      */
     public Search(List<Condition> filter,
                   List<Condition> query,
                   List<SortField> sort,
                   IndexPagingState paging,
-                  Boolean refresh) {
+                  Boolean refresh,
+                  Integer skip) {
         this.filter = filter == null ? Collections.EMPTY_LIST : filter;
         this.query = query == null ? Collections.EMPTY_LIST : query;
         this.sort = sort == null ? Collections.EMPTY_LIST : sort;
         this.paging = paging;
         this.refresh = refresh == null ? DEFAULT_FORCE_REFRESH : refresh;
+        if ((skip != null) && (skip < 0)) {
+            throw new IndexException("skip must be positive.");
+        }
+
+        this.skip = skip == null ? DEFAULT_SKIP : skip;
     }
 
     /**
@@ -125,6 +137,24 @@ public class Search {
      */
     public boolean isEmpty() {
         return filter.isEmpty() && query.isEmpty() && sort.isEmpty();
+    }
+
+    /**
+     * Returns the number of first rows to skip
+     *
+     * @return the number of rows to skip
+     */
+    public int getSkip() {
+        return skip;
+    }
+
+    /**
+     * Returns if this search has an offset
+     *
+     * @return if this search has an offset
+     */
+    public Boolean useSkip() {
+        return skip > 0;
     }
 
     /**

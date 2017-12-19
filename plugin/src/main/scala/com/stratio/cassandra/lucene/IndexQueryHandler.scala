@@ -161,24 +161,29 @@ class IndexQueryHandler extends QueryHandler with Logging {
     if (expressions.size > 1) {
       throw new InvalidRequestException(
         "Lucene index only supports one search expression per query.")
-    }
-
-    // Validate expression
-    val (expression, index) = expressions.head
-    val search = index.validate(expression)
-
-    // Get partitioner
-    val partitioner = index.service.partitioner
-
-    // Get paging info
-    val limit = select.getLimit(options)
-    val page = getPageSize.invoke(select, options).asInstanceOf[Int]
-
-    // Take control of paging if there is paging and the query requires post processing
-    if (search.requiresPostProcessing && page > 0 && page < limit) {
-      executeSortedLuceneQuery(select, state, options, partitioner)
     } else {
-      execute(select, state, options)
+      // Validate expression
+      val (expression, index) = expressions.head
+      val search = index.validate(expression)
+
+
+      // Get partitioner
+      val partitioner = index.service.partitioner
+
+      // Get paging info
+      val limit = select.getLimit(options)
+      val page = getPageSize.invoke(select, options).asInstanceOf[Int]
+
+      if (search.useSkip() && (page < limit)) {
+        throw new InvalidRequestException("Search 'skip' option is not compatible with paging.")
+      } else {
+        // Take control of paging if there is paging and the query requires post processing
+        if (search.requiresPostProcessing && page > 0 && page < limit) {
+          executeSortedLuceneQuery(select, state, options, partitioner)
+        } else {
+          execute(select, state, options)
+        }
+      }
     }
   }
 
@@ -223,6 +228,7 @@ class IndexQueryHandler extends QueryHandler with Logging {
       if (data != null) data.close()
     }
   }
+
 }
 
 /** Companion object for [[IndexQueryHandler]]. */
