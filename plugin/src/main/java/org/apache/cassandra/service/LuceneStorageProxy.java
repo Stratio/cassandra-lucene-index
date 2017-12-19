@@ -95,7 +95,7 @@ public class LuceneStorageProxy {
                 ColumnFamilyStore cfs = Keyspace.open(metadata.ksName).getColumnFamilyStore(metadata.cfName);
                 Index index = (Index) command.getIndex(cfs);
                 result = index.postProcessorFor(group).apply(result, group);
-                result = group.limits().filter(result, group.nowInSec());
+                result = group.limits().filter(result, group.nowInSec(), true, metadata.enforceStrictLiveness());
             }
 
             return result;
