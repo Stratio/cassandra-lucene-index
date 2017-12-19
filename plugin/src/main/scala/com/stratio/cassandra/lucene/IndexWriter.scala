@@ -20,7 +20,7 @@ import org.apache.cassandra.db._
 import org.apache.cassandra.db.rows.{Row, RowIterator, UnfilteredRowIterators}
 import org.apache.cassandra.index.Index.Indexer
 import org.apache.cassandra.index.transactions.IndexTransaction
-import org.apache.cassandra.index.transactions.IndexTransaction.Type.CLEANUP
+import org.apache.cassandra.index.transactions.IndexTransaction.Type.{CLEANUP, COMPACTION}
 import org.apache.cassandra.utils.concurrent.OpOrder
 
 /** [[Indexer]] for Lucene-based index.
@@ -116,6 +116,7 @@ abstract class IndexWriter(
 
     // Skip on cleanups
     if (transactionType == CLEANUP) return
+    if (transactionType == COMPACTION && !service.options.useTtl) return
 
     // Finish with mutual exclusion on partition
     service.readBeforeWriteLocker.run(key, () => commit())

@@ -583,6 +583,9 @@ All options take a value enclosed in single quotes:
    The cost of this optimization is an extra comparison performed each time a row must be indexed.
    This flag helps in reducing lucene calls when the row is updated partially, and the columns
    that affect the index are updated less frequently then the rest of the row.
+-  **use_ttl**: If false, deletion of data using `USING TTL` will not be performed automatically.
+   This reduces reading of data during compaction.
+   In some cases, the speed of compaction is greatly improved.
 -  **schema**: see below
 
 .. code-block:: sql
