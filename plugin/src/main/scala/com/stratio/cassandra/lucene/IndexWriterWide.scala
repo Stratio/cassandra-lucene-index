@@ -21,6 +21,7 @@ import org.apache.cassandra.index.transactions.IndexTransaction
 import org.apache.cassandra.utils.concurrent.OpOrder
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable.ListBuffer
 
 
 /** [[IndexWriter]] for wide rows.
@@ -76,10 +77,13 @@ class IndexWriterWide(
   /** @inheritdoc */
   override def commit() {
 
+    var rowsToDelete = new ListBuffer[Clustering]()
+
     // Read required rows from storage engine
     if (!clusterings.isEmpty) {
       val command = SinglePartitionReadCommand.create(metadata, nowInSec, key, clusterings)
       read(command).asScala.foreach(row => rows.put(row.clustering(), row))
+      clusterings.iterator().asScala.foreach(clustering => if (rows.get(clustering) == null) rowsToDelete += clustering)
     }
 
     // Write rows
@@ -91,6 +95,11 @@ class IndexWriterWide(
         tracer.trace("Lucene index deleting document")
         service.delete(key, clustering)
       }
+    })
+
+    rowsToDelete.foreach(clustering => {
+      tracer.trace("Lucene index deleting document")
+      service.delete(key, clustering)
     })
   }
 
