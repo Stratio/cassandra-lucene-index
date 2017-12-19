@@ -88,7 +88,7 @@ class IndexWriterWide(
 
     // Write rows
     rows.forEach((clustering, row) => {
-      if (row.hasLiveData(nowInSec)) {
+      if (row.hasLiveData(nowInSec, metadata.enforceStrictLiveness )) {
         tracer.trace("Lucene index writing document")
         service.upsert(key, row, nowInSec)
       } else {

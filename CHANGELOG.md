@@ -1,9 +1,10 @@
 # Changelog
 
-## 3.0.14.1 (upcoming)
+## 3.0.15.0 (upcoming)
 
 * Add 'max_clauses' to boolean query
 * Fix cassandra directory sharing.
+* Upgrade to Apache Cassandra 3.0.15
 
 ## 3.0.14.0 (June 27, 2017)
 
