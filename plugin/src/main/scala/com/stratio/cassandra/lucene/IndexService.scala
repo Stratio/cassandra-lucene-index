@@ -65,7 +65,7 @@ abstract class IndexService(
   val mapsPrimaryKey = metadata.primaryKeyColumns().asScala.exists(x => schema.mapsCell(x.name.toString))
 
   val excludedDataCenter= options.excludedDataCenters.contains(DatabaseDescriptor.getLocalDataCenter)
-  
+
   // Setup mapping
   val tokenMapper = new TokenMapper
   val partitionMapper = new PartitionMapper(metadata)
@@ -311,7 +311,7 @@ abstract class IndexService(
       val documents = lucene.search(readers, query, sort, count)
       reader(documents, command, orderGroup)
     } else {
-      new IndexReaderExcludingDatacenter(command, table)
+      new IndexReaderExcludingDataCenter(command, table)
     }
   }
 
@@ -402,32 +402,40 @@ abstract class IndexService(
 
   /** @inheritdoc */
   override def commit() {
-    queue.submitSynchronous(lucene.commit)
+    if (!excludedDataCenter)
+      queue.submitSynchronous(lucene.commit)
   }
 
   /** @inheritdoc */
   override def getNumDocs: Long = {
-    lucene.getNumDocs
+    if (!excludedDataCenter) {
+      lucene.getNumDocs
+    } else 0
   }
 
   /** @inheritdoc */
   override def getNumDeletedDocs: Long = {
-    lucene.getNumDeletedDocs
+    if (!excludedDataCenter) {
+      lucene.getNumDeletedDocs
+    } else 0
   }
 
   /** @inheritdoc */
   override def forceMerge(maxNumSegments: Int, doWait: Boolean) {
-    queue.submitSynchronous(() => lucene.forceMerge(maxNumSegments, doWait))
+    if (!excludedDataCenter)
+      queue.submitSynchronous(() => lucene.forceMerge(maxNumSegments, doWait))
   }
 
   /** @inheritdoc */
   override def forceMergeDeletes(doWait: Boolean) {
-    queue.submitSynchronous(() => lucene.forceMergeDeletes(doWait))
+    if (!excludedDataCenter)
+      queue.submitSynchronous(() => lucene.forceMergeDeletes(doWait))
   }
 
   /** @inheritdoc */
   override def refresh() {
-    queue.submitSynchronous(lucene.refresh)
+    if (!excludedDataCenter)
+      queue.submitSynchronous(lucene.refresh)
   }
 
 }
