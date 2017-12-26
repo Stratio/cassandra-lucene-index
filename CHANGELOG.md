@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.19.0 (July 05, 2017)
+
+ * Upgrade to Apache Cassandra 2.1.19
+
 ## 2.1.18.0 (July 05, 2017)
 
  * Upgrade to Apache Cassandra 2.1.18
