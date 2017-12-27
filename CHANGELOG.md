@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.15.0 (upcoming)
+## 3.0.15.0 (December 27, 2017)
 
 * Add 'max_clauses' to boolean query
 * Fix cassandra directory sharing.
