@@ -64,6 +64,8 @@ abstract class IndexService(
   val mapsMultiCell = regulars.exists(x => x.`type`.isMultiCell && schema.mapsCell(x.name.toString))
   val mapsPrimaryKey = metadata.primaryKeyColumns().asScala.exists(x => schema.mapsCell(x.name.toString))
 
+  val excludedDataCenter= options.excludedDataCenters.contains(DatabaseDescriptor.getLocalDataCenter)
+
   // Setup mapping
   val tokenMapper = new TokenMapper
   val partitionMapper = new PartitionMapper(metadata)
@@ -94,7 +96,8 @@ abstract class IndexService(
     // Initialize index
     try {
       val sort = new Sort(keySortFields.toArray: _*)
-      lucene.init(sort, fieldsToLoad)
+      if (!excludedDataCenter)
+        lucene.init(sort, fieldsToLoad)
     } catch {
       case e: Exception =>
         logger.error(s"Initialization of Lucene FS directory for index '$idxName' has failed", e)
@@ -208,18 +211,21 @@ abstract class IndexService(
 
   /** Deletes all the index contents. */
   def truncate() {
-    queue.submitSynchronous(lucene.truncate)
+    if (!excludedDataCenter)
+      queue.submitSynchronous(lucene.truncate)
   }
 
   /** Closes and removes all the index files. */
   def delete() {
     try {
-      queue.close()
+      if (!excludedDataCenter)
+        queue.close()
       ManagementFactory.getPlatformMBeanServer.unregisterMBean(mBean)
     } catch {
       case e: JMException => logger.error("Error while unregistering Lucene index MBean", e)
     } finally {
-      lucene.delete()
+      if (!excludedDataCenter)
+        lucene.delete()
     }
   }
 
@@ -230,21 +236,22 @@ abstract class IndexService(
     * @param nowInSec now in seconds
     */
   def upsert(key: DecoratedKey, row: Row, nowInSec: Int) {
-    queue.submitAsynchronous(key, () => {
-      val partition = partitioner.partition(key)
-      val clustering = row.clustering()
-      val term = this.term(key, clustering)
-      val columns = columnsMapper.columns(key, row, nowInSec)
-      val fields = schema.indexableFields(columns)
-      if (fields.isEmpty) {
-        lucene.delete(partition, term)
-      } else {
-        val doc = new Document
-        keyIndexableFields(key, clustering).foreach(doc.add)
-        fields.forEach(doc add _)
-        lucene.upsert(partition, term, doc)
-      }
-    })
+    if (!excludedDataCenter)
+      queue.submitAsynchronous(key, () => {
+        val partition = partitioner.partition(key)
+        val clustering = row.clustering()
+        val term = this.term(key, clustering)
+        val columns = columnsMapper.columns(key, row, nowInSec)
+        val fields = schema.indexableFields(columns)
+        if (fields.isEmpty) {
+          lucene.delete(partition, term)
+        } else {
+          val doc = new Document
+          keyIndexableFields(key, clustering).foreach(doc.add)
+          fields.forEach(doc add _)
+          lucene.upsert(partition, term, doc)
+        }
+      })
   }
 
   /** Deletes the partition identified by the specified key.
@@ -253,11 +260,12 @@ abstract class IndexService(
     * @param clustering the clustering key
     */
   def delete(key: DecoratedKey, clustering: Clustering) {
-    queue.submitAsynchronous(key, () => {
-      val partition = partitioner.partition(key)
-      val term = this.term(key, clustering)
-      lucene.delete(partition, term)
-    })
+    if (!excludedDataCenter)
+      queue.submitAsynchronous(key, () => {
+        val partition = partitioner.partition(key)
+        val term = this.term(key, clustering)
+        lucene.delete(partition, term)
+      })
   }
 
   /** Deletes the partition identified by the specified key.
@@ -265,11 +273,12 @@ abstract class IndexService(
     * @param key the partition key
     */
   def delete(key: DecoratedKey) {
-    queue.submitAsynchronous(key, () => {
-      val partition = partitioner.partition(key)
-      val term = this.term(key)
-      lucene.delete(partition, term)
-    })
+    if (!excludedDataCenter)
+      queue.submitAsynchronous(key, () => {
+        val partition = partitioner.partition(key)
+        val term = this.term(key)
+        lucene.delete(partition, term)
+      })
   }
 
   /** Returns a new index searcher for the specified read command.
@@ -281,32 +290,35 @@ abstract class IndexService(
   def search(
       command: ReadCommand,
       orderGroup: ReadOrderGroup): UnfilteredPartitionIterator = {
+    if (!excludedDataCenter) {
+      // Parse search
+      tracer.trace("Building Lucene search")
+      val search = expressionMapper.search(command)
+      val query = search.query(schema, this.query(command).orNull)
+      val afters = this.after(search.paging, command)
+      val sort = this.sort(search)
+      val count = command.limits.count
 
-    // Parse search
-    tracer.trace("Building Lucene search")
-    val search = expressionMapper.search(command)
-    val query = search.query(schema, this.query(command).orNull)
-    val afters = this.after(search.paging, command)
-    val sort = this.sort(search)
-    val count = command.limits.count
+      // Refresh if required
+      if (search.refresh) {
+        tracer.trace("Refreshing Lucene index searcher")
+        refresh()
+      }
 
-    // Refresh if required
-    if (search.refresh) {
-      tracer.trace("Refreshing Lucene index searcher")
-      refresh()
+      // Search
+      tracer.trace(s"Lucene index searching for $count rows")
+      val partitions = partitioner.partitions(command)
+      val readers = afters.filter(a => partitions.contains(a._1))
+      val documents = lucene.search(readers, query, sort, count)
+      reader(documents, command, orderGroup)
+    } else {
+      new IndexReaderExcludingDataCenter(command, table)
     }
-
-    // Search
-    tracer.trace(s"Lucene index searching for $count rows")
-    val partitions = partitioner.partitions(command)
-    val readers = afters.filter(a => partitions.contains(a._1))
-    val documents = lucene.search(readers, query, sort, count)
-    reader(documents, command, orderGroup)
   }
 
   /** Returns the key range query represented by the specified read command.
     *
-    * @param command the read command
+    * @param command the read command } else {
     * @return the key range query
     */
   def query(command: ReadCommand): Option[Query] = command match {
@@ -391,32 +403,40 @@ abstract class IndexService(
 
   /** @inheritdoc */
   override def commit() {
-    queue.submitSynchronous(lucene.commit)
+    if (!excludedDataCenter)
+      queue.submitSynchronous(lucene.commit)
   }
 
   /** @inheritdoc */
   override def getNumDocs: Long = {
-    lucene.getNumDocs
+    if (!excludedDataCenter) {
+      lucene.getNumDocs
+    } else 0
   }
 
   /** @inheritdoc */
   override def getNumDeletedDocs: Long = {
-    lucene.getNumDeletedDocs
+    if (!excludedDataCenter) {
+      lucene.getNumDeletedDocs
+    } else 0
   }
 
   /** @inheritdoc */
   override def forceMerge(maxNumSegments: Int, doWait: Boolean) {
-    queue.submitSynchronous(() => lucene.forceMerge(maxNumSegments, doWait))
+    if (!excludedDataCenter)
+      queue.submitSynchronous(() => lucene.forceMerge(maxNumSegments, doWait))
   }
 
   /** @inheritdoc */
   override def forceMergeDeletes(doWait: Boolean) {
-    queue.submitSynchronous(() => lucene.forceMergeDeletes(doWait))
+    if (!excludedDataCenter)
+      queue.submitSynchronous(() => lucene.forceMergeDeletes(doWait))
   }
 
   /** @inheritdoc */
   override def refresh() {
-    queue.submitSynchronous(lucene.refresh)
+    if (!excludedDataCenter)
+      queue.submitSynchronous(lucene.refresh)
   }
 
 }
