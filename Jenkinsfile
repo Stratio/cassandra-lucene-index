@@ -55,12 +55,12 @@ hose {
 
 
     ATPARAMETERS= """
-        | -Dit.host=%%CASSANDRA
+        | -Dit.host=%%CASSANDRA#0
         | -Dit.monitor_service=jolokia
         | -Dit.monitor_services_url=%%CASSANDRA#0:8000
         | -Dit.replication=1
         | -Dit.consistency=QUORUM
-        | -DJACOCO_SERVER=%%CASSANDRA"""
+        | -DJACOCO_SERVER=%%CASSANDRA#0"""
 
     DEV = { config ->
     
