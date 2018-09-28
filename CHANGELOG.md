@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.11.2.0 (upcoming)
+## 3.11.2.0 (September 28, 2018)
 
 * Upgrade to Apache Cassandra 3.11.2
 
