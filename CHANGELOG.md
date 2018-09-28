@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.16.0 (upcoming)
+
+* Upgrade to Apache Cassandra 3.0.16
+
 ## 3.0.15.0 (December 27, 2017)
 
 * Add 'max_clauses' to boolean query
