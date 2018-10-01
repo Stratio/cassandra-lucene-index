@@ -27,9 +27,9 @@ import java.util.regex.Pattern;
  */
 public class CassandraConfig {
 
-    static final boolean EMBEDDED = Boolean.parseBoolean(get("embedded", "true"));
+    static final boolean EMBEDDED = Boolean.parseBoolean(get("embedded", "false"));
     static final String HOST = getIP("host", "127.0.0.1");
-    static final int REPLICATION = Integer.valueOf(get("replication", "1"));
+    static final int REPLICATION = Integer.valueOf(get("replication", "3"));
     static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(get("consistency", "QUORUM"));
     static final int FETCH = Integer.parseInt(get("fetch", "100"));
     static final int THREADS = Integer.parseInt(get("threads", "0"));

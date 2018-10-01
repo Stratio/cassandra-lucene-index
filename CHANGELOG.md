@@ -2,7 +2,7 @@
 
 ## 2.1.20.0 (upcoming)
 
-* Upgrade to Apache Cassandra 2.1.20
+ * Upgrade to Apache Cassandra 2.1.20
 
 ## 2.1.19.0 (December 26, 2017)
 
