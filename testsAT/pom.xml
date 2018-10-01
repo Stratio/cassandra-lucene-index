@@ -26,7 +26,7 @@
 
     <groupId>com.stratio.cassandra</groupId>
     <artifactId>cassandra-lucene-index-tests</artifactId>
-    <version>2.2.12.0-SNAPSHOT</version>
+    <version>2.2.12.0</version>
     <packaging>jar</packaging>
     <name>Cassandra Lucene Index acceptance tests</name>
     <description>Cassandra Lucene Index acceptance tests</description>
