@@ -45,6 +45,5 @@ hose {
             doDocker(config)
         }, failFast: config.FAILFAST)
 
-        doAT(config)
     }
 }
