@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.20.0 (upcoming)
+## 2.1.20.0 (October 02, 2018)
 
  * Upgrade to Apache Cassandra 2.1.20
 
