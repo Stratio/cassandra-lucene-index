@@ -32,7 +32,7 @@
     <packaging>pom</packaging>
     <groupId>com.stratio.cassandra</groupId>
     <artifactId>cassandra-lucene-index-parent</artifactId>
-    <version>2.1.20.0</version>
+    <version>2.1.20.1-RC1-SNAPSHOT</version>
     <name>Cassandra Lucene index</name>
     <description>Cassandra Lucene index</description>
 
